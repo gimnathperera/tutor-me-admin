@@ -2,10 +2,10 @@
 // import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 
-import dynamic from "next/dynamic";
-import { Dropdown } from "../ui/dropdown/Dropdown";
 import { MoreDotIcon } from "@/icons";
+import dynamic from "next/dynamic";
 import { useState } from "react";
+import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -81,7 +81,7 @@ export default function MonthlyTarget() {
               Monthly Target
             </h3>
             <p className="mt-1 font-normal text-gray-500 text-theme-sm dark:text-gray-400">
-              Target you’ve set for each month
+              Your performance target for this month.
             </p>
           </div>
           <div className="relative inline-block">
