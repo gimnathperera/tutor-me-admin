@@ -1,0 +1,18 @@
+export const Endpoints = {
+  Register: "/v1/auth/register",
+  Login: "/v1/auth/login",
+  Logout: "/v1/auth/logout",
+  RefreshToken: "/v1/auth/refresh-tokens",
+  ContactUs: "/v1/inquiries",
+  Testimonials: "/v1/testimonials",
+  Faqs: "/v1/faqs",
+  Grades: "/v1/grades",
+  Subjects: "/v1/subjects",
+  Papers: "/v1/papers",
+  Users: "/v1/users",
+  ChangePassword: "/v1/users/change-password",
+  FindATutor: "/v1/tutors",
+  TuitionRates: "/v1/tuitionRates",
+  Levels: "/v1/levels",
+  TuitionAssignments: "/v1/tuition-assignments",
+};
