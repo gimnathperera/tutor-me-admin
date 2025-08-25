@@ -2,8 +2,8 @@ import FAQFormInputs from "@/components/form/form-elements/FAQFormInputs";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Create FAQ | TutorMe - Next.js Dashboard Template",
-  description: "This is Next.js Create FAQ TutorMe Dashboard Template",
+  title: "Create FAQ | TutorMe ",
+  description: "Create a new FAQ entry in the TutorMe admin panel.",
 };
 
 export default function FAQFormPage() {
