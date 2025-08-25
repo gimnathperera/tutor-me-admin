@@ -2,19 +2,9 @@
 
 import DataTable from "@/components/tables/DataTable";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
-import { Ellipsis, SquarePen, Trash2 } from "lucide-react";
-
-// const orders = [
-//   {
-//     id: 1,
-//     user: { image: "/images/user/user-17.jpg", name: "Lindsey Curtis", role: "Web Designer" },
-//     projectName: "Agency Website",
-//     team: { images: ["/images/user/user-22.jpg", "/images/user/user-23.jpg"] },
-//     status: "Active",
-//     budget: "3.9K",
-//   },
-//   // ...rest
-// ];
+import { DeleteSubject } from "./DeleteSubject";
+import { UpdateSubject } from "./edit-subject/page";
+import { SubjectDetails } from "./ViewDetails";
 
 export default function SubjectsTable() {
     const { data, isLoading } = useFetchSubjectsQuery({});
@@ -27,24 +17,28 @@ export default function SubjectsTable() {
             key: "edit",
             header: "Edit",
             render: (row) => (
-                <SquarePen />
+                <UpdateSubject id={row.id} title={row.title} description={row.description} />
             ),
         },
         {
-            key: "status",
+            key: "delete",
             header: "Status",
             render: (row) => (
-                <Trash2 color="#EF4444" />
+                <DeleteSubject subjectId={row.id} />
             ),
         },
         {
             key: "view",
             header: "View",
             render: (row) => (
-                <Ellipsis />
+                <SubjectDetails title={row.title} description={row.description} />
             ),
         },
     ];
 
-  return <DataTable columns={columns} data={subjects} />;
+    if (isLoading) {
+      return <div>Loading subjects...</div>;
+    }
+
+    return <DataTable columns={columns} data={subjects} />;
 }

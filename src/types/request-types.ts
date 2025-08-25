@@ -98,6 +98,18 @@ export type FetchTuitionRatesRequest = {
   page?: number;
   limit?: number;
 };
+
+export type CreateSubjectRequest = {
+  title: string;
+  description: string;
+};
+
+export type UpdateSubjectRequest = {
+  id: string;
+  title: string;
+  description: string;
+};
+
 export type FetchSubjectsRequest = {
   title?: string;
   description?: string;
