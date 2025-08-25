@@ -1,4 +1,3 @@
-
 export type ContactUsRequest = {
   message: string;
   sender: {
@@ -83,8 +82,12 @@ export type FetchPapersRequest = {
 };
 
 export type FetchGradesRequest = {
-  page: number;
-  limit: number;
+  title?: string;
+  description?: string;
+  subjects?: string[];
+  page?: number;
+  limit?: number;
+  gradeId?: string;
 };
 export type FetchTuitionRatesRequest = {
   tuitionRateId?: string;
@@ -108,6 +111,13 @@ export type UpdateSubjectRequest = {
   id: string;
   title: string;
   description: string;
+};
+
+export type UpdateGradeRequest = {
+  id: string;
+  title: string;
+  description: string;
+  subjects: string[];
 };
 
 export type FetchSubjectsRequest = {
@@ -163,7 +173,6 @@ type TutorTypeInfo = {
   isBilingualTutor: boolean;
 };
 
-
 export type FindMyTutorRequest = {
   fullName: string;
   contactNumber: string;
@@ -187,5 +196,4 @@ export type FindMyTutorRequest = {
   sellingPoints: string;
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
-
 };
