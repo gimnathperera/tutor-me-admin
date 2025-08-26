@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button/Button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import { Eye } from "lucide-react";
 import { useState } from "react";
 
@@ -32,13 +32,13 @@ export function SubjectDetails({ title, description }: SubjectDetailsProps) {
         <div className="grid gap-4">
           <div className="grid gap-3">
             <Label>Title</Label>
-            <div className={displayFieldClass}>
+            <div className={cn(displayFieldClass)}>
               {title}
             </div>
           </div>
           <div className="grid gap-3">
             <Label>Description</Label>
-            <div className={clsx(displayFieldClass, "min-h-[5rem]", "overflow-auto")}>
+            <div className={cn(displayFieldClass, "min-h-[5rem]", "overflow-auto")}>
               {description}
             </div>
           </div>
