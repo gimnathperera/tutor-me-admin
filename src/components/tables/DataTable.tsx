@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "../ui/pagination";
 import {
   Table,
@@ -45,13 +46,14 @@ export default function DataTable<T extends { id: string | number }>({
     );
   }
 
-  // Determine if pagination should be hidden based on total results
   const showPagination = totalResults > limit;
   const isFirstPage = page === 1;
   const isLastPage = page === totalPages;
 
-  // Generate an array of page numbers to display
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  const screenWidth = window.innerWidth;
+  console.log(screenWidth);
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90">
@@ -80,9 +82,17 @@ export default function DataTable<T extends { id: string | number }>({
                   {columns.map((col) => (
                     <TableCell
                       key={col.key}
-                      className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90"
+                      className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 max-w-[45.5vw]"
                     >
-                      {col.render ? col.render(row) : (row as any)[col.key]}
+                      {col.render ? (
+                        <div className="flex justify-center items-center">
+                          {col.render(row)}
+                        </div>
+                      ) : (
+                        <div className="overflow-hidden whitespace-nowrap overflow-ellipsis fade-out">
+                          {(row as any)[col.key]}
+                        </div>
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -96,7 +106,6 @@ export default function DataTable<T extends { id: string | number }>({
         <Pagination className="text-gray-500 dark:text-white/90 mb-3">
           <PaginationContent>
             <PaginationItem>
-              {/* Fix: Check if it's the first page before calling onPageChange */}
               <PaginationPrevious onClick={() => !isFirstPage && onPageChange && onPageChange(page - 1)} />
             </PaginationItem>
             {pages.map((p) => (
@@ -107,7 +116,6 @@ export default function DataTable<T extends { id: string | number }>({
               </PaginationItem>
             ))}
             <PaginationItem>
-              {/* Fix: Check if it's the last page before calling onPageChange */}
               <PaginationNext onClick={() => !isLastPage && onPageChange && onPageChange(page + 1)} />
             </PaginationItem>
           </PaginationContent>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CreateSubjectSchema } from "@/app/(admin)/subjects/components/add-subject/schema";
 import { FetchSubjectsRequest, UpdateSubjectRequest } from "@/types/request-types";
 import { PaginatedResponse, Subject } from "@/types/response-types";
