@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "../ui/pagination";
 import {
   Table,
@@ -90,7 +89,7 @@ export default function DataTable<T extends { id: string | number }>({
                         </div>
                       ) : (
                         <div className="overflow-hidden whitespace-nowrap overflow-ellipsis fade-out">
-                          {(row as any)[col.key]}
+                          {(row as Record<string, string>)[col.key]}
                         </div>
                       )}
                     </TableCell>
