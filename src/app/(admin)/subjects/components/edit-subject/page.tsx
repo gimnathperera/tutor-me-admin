@@ -42,7 +42,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
   };
 
   const onUpdateSuccess = () => {
-    setOpen(false); // Close the dialog
+    setOpen(false);
     updateSubjectForm.reset();
     toast.success("Subject updated successfully");
   };
