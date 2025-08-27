@@ -1,12 +1,21 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button/Button";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUpdateSubjectMutation } from "@/store/api/splits/subjects";
 import { getErrorInApiResult } from "@/utils/api";
-import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -56,9 +65,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Edit Subject</DialogTitle>
-            <DialogDescription>
-              Edit the subject details.
-            </DialogDescription>
+            <DialogDescription>Edit the subject details.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-3">

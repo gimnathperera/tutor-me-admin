@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CreateSubjectSchema } from "@/app/(admin)/subjects/components/add-subject/schema";
-import { FetchSubjectsRequest, UpdateSubjectRequest } from "@/types/request-types";
+import {
+  FetchSubjectsRequest,
+  UpdateSubjectRequest,
+} from "@/types/request-types";
 import { PaginatedResponse, Subject } from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
@@ -21,7 +24,7 @@ export const SubjectsApi = baseApi.injectEndpoints({
       },
       providesTags: ["Subjects"],
     }),
-    
+
     fetchSubjectById: build.query<Subject, string>({
       query: (id) => ({
         url: `${Endpoints.Subjects}/${id}`,
@@ -37,7 +40,7 @@ export const SubjectsApi = baseApi.injectEndpoints({
           body: payload,
         };
       },
-      invalidatesTags: ["Subjects"]
+      invalidatesTags: ["Subjects"],
     }),
 
     updateSubject: build.mutation<Subject, UpdateSubjectRequest>({
@@ -48,7 +51,7 @@ export const SubjectsApi = baseApi.injectEndpoints({
           body: payload,
         };
       },
-      invalidatesTags: ["Subjects"]
+      invalidatesTags: ["Subjects"],
     }),
 
     deleteSubject: build.mutation<void, string>({
