@@ -3,8 +3,7 @@
 import { AuthProvider } from "@/context/auth-context";
 import { FC, ReactElement } from "react";
 import { Toaster } from "react-hot-toast";
-import { WithStore } from "./with-store";
-
+import { WithStore } from "../with-store";
 
 interface Props {
   children: ReactElement;

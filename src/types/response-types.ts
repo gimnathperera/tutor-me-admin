@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type Id = { id: string };
 export type Timestamp = { createdAt: string; updatedAt: string };
 
@@ -15,6 +16,7 @@ export type PaginatedResponse<T> = {
   previous: string | null;
   results: T[];
   totalResults: number;
+  totalPages: number;
 };
 
 // FAQ

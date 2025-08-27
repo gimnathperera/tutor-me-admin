@@ -39,7 +39,7 @@ const buttonVariants = cva(
 
 interface ButtonProps extends React.ComponentProps<"button">, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
-  isLoading?: boolean; // New prop for loading state
+  isLoading?: boolean;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -51,10 +51,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         data-slot="button"
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        disabled={isLoading || props.disabled} // Disable button when loading
+        disabled={isLoading || props.disabled}
         {...props}
       >
-        {/* Conditionally render the spinner or the children */}
         {isLoading ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -79,3 +78,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants }
+

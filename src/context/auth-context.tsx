@@ -129,3 +129,4 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export { AuthContext, AuthProvider };
+

@@ -768,3 +768,7 @@ span.flatpickr-weekday,
   background: transparent;
 }
 
+
+.fade-out {
+  mask-image: linear-gradient(to right, black 90%, transparent 100%);
+}

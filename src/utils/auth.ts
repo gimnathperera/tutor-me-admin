@@ -1,12 +1,12 @@
-import { env } from "@/configs/env";
+import { Tokens } from "@/types/auth-types";
 import {
   getLocalStorageItem,
   LocalStorageKey,
   removeLocalStorageItem,
   setLocalStorageItem,
 } from "./local-storage";
+import { env } from "@/configs/env";
 import { Endpoints } from "@/store/api/endpoints";
-import { Tokens } from "@/types/auth-types";
 
 export const handleForceLogout = () => {
   removeLocalStorageItem(LocalStorageKey.USER_DATA);

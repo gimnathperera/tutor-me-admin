@@ -115,6 +115,7 @@ export type FetchSubjectsRequest = {
   description?: string;
   page?: number;
   limit?: number;
+  sortBy?: string;
   subjectId?: string;
 };
 
