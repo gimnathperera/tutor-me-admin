@@ -55,10 +55,6 @@ export default function SubjectsTable() {
         },
     ];
 
-    if (isLoading) {
-      return <div>Loading subjects...</div>;
-    }
-
     return (
         <DataTable
             columns={columns}
@@ -68,6 +64,7 @@ export default function SubjectsTable() {
             onPageChange={handlePageChange}
             totalResults={totalResults}
             limit={limit}
+            isLoading={isLoading}
         />
     );
 }
