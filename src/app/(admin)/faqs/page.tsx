@@ -3,9 +3,9 @@ import FAQTable from "./components/FAQTable";
 import { AddFAQ } from "./components/add-faq/page";
 
 export const metadata: Metadata = {
-  title: "FAQ | TutorMe - Next.js Dashboard Template",
+  title: "FAQ | TutorMe",
   description:
-    "This is the FAQ management page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is the FAQ management page for TutorMe",
 };
 
 export default function FAQPage() {
