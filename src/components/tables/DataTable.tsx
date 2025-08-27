@@ -49,12 +49,10 @@ export default function DataTable<T extends { id: string | number }>({
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
-  // Rows to render (if loading → placeholder rows, else → real data)
   const rowsToRender = isLoading
     ? Array.from({ length: limit }).map((_, i) => ({ id: `skeleton-${i}` }))
     : data;
 
-  // ✅ Empty state (only when NOT loading)
   if (!isLoading && (!data || data.length === 0)) {
     return (
       <div className="flex justify-center items-center h-48 rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90">
