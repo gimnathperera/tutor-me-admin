@@ -46,7 +46,7 @@ const NavItems = [
   {
     icon: <HelpCircle />,
     name: "FAQ",
-    path: "/#faq-section",
+    path: "/faqs",
   },
   {
     icon: <NotebookText />,
