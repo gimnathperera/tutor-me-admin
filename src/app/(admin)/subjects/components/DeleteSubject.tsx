@@ -43,12 +43,17 @@ export function DeleteSubject({ subjectId }: DeleteSubjectProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this Subject.
+            This action cannot be undone. This will permanently delete this
+            Subject.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} disabled={isLoading} className="bg-red-500 text-white">
+          <AlertDialogAction
+            onClick={handleDelete}
+            disabled={isLoading}
+            className="bg-red-500 text-white"
+          >
             {isLoading ? "Deleting..." : "Continue"}
           </AlertDialogAction>
         </AlertDialogFooter>
