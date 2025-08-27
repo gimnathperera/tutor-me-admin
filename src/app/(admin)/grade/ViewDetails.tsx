@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Ellipsis } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useState } from "react";
 
 interface Subject {
@@ -39,7 +39,7 @@ export function GradeDetails({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Ellipsis className="cursor-pointer" />
+        <Eye cursor="pointer" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>

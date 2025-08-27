@@ -86,6 +86,7 @@ export type FetchGradesRequest = {
   description?: string;
   subjects?: string[];
   page?: number;
+  sortBy?: string;
   limit?: number;
   gradeId?: string;
 };

@@ -84,7 +84,6 @@ export function AddGrade() {
           </DialogHeader>
 
           <div className="grid gap-4">
-            {/* Title */}
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
               <Input
@@ -94,7 +93,6 @@ export function AddGrade() {
               />
             </div>
 
-            {/* Description */}
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
               <Input
@@ -104,8 +102,6 @@ export function AddGrade() {
                 {...createGradeForm.register("description")}
               />
             </div>
-
-            {/* Subjects MultiSelect */}
             <div className="grid gap-3">
               <Label>Subjects</Label>
               <Controller
@@ -117,6 +113,7 @@ export function AddGrade() {
                     options={subjectOptions}
                     defaultSelected={field.value || []}
                     onChange={(values) => field.onChange(values)}
+                    value={[]}
                   />
                 )}
               />
