@@ -117,6 +117,7 @@ export function UpdateGrade({
               <MultiSelect
                 label="Subjects"
                 options={subjectOptions}
+                defaultSelected={subjects}
                 onChange={(values) =>
                   updateGradeForm.setValue("subjects", values)
                 }

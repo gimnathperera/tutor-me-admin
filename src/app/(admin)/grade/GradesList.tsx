@@ -34,7 +34,11 @@ export default function GradesTable() {
       key: "view",
       header: "View",
       render: (row) => (
-        <GradeDetails title={row.title} description={row.description} />
+        <GradeDetails
+          title={row.title}
+          description={row.description}
+          subjects={row.subjects}
+        />
       ),
     },
   ];
