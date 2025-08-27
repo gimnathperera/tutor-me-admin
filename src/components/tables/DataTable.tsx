@@ -1,5 +1,12 @@
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "../ui/pagination";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../ui/pagination";
+
 import {
   Table,
   TableBody,
@@ -15,6 +22,7 @@ interface Column<T> {
   header: string;
   render?: (row: T) => ReactNode;
   className?: string;
+  headClassName?: string;
   bodyClassName?: string;
 }
 
@@ -72,7 +80,7 @@ export default function DataTable<T extends { id: string | number }>({
                   <TableCell
                     key={col.key}
                     isHeader
-                    className={`px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white/90 ${col.className ?? ""}`}
+                    className={`px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white/90 ${col.className ?? ""} ${col.headClassName ?? ""}`}
                   >
                     {col.header}
                   </TableCell>
@@ -96,7 +104,6 @@ export default function DataTable<T extends { id: string | number }>({
                       ) : (
                         <div className="overflow-hidden whitespace-nowrap overflow-ellipsis fade-out">
                           {(row as Record<string, string>)[col.key]}
-                          {/* {col.render ? col.render(row) : (row as any)[col.key]} */}
                         </div>
                       )}
                     </TableCell>

@@ -4,9 +4,16 @@ import {
   ListIcon,
   PageIcon,
   TableIcon,
-  UserCircleIcon
+  UserCircleIcon,
 } from "@/icons";
-import { BookOpen, GraduationCap, HelpCircle, LibraryBig, MessageSquareMore, NotebookText } from "lucide-react";
+import {
+  BookOpen,
+  GraduationCap,
+  HelpCircle,
+  LibraryBig,
+  MessageSquareMore,
+  NotebookText,
+} from "lucide-react";
 
 const NavItems = [
   {
@@ -20,7 +27,7 @@ const NavItems = [
     subItems: [
       { name: "Grades", path: "/grades", pro: false },
       { name: "Subjects", path: "/subjects", pro: false },
-      { name: "Test Papers", path: "/test-papers", pro: false }
+      { name: "Test Papers", path: "/test-papers", pro: false },
     ],
   },
   {
@@ -39,7 +46,7 @@ const NavItems = [
   {
     icon: <HelpCircle />,
     name: "FAQ",
-    path: "/#faq-section",
+    path: "/faqs",
   },
   {
     icon: <NotebookText />,
