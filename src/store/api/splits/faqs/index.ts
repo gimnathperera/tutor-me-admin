@@ -27,7 +27,7 @@ export const FaqsApi = baseApi.injectEndpoints({
     updateFaq: build.mutation<Faq, { id: string; body: Partial<Faq> }>({
       query: ({ id, body }) => ({
         url: `${Endpoints.Faqs}/${id}`,
-        method: "PUT",
+        method: "PATCH",
         body,
       }),
       invalidatesTags: ["Faqs"],

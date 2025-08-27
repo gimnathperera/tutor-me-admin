@@ -23,7 +23,7 @@ import toast from "react-hot-toast";
 import { UpdateFaqSchema, updateFaqSchema } from "./schema";
 
 interface UpdateFAQProps {
-  id: string; // ✅ use string for ID
+  id: string; 
   question: string;
   answer: string;
 }

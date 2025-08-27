@@ -38,9 +38,9 @@ export function FAQDetails({
       <DialogTrigger asChild>
         <Eye className="cursor-pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
-        <DialogHeader className="mb-2">
-          <DialogTitle className="mb-2">Details</DialogTitle>
+      <DialogContent className="sm:max-w-[525px] max-h-[75vh] scrollbar-thin overflow-y-auto bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+        <DialogHeader >
+          <DialogTitle >Details</DialogTitle>
           <DialogDescription>FAQ Details</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">

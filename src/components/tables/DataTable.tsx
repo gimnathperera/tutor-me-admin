@@ -13,6 +13,7 @@ interface Column<T> {
   header: string;
   render?: (row: T) => ReactNode;
   className?: string;
+  bodyClassName?: string;
 }
 
 interface DataTableProps<T> {
@@ -51,7 +52,7 @@ export default function DataTable<T extends { id: string | number }>({
                   {columns.map((col) => (
                     <TableCell
                       key={col.key}
-                      className={`px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 ${col.className ?? ""}`}
+                      className={`px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 ${col.className ?? ""} ${col.bodyClassName ?? ""}`}
                     >
                       {col.render ? col.render(row) : (row as any)[col.key]}
                     </TableCell>

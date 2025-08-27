@@ -7,29 +7,31 @@ import { UpdateFAQ } from "./edit-faq/page";
 import { FAQDetails } from "./FAQDetails";
 
 export default function FAQTable() {
-  const { data, isLoading } = useFetchFaqsQuery({});
+  const { data, isLoading } = useFetchFaqsQuery({page: 1, limit: 100});
   const faqs = data?.results || [];
 
   const columns = [
     {
       key: "id",
       header: "ID",
-      className: "min-w-[40px] max-w-[50px] truncate overflow-hidden",
+      className: "max-w-[150px] truncate overflow-hidden",
+      bodyClassName: "text-[0.75rem] font-mono",
     },
     {
       key: "question",
       header: "Question",
-      className: "min-w-[250px] max-w-[300px] truncate overflow-hidden",
+      className: "max-w-[200px] truncate overflow-hidden",
     },
     {
       key: "answer",
       header: "Answer",
-      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden",
+      className: "min-w-[100px] max-w-[200px] truncate overflow-hidden",
     },
     {
       key: "createdAt",
       header: "Created At",
-      className: "min-w-[80px] max-w-[80px] truncate overflow-hidden",
+      className: "min-w-[80px] max-w-[120px] truncate overflow-hidden",
+      bodyClassName: "text-[0.75rem] font-mono",
     },
     {
       key: "edit",
