@@ -46,7 +46,7 @@ export function AddSubject() {
         <DialogTrigger asChild>
           <Button variant="outline" className="bg-blue-700 text-white hover:bg-blue-500">Add Subject</Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add Subject</DialogTitle>
             <DialogDescription>

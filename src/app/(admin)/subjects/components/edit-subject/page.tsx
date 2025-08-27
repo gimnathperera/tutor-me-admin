@@ -42,7 +42,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
   };
 
   const onUpdateSuccess = () => {
-    setOpen(false); // Close the dialog
+    setOpen(false);
     updateSubjectForm.reset();
     toast.success("Subject updated successfully");
   };
@@ -53,7 +53,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer" />
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Edit Subject</DialogTitle>
             <DialogDescription>

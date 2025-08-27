@@ -25,13 +25,12 @@ export function DeleteSubject({ subjectId }: DeleteSubjectProps) {
 
   const handleDelete = async () => {
     const result = await deleteSubject(subjectId);
-    
-    // Check if the request was successful
-    if (result.isSuccess) {
-      toast.success("Subject deleted successfully");
-    } else {
+
+    if (result.error) {
       const error = getErrorInApiResult({ error: result.error });
       toast.error(error);
+    } else {
+      toast.success("Subject deleted successfully");
     }
   };
 
@@ -40,7 +39,7 @@ export function DeleteSubject({ subjectId }: DeleteSubjectProps) {
       <AlertDialogTrigger asChild>
         <Trash2 color="#EF4444" className="cursor-pointer" />
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+      <AlertDialogContent className="bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
