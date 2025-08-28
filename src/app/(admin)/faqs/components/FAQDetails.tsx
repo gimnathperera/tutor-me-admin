@@ -60,13 +60,12 @@ export function FAQDetails({
             <div
               className={`flex items-center justify-between ${displayFieldClass} cursor-pointer group`}
               onClick={copyID}
-              title="Click to copy ID"
             >
               <span>{id}</span>
               <span className="opacity-0 group-hover:opacity-100 text-gray-400 duration-300">
                 ( Click to copy )
               </span>
-              <Copy className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 text-gray-700 transition-opacity duration-300" />
+              <Copy className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 text-gray-700 dark:text-gray-300 duration-300" />
             </div>
           </div>
           <div className="grid gap-3">
