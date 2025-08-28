@@ -26,7 +26,6 @@ export function DeleteGrade({ gradeId }: DeleteGradeProps) {
   const handleDelete = async () => {
     const result = await deleteGrade(gradeId);
 
-    // Check if the request was successful
     if (result.isSuccess) {
       toast.success("Grade deleted successfully");
     } else {

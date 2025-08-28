@@ -23,7 +23,6 @@ const ViewGradePage = () => {
   return (
     <div>
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-        {/* Desktop Table */}
         <div className="hidden md:block max-w-full overflow-x-auto">
           <Table>
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
