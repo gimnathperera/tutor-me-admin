@@ -4,8 +4,7 @@ import { AddFAQ } from "./components/add-faq/page";
 
 export const metadata: Metadata = {
   title: "FAQ | TutorMe",
-  description:
-    "This is the FAQ management page for TutorMe",
+  description: "This is the FAQ management page for TutorMe",
 };
 
 export default function FAQPage() {

@@ -27,6 +27,7 @@ import {
 
 export function AddSubject() {
   const [open, setOpen] = useState(false);
+  const [createSubject, { isLoading }] = useCreateSubjectMutation();
 
   const createSubjectForm = useForm({
     resolver: zodResolver(createSubjectSchema),
@@ -34,7 +35,7 @@ export function AddSubject() {
     mode: "onChange",
   });
 
-  const [createSubject, { isLoading }] = useCreateSubjectMutation();
+  const { formState } = createSubjectForm;
 
   const onSubmit = async (data: CreateSubjectSchema) => {
     const result = await createSubject(data);
@@ -79,6 +80,11 @@ export function AddSubject() {
                 placeholder="Title"
                 {...createSubjectForm.register("title")}
               />
+              {formState.errors.title && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.title.message}
+                </p>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
@@ -88,6 +94,11 @@ export function AddSubject() {
                 type="text"
                 {...createSubjectForm.register("description")}
               />
+              {formState.errors.description && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.description.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>

@@ -746,12 +746,12 @@ span.flatpickr-weekday,
 }
 
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 /* Scrollbar visible only when scrolling */
 .scrollbar-thin {
-  scrollbar-width: thin;       /* Firefox */
+  scrollbar-width: thin; /* Firefox */
   scrollbar-color: rgba(100, 100, 100, 0.6) transparent;
 }
 
@@ -767,7 +767,6 @@ span.flatpickr-weekday,
 .scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
 }
-
 
 .fade-out {
   mask-image: linear-gradient(to right, black 90%, transparent 100%);
