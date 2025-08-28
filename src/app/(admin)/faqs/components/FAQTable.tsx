@@ -40,42 +40,62 @@ export default function FAQTable() {
     {
       key: "id",
       header: "ID",
-      className: "min-w-[170px] max-w-[170px]",
+      className: "min-w-[210px] max-w-[210px] cursor-default",
       bodyClassName: "text-[0.75rem] font-mono",
       render: (row: { id: string }) => (
         <span
           onClick={() => copyToClipboard(row.id)}
           title={"Click to copy"}
-          className="cursor-pointer relative group hover:text-blue-700 hover:underline truncate max-w-full flex items-center gap-1"
+          className="cursor-pointer relative group truncate max-w-full flex items-center gap-1 hover:underline hover:text-blue-700 dark:hover:text-blue-400"
         >
           {row.id}
-          <Copy className="w-4  opacity-0 group-hover:opacity-100 transition-opacity text-blue-700 flex-shrink-0" />
+          <Copy className="w-4 opacity-0 group-hover:opacity-100 transition-opacity text:text-blue-700 dark:text-blue-400 flex-shrink-0" />
         </span>
       ),
     },
     {
       key: "question",
       header: "Question",
-      className: "min-w-[150px] max-w-[200px] truncate overflow-hidden",
+      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      render: (row: { question: string }) => (
+        <span title={`Question: ${row.question}`} className="truncate block">
+          {row.question}
+        </span>
+      ),
     },
     {
       key: "answer",
       header: "Answer",
-      className: "min-w-[200px] max-w-[200px] truncate overflow-hidden",
+      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      bodyClassName: "text-left",
+      render: (row: { answer: string }) => (
+        <span title={`Answer: ${row.answer}`} className="truncate block">
+          {row.answer}
+        </span>
+      ),
     },
     {
       key: "createdAt",
       header: "Created At",
-      className: "min-w-[50px] max-w-[120px] truncate overflow-hidden",
+      className: "min-w-[140px] max-w-[140px] truncate overflow-hidden cursor-default",
       bodyClassName: "text-[0.75rem] font-mono",
+      render: (row: { createdAt: string }) => {
+        const date = new Date(row.createdAt);
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      },
     },
     {
       key: "edit",
       header: "Edit",
-      className: "min-w-[10px] max-w-[10px]",
-      headClassName: "text-center",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: { id: string; question: string; answer: string }) => (
-        <div className="flex justify-center items-center">
+        <div className="w-full flex justify-center items-center">
           <UpdateFAQ id={row.id} question={row.question} answer={row.answer} />
         </div>
       ),
@@ -83,9 +103,9 @@ export default function FAQTable() {
     {
       key: "delete",
       header: "Delete",
-      className: "min-w-[10px] max-w-[10px]",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: { id: string }) => (
-        <div className="flex justify-center items-center">
+        <div className="w-full flex justify-center items-center">
           <DeleteFAQ faqId={row.id} />
         </div>
       ),
@@ -93,14 +113,14 @@ export default function FAQTable() {
     {
       key: "view",
       header: "View",
-      className: "min-w-[10px] max-w-[10px]",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: {
         id: string;
         question: string;
         answer: string;
         createdAt: string;
       }) => (
-        <div className="flex justify-center items-center">
+        <div className="w-full flex justify-center items-center">
           <FAQDetails
             id={row.id}
             question={row.question}
@@ -112,8 +132,6 @@ export default function FAQTable() {
     },
   ];
 
-  if (isLoading) return <div>Loading FAQs...</div>;
-
   return (
     <DataTable
       columns={columns}
@@ -123,6 +141,7 @@ export default function FAQTable() {
       totalResults={totalResults}
       limit={limit}
       onPageChange={handlePageChange}
+      isLoading={isLoading}
     />
   );
 }
