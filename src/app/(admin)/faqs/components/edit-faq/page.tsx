@@ -13,80 +13,76 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCreateSubjectMutation } from "@/store/api/splits/subjects";
+import { useUpdateFaqMutation } from "@/store/api/splits/faqs";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SquarePen } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import {
-  CreateSubjectSchema,
-  createSubjectSchema,
-  initialFormValues,
-} from "./schema";
+import { UpdateFaqSchema, updateFaqSchema } from "./schema";
 
-export function AddSubject() {
+interface UpdateFAQProps {
+  id: string; 
+  question: string;
+  answer: string;
+}
+
+export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   const [open, setOpen] = useState(false);
 
-  const createSubjectForm = useForm({
-    resolver: zodResolver(createSubjectSchema),
-    defaultValues: initialFormValues as CreateSubjectSchema,
+  const updateFaqForm = useForm<UpdateFaqSchema>({
+    resolver: zodResolver(updateFaqSchema),
+    defaultValues: { question, answer },
     mode: "onChange",
   });
 
-  const [createSubject, { isLoading }] = useCreateSubjectMutation();
+  const [updateFaq, { isLoading }] = useUpdateFaqMutation();
 
-  const onSubmit = async (data: CreateSubjectSchema) => {
-    const result = await createSubject(data);
+  const onSubmit = async (data: UpdateFaqSchema) => {
+    const result = await updateFaq({ id, body: { ...data }});
     const error = getErrorInApiResult(result);
     if (error) {
       return toast.error(error);
     }
     if ("data" in result) {
-      onRegisterSuccess();
+      onUpdateSuccess();
     }
   };
 
-  const onRegisterSuccess = () => {
-    createSubjectForm.reset();
-    toast.success("Subject created successfully");
-    setOpen(false);
+  const onUpdateSuccess = () => {
+    setOpen(false); 
+    updateFaqForm.reset();
+    toast.success("FAQ updated successfully");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={createSubjectForm.handleSubmit(onSubmit)}>
+      <form onSubmit={updateFaqForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="bg-blue-700 text-white hover:bg-blue-500"
-          >
-            Add Subject
-          </Button>
+          <SquarePen className="cursor-pointer" />
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
-            <DialogTitle>Add Subject</DialogTitle>
-            <DialogDescription>
-              Add a new subject to the list.
-            </DialogDescription>
+            <DialogTitle>Edit FAQ</DialogTitle>
+            <DialogDescription>Edit the question and answer.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="question">Question</Label>
               <Input
-                id="title"
-                placeholder="Title"
-                {...createSubjectForm.register("title")}
+                id="question"
+                placeholder="Enter question"
+                {...updateFaqForm.register("question")}
               />
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="answer">Answer</Label>
               <Input
-                id="description"
-                placeholder="Description"
+                id="answer"
+                placeholder="Enter answer"
                 type="text"
-                {...createSubjectForm.register("description")}
+                {...updateFaqForm.register("answer")}
               />
             </div>
           </div>
@@ -98,9 +94,9 @@ export function AddSubject() {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={createSubjectForm.handleSubmit(onSubmit)}
+              onClick={() => updateFaqForm.handleSubmit(onSubmit)()}
             >
-              Create
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>

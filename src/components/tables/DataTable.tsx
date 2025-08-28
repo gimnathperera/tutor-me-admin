@@ -1,4 +1,13 @@
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "../ui/pagination";
+import { ReactNode } from "react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../ui/pagination";
+import { Skeleton } from "../ui/skeleton";
 import {
   Table,
   TableBody,
@@ -7,12 +16,13 @@ import {
   TableRow,
 } from "../ui/table";
 
-import { ReactNode } from "react";
-
 interface Column<T> {
   key: string;
   header: string;
   render?: (row: T) => ReactNode;
+  className?: string;
+  headClassName?: string;
+  bodyClassName?: string;
 }
 
 interface DataTableProps<T> {
@@ -23,6 +33,7 @@ interface DataTableProps<T> {
   onPageChange?: (page: number) => void;
   totalResults?: number;
   limit?: number;
+  isLoading?: boolean;
 }
 
 export default function DataTable<T extends { id: string | number }>({
@@ -33,9 +44,19 @@ export default function DataTable<T extends { id: string | number }>({
   onPageChange,
   totalResults = 0,
   limit = 10,
+  isLoading = false,
 }: DataTableProps<T>) {
+  const showPagination = totalResults > limit;
+  const isFirstPage = page === 1;
+  const isLastPage = page === totalPages;
 
-  if (!data || data.length === 0) {
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  const rowsToRender = isLoading
+    ? Array.from({ length: limit }).map((_, i) => ({ id: `skeleton-${i}` }))
+    : data;
+
+  if (!isLoading && (!data || data.length === 0)) {
     return (
       <div className="flex justify-center items-center h-48 rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90">
         <p className="text-gray-500 dark:text-white/70">
@@ -45,17 +66,12 @@ export default function DataTable<T extends { id: string | number }>({
     );
   }
 
-  const showPagination = totalResults > limit;
-  const isFirstPage = page === 1;
-  const isLastPage = page === totalPages;
-
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
-  const screenWidth = window.innerWidth;
-  console.log(screenWidth);
-
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90">
+    <div
+      className={
+        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90 "
+      }
+    >
       <div className="max-w-full overflow-x-auto">
         <div className="min-w-[600px]">
           <Table>
@@ -66,7 +82,7 @@ export default function DataTable<T extends { id: string | number }>({
                   <TableCell
                     key={col.key}
                     isHeader
-                    className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white/90"
+                    className={`px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white/90 ${col.className ?? ""} ${col.headClassName ?? ""}`}
                   >
                     {col.header}
                   </TableCell>
@@ -76,14 +92,16 @@ export default function DataTable<T extends { id: string | number }>({
 
             {/* Table Body */}
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {data.map((row) => (
+              {rowsToRender.map((row: any) => (
                 <TableRow key={row.id}>
                   {columns.map((col) => (
                     <TableCell
                       key={col.key}
-                      className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 max-w-[45.5vw]"
+                      className={`px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 max-w-[45.5vw] ${col.className ?? ""} ${col.bodyClassName ?? ""}`}
                     >
-                      {col.render ? (
+                      {isLoading ? (
+                        <Skeleton className="h-4 w-[120px]" />
+                      ) : col.render ? (
                         <div className="flex justify-center items-center">
                           {col.render(row)}
                         </div>
@@ -100,22 +118,34 @@ export default function DataTable<T extends { id: string | number }>({
           </Table>
         </div>
       </div>
+
       {/* Pagination Controls */}
-      {showPagination && (
+      {!isLoading && showPagination && (
         <Pagination className="text-gray-500 dark:text-white/90 mb-3">
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious onClick={() => !isFirstPage && onPageChange && onPageChange(page - 1)} />
+              <PaginationPrevious
+                onClick={() =>
+                  !isFirstPage && onPageChange && onPageChange(page - 1)
+                }
+              />
             </PaginationItem>
             {pages.map((p) => (
               <PaginationItem key={p}>
-                <PaginationLink onClick={() => onPageChange && onPageChange(p)} isActive={p === page}>
+                <PaginationLink
+                  onClick={() => onPageChange && onPageChange(p)}
+                  isActive={p === page}
+                >
                   {p}
                 </PaginationLink>
               </PaginationItem>
             ))}
             <PaginationItem>
-              <PaginationNext onClick={() => !isLastPage && onPageChange && onPageChange(page + 1)} />
+              <PaginationNext
+                onClick={() =>
+                  !isLastPage && onPageChange && onPageChange(page + 1)
+                }
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
