@@ -40,7 +40,7 @@ export default function FAQTable() {
     {
       key: "id",
       header: "ID",
-      className: "min-w-[200px] max-w-[200px] cursor-default",
+      className: "min-w-[210px] max-w-[210px] cursor-default",
       bodyClassName: "text-[0.75rem] font-mono",
       render: (row: { id: string }) => (
         <span
