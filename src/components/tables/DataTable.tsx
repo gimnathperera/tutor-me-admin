@@ -102,7 +102,7 @@ export default function DataTable<T extends { id: string | number }>({
                       {isLoading ? (
                         <Skeleton className="h-4 w-[120px]" />
                       ) : col.render ? (
-                        <div className="flex justify-center items-center">
+                        <div className="flex justify-start items-center">
                           {col.render(row)}
                         </div>
                       ) : (
