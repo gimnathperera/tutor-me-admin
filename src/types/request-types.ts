@@ -82,8 +82,13 @@ export type FetchPapersRequest = {
 };
 
 export type FetchGradesRequest = {
-  page: number;
-  limit: number;
+  title?: string;
+  description?: string;
+  subjects?: string[];
+  page?: number;
+  sortBy?: string;
+  limit?: number;
+  gradeId?: string;
 };
 export type FetchTuitionRatesRequest = {
   tuitionRateId?: string;
@@ -107,6 +112,13 @@ export type UpdateSubjectRequest = {
   id: string;
   title: string;
   description: string;
+};
+
+export type UpdateGradeRequest = {
+  id: string;
+  title: string;
+  description: string;
+  subjects: string[];
 };
 
 export type FetchSubjectsRequest = {

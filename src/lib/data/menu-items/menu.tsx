@@ -25,7 +25,7 @@ const NavItems = [
     name: "Academics",
     icon: <BookOpen />,
     subItems: [
-      { name: "Grades", path: "/grades", pro: false },
+      { name: "Grades", path: "/grade", pro: false },
       { name: "Subjects", path: "/subjects", pro: false },
       { name: "Test Papers", path: "/test-papers", pro: false },
     ],
