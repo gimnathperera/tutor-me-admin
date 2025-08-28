@@ -1,7 +1,6 @@
 "use client";
 
 import DataTable from "@/components/tables/DataTable";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import { useState } from "react";
 import { DeleteGrade } from "./DeleteGrade";
@@ -58,14 +57,6 @@ export default function SubjectsTable() {
       ),
     },
   ];
-  if (isLoading) {
-    return (
-      <div>
-        <Skeleton className="h-[600px] w-full rounded-xl" />
-      </div>
-    );
-  }
-
   return (
     <DataTable
       columns={columns}
@@ -75,6 +66,7 @@ export default function SubjectsTable() {
       onPageChange={handlePageChange}
       totalResults={totalResults}
       limit={limit}
+      isLoading={isLoading}
     />
   );
 }
