@@ -46,6 +46,7 @@ function PaginationLink({
   className,
   isActive,
   size = "icon",
+  title,
   ...props
 }: PaginationLinkProps) {
   return (
@@ -53,11 +54,13 @@ function PaginationLink({
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={isActive}
+      title={title}
       className={cn(
         buttonVariants({
           variant: isActive ? "outline" : "ghost",
           size,
         }),
+        "cursor-pointer",
         className,
       )}
       {...props}
@@ -72,6 +75,7 @@ function PaginationPrevious({
   return (
     <PaginationLink
       aria-label="Go to previous page"
+      title="Go to previous page"
       size="default"
       className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
       {...props}
@@ -89,6 +93,7 @@ function PaginationNext({
   return (
     <PaginationLink
       aria-label="Go to next page"
+      title="Go to next page"
       size="default"
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
@@ -107,6 +112,7 @@ function PaginationEllipsis({
     <span
       aria-hidden
       data-slot="pagination-ellipsis"
+      title="More pages"
       className={cn("flex size-9 items-center justify-center", className)}
       {...props}
     >
