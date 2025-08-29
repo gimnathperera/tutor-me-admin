@@ -27,6 +27,7 @@ const NavItems = [
     subItems: [
       { name: "Grades", path: "/grade", pro: false },
       { name: "Subjects", path: "/subjects", pro: false },
+      { name: "Levels", path: "/levels", pro: false },
       { name: "Test Papers", path: "/test-papers", pro: false },
     ],
   },

@@ -1,38 +1,64 @@
-import { FetchLevelRequest } from "@/types/request-types";
+import { CreateLevelSchema } from "@/app/(admin)/levels/create-level/schema";
+import { FetchLevelsRequest, UpdateLevelRequest } from "@/types/request-types";
 import { Level, PaginatedResponse } from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
-// ✅ For all levels (paginated list)
 export const LevelsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    fetchLevels: build.query<PaginatedResponse<Level>, FetchLevelRequest>({
+    fetchLevels: build.query<PaginatedResponse<Level>, FetchLevelsRequest>({
       query: (payload) => {
-        const { levelId, ...rest } = payload;
+        const { levelId, ...rest } = payload || ({} as any);
         return {
           url: Endpoints.Levels,
           method: "GET",
           params: rest,
         };
       },
-      providesTags: ["LevelAndExams"],
+      providesTags: ["Levels"],
     }),
-  }),
-  overrideExisting: false,
-});
 
-// ✅ For single level by ID
-export const LevelsDetailsApi = baseApi.injectEndpoints({
-  endpoints: (build) => ({
-    fetchLevelsById: build.query<Level, { levelId: string }>({
-      query: ({ levelId }) => ({
-        url: `${Endpoints.Levels}/${levelId}`,
+    fetchLevelById: build.query<Level, string>({
+      query: (id) => ({
+        url: `${Endpoints.Levels}/${id}`,
         method: "GET",
       }),
     }),
+
+    createLevel: build.mutation<Level, CreateLevelSchema>({
+      query: (payload) => ({
+        url: Endpoints.Levels,
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["Levels"],
+    }),
+
+    updateLevel: build.mutation<Level, UpdateLevelRequest>({
+      query: ({ id, ...payload }) => ({
+        url: `${Endpoints.Levels}/${id}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: ["Levels"],
+    }),
+
+    deleteLevel: build.mutation<void, string>({
+      query: (id) => ({
+        url: `${Endpoints.Levels}/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Levels"],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useFetchLevelsQuery } = LevelsApi;
-export const { useFetchLevelsByIdQuery } = LevelsDetailsApi;
+export const {
+  useFetchLevelsQuery,
+  useFetchLevelByIdQuery,
+  useLazyFetchLevelByIdQuery,
+  useCreateLevelMutation,
+  useUpdateLevelMutation,
+  useDeleteLevelMutation,
+} = LevelsApi;
