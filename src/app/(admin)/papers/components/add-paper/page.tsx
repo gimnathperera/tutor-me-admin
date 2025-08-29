@@ -13,32 +13,51 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCreateSubjectMutation } from "@/store/api/splits/subjects";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  initialFormValues,
+  PaperSchema,
+  paperSchema,
+} from "@/schemas/paper.schema";
+import {
+  useFetchGradeByIdQuery,
+  useFetchGradesQuery,
+} from "@/store/api/splits/grades";
+import { useCreatePaperMutation } from "@/store/api/splits/papers";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import {
-  CreateSubjectSchema,
-  createSubjectSchema,
-  initialFormValues,
-} from "./schema";
 
 export function AddPaper() {
   const [open, setOpen] = useState(false);
-  const [createSubject, { isLoading }] = useCreateSubjectMutation();
+  const [createPaper, { isLoading }] = useCreatePaperMutation();
+  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
+  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
+    {},
+  );
 
-  const createSubjectForm = useForm({
-    resolver: zodResolver(createSubjectSchema),
-    defaultValues: initialFormValues as CreateSubjectSchema,
+  const createPaperForm = useForm({
+    resolver: zodResolver(paperSchema),
+    defaultValues: initialFormValues as PaperSchema,
     mode: "onChange",
   });
 
-  const { formState } = createSubjectForm;
+  const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
+    useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
-  const onSubmit = async (data: CreateSubjectSchema) => {
-    const result = await createSubject(data);
+  const onSubmit = async (data: PaperSchema) => {
+    const result = await createPaper(data);
     const error = getErrorInApiResult(result);
     if (error) {
       return toast.error(error);
@@ -49,14 +68,22 @@ export function AddPaper() {
   };
 
   const onRegisterSuccess = () => {
-    createSubjectForm.reset();
+    createPaperForm.reset();
     toast.success("Paper created successfully");
     setOpen(false);
   };
 
+  const { formState, watch, setValue } = createPaperForm;
+  const selectedGrade = watch("grade");
+
+  useEffect(() => {
+    setValue("subject", "");
+    setSelectedGradeId(selectedGrade || null);
+  }, [selectedGrade, setValue]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={createSubjectForm.handleSubmit(onSubmit)}>
+      <form onSubmit={createPaperForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
@@ -68,17 +95,15 @@ export function AddPaper() {
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add Paper</DialogTitle>
-            <DialogDescription>
-              Add a new paper to the list.
-            </DialogDescription>
+            <DialogDescription>Add a new paper to the list.</DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4">
+          <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
                 placeholder="Title"
-                {...createSubjectForm.register("title")}
+                {...createPaperForm.register("title")}
               />
               {formState.errors.title && (
                 <p className="text-sm text-red-500">
@@ -88,11 +113,17 @@ export function AddPaper() {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
-              <Input
+              <Textarea
                 id="description"
                 placeholder="Description"
-                type="text"
-                {...createSubjectForm.register("description")}
+                {...createPaperForm.register("description")}
+                rows={1}
+                onInput={(e) => {
+                  const target = e.currentTarget;
+                  target.style.height = "auto"; // reset height
+                  target.style.height = target.scrollHeight + "px"; // set to content height
+                }}
+                className="resize-none overflow-hidden"
               />
               {formState.errors.description && (
                 <p className="text-sm text-red-500">
@@ -102,12 +133,27 @@ export function AddPaper() {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="grade">Grade</Label>
-              <Input
-                id="grade"
-                placeholder="Grade"
-                type="text"
-                {...createSubjectForm.register("grade")}
-              />
+              <Select
+                onValueChange={(value) =>
+                  createPaperForm.setValue("grade", value)
+                }
+                value={createPaperForm.watch("grade")}
+                disabled={isGradesLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a grade" />
+                </SelectTrigger>
+                <SelectContent className="w-full">
+                  <SelectGroup>
+                    <SelectLabel>Grades</SelectLabel>
+                    {gradeData?.results?.map((grade) => (
+                      <SelectItem key={grade.id} value={grade.id}>
+                        {grade.title}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               {formState.errors.grade && (
                 <p className="text-sm text-red-500">
                   {formState.errors.grade.message}
@@ -116,12 +162,25 @@ export function AddPaper() {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="subject">Subject</Label>
-              <Input
-                id="subject"
-                placeholder="Subject"
-                type="text"
-                {...createSubjectForm.register("subject")}
-              />
+              <Select
+                onValueChange={(value) => setValue("subject", value)}
+                value={watch("subject")}
+                disabled={!selectedGradeId || isGradeDetailsLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a subject" />
+                </SelectTrigger>
+                <SelectContent className="w-full">
+                  <SelectGroup>
+                    <SelectLabel>Subjects</SelectLabel>
+                    {gradeDetails?.subjects?.map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.title}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               {formState.errors.subject && (
                 <p className="text-sm text-red-500">
                   {formState.errors.subject.message}
@@ -134,7 +193,7 @@ export function AddPaper() {
                 id="year"
                 placeholder="Year"
                 type="text"
-                {...createSubjectForm.register("year")}
+                {...createPaperForm.register("year")}
               />
               {formState.errors.year && (
                 <p className="text-sm text-red-500">
@@ -148,7 +207,7 @@ export function AddPaper() {
                 id="url"
                 placeholder="URL"
                 type="text"
-                {...createSubjectForm.register("url")}
+                {...createPaperForm.register("url")}
               />
               {formState.errors.url && (
                 <p className="text-sm text-red-500">
@@ -165,7 +224,7 @@ export function AddPaper() {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={createSubjectForm.handleSubmit(onSubmit)}
+              onClick={createPaperForm.handleSubmit(onSubmit)}
             >
               Create
             </Button>

@@ -11,26 +11,26 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useDeleteSubjectMutation } from "@/store/api/splits/subjects";
+import { useDeletePaperMutation } from "@/store/api/splits/papers";
 import { getErrorInApiResult } from "@/utils/api";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface DeleteSubjectProps {
-  subjectId: string;
+interface DeletePaperProps {
+  paperId: string;
 }
 
-export function DeleteSubject({ subjectId }: DeleteSubjectProps) {
-  const [deleteSubject, { isLoading }] = useDeleteSubjectMutation();
+export function DeletePaper({ paperId }: DeletePaperProps) {
+  const [deletePaper, { isLoading }] = useDeletePaperMutation();
 
   const handleDelete = async () => {
-    const result = await deleteSubject(subjectId);
+    const result = await deletePaper(paperId);
 
-    if (result.error) {
+    if ("error" in result) {
       const error = getErrorInApiResult({ error: result.error });
       toast.error(error);
     } else {
-      toast.success("Subject deleted successfully");
+      toast.success("Paper deleted successfully");
     }
   };
 
@@ -44,7 +44,7 @@ export function DeleteSubject({ subjectId }: DeleteSubjectProps) {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
-            Subject.
+            paper.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

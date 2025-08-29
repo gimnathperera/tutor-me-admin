@@ -5,9 +5,9 @@ import { useFetchPapersQuery } from "@/store/api/splits/papers";
 import { Copy } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { DeleteSubject } from "./DeletePaper";
-import { UpdateSubject } from "./edit-paper/page";
-import { SubjectDetails } from "./ViewDetails";
+import { DeletePaper } from "./DeletePaper";
+import { EditPaper } from "./edit-paper/page";
+import { PaperDetails } from "./ViewDetails";
 
 export default function PapersTable() {
   const [page, setPage] = useState(1);
@@ -22,6 +22,13 @@ export default function PapersTable() {
   const subjects = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
+
+  interface Row {
+    subject: { title: string };
+    grade: { title: string };
+    year: string;
+    url: string;
+  }
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -39,8 +46,12 @@ export default function PapersTable() {
 
   const columns = [
     { key: "title", header: "Title" },
-    { key: "subject", header: "Subject", render: (row: any) => row.subject.title },
-    { key: "grade", header: "Grade", render: (row: any) => row.grade.title },
+    {
+      key: "subject",
+      header: "Subject",
+      render: (row: Row) => row.subject.title,
+    },
+    { key: "grade", header: "Grade", render: (row: Row) => row.grade.title },
     { key: "year", header: "Year" },
     {
       key: "url",
@@ -54,16 +65,29 @@ export default function PapersTable() {
           {row.url}
           <Copy className="w-4 opacity-0 group-hover:opacity-100 transition-opacity text:text-blue-700 dark:text-blue-400 flex-shrink-0" />
         </span>
-      ),},
+      ),
+    },
     {
       key: "edit",
       header: "Edit",
-      render: (row: { id: string; title: string; description: string }) => (
+      render: (row: {
+        id: string;
+        title: string;
+        description: string;
+        grade: { id: string };
+        subject: { id: string };
+        year: string;
+        url: string;
+      }) => (
         <div className="flex justify-center items-center">
-          <UpdateSubject
+          <EditPaper
             id={row.id}
             title={row.title}
             description={row.description}
+            grade={row.grade?.id}
+            subject={row.subject?.id}
+            year={row.year}
+            url={row.url}
           />
         </div>
       ),
@@ -73,16 +97,31 @@ export default function PapersTable() {
       header: "Delete",
       render: (row: { id: string }) => (
         <div className="flex justify-center items-center">
-          <DeleteSubject subjectId={row.id} />
+          <DeletePaper paperId={row.id} />
         </div>
       ),
     },
     {
       key: "view",
       header: "View",
-      render: (row: { title: string; description: string }) => (
+      render: (row: {
+        id: string;
+        title: string;
+        description: string;
+        grade: { title: string };
+        subject: { title: string };
+        year: string;
+        url: string;
+      }) => (
         <div className="flex justify-center items-center">
-          <SubjectDetails title={row.title} description={row.description} />
+          <PaperDetails
+            title={row.title}
+            description={row.description}
+            grade={row.grade?.title}
+            subject={row.subject?.title}
+            year={row.year}
+            url={row.url}
+          />
         </div>
       ),
     },
