@@ -56,7 +56,8 @@ export default function FAQTable() {
     {
       key: "question",
       header: "Question",
-      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
       render: (row: { question: string }) => (
         <span title={`Question: ${row.question}`} className="truncate block">
           {row.question}
@@ -66,7 +67,8 @@ export default function FAQTable() {
     {
       key: "answer",
       header: "Answer",
-      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
       bodyClassName: "text-left",
       render: (row: { answer: string }) => (
         <span title={`Answer: ${row.answer}`} className="truncate block">
@@ -77,7 +79,8 @@ export default function FAQTable() {
     {
       key: "createdAt",
       header: "Created At",
-      className: "min-w-[140px] max-w-[140px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[140px] max-w-[140px] truncate overflow-hidden cursor-default",
       bodyClassName: "text-[0.75rem] font-mono",
       render: (row: { createdAt: string }) => {
         const date = new Date(row.createdAt);
