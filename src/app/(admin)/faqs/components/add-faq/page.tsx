@@ -24,6 +24,7 @@ import {
   createFaqSchema,
   initialFaqFormValues,
 } from "./schema";
+import TextArea from "@/components/form/input/TextArea";
 
 export function AddFAQ() {
   const [open, setOpen] = useState(false);
@@ -75,19 +76,30 @@ export function AddFAQ() {
             <div className="grid gap-3">
               <Label htmlFor="question">Question</Label>
               <Input
+                className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="question"
                 placeholder="Enter FAQ question"
                 {...faqForm.register("question")}
               />
+              {faqForm.formState.errors.question && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {faqForm.formState.errors.question.message}
+                </p>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="answer">Answer</Label>
-              <Input
+              <TextArea
                 id="answer"
                 placeholder="Enter FAQ answer"
-                type="text"
+                rows={6}
                 {...faqForm.register("answer")}
               />
+              {faqForm.formState.errors.answer && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {faqForm.formState.errors.answer.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>

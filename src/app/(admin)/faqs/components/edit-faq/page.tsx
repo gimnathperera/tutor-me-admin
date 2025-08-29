@@ -1,5 +1,6 @@
 "use client";
 
+import TextArea from "@/components/form/input/TextArea";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -51,8 +52,9 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   };
 
   const onUpdateSuccess = () => {
+    const updatedValues = updateFaqForm.getValues();
     setOpen(false);
-    updateFaqForm.reset();
+    updateFaqForm.reset(updatedValues);
     toast.success("FAQ updated successfully");
   };
 
@@ -71,19 +73,30 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
             <div className="grid gap-3">
               <Label htmlFor="question">Question</Label>
               <Input
+                className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="question"
                 placeholder="Enter question"
                 {...updateFaqForm.register("question")}
               />
+              {updateFaqForm.formState.errors.question && (
+                <p className="text-sm text-red-500">
+                  {updateFaqForm.formState.errors.question.message}
+                </p>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="answer">Answer</Label>
-              <Input
+              <TextArea
                 id="answer"
                 placeholder="Enter answer"
-                type="text"
+                rows={6}
                 {...updateFaqForm.register("answer")}
               />
+              {updateFaqForm.formState.errors.answer && (
+                <p className="text-sm text-red-500">
+                  {updateFaqForm.formState.errors.answer.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
