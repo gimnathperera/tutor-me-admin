@@ -49,10 +49,12 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
       onUpdateSuccess();
     }
   };
+  const { formState } = updateSubjectForm;
 
   const onUpdateSuccess = () => {
+    const updatedValues = updateSubjectForm.getValues();
     setOpen(false);
-    updateSubjectForm.reset();
+    updateSubjectForm.reset(updatedValues);
     toast.success("Subject updated successfully");
   };
 
@@ -75,6 +77,11 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
                 placeholder="Title"
                 {...updateSubjectForm.register("title")}
               />
+              {formState.errors.title && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.title.message}
+                </p>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
@@ -84,6 +91,11 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
                 type="text"
                 {...updateSubjectForm.register("description")}
               />
+              {formState.errors.description && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.description.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -94,7 +106,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={() => updateSubjectForm.handleSubmit(onSubmit)()}
+              onClick={updateSubjectForm.handleSubmit(onSubmit)}
             >
               Save
             </Button>

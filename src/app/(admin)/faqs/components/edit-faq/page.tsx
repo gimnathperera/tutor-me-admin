@@ -23,7 +23,7 @@ import toast from "react-hot-toast";
 import { UpdateFaqSchema, updateFaqSchema } from "./schema";
 
 interface UpdateFAQProps {
-  id: string; 
+  id: string;
   question: string;
   answer: string;
 }
@@ -40,7 +40,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   const [updateFaq, { isLoading }] = useUpdateFaqMutation();
 
   const onSubmit = async (data: UpdateFaqSchema) => {
-    const result = await updateFaq({ id, body: { ...data }});
+    const result = await updateFaq({ id, body: { ...data } });
     const error = getErrorInApiResult(result);
     if (error) {
       return toast.error(error);
@@ -51,7 +51,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   };
 
   const onUpdateSuccess = () => {
-    setOpen(false); 
+    setOpen(false);
     updateFaqForm.reset();
     toast.success("FAQ updated successfully");
   };

@@ -5,7 +5,6 @@ import { Endpoints } from "../../endpoints";
 
 export const FaqsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-
     fetchFaqs: build.query<PaginatedResponse<Faq>, FetchFaqRequest>({
       query: (payload) => ({
         url: Endpoints.Faqs,
