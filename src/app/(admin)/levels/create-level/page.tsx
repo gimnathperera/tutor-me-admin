@@ -169,7 +169,6 @@ export function AddLevel() {
                 control={control}
                 render={({ field }) => (
                   <MultiSelect
-                    label="Select Subjects"
                     options={subjectOptions}
                     defaultSelected={field.value || []}
                     onChange={(values) => field.onChange(values)}
