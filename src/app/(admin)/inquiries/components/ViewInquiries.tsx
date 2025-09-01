@@ -16,19 +16,21 @@ import { Copy, Eye } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
-interface FAQDetailsProps {
+interface InquiryDetailsProps {
   id: string | number;
-  question: string;
-  answer: string;
+  senderName: string;
+  senderEmail: string;
+  message: string;
   createdAt: string;
 }
 
-export function FAQDetails({
+export function InquiryDetails({
   id,
-  question,
-  answer,
+  senderName,
+  senderEmail,
+  message,
   createdAt,
-}: FAQDetailsProps) {
+}: InquiryDetailsProps) {
   const [open, setOpen] = useState(false);
 
   const displayFieldClass =
@@ -37,7 +39,17 @@ export function FAQDetails({
   const copyID = async () => {
     try {
       await navigator.clipboard.writeText(String(id));
-      toast.success("FAQ ID copied to clipboard");
+      toast.success("Inquiry ID copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy:", err);
+      toast.error("Failed to copy to clipboard");
+    }
+  };
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(String(senderEmail));
+      toast.success("Sender Email copied to clipboard");
     } catch (err) {
       console.error("Failed to copy:", err);
       toast.error("Failed to copy to clipboard");
@@ -52,7 +64,7 @@ export function FAQDetails({
       <DialogContent className="sm:max-w-[525px] max-h-[75vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Details</DialogTitle>
-          <DialogDescription>FAQ Details</DialogDescription>
+          <DialogDescription>Inquiry Details</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
           <div className="grid gap-3">
@@ -81,12 +93,25 @@ export function FAQDetails({
             </div>
           </div>
           <div className="grid gap-3">
-            <Label>Question</Label>
-            <div className={displayFieldClass}>{question}</div>
+            <Label>Sender Name</Label>
+            <div className={displayFieldClass}>{senderName}</div>
           </div>
           <div className="grid gap-3">
-            <Label>Answer</Label>
-            <div className={`${displayFieldClass} min-h-[5rem]`}>{answer}</div>
+            <Label>Sender Email</Label>
+            <div
+              className={`flex items-center justify-between ${displayFieldClass} cursor-pointer group`}
+              onClick={copyEmail}
+            >
+              <span>{senderEmail}</span>
+              <span className="opacity-0 group-hover:opacity-100 text-gray-400 duration-300">
+                ( Click to copy )
+              </span>
+              <Copy className="w-4 h-4 ml-2 opacity-50 group-hover:opacity-100 text-gray-700 dark:text-gray-300 duration-300" />
+            </div>
+          </div>
+          <div className="grid gap-3">
+            <Label>Inquiry</Label>
+            <div className={`${displayFieldClass} min-h-[5rem]`}>{message}</div>
           </div>
         </div>
         <DialogFooter>

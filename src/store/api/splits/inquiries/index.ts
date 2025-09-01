@@ -23,15 +23,6 @@ export const InquiriesApi = baseApi.injectEndpoints({
       invalidatesTags: ["Inquiries"],
     }),
 
-    updateInquiry: build.mutation<Inquiry, { id: string; body: Partial<Inquiry> }>({
-      query: ({ id, body }) => ({
-        url: `${Endpoints.Inquiries}/${id}`,
-        method: "PATCH",
-        body,
-      }),
-      invalidatesTags: ["Inquiries"],
-    }),
-
     deleteInquiry: build.mutation<{ success: boolean }, string>({
       query: (id) => ({
         url: `${Endpoints.Inquiries}/${id}`,
@@ -46,6 +37,5 @@ export const InquiriesApi = baseApi.injectEndpoints({
 export const {
   useFetchInquiriesQuery,
   useCreateInquiryMutation,
-  useUpdateInquiryMutation,
   useDeleteInquiryMutation,
 } = InquiriesApi;

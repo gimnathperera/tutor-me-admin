@@ -11,9 +11,9 @@ import {
   GraduationCap,
   HelpCircle,
   LibraryBig,
-  MessageCircleQuestionMark,
   MessageSquareMore,
   NotebookText,
+  TextSearch,
 } from "lucide-react";
 
 const NavItems = [
@@ -51,7 +51,7 @@ const NavItems = [
     path: "/faqs",
   },
   {
-    icon: <MessageCircleQuestionMark />,
+    icon: <TextSearch />,
     name: "Inquiries",
     path: "/inquiries",
   },
