@@ -54,6 +54,9 @@ const NavItems = [
     icon: <TextSearch />,
     name: "Inquiries",
     path: "/inquiries",
+    subItems: [
+      { name: "Contact Us", path: "/inquiries/contactus", pro: false },
+    ],
   },
   {
     icon: <NotebookText />,

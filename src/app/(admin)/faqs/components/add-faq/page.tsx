@@ -55,7 +55,15 @@ export function AddFAQ() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          faqForm.reset();
+        }
+      }}
+    >
       <form onSubmit={faqForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button

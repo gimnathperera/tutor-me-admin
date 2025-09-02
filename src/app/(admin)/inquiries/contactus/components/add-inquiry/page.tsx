@@ -59,7 +59,15 @@ export function AddInquiry() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          inquiryForm.reset();
+        }
+      }}
+    >
       <form onSubmit={inquiryForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
