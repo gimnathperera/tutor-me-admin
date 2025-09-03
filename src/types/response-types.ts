@@ -25,9 +25,50 @@ export type Faq = BaseEntity & {
   answer: string;
 };
 
+// Inquiry
+export type Inquiry = {
+  message: string;
+  sender: {
+    name: string;
+    email: string;
+  };
+} & Id &
+  Timestamp;
+
+export type Level = {
+  createdAt: string;
+  updatedAt: string;
+  id: string;
+  details: string[];
+  challanges: string[];
+  subjects: Subject[];
+  title: string;
+};
+
+export type TuitionRateItem = {
+  _id: string;
+  title: string;
+  grade: Grade;
+  subject: Subject;
+  level: Level;
+  govTuitionRate: Rate[];
+  partTimeTuitionRate: Rate[];
+  fullTimeTuitionRate: Rate[];
+};
+export type Rate = {
+  minimumRate: string;
+  maximumRate: string;
+};
+export type TuitionRateGroup = {
+  grade: any;
+  subjects: any;
+  _id: string;
+  level: Level;
+  items: TuitionRateItem[];
+};
 // Subject
 export type Subject = BaseEntity & WithTitleDescription;
-export type Level = BaseEntity & WithTitleDescription;
+// export type Level = BaseEntity & WithTitleDescription;
 
 // Grade
 export type Grade = BaseEntity &
@@ -223,6 +264,7 @@ export type FindMyTutorResponse = {
   Timestamp;
 
 export type FaqResponse = PaginatedResponse<Faq>;
+export type InquiryResponse = PaginatedResponse<Inquiry>;
 export type SubjectResponse = PaginatedResponse<Subject>;
 export type GradeResponse = PaginatedResponse<Grade>;
 export type PaperResponse = PaginatedResponse<Paper>;

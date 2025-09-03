@@ -55,7 +55,15 @@ export function AddFAQ() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          reset();
+        }
+      }}
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
@@ -65,7 +73,7 @@ export function AddFAQ() {
             Add FAQ
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add FAQ</DialogTitle>
             <DialogDescription>

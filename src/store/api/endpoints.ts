@@ -6,6 +6,7 @@ export const Endpoints = {
   ContactUs: "/v1/inquiries",
   Testimonials: "/v1/testimonials",
   Faqs: "/v1/faqs",
+  Inquiries: "/v1/inquiries",
   Grades: "/v1/grades",
   Subjects: "/v1/subjects",
   Papers: "/v1/papers",
