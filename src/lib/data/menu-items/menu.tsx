@@ -13,6 +13,7 @@ import {
   LibraryBig,
   MessageSquareMore,
   NotebookText,
+  TextSearch,
 } from "lucide-react";
 
 const NavItems = [
@@ -48,6 +49,14 @@ const NavItems = [
     icon: <HelpCircle />,
     name: "FAQ",
     path: "/faqs",
+  },
+  {
+    icon: <TextSearch />,
+    name: "Inquiries",
+    path: "/inquiries",
+    subItems: [
+      { name: "Contact Us", path: "/inquiries/contactus", pro: false },
+    ],
   },
   {
     icon: <NotebookText />,

@@ -1,5 +1,6 @@
 "use client";
 
+import TextArea from "@/components/form/input/TextArea";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -31,11 +32,11 @@ interface UpdateFAQProps {
 export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   const [open, setOpen] = useState(false);
 
-  const updateFaqForm = useForm<UpdateFaqSchema>({
-    resolver: zodResolver(updateFaqSchema),
-    defaultValues: { question, answer },
-    mode: "onChange",
-  });
+ const { register, handleSubmit, reset, formState: { errors } } = useForm<UpdateFaqSchema>({
+  resolver: zodResolver(updateFaqSchema),
+  defaultValues: { question, answer },
+  mode: "onChange",
+});
 
   const [updateFaq, { isLoading }] = useUpdateFaqMutation();
 
@@ -47,7 +48,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
         return toast.error(error);
       }
       if ("data" in result) {
-        onUpdateSuccess();
+        onUpdateSuccess(data);
       }
     } catch (error) {
       console.error("Unexpected error during FAQ update:", error);
@@ -55,15 +56,15 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
     }
   };
 
-  const onUpdateSuccess = () => {
+  const onUpdateSuccess = (updatedValues: UpdateFaqSchema) => {
+    reset(updatedValues);
     setOpen(false);
-    updateFaqForm.reset();
     toast.success("FAQ updated successfully");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={updateFaqForm.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer" />
         </DialogTrigger>
@@ -76,19 +77,30 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
             <div className="grid gap-3">
               <Label htmlFor="question">Question</Label>
               <Input
+                className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="question"
                 placeholder="Enter question"
-                {...updateFaqForm.register("question")}
+                {...register("question")}
               />
+              {errors.question && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {errors.question.message}
+                </p>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="answer">Answer</Label>
-              <Input
+              <TextArea
                 id="answer"
                 placeholder="Enter answer"
-                type="text"
-                {...updateFaqForm.register("answer")}
+                rows={6}
+                {...register("answer")}
               />
+              {errors.answer && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {errors.answer.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -99,7 +111,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={() => updateFaqForm.handleSubmit(onSubmit)()}
+              onClick={() => handleSubmit(onSubmit)()}
             >
               Save
             </Button>

@@ -25,6 +25,16 @@ export type Faq = BaseEntity & {
   answer: string;
 };
 
+// Inquiry
+export type Inquiry = {
+  message: string;
+  sender: {
+    name: string;
+    email: string;
+  };
+} & Id &
+  Timestamp;
+
 export type Level = {
   createdAt: string;
   updatedAt: string;
@@ -232,6 +242,7 @@ export type FindMyTutorResponse = {
   Timestamp;
 
 export type FaqResponse = PaginatedResponse<Faq>;
+export type InquiryResponse = PaginatedResponse<Inquiry>;
 export type SubjectResponse = PaginatedResponse<Subject>;
 export type GradeResponse = PaginatedResponse<Grade>;
 export type PaperResponse = PaginatedResponse<Paper>;
