@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from "react";
+import { ChevronDownIcon } from "@/icons";
+import { useState } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Label from "../Label";
-import Select from "../Select";
 import MultiSelect from "../MultiSelect";
-import { ChevronDownIcon } from "@/icons";
+import Select from "../Select";
 
 export default function SelectInputs() {
   const options = [
@@ -14,7 +14,12 @@ export default function SelectInputs() {
   ];
 
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
-
+  interface SelectProps {
+    options: { value: string; label: string }[];
+    placeholder?: string;
+    onChange?: (value: string) => void;
+    className?: string;
+  }
   const handleSelectChange = (value: string) => {
     console.log("Selected value:", value);
   };

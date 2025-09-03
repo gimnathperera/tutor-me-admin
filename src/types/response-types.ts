@@ -25,44 +25,35 @@ export type Faq = BaseEntity & {
   answer: string;
 };
 
-export type Level = {
-  createdAt: string;
-  updatedAt: string;
-  id: string;
-  details: string[];
-  challanges: string[];
-  subjects: Subject[];
-  title: string;
-};
-
-export type TuitionRateItem = {
-  _id: string;
-  title: string;
-  grade: Grade;
-  subject: Subject;
-  level: Level;
-  govTuitionRate: Rate[];
-  partTimeTuitionRate: Rate[];
-  fullTimeTuitionRate: Rate[];
-};
-export type Rate = {
-  minimumRate: string;
-  maximumRate: string;
-};
-export type TuitionRateGroup = {
-  grade: any;
-  subjects: any;
-  _id: string;
-  level: Level;
-  items: TuitionRateItem[];
-};
 // Subject
 export type Subject = BaseEntity & WithTitleDescription;
+export type Level = BaseEntity & WithTitleDescription;
 
 // Grade
 export type Grade = BaseEntity &
   WithTitleDescription & {
     subjects: Subject[];
+  };
+
+//tuition rates
+export type TuitionRate = {
+  minimumRate: string;
+  maximumRate: string;
+};
+
+export type EntityRef = {
+  id: string;
+  title: string;
+};
+
+export type TuitionRates = BaseEntity &
+  WithTitleDescription & {
+    subject: EntityRef;
+    grade: EntityRef;
+    level: EntityRef;
+    fullTimeTuitionRate: TuitionRate[];
+    govTuitionRate: TuitionRate[];
+    partTimeTuitionRate: TuitionRate[];
   };
 
 // Paper
