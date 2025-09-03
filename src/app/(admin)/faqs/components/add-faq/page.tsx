@@ -29,11 +29,11 @@ import TextArea from "@/components/form/input/TextArea";
 export function AddFAQ() {
   const [open, setOpen] = useState(false);
 
-  const faqForm = useForm({
-    resolver: zodResolver(createFaqSchema),
-    defaultValues: initialFaqFormValues as CreateFaqSchema,
-    mode: "onChange",
-  });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateFaqSchema>({
+  resolver: zodResolver(createFaqSchema),
+  defaultValues: initialFaqFormValues,
+  mode: "onChange",
+});
 
   const [createFaq, { isLoading }] = useCreateFaqMutation();
 
@@ -49,7 +49,7 @@ export function AddFAQ() {
   };
 
   const onRegisterSuccess = () => {
-    faqForm.reset();
+    reset();
     toast.success("FAQ created successfully");
     setOpen(false);
   };
@@ -60,11 +60,11 @@ export function AddFAQ() {
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) {
-          faqForm.reset();
+          reset();
         }
       }}
     >
-      <form onSubmit={faqForm.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
@@ -87,11 +87,11 @@ export function AddFAQ() {
                 className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="question"
                 placeholder="Enter FAQ question"
-                {...faqForm.register("question")}
+                {...register("question")}
               />
-              {faqForm.formState.errors.question && (
+              {errors.question && (
                 <p className="text-sm text-red-500 dark:text-red-500/90">
-                  {faqForm.formState.errors.question.message}
+                  {errors.question.message}
                 </p>
               )}
             </div>
@@ -101,11 +101,11 @@ export function AddFAQ() {
                 id="answer"
                 placeholder="Enter FAQ answer"
                 rows={6}
-                {...faqForm.register("answer")}
+                {...register("answer")}
               />
-              {faqForm.formState.errors.answer && (
+              {errors.answer && (
                 <p className="text-sm text-red-500 dark:text-red-500/90">
-                  {faqForm.formState.errors.answer.message}
+                  {errors.answer.message}
                 </p>
               )}
             </div>
@@ -118,7 +118,7 @@ export function AddFAQ() {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={faqForm.handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmit)}
             >
               Create
             </Button>

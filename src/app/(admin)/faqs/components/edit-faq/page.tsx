@@ -32,11 +32,11 @@ interface UpdateFAQProps {
 export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   const [open, setOpen] = useState(false);
 
-  const updateFaqForm = useForm<UpdateFaqSchema>({
-    resolver: zodResolver(updateFaqSchema),
-    defaultValues: { question, answer },
-    mode: "onChange",
-  });
+ const { register, handleSubmit, reset, formState: { errors } } = useForm<UpdateFaqSchema>({
+  resolver: zodResolver(updateFaqSchema),
+  defaultValues: { question, answer },
+  mode: "onChange",
+});
 
   const [updateFaq, { isLoading }] = useUpdateFaqMutation();
 
@@ -47,20 +47,19 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
       return toast.error(error);
     }
     if ("data" in result) {
-      onUpdateSuccess();
+      onUpdateSuccess(data);
     }
   };
 
-  const onUpdateSuccess = () => {
-    const updatedValues = updateFaqForm.getValues();
+  const onUpdateSuccess = (updatedValues: UpdateFaqSchema) => {
+    reset(updatedValues);
     setOpen(false);
-    updateFaqForm.reset(updatedValues);
     toast.success("FAQ updated successfully");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={updateFaqForm.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer" />
         </DialogTrigger>
@@ -76,11 +75,11 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
                 className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="question"
                 placeholder="Enter question"
-                {...updateFaqForm.register("question")}
+                {...register("question")}
               />
-              {updateFaqForm.formState.errors.question && (
-                <p className="text-sm text-red-500">
-                  {updateFaqForm.formState.errors.question.message}
+              {errors.question && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {errors.question.message}
                 </p>
               )}
             </div>
@@ -90,11 +89,11 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
                 id="answer"
                 placeholder="Enter answer"
                 rows={6}
-                {...updateFaqForm.register("answer")}
+                {...register("answer")}
               />
-              {updateFaqForm.formState.errors.answer && (
-                <p className="text-sm text-red-500">
-                  {updateFaqForm.formState.errors.answer.message}
+              {errors.answer && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {errors.answer.message}
                 </p>
               )}
             </div>
@@ -107,7 +106,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={() => updateFaqForm.handleSubmit(onSubmit)()}
+              onClick={() => handleSubmit(onSubmit)()}
             >
               Save
             </Button>

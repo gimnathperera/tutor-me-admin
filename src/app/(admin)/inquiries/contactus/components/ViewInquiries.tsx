@@ -1,17 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Copy, Eye } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
@@ -70,7 +68,10 @@ export function InquiryDetails({
           <div className="grid gap-3">
             <Label>ID</Label>
             <div
-              className={`flex items-center justify-between ${displayFieldClass} cursor-pointer group`}
+              className={cn(
+                "flex items-center justify-between cursor-pointer group",
+                displayFieldClass,
+              )}
               onClick={copyID}
             >
               <span>{id}</span>
@@ -99,7 +100,10 @@ export function InquiryDetails({
           <div className="grid gap-3">
             <Label>Sender Email</Label>
             <div
-              className={`flex items-center justify-between ${displayFieldClass} cursor-pointer group`}
+              className={cn(
+                "flex items-center justify-between cursor-pointer group",
+                displayFieldClass
+              )}
               onClick={copyEmail}
             >
               <span>{senderEmail}</span>
@@ -111,14 +115,9 @@ export function InquiryDetails({
           </div>
           <div className="grid gap-3">
             <Label>Inquiry</Label>
-            <div className={`${displayFieldClass} min-h-[5rem]`}>{message}</div>
+            <div className={cn("min-h-[5rem]", displayFieldClass)}>{message}</div>
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
