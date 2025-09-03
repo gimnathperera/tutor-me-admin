@@ -24,13 +24,18 @@ export function DeleteGrade({ gradeId }: DeleteGradeProps) {
   const [deleteGrade, { isLoading }] = useDeleteGradeMutation();
 
   const handleDelete = async () => {
-    const result = await deleteGrade(gradeId);
+    try {
+      const result = await deleteGrade(gradeId);
 
-    if (result.isSuccess) {
-      toast.success("Grade deleted successfully");
-    } else {
-      const error = getErrorInApiResult({ error: result.error });
-      toast.error(error);
+      if (result.data) {
+        toast.success("Grade deleted successfully");
+      } else {
+        const error = getErrorInApiResult({ error: result.error });
+        toast.error(error);
+      }
+    } catch (error) {
+      console.error("Unexpected error during grade deletion:", error);
+      toast.error("An unexpected error occurred while deleting the grade");
     }
   };
 

@@ -24,13 +24,18 @@ export function DeleteSubject({ subjectId }: DeleteSubjectProps) {
   const [deleteSubject, { isLoading }] = useDeleteSubjectMutation();
 
   const handleDelete = async () => {
-    const result = await deleteSubject(subjectId);
+    try {
+      const result = await deleteSubject(subjectId);
 
-    if (result.error) {
-      const error = getErrorInApiResult({ error: result.error });
-      toast.error(error);
-    } else {
-      toast.success("Subject deleted successfully");
+      if (result.error) {
+        const error = getErrorInApiResult({ error: result.error });
+        toast.error(error);
+      } else {
+        toast.success("Subject deleted successfully");
+      }
+    } catch (error) {
+      console.error("Unexpected error during subject deletion:", error);
+      toast.error("An unexpected error occurred while deleting the subject");
     }
   };
 

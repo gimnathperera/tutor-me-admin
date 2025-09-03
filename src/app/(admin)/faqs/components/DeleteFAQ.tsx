@@ -24,13 +24,18 @@ export function DeleteFAQ({ faqId }: DeleteFAQProps) {
   const [deleteFaq, { isLoading }] = useDeleteFaqMutation();
 
   const handleDelete = async () => {
-    const result = await deleteFaq(String(faqId));
+    try {
+      const result = await deleteFaq(String(faqId));
 
-    if (result.error) {
-      const error = getErrorInApiResult({ error: result.error });
-      toast.error(error);
-    } else {
-      toast.success("FAQ deleted successfully");
+      if (result.error) {
+        const error = getErrorInApiResult({ error: result.error });
+        toast.error(error);
+      } else {
+        toast.success("FAQ deleted successfully");
+      }
+    } catch (error) {
+      console.error("Unexpected error during FAQ deletion:", error);
+      toast.error("An unexpected error occurred while deleting the FAQ");
     }
   };
 

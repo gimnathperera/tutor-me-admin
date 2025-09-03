@@ -24,13 +24,18 @@ export function DeletePaper({ paperId }: DeletePaperProps) {
   const [deletePaper, { isLoading }] = useDeletePaperMutation();
 
   const handleDelete = async () => {
-    const result = await deletePaper(paperId);
+    try {
+      const result = await deletePaper(paperId);
 
-    if ("error" in result) {
-      const error = getErrorInApiResult({ error: result.error });
-      toast.error(error);
-    } else {
-      toast.success("Paper deleted successfully");
+      if ("error" in result) {
+        const error = getErrorInApiResult({ error: result.error });
+        toast.error(error);
+      } else {
+        toast.success("Paper deleted successfully");
+      }
+    } catch (error) {
+      console.error("Unexpected error during delete:", error);
+      toast.error("An unexpected error occurred while deleting the paper");
     }
   };
 
