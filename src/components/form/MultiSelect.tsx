@@ -3,7 +3,7 @@ import React, { useState } from "react";
 interface Option {
   value: string;
   text: string;
-  selected: boolean;
+  selected?: boolean;
 }
 
 interface MultiSelectProps {

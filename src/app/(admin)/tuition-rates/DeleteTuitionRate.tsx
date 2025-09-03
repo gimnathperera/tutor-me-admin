@@ -11,17 +11,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useDeleteGradeMutation } from "@/store/api/splits/grades";
+import { useDeleteTuitionRateMutation } from "@/store/api/splits/tuition-rates";
 import { getErrorInApiResult } from "@/utils/api";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface DeleteGradeProps {
+interface DeleteTuitionRateProps {
   gradeId: string;
 }
 
-export function DeleteGrade({ gradeId }: DeleteGradeProps) {
-  const [deleteGrade, { isLoading }] = useDeleteGradeMutation();
+export function DeleteTuitionRate({ gradeId }: DeleteTuitionRateProps) {
+  const [deleteGrade, { isLoading }] = useDeleteTuitionRateMutation();
+
   const handleDelete = async () => {
     const result = await deleteGrade(gradeId);
 
@@ -43,7 +44,7 @@ export function DeleteGrade({ gradeId }: DeleteGradeProps) {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
-            Grade.
+            Tuition Rate.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
