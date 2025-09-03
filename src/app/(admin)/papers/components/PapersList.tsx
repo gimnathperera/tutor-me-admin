@@ -1,6 +1,7 @@
 "use client";
 
 import DataTable from "@/components/tables/DataTable";
+import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchPapersQuery } from "@/store/api/splits/papers";
 import { Copy } from "lucide-react";
 import { useState } from "react";
@@ -31,8 +32,8 @@ interface Paper {
 }
 
 export default function PapersTable() {
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   const { data, isLoading } = useFetchPapersQuery({
     page,

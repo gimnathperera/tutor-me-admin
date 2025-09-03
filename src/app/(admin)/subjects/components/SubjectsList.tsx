@@ -1,6 +1,7 @@
 "use client";
 
 import DataTable from "@/components/tables/DataTable";
+import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { useState } from "react";
 import { DeleteSubject } from "./DeleteSubject";
@@ -15,8 +16,8 @@ interface Subject {
 }
 
 export default function SubjectsTable() {
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   const { data, isLoading } = useFetchSubjectsQuery({
     page,

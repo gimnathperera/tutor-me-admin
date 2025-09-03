@@ -1,6 +1,7 @@
 "use client";
 
 import DataTable from "@/components/tables/DataTable";
+import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchLevelsQuery } from "@/store/api/splits/levels";
 import { useState } from "react";
 import { DeleteLevel } from "./DeleteLevel";
@@ -23,8 +24,8 @@ interface Level {
 }
 
 export default function LevelsTable() {
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   const { data, isLoading } = useFetchLevelsQuery({
     page,

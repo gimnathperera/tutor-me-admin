@@ -1,6 +1,7 @@
 "use client";
 
 import DataTable from "@/components/tables/DataTable";
+import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchFaqsQuery } from "@/store/api/splits/faqs";
 import { Copy } from "lucide-react";
 import { useState } from "react";
@@ -17,8 +18,8 @@ interface FAQ {
 }
 
 export default function FAQTable() {
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   const { data, isLoading } = useFetchFaqsQuery({
     page,
