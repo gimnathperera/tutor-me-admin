@@ -73,41 +73,30 @@ export function TuitionRateDetails({
         </DialogHeader>
 
         <div className="grid gap-4">
-          {/* Level */}
           <div className="grid gap-3">
             <Label>Level</Label>
             <div className={displayFieldClass}>{level.title}</div>
           </div>
-
-          {/* Grade */}
           <div className="grid gap-3">
             <Label>Grade</Label>
             <div className={displayFieldClass}>{grade.title}</div>
           </div>
-
-          {/* Subject */}
           <div className="grid gap-3">
             <Label>Subject</Label>
             <div className={displayFieldClass}>{subject.title}</div>
           </div>
-
-          {/* Full-Time Tuition Rate */}
           <div className="grid gap-3">
             <Label>Full-Time Tuition Rate</Label>
             <div className="flex flex-col gap-2">
               {renderRateList(fullTimeTuitionRate)}
             </div>
           </div>
-
-          {/* Government Tuition Rate */}
           <div className="grid gap-3">
             <Label>Government Tuition Rate</Label>
             <div className="flex flex-col gap-2">
               {renderRateList(govTuitionRate)}
             </div>
           </div>
-
-          {/* Part-Time Tuition Rate */}
           <div className="grid gap-3">
             <Label>Part-Time Tuition Rate</Label>
             <div className="flex flex-col gap-2">
