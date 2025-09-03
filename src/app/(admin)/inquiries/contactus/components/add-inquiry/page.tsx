@@ -34,6 +34,13 @@ export function AddInquiry() {
     mode: "onChange",
   });
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = inquiryForm;
+
   const [createInquiry, { isLoading }] = useCreateInquiryMutation();
 
   const onSubmit = async (data: CreateInquirySchema) => {
@@ -53,7 +60,7 @@ export function AddInquiry() {
   };
 
   const onRegisterSuccess = () => {
-    inquiryForm.reset();
+    reset();
     toast.success("Inquiry created successfully");
     setOpen(false);
   };
@@ -63,56 +70,61 @@ export function AddInquiry() {
       open={open}
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
-        if (!isOpen) {
-          inquiryForm.reset();
-        }
+        if (!isOpen) reset();
       }}
     >
-      <form onSubmit={inquiryForm.handleSubmit(onSubmit)}>
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="bg-blue-700 text-white hover:bg-blue-500"
-          >
-            Add Inquiry
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          className="bg-blue-700 text-white hover:bg-blue-500"
+        >
+          Add Inquiry
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+        <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>Add Inquiry (Manually)</DialogTitle>
             <DialogDescription>
               Add a new inquiry with sender name, email, and inquiry.
             </DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4">
+            {/* Sender Name */}
             <div className="grid gap-3">
               <Label htmlFor="senderName">Sender Name</Label>
               <Input
                 className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="senderName"
                 placeholder="Enter sender name"
-                {...inquiryForm.register("senderName")}
+                {...register("senderName")}
               />
-              {inquiryForm.formState.errors.senderName && (
+              {errors.senderName && (
                 <p className="text-sm text-red-500 dark:text-red-500/90">
-                  {inquiryForm.formState.errors.senderName.message}
+                  {errors.senderName.message}
                 </p>
               )}
             </div>
+
+            {/* Sender Email */}
             <div className="grid gap-3">
               <Label htmlFor="senderEmail">Sender Email</Label>
               <Input
                 className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="senderEmail"
                 placeholder="Enter sender email"
-                {...inquiryForm.register("senderEmail")}
+                {...register("senderEmail")}
               />
-              {inquiryForm.formState.errors.senderEmail && (
+              {errors.senderEmail && (
                 <p className="text-sm text-red-500 dark:text-red-500/90">
-                  {inquiryForm.formState.errors.senderEmail.message}
+                  {errors.senderEmail.message}
                 </p>
               )}
             </div>
+
+            {/* Inquiry Message */}
             <div className="grid gap-3">
               <Label htmlFor="message">Inquiry</Label>
               <TextArea
@@ -120,15 +132,16 @@ export function AddInquiry() {
                 id="message"
                 placeholder="Enter inquiry"
                 rows={6}
-                {...inquiryForm.register("message")}
+                {...register("message")}
               />
-              {inquiryForm.formState.errors.message && (
+              {errors.message && (
                 <p className="text-sm text-red-500 dark:text-red-500/90">
-                  {inquiryForm.formState.errors.message.message}
+                  {errors.message.message}
                 </p>
               )}
             </div>
           </div>
+
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
@@ -137,13 +150,12 @@ export function AddInquiry() {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={inquiryForm.handleSubmit(onSubmit)}
             >
               Create
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }
