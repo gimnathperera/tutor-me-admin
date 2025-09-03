@@ -1,17 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Copy, Eye } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
@@ -49,7 +47,7 @@ export function FAQDetails({
       <DialogTrigger asChild>
         <Eye className="cursor-pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px] max-h-[75vh] scrollbar-thin overflow-y-auto bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[525px] max-h-[75vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Details</DialogTitle>
           <DialogDescription>FAQ Details</DialogDescription>
@@ -58,7 +56,10 @@ export function FAQDetails({
           <div className="grid gap-3">
             <Label>ID</Label>
             <div
-              className={`flex items-center justify-between ${displayFieldClass} cursor-pointer group`}
+              className={cn(
+                "flex items-center justify-between cursor-pointer group",
+                displayFieldClass,
+              )}
               onClick={copyID}
             >
               <span>{id}</span>
@@ -70,7 +71,15 @@ export function FAQDetails({
           </div>
           <div className="grid gap-3">
             <Label>Created At</Label>
-            <div className={displayFieldClass}>{createdAt}</div>
+            <div className={displayFieldClass}>
+              {new Date(createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </div>
           </div>
           <div className="grid gap-3">
             <Label>Question</Label>
@@ -78,14 +87,11 @@ export function FAQDetails({
           </div>
           <div className="grid gap-3">
             <Label>Answer</Label>
-            <div className={`${displayFieldClass} min-h-[5rem]`}>{answer}</div>
+            <div className={cn("min-h-[5rem]", displayFieldClass)}>
+              {answer}
+            </div>
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

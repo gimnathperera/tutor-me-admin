@@ -40,15 +40,21 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
   const [updateSubject, { isLoading }] = useUpdateSubjectMutation();
 
   const onSubmit = async (data: UpdateSubjectSchema) => {
-    const result = await updateSubject({ id, ...data });
-    const error = getErrorInApiResult(result);
-    if (error) {
-      return toast.error(error);
-    }
-    if ("data" in result) {
-      onUpdateSuccess();
+    try {
+      const result = await updateSubject({ id, ...data });
+      const error = getErrorInApiResult(result);
+      if (error) {
+        return toast.error(error);
+      }
+      if ("data" in result) {
+        onUpdateSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during subject update:", error);
+      toast.error("An unexpected error occurred while updating the subject");
     }
   };
+  
   const { formState } = updateSubjectForm;
 
   const onUpdateSuccess = () => {

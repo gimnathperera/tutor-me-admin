@@ -25,6 +25,16 @@ export type Faq = BaseEntity & {
   answer: string;
 };
 
+// Inquiry
+export type Inquiry = {
+  message: string;
+  sender: {
+    name: string;
+    email: string;
+  };
+} & Id &
+  Timestamp;
+
 export type Level = {
   createdAt: string;
   updatedAt: string;
@@ -58,11 +68,33 @@ export type TuitionRateGroup = {
 };
 // Subject
 export type Subject = BaseEntity & WithTitleDescription;
+// export type Level = BaseEntity & WithTitleDescription;
 
 // Grade
 export type Grade = BaseEntity &
   WithTitleDescription & {
     subjects: Subject[];
+  };
+
+//tuition rates
+export type TuitionRate = {
+  minimumRate: string;
+  maximumRate: string;
+};
+
+export type EntityRef = {
+  id: string;
+  title: string;
+};
+
+export type TuitionRates = BaseEntity &
+  WithTitleDescription & {
+    subject: EntityRef;
+    grade: EntityRef;
+    level: EntityRef;
+    fullTimeTuitionRate: TuitionRate[];
+    govTuitionRate: TuitionRate[];
+    partTimeTuitionRate: TuitionRate[];
   };
 
 // Paper
@@ -232,6 +264,7 @@ export type FindMyTutorResponse = {
   Timestamp;
 
 export type FaqResponse = PaginatedResponse<Faq>;
+export type InquiryResponse = PaginatedResponse<Inquiry>;
 export type SubjectResponse = PaginatedResponse<Subject>;
 export type GradeResponse = PaginatedResponse<Grade>;
 export type PaperResponse = PaginatedResponse<Paper>;

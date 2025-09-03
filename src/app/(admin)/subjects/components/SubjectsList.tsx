@@ -1,15 +1,23 @@
 "use client";
 
 import DataTable from "@/components/tables/DataTable";
+import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { useState } from "react";
 import { DeleteSubject } from "./DeleteSubject";
 import { UpdateSubject } from "./edit-subject/page";
 import { SubjectDetails } from "./ViewDetails";
 
+interface Subject {
+  id: string;
+  title?: string;
+  description?: string;
+  createdAt?: string;
+}
+
 export default function SubjectsTable() {
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   const { data, isLoading } = useFetchSubjectsQuery({
     page,
@@ -25,25 +33,66 @@ export default function SubjectsTable() {
     setPage(newPage);
   };
 
+  const getSafeValue = (value: string | undefined | null, fallback = "N/A"): string => {
+    if (value === undefined || value === null || value.trim() === "") {
+      return fallback;
+    }
+    return value;
+  };
+
   const columns = [
-    { key: "title", header: "Title" },
-    { key: "description", header: "Description" },
+    {
+      key: "title",
+      header: "Title",
+      className: "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+      render: (row: Subject) => {
+        const safeTitle = getSafeValue(row.title, "No title provided");
+        return (
+          <span 
+            title={`Title: ${safeTitle}`}
+            className={`truncate block ${!row.title ? 'text-gray-400 italic' : ''}`}
+          >
+            {safeTitle}
+          </span>
+        );
+      },
+    },
+    {
+      key: "description",
+      header: "Description",
+      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      render: (row: Subject) => {
+        const safeDescription = getSafeValue(row.description, "No description provided");
+        return (
+          <span 
+            title={`Description: ${safeDescription}`}
+            className={`truncate block ${!row.description ? 'text-gray-400 italic' : ''}`}
+          >
+            {safeDescription}
+          </span>
+        );
+      },
+    },
     {
       key: "edit",
       header: "Edit",
-      render: (row: { id: string; title: string; description: string }) => (
-        <UpdateSubject
-          id={row.id}
-          title={row.title}
-          description={row.description}
-        />
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Subject) => (
+        <div className="w-full flex justify-center items-center">
+          <UpdateSubject
+            id={row.id}
+            title={getSafeValue(row.title, "")}
+            description={getSafeValue(row.description, "")}
+          />
+        </div>
       ),
     },
     {
       key: "delete",
       header: "Delete",
-      render: (row: { id: string }) => (
-        <div className="flex justify-center items-center">
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Subject) => (
+        <div className="w-full flex justify-center items-center">
           <DeleteSubject subjectId={row.id} />
         </div>
       ),
@@ -51,9 +100,13 @@ export default function SubjectsTable() {
     {
       key: "view",
       header: "View",
-      render: (row: { title: string; description: string }) => (
-        <div className="flex justify-center items-center">
-          <SubjectDetails title={row.title} description={row.description} />
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Subject) => (
+        <div className="w-full flex justify-center items-center">
+          <SubjectDetails 
+            title={getSafeValue(row.title, "No title provided")} 
+            description={getSafeValue(row.description, "No description provided")} 
+          />
         </div>
       ),
     },

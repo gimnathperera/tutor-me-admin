@@ -53,14 +53,19 @@ export function AddLevel() {
     })) || [];
 
   const onSubmit = async (data: CreateLevelSchema) => {
-    const result = await createLevel(data);
-    const error = getErrorInApiResult(result);
-    if (error) return toast.error(error);
+    try {
+      const result = await createLevel(data);
+      const error = getErrorInApiResult(result);
+      if (error) return toast.error(error);
 
-    if ("data" in result) {
-      reset();
-      toast.success("Level created successfully");
-      setOpen(false);
+      if ("data" in result) {
+        reset();
+        toast.success("Level created successfully");
+        setOpen(false);
+      }
+    } catch (error) {
+      console.error("Unexpected error during level creation:", error);
+      toast.error("An unexpected error occurred while creating the level.");
     }
   };
 
@@ -169,7 +174,6 @@ export function AddLevel() {
                 control={control}
                 render={({ field }) => (
                   <MultiSelect
-                    label="Select Subjects"
                     options={subjectOptions}
                     defaultSelected={field.value || []}
                     onChange={(values) => field.onChange(values)}

@@ -64,6 +64,12 @@ export type FetchFaqRequest = {
   page: number;
   limit: number;
 };
+
+export type FetchInquiryRequest = {
+  page: number;
+  limit: number; 
+};
+
 export type FetchLevelRequest = {
   page: number;
   limit: number;
@@ -79,28 +85,6 @@ export type FetchPapersRequest = {
   limit: number;
   grade: string;
   subject: string;
-};
-
-export type FetchGradesRequest = {
-  title?: string;
-  description?: string;
-  subjects?: string[];
-  page?: number;
-  sortBy?: string;
-  limit?: number;
-  gradeId?: string;
-};
-export type FetchTuitionRatesRequest = {
-  tuitionRateId?: string;
-  title?: string;
-  levelId?: string;
-  tutorType?: string;
-  subject?: string;
-  grade?: string;
-  maximumRate?: string;
-  minimumRate?: string;
-  page?: number;
-  limit?: number;
 };
 
 export type CreateSubjectRequest = {
@@ -119,6 +103,45 @@ export type UpdateGradeRequest = {
   title: string;
   description: string;
   subjects: string[];
+};
+
+export type FetchGradesRequest = {
+  title?: string;
+  description?: string;
+  subjects?: string[];
+  page?: number;
+  sortBy?: string;
+  limit?: number;
+  gradeId?: string;
+};
+//tuition rates types
+
+export type TuitionRate = {
+  minimumRate: string;
+  maximumRate: string;
+};
+
+export type UpdateTuitionRateRequest = {
+  id: string;
+  level: string;
+  subject: string;
+  grade: string;
+  fullTimeTuitionRate?: TuitionRate[];
+  govTuitionRate?: TuitionRate[];
+  partTimeTuitionRate?: TuitionRate[];
+};
+
+export type FetchTuitionRatesRequest = {
+  level?: string[];
+  subject?: string[];
+  grade?: string[];
+  fullTimeTuitionRate?: TuitionRate[];
+  govTuitionRate?: TuitionRate[];
+  partTimeTuitionRate?: TuitionRate[];
+  page?: number;
+  sortBy?: string;
+  limit?: number;
+  rateId?: string;
 };
 
 export type FetchSubjectsRequest = {

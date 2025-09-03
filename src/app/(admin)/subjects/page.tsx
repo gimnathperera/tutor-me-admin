@@ -1,12 +1,5 @@
-import { Metadata } from "next";
 import SubjectsTable from "./components/SubjectsList";
 import { AddSubject } from "./components/add-subject/page";
-
-export const metadata: Metadata = {
-  title: "Next.js Profile | TutorMe - Next.js Dashboard Template",
-  description:
-    "This is Next.js Profile page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
-};
 
 export default function Profile() {
   return (

@@ -35,6 +35,7 @@ export function AddGrade() {
     defaultValues: initialFormValues as CreateGradeSchema,
     mode: "onChange",
   });
+  const { formState } = createGradeForm;
 
   const [createGrade, { isLoading }] = useCreateGradeMutation();
   const { data: subjectsData, isLoading: subjectsLoading } =
@@ -48,14 +49,19 @@ export function AddGrade() {
     })) || [];
 
   const onSubmit = async (data: CreateGradeSchema) => {
-    console.log("Submitting grade:", data);
+    try {
+      console.log("Submitting grade:", data);
 
-    const result = await createGrade(data);
-    const error = getErrorInApiResult(result);
-    if (error) return toast.error(error);
+      const result = await createGrade(data);
+      const error = getErrorInApiResult(result);
+      if (error) return toast.error(error);
 
-    if ("data" in result) {
-      onRegisterSuccess();
+      if ("data" in result) {
+        onRegisterSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during grade creation:", error);
+      toast.error("An unexpected error occurred while creating the grade.");
     }
   };
 
@@ -91,6 +97,11 @@ export function AddGrade() {
                 placeholder="Title"
                 {...createGradeForm.register("title")}
               />
+              {formState.errors.title && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.title.message}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-3">
@@ -101,6 +112,11 @@ export function AddGrade() {
                 type="text"
                 {...createGradeForm.register("description")}
               />
+              {formState.errors.description && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.description.message}
+                </p>
+              )}
             </div>
             <div className="grid gap-3">
               <Label>Subjects</Label>
@@ -109,7 +125,7 @@ export function AddGrade() {
                 control={createGradeForm.control}
                 render={({ field }) => (
                   <MultiSelect
-                    label="Select Subjects"
+                    label=""
                     options={subjectOptions}
                     defaultSelected={field.value || []}
                     onChange={(values) => field.onChange(values)}
@@ -117,6 +133,11 @@ export function AddGrade() {
                   />
                 )}
               />
+              {formState.errors.subjects && (
+                <p className="text-sm pl-1 text-red-500">
+                  {formState.errors.subjects.message}
+                </p>
+              )}
             </div>
           </div>
 

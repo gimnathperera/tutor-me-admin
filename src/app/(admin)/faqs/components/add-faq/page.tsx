@@ -24,38 +24,52 @@ import {
   createFaqSchema,
   initialFaqFormValues,
 } from "./schema";
+import TextArea from "@/components/form/input/TextArea";
 
 export function AddFAQ() {
   const [open, setOpen] = useState(false);
 
-  const faqForm = useForm({
-    resolver: zodResolver(createFaqSchema),
-    defaultValues: initialFaqFormValues as CreateFaqSchema,
-    mode: "onChange",
-  });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateFaqSchema>({
+  resolver: zodResolver(createFaqSchema),
+  defaultValues: initialFaqFormValues,
+  mode: "onChange",
+});
 
   const [createFaq, { isLoading }] = useCreateFaqMutation();
 
   const onSubmit = async (data: CreateFaqSchema) => {
-    const result = await createFaq(data);
-    const error = getErrorInApiResult(result);
-    if (error) {
-      return toast.error(error);
-    }
-    if ("data" in result) {
-      onRegisterSuccess();
+    try {
+      const result = await createFaq(data);
+      const error = getErrorInApiResult(result);
+      if (error) {
+        return toast.error(error);
+      }
+      if ("data" in result) {
+        onRegisterSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during FAQ creation:", error);
+      toast.error("An unexpected error occurred while creating the FAQ.");
     }
   };
 
   const onRegisterSuccess = () => {
-    faqForm.reset();
+    reset();
     toast.success("FAQ created successfully");
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={faqForm.handleSubmit(onSubmit)}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          reset();
+        }
+      }}
+    >
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
@@ -64,7 +78,7 @@ export function AddFAQ() {
             Add FAQ
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add FAQ</DialogTitle>
             <DialogDescription>
@@ -75,19 +89,30 @@ export function AddFAQ() {
             <div className="grid gap-3">
               <Label htmlFor="question">Question</Label>
               <Input
+                className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="question"
                 placeholder="Enter FAQ question"
-                {...faqForm.register("question")}
+                {...register("question")}
               />
+              {errors.question && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {errors.question.message}
+                </p>
+              )}
             </div>
             <div className="grid gap-3">
               <Label htmlFor="answer">Answer</Label>
-              <Input
+              <TextArea
                 id="answer"
                 placeholder="Enter FAQ answer"
-                type="text"
-                {...faqForm.register("answer")}
+                rows={6}
+                {...register("answer")}
               />
+              {errors.answer && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {errors.answer.message}
+                </p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -98,7 +123,7 @@ export function AddFAQ() {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={faqForm.handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmit)}
             >
               Create
             </Button>

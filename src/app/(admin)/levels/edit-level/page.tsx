@@ -67,15 +67,20 @@ export function UpdateLevel({
     })) || [];
 
   const onSubmit = async (data: UpdateLevelSchema) => {
-    const result = await updateLevel({ id, ...data } as any);
-    const error = getErrorInApiResult(result);
-    if (error) {
-      return toast.error(error);
-    }
-    if ("data" in result) {
-      setOpen(false);
-      updateLevelForm.reset();
-      toast.success("Level updated successfully");
+    try {
+      const result = await updateLevel({ id, ...data } as any);
+      const error = getErrorInApiResult(result);
+      if (error) {
+        return toast.error(error);
+      }
+      if ("data" in result) {
+        setOpen(false);
+        updateLevelForm.reset();
+        toast.success("Level updated successfully");
+      }
+    } catch (error) {
+      console.error("Unexpected error during level update:", error);
+      toast.error("An unexpected error occurred while updating the level.");
     }
   };
 
@@ -157,7 +162,6 @@ export function UpdateLevel({
             <div>
               <Label>Subjects</Label>
               <MultiSelect
-                label="Subjects"
                 options={subjectOptions}
                 defaultSelected={subjects}
                 onChange={(values: string[]) => setValue("subjects", values)}

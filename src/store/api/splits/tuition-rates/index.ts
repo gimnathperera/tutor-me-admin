@@ -1,39 +1,70 @@
-import { FetchTuitionRatesRequest } from "@/types/request-types";
-import { PaginatedResponse, TuitionRateItem } from "@/types/response-types";
+import { CreateTuitionSchema } from "@/app/(admin)/tuition-rates/create-tuition-rate/schema";
+import {
+  FetchTuitionRatesRequest,
+  UpdateTuitionRateRequest,
+} from "@/types/request-types";
+import { PaginatedResponse, TuitionRates } from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
-// Extend baseApi for tuition rates
 export const TuitionRatesApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    // ✅ Fetch all tuition rates (paginated)
     fetchTuitionRates: build.query<
-      PaginatedResponse<TuitionRateItem>,
+      PaginatedResponse<TuitionRates>,
       FetchTuitionRatesRequest
     >({
-      query: ({ tuitionRateId, ...rest }) => ({
-        url: Endpoints.TuitionRates,
-        method: "GET",
-        params: rest,
-      }),
+      query: (payload) => {
+        const { rateId, ...rest } = payload;
+        return {
+          url: Endpoints.TuitionRates,
+          method: "GET",
+          params: rest,
+        };
+      },
       providesTags: ["TuitionRates"],
     }),
 
-    // ✅ Fetch a single tuition rate by ID
-    fetchTuitionRatesById: build.query<
-      TuitionRateItem,
-      { tuitionRateId: string }
-    >({
-      query: ({ tuitionRateId }) => ({
-        url: `${Endpoints.TuitionRates}/${tuitionRateId}`,
+    fetchTuitionRateById: build.query<TuitionRates, string>({
+      query: (id) => ({
+        url: `${Endpoints.TuitionRates}/${id}`,
         method: "GET",
       }),
-      providesTags: ["TuitionRates"],
+    }),
+
+    createTuitionRate: build.mutation<TuitionRates, CreateTuitionSchema>({
+      query: (payload) => ({
+        url: Endpoints.TuitionRates,
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["TuitionRates"],
+    }),
+
+    updateTuitionRate: build.mutation<TuitionRates, UpdateTuitionRateRequest>({
+      query: ({ id, ...payload }) => ({
+        url: `${Endpoints.TuitionRates}/${id}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: ["TuitionRates"],
+    }),
+
+    deleteTuitionRate: build.mutation<void, string>({
+      query: (id) => ({
+        url: `${Endpoints.TuitionRates}/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["TuitionRates"],
     }),
   }),
   overrideExisting: false,
 });
 
-// Export hooks for use in components
-export const { useFetchTuitionRatesQuery, useFetchTuitionRatesByIdQuery } =
-  TuitionRatesApi;
+export const {
+  useFetchTuitionRatesQuery,
+  useFetchTuitionRateByIdQuery,
+  useLazyFetchTuitionRateByIdQuery,
+  useCreateTuitionRateMutation,
+  useUpdateTuitionRateMutation,
+  useDeleteTuitionRateMutation,
+} = TuitionRatesApi;
