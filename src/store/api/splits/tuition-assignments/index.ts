@@ -1,33 +1,62 @@
-import { FetchTuitionAssignments } from "@/types/request-types";
-import { TuitionAssignment, PaginatedResponse } from "@/types/response-types";
+import { CreateAssignmentSchema } from "@/app/(admin)/assignments/components/add-assignment/schema";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
-export const TuitionAssignmentsApi = baseApi.injectEndpoints({
+export const AssignmentsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    fetchTuitionAssignments: build.query<
-      PaginatedResponse<TuitionAssignment>,
-      FetchTuitionAssignments
+    fetchAssignments: build.query<
+      any,
+      { page: number; limit: number; sortBy: string }
     >({
-      query: (payload) => ({
+      query: (params) => ({
         url: Endpoints.TuitionAssignments,
         method: "GET",
-        params: payload,
+        params,
       }),
       providesTags: ["TuitionAssignments"],
     }),
-    fetchTuitionAssignmentById: build.query<TuitionAssignment, string>({
+
+    fetchAssignmentById: build.query<any, string>({
       query: (id) => ({
         url: `${Endpoints.TuitionAssignments}/${id}`,
         method: "GET",
       }),
+    }),
+
+    createAssignment: build.mutation<any, CreateAssignmentSchema>({
+      query: (payload) => ({
+        url: Endpoints.TuitionAssignments,
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["TuitionAssignments"],
+    }),
+
+    updateAssignment: build.mutation<any, { id: string; [key: string]: any }>({
+      query: ({ id, ...payload }) => ({
+        url: `${Endpoints.TuitionAssignments}/${id}`,
+        method: "PATCH",
+        body: payload,
+      }),
+      invalidatesTags: ["TuitionAssignments"],
+    }),
+
+    deleteAssignment: build.mutation<void, string>({
+      query: (id) => ({
+        url: `${Endpoints.TuitionAssignments}/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["TuitionAssignments"],
     }),
   }),
   overrideExisting: false,
 });
 
 export const {
-  useFetchTuitionAssignmentsQuery,
-  useFetchTuitionAssignmentByIdQuery,
-  useLazyFetchTuitionAssignmentByIdQuery,
-} = TuitionAssignmentsApi;
+  useFetchAssignmentsQuery,
+  useFetchAssignmentByIdQuery,
+  useLazyFetchAssignmentByIdQuery,
+  useCreateAssignmentMutation,
+  useUpdateAssignmentMutation,
+  useDeleteAssignmentMutation,
+} = AssignmentsApi;
