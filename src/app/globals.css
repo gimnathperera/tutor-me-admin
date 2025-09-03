@@ -903,4 +903,13 @@ span.flatpickr-weekday,
   body {
     @apply bg-background text-foreground;
   }
+  input::selection,
+  textarea::selection {
+    @apply bg-black text-white;
+  }
+  .dark input::selection,
+  .dark textarea::selection {
+    @apply bg-white text-black;
+    
+  }
 }
