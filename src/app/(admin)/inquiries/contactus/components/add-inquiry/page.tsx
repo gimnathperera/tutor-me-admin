@@ -82,11 +82,11 @@ export function AddInquiry() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>Add Inquiry (Manually)</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="mb-2 ">
               Add a new inquiry with sender name, email, and inquiry.
             </DialogDescription>
           </DialogHeader>
