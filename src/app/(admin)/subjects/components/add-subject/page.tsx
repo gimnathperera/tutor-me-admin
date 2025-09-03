@@ -38,13 +38,18 @@ export function AddSubject() {
   const { formState } = createSubjectForm;
 
   const onSubmit = async (data: CreateSubjectSchema) => {
-    const result = await createSubject(data);
-    const error = getErrorInApiResult(result);
-    if (error) {
-      return toast.error(error);
-    }
-    if ("data" in result) {
-      onRegisterSuccess();
+    try {
+      const result = await createSubject(data);
+      const error = getErrorInApiResult(result);
+      if (error) {
+        return toast.error(error);
+      }
+      if ("data" in result) {
+        onRegisterSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during subject creation:", error);
+      toast.error("An unexpected error occurred while creating the subject");
     }
   };
 

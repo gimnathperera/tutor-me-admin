@@ -38,13 +38,18 @@ export function AddFAQ() {
   const [createFaq, { isLoading }] = useCreateFaqMutation();
 
   const onSubmit = async (data: CreateFaqSchema) => {
-    const result = await createFaq(data);
-    const error = getErrorInApiResult(result);
-    if (error) {
-      return toast.error(error);
-    }
-    if ("data" in result) {
-      onRegisterSuccess();
+    try {
+      const result = await createFaq(data);
+      const error = getErrorInApiResult(result);
+      if (error) {
+        return toast.error(error);
+      }
+      if ("data" in result) {
+        onRegisterSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during FAQ creation:", error);
+      toast.error("An unexpected error occurred while creating the FAQ.");
     }
   };
 

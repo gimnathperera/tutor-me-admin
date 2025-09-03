@@ -49,14 +49,19 @@ export function AddGrade() {
     })) || [];
 
   const onSubmit = async (data: CreateGradeSchema) => {
-    console.log("Submitting grade:", data);
+    try {
+      console.log("Submitting grade:", data);
 
-    const result = await createGrade(data);
-    const error = getErrorInApiResult(result);
-    if (error) return toast.error(error);
+      const result = await createGrade(data);
+      const error = getErrorInApiResult(result);
+      if (error) return toast.error(error);
 
-    if ("data" in result) {
-      onRegisterSuccess();
+      if ("data" in result) {
+        onRegisterSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during grade creation:", error);
+      toast.error("An unexpected error occurred while creating the grade.");
     }
   };
 

@@ -11,25 +11,31 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useDeleteLevelMutation } from "@/store/api/splits/levels";
+import { useDeletePaperMutation } from "@/store/api/splits/papers";
 import { getErrorInApiResult } from "@/utils/api";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface DeleteLevelProps {
-  levelId: string;
+interface DeletePaperProps {
+  paperId: string;
 }
 
-export function DeleteLevel({ levelId }: DeleteLevelProps) {
-  const [deleteLevel, { isLoading }] = useDeleteLevelMutation();
+export function DeletePaper({ paperId }: DeletePaperProps) {
+  const [deletePaper, { isLoading }] = useDeletePaperMutation();
 
   const handleDelete = async () => {
     try {
-      await deleteLevel(levelId).unwrap();
-      toast.success("Level deleted successfully");
-    } catch (err) {
-      const error = getErrorInApiResult(err);
-      toast.error(error || "An error occurred while performing the request.");
+      const result = await deletePaper(paperId);
+
+      if ("error" in result) {
+        const error = getErrorInApiResult({ error: result.error });
+        toast.error(error);
+      } else {
+        toast.success("Paper deleted successfully");
+      }
+    } catch (error) {
+      console.error("Unexpected error during delete:", error);
+      toast.error("An unexpected error occurred while deleting the paper");
     }
   };
 
@@ -38,12 +44,12 @@ export function DeleteLevel({ levelId }: DeleteLevelProps) {
       <AlertDialogTrigger asChild>
         <Trash2 className="text-red-500 cursor-pointer" />
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+      <AlertDialogContent className="bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
-            Level.
+            paper.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

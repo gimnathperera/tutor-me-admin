@@ -69,7 +69,7 @@ export default function DataTable<T extends { id: string | number }>({
   return (
     <div
       className={
-        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90 "
+        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90 max-w-[73.5vw]"
       }
     >
       <div className="max-w-full overflow-x-auto">
@@ -97,7 +97,7 @@ export default function DataTable<T extends { id: string | number }>({
                   {columns.map((col) => (
                     <TableCell
                       key={col.key}
-                      className={`px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 max-w-[45.5vw] ${col.className ?? ""} ${col.bodyClassName ?? ""}`}
+                      className={`px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 max-w-[15.5vw] ${col.className ?? ""} ${col.bodyClassName ?? ""}`}
                     >
                       {isLoading ? (
                         <Skeleton className="h-4 w-[120px]" />
