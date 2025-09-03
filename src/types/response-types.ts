@@ -68,11 +68,33 @@ export type TuitionRateGroup = {
 };
 // Subject
 export type Subject = BaseEntity & WithTitleDescription;
+// export type Level = BaseEntity & WithTitleDescription;
 
 // Grade
 export type Grade = BaseEntity &
   WithTitleDescription & {
     subjects: Subject[];
+  };
+
+//tuition rates
+export type TuitionRate = {
+  minimumRate: string;
+  maximumRate: string;
+};
+
+export type EntityRef = {
+  id: string;
+  title: string;
+};
+
+export type TuitionRates = BaseEntity &
+  WithTitleDescription & {
+    subject: EntityRef;
+    grade: EntityRef;
+    level: EntityRef;
+    fullTimeTuitionRate: TuitionRate[];
+    govTuitionRate: TuitionRate[];
+    partTimeTuitionRate: TuitionRate[];
   };
 
 // Paper
