@@ -73,13 +73,18 @@ export function EditPaper({
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
   const onSubmit = async (data: PaperSchema) => {
-    const result = await updatePaper({ id, ...data });
-    const error = getErrorInApiResult(result);
-    if (error) {
-      return toast.error(error);
-    }
-    if ("data" in result) {
-      onUpdateSuccess();
+    try {
+      const result = await updatePaper({ id, ...data });
+      const error = getErrorInApiResult(result);
+      if (error) {
+        return toast.error(error);
+      }
+      if ("data" in result) {
+        onUpdateSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during paper update:", error);
+      toast.error("An unexpected error occurred while updating the paper.");
     }
   };
 

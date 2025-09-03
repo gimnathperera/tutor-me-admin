@@ -57,13 +57,18 @@ export function AddPaper() {
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
   const onSubmit = async (data: PaperSchema) => {
-    const result = await createPaper(data);
-    const error = getErrorInApiResult(result);
-    if (error) {
-      return toast.error(error);
-    }
-    if ("data" in result) {
-      onRegisterSuccess();
+    try {
+      const result = await createPaper(data);
+      const error = getErrorInApiResult(result);
+      if (error) {
+        return toast.error(error);
+      }
+      if ("data" in result) {
+        onRegisterSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during paper creation:", error);
+      toast.error("An unexpected error occurred while creating the paper");
     }
   };
 

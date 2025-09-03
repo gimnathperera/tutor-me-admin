@@ -40,13 +40,18 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   const [updateFaq, { isLoading }] = useUpdateFaqMutation();
 
   const onSubmit = async (data: UpdateFaqSchema) => {
-    const result = await updateFaq({ id, body: { ...data } });
-    const error = getErrorInApiResult(result);
-    if (error) {
-      return toast.error(error);
-    }
-    if ("data" in result) {
-      onUpdateSuccess();
+    try {
+      const result = await updateFaq({ id, body: { ...data } });
+      const error = getErrorInApiResult(result);
+      if (error) {
+        return toast.error(error);
+      }
+      if ("data" in result) {
+        onUpdateSuccess();
+      }
+    } catch (error) {
+      console.error("Unexpected error during FAQ update:", error);
+      toast.error("An unexpected error occurred while updating the FAQ.");
     }
   };
 

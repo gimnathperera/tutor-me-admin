@@ -68,13 +68,18 @@ export function UpdateGrade({
   }, [open, title, description, subjects, subjectsData, reset]);
 
   const onSubmit = async (data: UpdateGradeSchema) => {
-    const result = await updateGrade({ id, ...data });
-    const error = getErrorInApiResult(result);
-    if (error) return toast.error(error);
+    try {
+      const result = await updateGrade({ id, ...data });
+      const error = getErrorInApiResult(result);
+      if (error) return toast.error(error);
 
-    if ("data" in result) {
-      toast.success("Grade updated successfully");
-      setOpen(false);
+      if ("data" in result) {
+        toast.success("Grade updated successfully");
+        setOpen(false);
+      }
+    } catch (error) {
+      console.error("Unexpected error during grade update:", error);
+      toast.error("An unexpected error occurred while updating the grade.");
     }
   };
 
