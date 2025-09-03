@@ -9,6 +9,27 @@ import { DeletePaper } from "./DeletePaper";
 import { EditPaper } from "./edit-paper/page";
 import { PaperDetails } from "./ViewDetails";
 
+interface Grade {
+  id: string;
+  title: string;
+}
+
+interface Subject {
+  id: string;
+  title: string;
+}
+
+interface Paper {
+  id: string;
+  title?: string;
+  description?: string;
+  grade?: Grade;
+  subject?: Subject;
+  year?: string;
+  url?: string;
+  createdAt?: string;
+}
+
 export default function PapersTable() {
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -19,24 +40,51 @@ export default function PapersTable() {
     sortBy: "createdAt:desc",
   });
 
-  const subjects = data?.results || [];
+  const papers = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
-
-  interface Row {
-    subject: { title: string };
-    grade: { title: string };
-    year: string;
-    url: string;
-  }
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
   };
 
-  const copyToClipboard = async (url: string) => {
+  const getSafeValue = (value: string | undefined | null, fallback = "N/A"): string => {
+    if (value === undefined || value === null || value.trim() === "") {
+      return fallback;
+    }
+    return value;
+  };
+
+  const getSafeNestedValue = (
+    obj: { title?: string; id?: string } | undefined | null,
+    property: 'title' | 'id',
+    fallback = "N/A"
+  ): string => {
+    if (!obj || !obj[property]) {
+      return fallback;
+    }
+    return obj[property] || fallback;
+  };
+
+  const isValidUrl = (url: string | undefined | null): boolean => {
+    if (!url) return false;
     try {
-      await navigator.clipboard.writeText(url);
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const copyToClipboard = async (url: string | undefined | null) => {
+    const safeUrl = getSafeValue(url, "");
+    if (!safeUrl || safeUrl === "N/A") {
+      toast.error("No URL to copy");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(safeUrl);
       toast.success("Paper URL copied to clipboard");
     } catch (err) {
       console.error("Failed to copy:", err);
@@ -45,49 +93,112 @@ export default function PapersTable() {
   };
 
   const columns = [
-    { key: "title", header: "Title" },
+    {
+      key: "title",
+      header: "Title",
+      className: "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+      render: (row: Paper) => {
+        const safeTitle = getSafeValue(row.title, "No title provided");
+        return (
+          <span 
+            title={`Title: ${safeTitle}`}
+            className={`truncate block ${!row.title ? 'text-gray-400 italic' : ''}`}
+          >
+            {safeTitle}
+          </span>
+        );
+      },
+    },
     {
       key: "subject",
       header: "Subject",
-      render: (row: Row) => row.subject.title,
+      className: "min-w-[120px] max-w-[180px] truncate overflow-hidden cursor-default",
+      render: (row: Paper) => {
+        const safeSubjectTitle = getSafeNestedValue(row.subject, 'title', 'No subject');
+        return (
+          <span 
+            title={`Subject: ${safeSubjectTitle}`}
+            className={`truncate block ${!row.subject?.title ? 'text-gray-400 italic' : ''}`}
+          >
+            {safeSubjectTitle}
+          </span>
+        );
+      },
     },
-    { key: "grade", header: "Grade", render: (row: Row) => row.grade.title },
-    { key: "year", header: "Year" },
+    {
+      key: "grade",
+      header: "Grade",
+      className: "min-w-[100px] max-w-[150px] truncate overflow-hidden cursor-default",
+      render: (row: Paper) => {
+        const safeGradeTitle = getSafeNestedValue(row.grade, 'title', 'No grade');
+        return (
+          <span 
+            title={`Grade: ${safeGradeTitle}`}
+            className={`truncate block ${!row.grade?.title ? 'text-gray-400 italic' : ''}`}
+          >
+            {safeGradeTitle}
+          </span>
+        );
+      },
+    },
+    {
+      key: "year",
+      header: "Year",
+      className: "min-w-[80px] max-w-[100px] cursor-default",
+      render: (row: Paper) => {
+        const safeYear = getSafeValue(row.year, "No year");
+        return (
+          <span 
+            title={`Year: ${safeYear}`}
+            className={`${!row.year ? 'text-gray-400 italic' : ''}`}
+          >
+            {safeYear}
+          </span>
+        );
+      },
+    },
     {
       key: "url",
       header: "URL",
-      render: (row: { url: string }) => (
-        <span
-          onClick={() => copyToClipboard(row.url)}
-          title={"Click to copy"}
-          className="cursor-pointer relative group truncate max-w-full flex items-center gap-1 hover:underline hover:text-blue-700 dark:hover:text-blue-400"
-        >
-          {row.url}
-          <Copy className="w-4 opacity-0 group-hover:opacity-100 transition-opacity text:text-blue-700 dark:text-blue-400 flex-shrink-0" />
-        </span>
-      ),
+      className: "min-w-[200px] max-w-[250px] truncate overflow-hidden cursor-default",
+      render: (row: Paper) => {
+        const safeUrl = getSafeValue(row.url, "");
+        const hasValidUrl = isValidUrl(row.url);
+        
+        if (!hasValidUrl) {
+          return (
+            <span className="text-gray-400 italic" title="No valid URL available">
+              No URL provided
+            </span>
+          );
+        }
+
+        return (
+          <span
+            onClick={() => copyToClipboard(row.url)}
+            title="Click to copy URL"
+            className="cursor-pointer relative group truncate max-w-full flex items-center gap-1 hover:underline hover:text-blue-700 dark:hover:text-blue-400"
+          >
+            <span className="truncate">{safeUrl}</span>
+            <Copy className="w-4 opacity-0 group-hover:opacity-100 transition-opacity text-blue-700 dark:text-blue-400 flex-shrink-0" />
+          </span>
+        );
+      },
     },
     {
       key: "edit",
       header: "Edit",
-      render: (row: {
-        id: string;
-        title: string;
-        description: string;
-        grade: { id: string };
-        subject: { id: string };
-        year: string;
-        url: string;
-      }) => (
-        <div className="flex justify-center items-center">
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Paper) => (
+        <div className="w-full flex justify-center items-center">
           <EditPaper
             id={row.id}
-            title={row.title}
-            description={row.description}
-            grade={row.grade?.id}
-            subject={row.subject?.id}
-            year={row.year}
-            url={row.url}
+            title={getSafeValue(row.title, "")}
+            description={getSafeValue(row.description, "")}
+            grade={getSafeNestedValue(row.grade, 'id', "")}
+            subject={getSafeNestedValue(row.subject, 'id', "")}
+            year={getSafeValue(row.year, "")}
+            url={getSafeValue(row.url, "")}
           />
         </div>
       ),
@@ -95,8 +206,9 @@ export default function PapersTable() {
     {
       key: "delete",
       header: "Delete",
-      render: (row: { id: string }) => (
-        <div className="flex justify-center items-center">
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Paper) => (
+        <div className="w-full flex justify-center items-center">
           <DeletePaper paperId={row.id} />
         </div>
       ),
@@ -104,23 +216,16 @@ export default function PapersTable() {
     {
       key: "view",
       header: "View",
-      render: (row: {
-        id: string;
-        title: string;
-        description: string;
-        grade: { title: string };
-        subject: { title: string };
-        year: string;
-        url: string;
-      }) => (
-        <div className="flex justify-center items-center">
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Paper) => (
+        <div className="w-full flex justify-center items-center">
           <PaperDetails
-            title={row.title}
-            description={row.description}
-            grade={row.grade?.title}
-            subject={row.subject?.title}
-            year={row.year}
-            url={row.url}
+            title={getSafeValue(row.title, "No title provided")}
+            description={getSafeValue(row.description, "No description provided")}
+            grade={getSafeNestedValue(row.grade, 'title', "No grade specified")}
+            subject={getSafeNestedValue(row.subject, 'title', "No subject specified")}
+            year={getSafeValue(row.year, "No year specified")}
+            url={getSafeValue(row.url, "")}
           />
         </div>
       ),
@@ -130,7 +235,7 @@ export default function PapersTable() {
   return (
     <DataTable
       columns={columns}
-      data={subjects}
+      data={papers}
       page={page}
       totalPages={totalPages}
       onPageChange={handlePageChange}
