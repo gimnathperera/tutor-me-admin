@@ -92,6 +92,7 @@ export function AddFAQ() {
                 className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="question"
                 placeholder="Enter FAQ question"
+                autoComplete="off"
                 {...register("question")}
               />
               {errors.question && (
@@ -106,6 +107,7 @@ export function AddFAQ() {
                 id="answer"
                 placeholder="Enter FAQ answer"
                 rows={6}
+                autoComplete="off"
                 {...register("answer")}
               />
               {errors.answer && (

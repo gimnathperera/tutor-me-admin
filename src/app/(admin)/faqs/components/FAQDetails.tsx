@@ -30,7 +30,7 @@ export function FAQDetails({
   const [open, setOpen] = useState(false);
 
   const displayFieldClass =
-    "w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-700 dark:text-white/90";
+    "w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-700 dark:text-white/90 scrollbar-thin overflow-x-auto";
 
   const copyID = async () => {
     try {

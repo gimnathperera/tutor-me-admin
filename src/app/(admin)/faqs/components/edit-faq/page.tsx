@@ -32,11 +32,16 @@ interface UpdateFAQProps {
 export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   const [open, setOpen] = useState(false);
 
- const { register, handleSubmit, reset, formState: { errors } } = useForm<UpdateFaqSchema>({
-  resolver: zodResolver(updateFaqSchema),
-  defaultValues: { question, answer },
-  mode: "onChange",
-});
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<UpdateFaqSchema>({
+    resolver: zodResolver(updateFaqSchema),
+    defaultValues: { question, answer },
+    mode: "onChange",
+  });
 
   const [updateFaq, { isLoading }] = useUpdateFaqMutation();
 
@@ -63,7 +68,15 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          reset({ question, answer });
+        }
+      }}
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer" />
@@ -80,6 +93,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
                 className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="question"
                 placeholder="Enter question"
+                autoComplete="off"
                 {...register("question")}
               />
               {errors.question && (
@@ -94,6 +108,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
                 id="answer"
                 placeholder="Enter answer"
                 rows={6}
+                autoComplete="off"
                 {...register("answer")}
               />
               {errors.answer && (

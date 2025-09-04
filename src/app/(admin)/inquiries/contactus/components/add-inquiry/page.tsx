@@ -99,6 +99,7 @@ export function AddInquiry() {
                 className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="senderName"
                 placeholder="Enter sender name"
+                autoComplete="off"
                 {...register("senderName")}
               />
               {errors.senderName && (
@@ -115,6 +116,7 @@ export function AddInquiry() {
                 className="dark:bg-gray-900 dark:placeholder:text-white/30"
                 id="senderEmail"
                 placeholder="Enter sender email"
+                autoComplete="off"
                 {...register("senderEmail")}
               />
               {errors.senderEmail && (
@@ -132,6 +134,7 @@ export function AddInquiry() {
                 id="message"
                 placeholder="Enter inquiry"
                 rows={6}
+                autoComplete="off"
                 {...register("message")}
               />
               {errors.message && (
