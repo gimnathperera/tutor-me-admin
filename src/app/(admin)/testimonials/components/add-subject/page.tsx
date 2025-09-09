@@ -13,38 +13,33 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCreateFaqMutation } from "@/store/api/splits/faqs";
+import { useCreateSubjectMutation } from "@/store/api/splits/subjects";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
-  CreateFaqSchema,
-  createFaqSchema,
-  initialFaqFormValues,
+  CreateSubjectSchema,
+  createSubjectSchema,
+  initialFormValues,
 } from "./schema";
-import TextArea from "@/components/form/input/TextArea";
 
-export function AddFAQ() {
+export function AddSubject() {
   const [open, setOpen] = useState(false);
+  const [createSubject, { isLoading }] = useCreateSubjectMutation();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateFaqSchema>({
-    resolver: zodResolver(createFaqSchema),
-    defaultValues: initialFaqFormValues,
+  const createSubjectForm = useForm({
+    resolver: zodResolver(createSubjectSchema),
+    defaultValues: initialFormValues as CreateSubjectSchema,
     mode: "onChange",
   });
 
-  const [createFaq, { isLoading }] = useCreateFaqMutation();
+  const { formState } = createSubjectForm;
 
-  const onSubmit = async (data: CreateFaqSchema) => {
+  const onSubmit = async (data: CreateSubjectSchema) => {
     try {
-      const result = await createFaq(data);
+      const result = await createSubject(data);
       const error = getErrorInApiResult(result);
       if (error) {
         return toast.error(error);
@@ -53,71 +48,60 @@ export function AddFAQ() {
         onRegisterSuccess();
       }
     } catch (error) {
-      console.error("Unexpected error during FAQ creation:", error);
-      toast.error("An unexpected error occurred while creating the FAQ.");
+      console.error("Unexpected error during subject creation:", error);
+      toast.error("An unexpected error occurred while creating the subject");
     }
   };
 
   const onRegisterSuccess = () => {
-    reset();
-    toast.success("FAQ created successfully");
+    createSubjectForm.reset();
+    toast.success("Subject created successfully");
     setOpen(false);
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(isOpen) => {
-        setOpen(isOpen);
-        if (!isOpen) {
-          reset();
-        }
-      }}
-    >
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <form onSubmit={createSubjectForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
             className="bg-blue-700 text-white hover:bg-blue-500"
           >
-            Add FAQ
+            Add Subject
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
-            <DialogTitle>Add FAQ</DialogTitle>
+            <DialogTitle>Add Subject</DialogTitle>
             <DialogDescription>
-              Add a new FAQ item with question and answer.
+              Add a new subject to the list.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-3">
-              <Label htmlFor="question">Question</Label>
+              <Label htmlFor="title">Title</Label>
               <Input
-                className="dark:bg-gray-900 dark:placeholder:text-white/30"
-                id="question"
-                placeholder="Enter FAQ question"
-                autoComplete="off"
-                {...register("question")}
+                id="title"
+                placeholder="Title"
+                {...createSubjectForm.register("title")}
               />
-              {errors.question && (
-                <p className="text-sm text-red-500 dark:text-red-500/90">
-                  {errors.question.message}
+              {formState.errors.title && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.title.message}
                 </p>
               )}
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="answer">Answer</Label>
-              <TextArea
-                id="answer"
-                placeholder="Enter FAQ answer"
-                rows={6}
-                autoComplete="off"
-                {...register("answer")}
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                placeholder="Description"
+                type="text"
+                {...createSubjectForm.register("description")}
               />
-              {errors.answer && (
-                <p className="text-sm text-red-500 dark:text-red-500/90">
-                  {errors.answer.message}
+              {formState.errors.description && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.description.message}
                 </p>
               )}
             </div>
@@ -130,7 +114,7 @@ export function AddFAQ() {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={handleSubmit(onSubmit)}
+              onClick={createSubjectForm.handleSubmit(onSubmit)}
             >
               Create
             </Button>

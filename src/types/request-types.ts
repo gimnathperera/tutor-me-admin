@@ -67,7 +67,7 @@ export type FetchFaqRequest = {
 
 export type FetchInquiryRequest = {
   page: number;
-  limit: number; 
+  limit: number;
 };
 
 export type FetchLevelRequest = {

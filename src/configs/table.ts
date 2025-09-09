@@ -1,5 +1,5 @@
 export const TABLE_CONFIG = {
   DEFAULT_PAGE: 1,
   DEFAULT_LIMIT: 10,
-  PAGINATION_LIMITS: [5, 10, 20, 50, 100] as const
+  PAGINATION_LIMITS: [5, 10, 20, 50, 100] as const,
 };

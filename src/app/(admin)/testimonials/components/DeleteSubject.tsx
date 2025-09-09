@@ -11,40 +11,45 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useDeleteInquiryMutation } from "@/store/api/splits/inquiries";
+import { useDeleteSubjectMutation } from "@/store/api/splits/subjects";
 import { getErrorInApiResult } from "@/utils/api";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface DeleteInquiryProps {
-  inquiryId: string | number;
+interface DeleteSubjectProps {
+  subjectId: string;
 }
 
-export function DeleteInquiry({ inquiryId }: DeleteInquiryProps) {
-  const [deleteInquiry, { isLoading }] = useDeleteInquiryMutation();
+export function DeleteSubject({ subjectId }: DeleteSubjectProps) {
+  const [deleteSubject, { isLoading }] = useDeleteSubjectMutation();
 
   const handleDelete = async () => {
-    const result = await deleteInquiry(String(inquiryId));
+    try {
+      const result = await deleteSubject(subjectId);
 
-    if (result.error) {
-      const error = getErrorInApiResult({ error: result.error });
-      toast.error(error);
-    } else {
-      toast.success("Inquiry deleted successfully");
+      if (result.error) {
+        const error = getErrorInApiResult({ error: result.error });
+        toast.error(error);
+      } else {
+        toast.success("Subject deleted successfully");
+      }
+    } catch (error) {
+      console.error("Unexpected error during subject deletion:", error);
+      toast.error("An unexpected error occurred while deleting the subject");
     }
   };
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Trash2 color="#EF4444" className="cursor-pointer" />
+        <Trash2 className="text-red-500 cursor-pointer" />
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+      <AlertDialogContent className="bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
-            inquiry.
+            Subject.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
