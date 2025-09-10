@@ -72,6 +72,20 @@ export default function UsersTable() {
       ),
     },
     {
+      key: "email",
+      header: "Email",
+      className:
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+      render: (row: User) => (
+        <span
+          title={row.email || "No email provided"}
+          className={`truncate block ${!row.email ? "text-gray-400 italic" : ""}`}
+        >
+          {getSafeValue(row.email, "No email provided")}
+        </span>
+      ),
+    },
+    {
       key: "role",
       header: "Role",
       className:
@@ -86,16 +100,16 @@ export default function UsersTable() {
       ),
     },
     {
-      key: "status",
-      header: "Status",
+      key: "createdAt",
+      header: "Created Date and Time",
       className:
         "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
       render: (row: User) => (
         <span
-          title={row.status || "No status provided"}
-          className={`truncate block ${!row.status ? "text-gray-400 italic" : ""}`}
+          title={row.createdAt || "No role provided"}
+          className={`truncate block ${!row.createdAt ? "text-gray-400 italic" : ""}`}
         >
-          {getSafeValue(row.status, "No status provided")}
+          {getSafeValue(row.createdAt, "No role provided")}
         </span>
       ),
     },
@@ -104,7 +118,7 @@ export default function UsersTable() {
       header: "View",
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-center items-center">
+        <div className="w-full flex justify-left items-center">
           <UserDetails
             id={row.id}
             email={row.email || ""}
@@ -134,9 +148,10 @@ export default function UsersTable() {
     {
       key: "edit",
       header: "Edit",
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      className:
+        "min-w-[80px]  flex justify-center items-center max-w-[80px] cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-center items-center">
+        <div className="w-full flex justify-left items-center">
           <UpdateUser
             id={row.id}
             email={row.email || ""}
@@ -168,8 +183,8 @@ export default function UsersTable() {
       header: "Delete",
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-center items-center">
-          <DeleteUser userId={row.id} />
+        <div className="w-full flex justify-left items-center">
+          <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />
         </div>
       ),
     },
