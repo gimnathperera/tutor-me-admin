@@ -14,6 +14,7 @@ import {
   MessageSquareMore,
   NotebookText,
   TextSearch,
+  User,
 } from "lucide-react";
 
 const NavItems = [
@@ -56,6 +57,15 @@ const NavItems = [
     path: "/inquiries",
     subItems: [
       { name: "Contact Us", path: "/inquiries/contactus", pro: false },
+    ],
+  },
+  {
+    name: "Users",
+    icon: <User />,
+    path: "/users",
+    subItems: [
+      { name: "Tutors", path: "/users/tutors", pro: false },
+      { name: "Users", path: "/users/all-users", pro: false },
     ],
   },
   {
