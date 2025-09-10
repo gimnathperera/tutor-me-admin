@@ -17,11 +17,11 @@ import { Eye } from "lucide-react";
 import { useState } from "react";
 
 interface TestimonialDetailsProps {
-  title: string;
-  description: string;
+  content: string;
+  rating: string;
 }
 
-export function TestimonialDetails({ title, description }: TestimonialDetailsProps) {
+export function TestimonialDetails({ content, rating }: TestimonialDetailsProps) {
   const [open, setOpen] = useState(false);
 
   const displayFieldClass =
@@ -39,15 +39,15 @@ export function TestimonialDetails({ title, description }: TestimonialDetailsPro
         </DialogHeader>
         <div className="grid gap-4">
           <div className="grid gap-3">
-            <Label>Title</Label>
-            <div className={cn(displayFieldClass)}>{title}</div>
+            <Label>Content</Label>
+            <div className={cn(displayFieldClass)}>{content}</div>
           </div>
           <div className="grid gap-3">
-            <Label>Description</Label>
+            <Label>Rating</Label>
             <div
               className={cn(displayFieldClass, "min-h-[5rem]", "overflow-auto")}
             >
-              {description}
+              {rating}
             </div>
           </div>
         </div>

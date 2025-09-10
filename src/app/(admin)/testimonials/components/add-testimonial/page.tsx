@@ -13,31 +13,28 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { initialFormValues, TestimonialSchema, testimonialSchema } from "@/schemas/testimonial.schema";
 import { useCreateTestimonialMutation } from "@/store/api/splits/testimonials";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import {
-  CreateTestimonialSchema,
-  createTestimonialSchema,
-  initialFormValues,
-} from "./schema";
+
 
 export function AddTestimonial() {
   const [open, setOpen] = useState(false);
   const [createTestimonial, { isLoading }] = useCreateTestimonialMutation();
 
   const createTestimonialForm = useForm({
-    resolver: zodResolver(createTestimonialSchema),
-    defaultValues: initialFormValues as CreateTestimonialSchema,
+    resolver: zodResolver(testimonialSchema),
+    defaultValues: initialFormValues as TestimonialSchema,
     mode: "onChange",
   });
 
   const { formState } = createTestimonialForm;
 
-  const onSubmit = async (data: CreateTestimonialSchema) => {
+  const onSubmit = async (data: TestimonialSchema) => {
     try {
       const result = await createTestimonial(data);
       const error = getErrorInApiResult(result);
@@ -79,29 +76,29 @@ export function AddTestimonial() {
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="content">Content</Label>
               <Input
-                id="title"
-                placeholder="Title"
-                {...createTestimonialForm.register("title")}
+                id="content"
+                placeholder="Content"
+                {...createTestimonialForm.register("content")}
               />
-              {formState.errors.title && (
+              {formState.errors.content && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.title.message}
+                  {formState.errors.content.message}
                 </p>
               )}
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="rating">Rating</Label>
               <Input
-                id="description"
-                placeholder="Description"
+                id="rating"
+                placeholder="Rating"
                 type="text"
-                {...createTestimonialForm.register("description")}
+                {...createTestimonialForm.register("rating")}
               />
-              {formState.errors.description && (
+              {formState.errors.rating && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.description.message}
+                  {formState.errors.rating.message}
                 </p>
               )}
             </div>

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { testimonialSchema, TestimonialSchema } from "@/schemas/testimonial.schema";
 import { useUpdateTestimonialMutation } from "@/store/api/splits/testimonials";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,26 +21,25 @@ import { SquarePen } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { UpdateTestimonialSchema, updateTestimonialSchema } from "./schema";
 
 interface UpdateTestimonialProps {
   id: string;
-  title: string;
-  description: string;
+  content: string;
+  rating: string;
 }
 
-export function UpdateTestimonial({ id, title, description }: UpdateTestimonialProps) {
+export function UpdateTestimonial({ id, content, rating }: UpdateTestimonialProps) {
   const [open, setOpen] = useState(false);
 
-  const updateTestimonialForm = useForm<UpdateTestimonialSchema>({
-    resolver: zodResolver(updateTestimonialSchema),
-    defaultValues: { title, description },
+  const updateTestimonialForm = useForm<TestimonialSchema>({
+    resolver: zodResolver(testimonialSchema),
+    defaultValues: { content, rating },
     mode: "onChange",
   });
 
   const [updateTestimonial, { isLoading }] = useUpdateTestimonialMutation();
 
-  const onSubmit = async (data: UpdateTestimonialSchema) => {
+  const onSubmit = async (data: TestimonialSchema) => {
     try {
       const result = await updateTestimonial({ id, ...data });
       const error = getErrorInApiResult(result);
@@ -77,29 +77,29 @@ export function UpdateTestimonial({ id, title, description }: UpdateTestimonialP
           </DialogHeader>
           <div className="grid gap-4">
             <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="content">Content</Label>
               <Input
-                id="title"
-                placeholder="Title"
-                {...updateTestimonialForm.register("title")}
+                id="content"
+                placeholder="Content"
+                {...updateTestimonialForm.register("content")}
               />
-              {formState.errors.title && (
+              {formState.errors.content && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.title.message}
+                  {formState.errors.content.message}
                 </p>
               )}
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="rating">Rating</Label>
               <Input
-                id="description"
-                placeholder="Description"
+                id="rating"
+                placeholder="Rating"
                 type="text"
-                {...updateTestimonialForm.register("description")}
+                {...updateTestimonialForm.register("rating")}
               />
-              {formState.errors.description && (
+              {formState.errors.rating && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.description.message}
+                  {formState.errors.rating.message}
                 </p>
               )}
             </div>
