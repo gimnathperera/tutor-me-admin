@@ -181,7 +181,9 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
             <div className="grid gap-3">
               <Label htmlFor="gradeId">Grade</Label>
               <Select
-                onValueChange={(value) => setValue("gradeId", value)}
+                onValueChange={(value) =>
+                  setValue("gradeId", value, { shouldDirty: true })
+                }
                 value={watch("gradeId")}
                 disabled={gradesLoading}
               >
@@ -210,7 +212,9 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
             <div className="grid gap-3">
               <Label htmlFor="tutorId">Tutor</Label>
               <Select
-                onValueChange={(value) => setValue("tutorId", value)}
+                onValueChange={(value) =>
+                  setValue("tutorId", value, { shouldDirty: true })
+                }
                 value={watch("tutorId")}
                 disabled={tutorsLoading}
               >
@@ -243,10 +247,10 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
-              type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isUpdating}
               onClick={form.handleSubmit(onSubmit)}
+              disabled={!formState.isDirty || isUpdating}
             >
               Save
             </Button>
