@@ -15,7 +15,7 @@ export const createUserSchema = z.object({
       (val) => !isNaN(Date.parse(val)),
       "Invalid date format (use YYYY-MM-DD)",
     ),
-  status: z.enum(["active", "inactive"]).default("active"),
+  status: z.enum(["active", "inactive", "blocked"]).default("active"),
   country: z
     .string()
     .min(1, "Country is required")

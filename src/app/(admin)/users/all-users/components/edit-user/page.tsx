@@ -20,15 +20,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { useUpdateUserMutation } from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { updateUserSchema, UpdateUserSchema } from "./schema";
+import {
+  initialFormValues,
+  updateUserSchema,
+  UpdateUserSchema,
+} from "./schema";
 
 interface UpdateUserProps {
   id: string;
@@ -37,44 +40,62 @@ interface UpdateUserProps {
   name: string;
   phoneNumber?: string;
   birthday?: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "blocked";
   country?: string;
   city?: string;
   zip?: string;
   address?: string;
-  role?: "admin" | "user" | "tutor";
   state?: string;
   region?: string;
   tutorType?: "full-time" | "part-time" | "gov";
   gender?: "male" | "female" | "other";
   duration?: string;
   frequency?: string;
-  timezone?: string;
   language?: string;
   avatar?: string;
 }
 
 export function UpdateUser(props: UpdateUserProps) {
   const [open, setOpen] = useState(false);
+  const [updateUser, { isLoading }] = useUpdateUserMutation();
 
-  const updateUserForm = useForm<UpdateUserSchema>({
+  const form = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
-    defaultValues: props, // preload from props
+    defaultValues: { ...initialFormValues, ...props },
     mode: "onChange",
   });
 
-  const { control, register, handleSubmit, reset } = updateUserForm;
-  const [updateUser, { isLoading }] = useUpdateUserMutation();
+  const { formState, register, setValue, handleSubmit, reset } = form;
 
   useEffect(() => {
-    if (open) {
-      reset(props); // reset form with fresh props when dialog opens
-    }
+    if (open) reset({ ...initialFormValues, ...props });
   }, [open, props, reset]);
 
   const onSubmit = async (data: UpdateUserSchema) => {
     try {
-      const result = await updateUser({ id: props.id, ...data });
+      const payload = {
+        id: props.id,
+        email: data.email,
+        password: data.password || "",
+        name: data.name,
+        status: data.status || "active",
+        phoneNumber: data.phoneNumber || "",
+        birthday: data.birthday || "",
+        country: data.country || "",
+        city: data.city || "",
+        state: data.state || "",
+        region: data.region || "",
+        zip: data.zip || "",
+        address: data.address || "",
+        tutorType: data.tutorType || "full-time",
+        gender: data.gender || "other",
+        duration: data.duration || "",
+        frequency: data.frequency || "",
+        language: data.language || "",
+        avatar: data.avatar || "",
+      };
+
+      const result = await updateUser(payload);
       const error = getErrorInApiResult(result);
       if (error) return toast.error(error);
 
@@ -88,190 +109,283 @@ export function UpdateUser(props: UpdateUserProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <SquarePen className="cursor-pointer" />
-      </DialogTrigger>
-
-      <DialogContent className="sm:max-w-[700px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90 max-h-[90vh] overflow-y-auto">
-        <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
+        <DialogTrigger asChild>
+          <SquarePen className="cursor-pointer" />
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>Edit the user details.</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4">
             {/* Name */}
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               <Input id="name" {...register("name")} />
+              {formState.errors.name && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.name.message}
+                </p>
+              )}
             </div>
-
             {/* Email */}
             <div className="grid gap-3">
               <Label htmlFor="email">Email</Label>
               <Input id="email" {...register("email")} />
+              {formState.errors.email && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.email.message}
+                </p>
+              )}
             </div>
 
             {/* Password */}
             <div className="grid gap-3">
               <Label htmlFor="password">Password</Label>
-              <Input type="password" id="password" {...register("password")} />
-            </div>
-
-            {/* Role */}
-            <div className="grid gap-3">
-              <Label htmlFor="role">Role</Label>
-              <Controller
-                control={control}
-                name="role"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="tutor">Tutor</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              <Input id="password" type="password" {...register("password")} />
+              {formState.errors.password && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.password.message}
+                </p>
+              )}
             </div>
 
             {/* Status */}
             <div className="grid gap-3">
               <Label htmlFor="status">Status</Label>
-              <Controller
-                control={control}
-                name="status"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              <Select
+                onValueChange={(val) => setValue("status", val as any)}
+                defaultValue={props.status || "active"}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="blocked">Blocked</SelectItem>
+                </SelectContent>
+              </Select>
+              {formState.errors.status && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.status.message}
+                </p>
+              )}
             </div>
 
             {/* Phone Number */}
             <div className="grid gap-3">
               <Label htmlFor="phoneNumber">Phone Number</Label>
               <Input id="phoneNumber" {...register("phoneNumber")} />
+              {formState.errors.phoneNumber && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.phoneNumber.message}
+                </p>
+              )}
             </div>
 
             {/* Birthday */}
             <div className="grid gap-3">
               <Label htmlFor="birthday">Birthday</Label>
-              <Input type="date" id="birthday" {...register("birthday")} />
+              <Input id="birthday" type="date" {...register("birthday")} />
+              {formState.errors.birthday && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.birthday.message}
+                </p>
+              )}
             </div>
 
-            {/* Address fields */}
+            {/* Country */}
             <div className="grid gap-3">
               <Label htmlFor="country">Country</Label>
               <Input id="country" {...register("country")} />
+              {formState.errors.country && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.country.message}
+                </p>
+              )}
             </div>
 
+            {/* City */}
             <div className="grid gap-3">
               <Label htmlFor="city">City</Label>
               <Input id="city" {...register("city")} />
+              {formState.errors.city && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.city.message}
+                </p>
+              )}
             </div>
 
+            {/* State */}
             <div className="grid gap-3">
               <Label htmlFor="state">State</Label>
               <Input id="state" {...register("state")} />
+              {formState.errors.state && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.state.message}
+                </p>
+              )}
             </div>
 
+            {/* Region */}
             <div className="grid gap-3">
               <Label htmlFor="region">Region</Label>
               <Input id="region" {...register("region")} />
+              {formState.errors.region && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.region.message}
+                </p>
+              )}
             </div>
 
+            {/* Zip */}
             <div className="grid gap-3">
               <Label htmlFor="zip">Zip</Label>
               <Input id="zip" {...register("zip")} />
+              {formState.errors.zip && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.zip.message}
+                </p>
+              )}
             </div>
 
-            <div className="grid gap-3 sm:col-span-2">
+            {/* Address */}
+            <div className="grid gap-3">
               <Label htmlFor="address">Address</Label>
               <Input id="address" {...register("address")} />
+              {formState.errors.address && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.address.message}
+                </p>
+              )}
             </div>
 
             {/* Tutor Type */}
             <div className="grid gap-3">
               <Label htmlFor="tutorType">Tutor Type</Label>
-              <Controller
-                control={control}
-                name="tutorType"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Tutor Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="full-time">Full-Time</SelectItem>
-                      <SelectItem value="part-time">Part-Time</SelectItem>
-                      <SelectItem value="gov">Gov</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              <Select
+                onValueChange={(val) => setValue("tutorType", val as any)}
+                defaultValue={props.tutorType || "full-time"}
+              >
+                <SelectTrigger id="tutorType">
+                  <SelectValue placeholder="Select Tutor Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full-time">Full-Time</SelectItem>
+                  <SelectItem value="part-time">Part-Time</SelectItem>
+                  <SelectItem value="gov">Gov</SelectItem>
+                </SelectContent>
+              </Select>
+              {formState.errors.tutorType && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.tutorType.message}
+                </p>
+              )}
             </div>
 
             {/* Gender */}
             <div className="grid gap-3">
               <Label htmlFor="gender">Gender</Label>
-              <Controller
-                control={control}
-                name="gender"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
+              <Select
+                onValueChange={(val) => setValue("gender", val as any)}
+                defaultValue={props.gender || "male"}
+              >
+                <SelectTrigger id="gender">
+                  <SelectValue placeholder="Select Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              {formState.errors.gender && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.gender.message}
+                </p>
+              )}
             </div>
 
             {/* Duration */}
             <div className="grid gap-3">
               <Label htmlFor="duration">Duration</Label>
-              <Input id="duration" {...register("duration")} />
+              <Select
+                onValueChange={(val) => setValue("duration", val as any)}
+                defaultValue={props.duration || ""}
+              >
+                <SelectTrigger id="duration">
+                  <SelectValue placeholder="Select Duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30 minutes">30 Minutes</SelectItem>
+                  <SelectItem value="1 hour">1 Hour</SelectItem>
+                  <SelectItem value="2 hours">2 Hours</SelectItem>
+                </SelectContent>
+              </Select>
+              {formState.errors.duration && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.duration.message}
+                </p>
+              )}
             </div>
 
             {/* Frequency */}
             <div className="grid gap-3">
               <Label htmlFor="frequency">Frequency</Label>
-              <Input id="frequency" {...register("frequency")} />
-            </div>
-
-            {/* Time Zone */}
-            <div className="grid gap-3">
-              <Label htmlFor="timezone">Time Zone</Label>
-              <Input id="timezone" {...register("timezone")} />
+              <Select
+                onValueChange={(val) => setValue("frequency", val as any)}
+                defaultValue={props.frequency || ""}
+              >
+                <SelectTrigger id="frequency">
+                  <SelectValue placeholder="Select Frequency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="once a week">Once a Week</SelectItem>
+                  <SelectItem value="twice a week">Twice a Week</SelectItem>
+                </SelectContent>
+              </Select>
+              {formState.errors.frequency && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.frequency.message}
+                </p>
+              )}
             </div>
 
             {/* Language */}
             <div className="grid gap-3">
               <Label htmlFor="language">Language</Label>
-              <Input id="language" {...register("language")} />
+              <Select
+                onValueChange={(val) => setValue("language", val as any)}
+                defaultValue={props.language || ""}
+              >
+                <SelectTrigger id="language">
+                  <SelectValue placeholder="Select Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Sinhala">Sinhala</SelectItem>
+                  <SelectItem value="English">English</SelectItem>
+                </SelectContent>
+              </Select>
+              {formState.errors.language && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.language.message}
+                </p>
+              )}
             </div>
 
             {/* Avatar */}
-            <div className="grid gap-3 sm:col-span-2">
+            <div className="grid gap-3">
               <Label htmlFor="avatar">Avatar</Label>
               <Input id="avatar" {...register("avatar")} />
+              {formState.errors.avatar && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.avatar.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -283,12 +397,13 @@ export function UpdateUser(props: UpdateUserProps) {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
+              onClick={handleSubmit(onSubmit as any)}
             >
               Save
             </Button>
           </DialogFooter>
-        </form>
-      </DialogContent>
+        </DialogContent>
+      </form>
     </Dialog>
   );
 }

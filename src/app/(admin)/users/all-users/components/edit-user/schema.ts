@@ -13,16 +13,13 @@ export const updateUserSchema = z.object({
     .string()
     .refine(
       (val) => !isNaN(Date.parse(val)),
-      "Invalid date format (use YYYY-MM-DD)",
+      "Invalid date format (YYYY-MM-DD)",
     ),
-  status: z.enum(["active", "inactive"]).default("active"),
-  country: z
-    .string()
-    .min(1, "Country is required")
-    .max(56, "Country name too long"),
-  city: z.string().min(1, "City is required").max(85, "City name too long"),
-  state: z.string().max(85, "State name too long").optional(),
-  region: z.string().max(85, "Region name too long").optional(),
+  status: z.enum(["active", "inactive", "blocked"]).default("active"),
+  country: z.string().min(1, "Country is required").max(56, "Country too long"),
+  city: z.string().min(1, "City is required").max(85, "City too long"),
+  state: z.string().max(85, "State too long").optional(),
+  region: z.string().max(85, "Region too long").optional(),
   zip: z.string().min(1, "ZIP code is required").max(20, "ZIP code too long"),
   address: z
     .string()
@@ -41,8 +38,10 @@ export const updateUserSchema = z.object({
     .optional(),
 });
 
+// Type inferred from schema
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
 
+// Default values for initializing form
 export const initialFormValues: UpdateUserSchema = {
   email: "",
   password: "",
