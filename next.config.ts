@@ -16,11 +16,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "abcd.com", // add this
+        hostname: "abcd.com",
       },
       {
         protocol: "https",
-        hostname: "**.yourcdn.com", // wildcard if you need subdomains
+        hostname: "**.yourcdn.com",
       },
     ],
   },
