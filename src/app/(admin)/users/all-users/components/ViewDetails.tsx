@@ -112,9 +112,14 @@ export function UserDetails({
             <div
               className={cn(displayFieldClass, "min-h-[5rem]", "overflow-auto")}
             >
-              {birthday}
+              {birthday
+                ? new Date(birthday)
+                    .toLocaleDateString("en-CA")
+                    .replace(/-/g, "/")
+                : ""}
             </div>
           </div>
+
           <div className="grid gap-3">
             <Label>Country</Label>
             <div
