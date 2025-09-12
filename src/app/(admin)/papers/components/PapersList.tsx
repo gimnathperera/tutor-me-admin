@@ -49,7 +49,10 @@ export default function PapersTable() {
     setPage(newPage);
   };
 
-  const getSafeValue = (value: string | undefined | null, fallback = "N/A"): string => {
+  const getSafeValue = (
+    value: string | undefined | null,
+    fallback = "N/A",
+  ): string => {
     if (value === undefined || value === null || value.trim() === "") {
       return fallback;
     }
@@ -58,8 +61,8 @@ export default function PapersTable() {
 
   const getSafeNestedValue = (
     obj: { title?: string; id?: string } | undefined | null,
-    property: 'title' | 'id',
-    fallback = "N/A"
+    property: "title" | "id",
+    fallback = "N/A",
   ): string => {
     if (!obj || !obj[property]) {
       return fallback;
@@ -97,13 +100,14 @@ export default function PapersTable() {
     {
       key: "title",
       header: "Title",
-      className: "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: Paper) => {
         const safeTitle = getSafeValue(row.title, "No title provided");
         return (
-          <span 
+          <span
             title={`Title: ${safeTitle}`}
-            className={`truncate block ${!row.title ? 'text-gray-400 italic' : ''}`}
+            className={`truncate block ${!row.title ? "text-gray-400 italic" : ""}`}
           >
             {safeTitle}
           </span>
@@ -113,13 +117,18 @@ export default function PapersTable() {
     {
       key: "subject",
       header: "Subject",
-      className: "min-w-[120px] max-w-[180px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[120px] max-w-[180px] truncate overflow-hidden cursor-default",
       render: (row: Paper) => {
-        const safeSubjectTitle = getSafeNestedValue(row.subject, 'title', 'No subject');
+        const safeSubjectTitle = getSafeNestedValue(
+          row.subject,
+          "title",
+          "No subject",
+        );
         return (
-          <span 
+          <span
             title={`Subject: ${safeSubjectTitle}`}
-            className={`truncate block ${!row.subject?.title ? 'text-gray-400 italic' : ''}`}
+            className={`truncate block ${!row.subject?.title ? "text-gray-400 italic" : ""}`}
           >
             {safeSubjectTitle}
           </span>
@@ -129,13 +138,18 @@ export default function PapersTable() {
     {
       key: "grade",
       header: "Grade",
-      className: "min-w-[100px] max-w-[150px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[100px] max-w-[150px] truncate overflow-hidden cursor-default",
       render: (row: Paper) => {
-        const safeGradeTitle = getSafeNestedValue(row.grade, 'title', 'No grade');
+        const safeGradeTitle = getSafeNestedValue(
+          row.grade,
+          "title",
+          "No grade",
+        );
         return (
-          <span 
+          <span
             title={`Grade: ${safeGradeTitle}`}
-            className={`truncate block ${!row.grade?.title ? 'text-gray-400 italic' : ''}`}
+            className={`truncate block ${!row.grade?.title ? "text-gray-400 italic" : ""}`}
           >
             {safeGradeTitle}
           </span>
@@ -149,9 +163,9 @@ export default function PapersTable() {
       render: (row: Paper) => {
         const safeYear = getSafeValue(row.year, "No year");
         return (
-          <span 
+          <span
             title={`Year: ${safeYear}`}
-            className={`${!row.year ? 'text-gray-400 italic' : ''}`}
+            className={`${!row.year ? "text-gray-400 italic" : ""}`}
           >
             {safeYear}
           </span>
@@ -161,14 +175,18 @@ export default function PapersTable() {
     {
       key: "url",
       header: "URL",
-      className: "min-w-[200px] max-w-[250px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[200px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: Paper) => {
         const safeUrl = getSafeValue(row.url, "");
         const hasValidUrl = isValidUrl(row.url);
-        
+
         if (!hasValidUrl) {
           return (
-            <span className="text-gray-400 italic" title="No valid URL available">
+            <span
+              className="text-gray-400 italic"
+              title="No valid URL available"
+            >
               No URL provided
             </span>
           );
@@ -196,8 +214,8 @@ export default function PapersTable() {
             id={row.id}
             title={getSafeValue(row.title, "")}
             description={getSafeValue(row.description, "")}
-            grade={getSafeNestedValue(row.grade, 'id', "")}
-            subject={getSafeNestedValue(row.subject, 'id', "")}
+            grade={getSafeNestedValue(row.grade, "id", "")}
+            subject={getSafeNestedValue(row.subject, "id", "")}
             year={getSafeValue(row.year, "")}
             url={getSafeValue(row.url, "")}
           />
@@ -222,9 +240,16 @@ export default function PapersTable() {
         <div className="w-full flex justify-center items-center">
           <PaperDetails
             title={getSafeValue(row.title, "No title provided")}
-            description={getSafeValue(row.description, "No description provided")}
-            grade={getSafeNestedValue(row.grade, 'title', "No grade specified")}
-            subject={getSafeNestedValue(row.subject, 'title', "No subject specified")}
+            description={getSafeValue(
+              row.description,
+              "No description provided",
+            )}
+            grade={getSafeNestedValue(row.grade, "title", "No grade specified")}
+            subject={getSafeNestedValue(
+              row.subject,
+              "title",
+              "No subject specified",
+            )}
             year={getSafeValue(row.year, "No year specified")}
             url={getSafeValue(row.url, "")}
           />

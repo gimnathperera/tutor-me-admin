@@ -54,7 +54,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
       toast.error("An unexpected error occurred while updating the subject");
     }
   };
-  
+
   const { formState } = updateSubjectForm;
 
   const onUpdateSuccess = () => {

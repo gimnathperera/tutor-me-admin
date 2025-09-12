@@ -1,3 +1,4 @@
+import { TestimonialSchema } from "@/schemas/testimonial.schema";
 import { FetchTestimonialsRequest } from "@/types/request-types";
 import { PaginatedResponse, Testimonial } from "@/types/response-types";
 import { baseApi } from "../..";
@@ -16,8 +17,42 @@ export const testimonialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Testimonials"],
     }),
+
+    createTestimonial: build.mutation<Testimonial, TestimonialSchema>({
+      query: (body) => ({
+        url: Endpoints.Testimonials,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Testimonials"],
+    }),
+
+    updateTestimonial: build.mutation<
+      Testimonial,
+      { id: string } & TestimonialSchema
+    >({
+      query: ({ id, ...body }) => ({
+        url: `${Endpoints.Testimonials}/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["Testimonials"],
+    }),
+
+    deleteTestimonial: build.mutation<{ success: boolean; id: string }, string>({
+      query: (id) => ({
+        url: `${Endpoints.Testimonials}/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Testimonials"],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useFetchTestimonialsQuery } = testimonialsApi;
+export const {
+  useFetchTestimonialsQuery,
+  useCreateTestimonialMutation,
+  useUpdateTestimonialMutation,
+  useDeleteTestimonialMutation,
+} = testimonialsApi;

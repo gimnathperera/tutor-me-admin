@@ -102,7 +102,7 @@ export function InquiryDetails({
             <div
               className={cn(
                 "flex items-center justify-between cursor-pointer group",
-                displayFieldClass
+                displayFieldClass,
               )}
               onClick={copyEmail}
             >
@@ -115,7 +115,9 @@ export function InquiryDetails({
           </div>
           <div className="grid gap-3">
             <Label>Inquiry</Label>
-            <div className={cn("min-h-[5rem]", displayFieldClass)}>{message}</div>
+            <div className={cn("min-h-[5rem]", displayFieldClass)}>
+              {message}
+            </div>
           </div>
         </div>
       </DialogContent>

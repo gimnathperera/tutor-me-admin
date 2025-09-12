@@ -44,7 +44,10 @@ export default function FAQTable() {
     }
   };
 
-  const getSafeValue = (value: string | undefined | null, fallback = "N/A"): string => {
+  const getSafeValue = (
+    value: string | undefined | null,
+    fallback = "N/A",
+  ): string => {
     if (value === undefined || value === null || value.trim() === "") {
       return fallback;
     }
@@ -76,9 +79,9 @@ export default function FAQTable() {
       render: (row: FAQ) => {
         const safeQuestion = getSafeValue(row.question, "No question provided");
         return (
-          <span 
-            title={`Question: ${safeQuestion}`} 
-            className={`truncate block ${!row.question ? 'text-gray-400 italic' : ''}`}
+          <span
+            title={`Question: ${safeQuestion}`}
+            className={`truncate block ${!row.question ? "text-gray-400 italic" : ""}`}
           >
             {safeQuestion}
           </span>
@@ -94,9 +97,9 @@ export default function FAQTable() {
       render: (row: FAQ) => {
         const safeAnswer = getSafeValue(row.answer, "No answer provided");
         return (
-          <span 
-            title={`Answer: ${safeAnswer}`} 
-            className={`truncate block ${!row.answer ? 'text-gray-400 italic' : ''}`}
+          <span
+            title={`Answer: ${safeAnswer}`}
+            className={`truncate block ${!row.answer ? "text-gray-400 italic" : ""}`}
           >
             {safeAnswer}
           </span>
@@ -133,10 +136,10 @@ export default function FAQTable() {
       className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: FAQ) => (
         <div className="w-full flex justify-center items-center">
-          <UpdateFAQ 
-            id={row.id} 
-            question={getSafeValue(row.question, "")} 
-            answer={getSafeValue(row.answer, "")} 
+          <UpdateFAQ
+            id={row.id}
+            question={getSafeValue(row.question, "")}
+            answer={getSafeValue(row.answer, "")}
           />
         </div>
       ),

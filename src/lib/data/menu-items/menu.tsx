@@ -11,6 +11,7 @@ import {
   GraduationCap,
   HelpCircle,
   LibraryBig,
+  MessageSquareHeart,
   MessageSquareMore,
   NotebookText,
   TextSearch,
@@ -44,6 +45,11 @@ const NavItems = [
     icon: <GraduationCap />,
     name: "Levels and Exams",
     path: "/level-and-exams",
+  },
+  {
+    icon: <MessageSquareHeart />,
+    name: "Testimonials",
+    path: "/testimonials",
   },
   {
     icon: <HelpCircle />,

@@ -41,7 +41,10 @@ export default function LevelsTable() {
     setPage(newPage);
   };
 
-  const getSafeValue = (value: string | undefined | null, fallback = "N/A"): string => {
+  const getSafeValue = (
+    value: string | undefined | null,
+    fallback = "N/A",
+  ): string => {
     if (value === undefined || value === null || value.trim() === "") {
       return fallback;
     }
@@ -55,19 +58,21 @@ export default function LevelsTable() {
     return value;
   };
 
-  const getSafeSubjectIds = (subjects: Subject[] | undefined | null): string[] => {
+  const getSafeSubjectIds = (
+    subjects: Subject[] | undefined | null,
+  ): string[] => {
     const safeSubjects = getSafeArray(subjects);
     return safeSubjects
-      .filter(subject => subject && subject.id && subject.title)
-      .map(subject => subject.id);
+      .filter((subject) => subject && subject.id && subject.title)
+      .map((subject) => subject.id);
   };
 
-  const getSafeSubjects = (subjects: Subject[] | undefined | null): Subject[] => {
+  const getSafeSubjects = (
+    subjects: Subject[] | undefined | null,
+  ): Subject[] => {
     const safeSubjects = getSafeArray(subjects);
-    return safeSubjects.filter(subject => 
-      subject && 
-      subject.id && 
-      subject.title
+    return safeSubjects.filter(
+      (subject) => subject && subject.id && subject.title,
     );
   };
 
@@ -75,13 +80,14 @@ export default function LevelsTable() {
     {
       key: "title",
       header: "Title",
-      className: "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: Level) => {
         const safeTitle = getSafeValue(row.title, "No title provided");
         return (
-          <span 
+          <span
             title={`Title: ${safeTitle}`}
-            className={`truncate block ${!row.title ? 'text-gray-400 italic' : ''}`}
+            className={`truncate block ${!row.title ? "text-gray-400 italic" : ""}`}
           >
             {safeTitle}
           </span>
@@ -91,10 +97,11 @@ export default function LevelsTable() {
     {
       key: "details",
       header: "Details",
-      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
       render: (row: Level) => {
         const safeDetails = getSafeArray(row.details);
-        
+
         if (safeDetails.length === 0) {
           return (
             <span className="text-gray-400 italic" title="No details available">
@@ -107,12 +114,9 @@ export default function LevelsTable() {
         const detailsText = displayDetails.join(", ");
         const hasMore = safeDetails.length > 2;
         const fullDetailsText = safeDetails.join(", ");
-        
+
         return (
-          <div 
-            className="truncate"
-            title={`Details: ${fullDetailsText}`}
-          >
+          <div className="truncate" title={`Details: ${fullDetailsText}`}>
             {detailsText}
             {hasMore && (
               <span className="text-gray-500 ml-1">
@@ -130,18 +134,21 @@ export default function LevelsTable() {
       render: (row: Level) => {
         const safeSubjects = getSafeSubjects(row.subjects);
         const subjectCount = safeSubjects.length;
-        
-        const subjectTitles = safeSubjects.map(s => s.title).join(", ");
-        const tooltipText = subjectCount > 0 
-          ? `${subjectCount} subject${subjectCount !== 1 ? 's' : ''}: ${subjectTitles}`
-          : "No subjects assigned";
-        
+
+        const subjectTitles = safeSubjects.map((s) => s.title).join(", ");
+        const tooltipText =
+          subjectCount > 0
+            ? `${subjectCount} subject${subjectCount !== 1 ? "s" : ""}: ${subjectTitles}`
+            : "No subjects assigned";
+
         return (
-          <span 
+          <span
             title={tooltipText}
-            className={`${subjectCount === 0 ? 'text-gray-400 italic' : 'text-blue-600 dark:text-blue-400'}`}
+            className={`${subjectCount === 0 ? "text-gray-400 italic" : "text-blue-600 dark:text-blue-400"}`}
           >
-            {subjectCount === 0 ? 'No subjects' : `${subjectCount} subject${subjectCount !== 1 ? 's' : ''}`}
+            {subjectCount === 0
+              ? "No subjects"
+              : `${subjectCount} subject${subjectCount !== 1 ? "s" : ""}`}
           </span>
         );
       },
@@ -153,13 +160,15 @@ export default function LevelsTable() {
       render: (row: Level) => {
         const safeChallenges = getSafeArray(row.challanges);
         const challengeCount = safeChallenges.length;
-        
+
         return (
-          <span 
-            title={`${challengeCount} challenge${challengeCount !== 1 ? 's' : ''} available`}
-            className={`${challengeCount === 0 ? 'text-gray-400 italic' : 'text-green-600 dark:text-green-400'}`}
+          <span
+            title={`${challengeCount} challenge${challengeCount !== 1 ? "s" : ""} available`}
+            className={`${challengeCount === 0 ? "text-gray-400 italic" : "text-green-600 dark:text-green-400"}`}
           >
-            {challengeCount === 0 ? 'No challenges' : `${challengeCount} challenge${challengeCount !== 1 ? 's' : ''}`}
+            {challengeCount === 0
+              ? "No challenges"
+              : `${challengeCount} challenge${challengeCount !== 1 ? "s" : ""}`}
           </span>
         );
       },
