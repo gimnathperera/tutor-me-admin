@@ -166,15 +166,14 @@ export function UpdateTuitionRate({
               render={({ field }) => (
                 <Select
                   options={subjectOptions}
-                  value={
-                    subjectOptions.find((o) => o.value === field.value) || null
-                  } // <-- show title
-                  onChange={(val: any) => field.onChange(val.value)} // store only the id
+                  value={field.value || ""}
+                  onChange={field.onChange}
                   placeholder="Select subject"
-                  isDisabled={displayLoading}
+                  className="w-full"
                 />
               )}
             />
+
             {errors.subject && (
               <p className="text-red-500 text-sm">{errors.subject.message}</p>
             )}

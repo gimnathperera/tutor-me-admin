@@ -68,7 +68,9 @@ export type TuitionRateGroup = {
 };
 // Subject
 export type Subject = BaseEntity & WithTitleDescription;
-// export type Level = BaseEntity & WithTitleDescription;
+
+//User
+export type Users = BaseEntity & WithTitleDescription;
 
 // Grade
 export type Grade = BaseEntity &
