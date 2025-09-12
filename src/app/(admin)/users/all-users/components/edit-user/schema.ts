@@ -2,19 +2,17 @@ import { z } from "zod";
 
 export const updateUserSchema = z.object({
   email: z.string().email("Invalid email address").max(100, "Email too long"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters long")
-    .max(64, "Password must not exceed 64 characters"),
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
   role: z.enum(["admin", "user", "tutor"]).optional(),
   phoneNumber: z.string().regex(/^\+?[0-9]{7,15}$/, "Invalid phone number"),
   birthday: z
     .string()
-    .refine(
-      (val) => !isNaN(Date.parse(val)),
-      "Invalid date format (YYYY-MM-DD)",
-    ),
+    .optional()
+    .transform((val) => {
+      if (!val) return "";
+      const date = new Date(val);
+      return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
+    }),
   status: z.enum(["active", "inactive", "blocked"]).default("active"),
   country: z.string().min(1, "Country is required").max(56, "Country too long"),
   city: z.string().min(1, "City is required").max(85, "City too long"),
@@ -44,7 +42,6 @@ export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
 // Default values for initializing form
 export const initialFormValues: UpdateUserSchema = {
   email: "",
-  password: "",
   name: "",
   role: "user",
   phoneNumber: "",

@@ -36,7 +36,6 @@ import {
 interface UpdateUserProps {
   id: string;
   email: string;
-  password?: string;
   name: string;
   phoneNumber?: string;
   birthday?: string;
@@ -76,11 +75,12 @@ export function UpdateUser(props: UpdateUserProps) {
       const payload = {
         id: props.id,
         email: data.email,
-        password: data.password || "",
         name: data.name,
         status: data.status || "active",
         phoneNumber: data.phoneNumber || "",
-        birthday: data.birthday || "",
+        birthday: props.birthday
+          ? new Date(props.birthday).toISOString().split("T")[0]
+          : "",
         country: data.country || "",
         city: data.city || "",
         state: data.state || "",
@@ -141,17 +141,6 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Password */}
-            <div className="grid gap-3">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" {...register("password")} />
-              {formState.errors.password && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.password.message}
-                </p>
-              )}
-            </div>
-
             {/* Status */}
             <div className="grid gap-3">
               <Label htmlFor="status">Status</Label>
@@ -190,6 +179,7 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="birthday">Birthday</Label>
               <Input id="birthday" type="date" {...register("birthday")} />
+
               {formState.errors.birthday && (
                 <p className="text-sm text-red-500">
                   {formState.errors.birthday.message}
