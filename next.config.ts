@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "placehold.co",
       },
+      {
+        protocol: "https",
+        hostname: "abcd.com", // add this
+      },
+      {
+        protocol: "https",
+        hostname: "**.yourcdn.com", // wildcard if you need subdomains
+      },
     ],
   },
 };

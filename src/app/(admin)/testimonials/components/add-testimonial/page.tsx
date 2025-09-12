@@ -13,7 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { initialFormValues, TestimonialSchema, testimonialSchema } from "@/schemas/testimonial.schema";
+import {
+  initialFormValues,
+  TestimonialSchema,
+  testimonialSchema,
+} from "@/schemas/testimonial.schema";
 import { useCreateTestimonialMutation } from "@/store/api/splits/testimonials";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,14 +25,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-
 export function AddTestimonial() {
   const [open, setOpen] = useState(false);
   const [createTestimonial, { isLoading }] = useCreateTestimonialMutation();
 
-  const createTestimonialForm = useForm({
+  const createTestimonialForm = useForm<TestimonialSchema>({
     resolver: zodResolver(testimonialSchema),
-    defaultValues: initialFormValues as TestimonialSchema,
+    defaultValues: initialFormValues,
     mode: "onChange",
   });
 
@@ -36,7 +39,12 @@ export function AddTestimonial() {
 
   const onSubmit = async (data: TestimonialSchema) => {
     try {
-      const result = await createTestimonial(data);
+      const payload = {
+        ...data,
+        rating: Number(data.rating),
+      };
+
+      const result = await createTestimonial(payload);
       const error = getErrorInApiResult(result);
       if (error) {
         return toast.error(error);
@@ -46,7 +54,9 @@ export function AddTestimonial() {
       }
     } catch (error) {
       console.error("Unexpected error during testimonial creation:", error);
-      toast.error("An unexpected error occurred while creating the testimonial");
+      toast.error(
+        "An unexpected error occurred while creating the testimonial"
+      );
     }
   };
 
@@ -71,10 +81,12 @@ export function AddTestimonial() {
           <DialogHeader>
             <DialogTitle>Add Testimonial</DialogTitle>
             <DialogDescription>
-              Add a new testimonial to the list.
+              Fill in the details to create a new testimonial.
             </DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4">
+            {/* Content */}
             <div className="grid gap-3">
               <Label htmlFor="content">Content</Label>
               <Input
@@ -88,13 +100,19 @@ export function AddTestimonial() {
                 </p>
               )}
             </div>
+
+            {/* Rating */}
             <div className="grid gap-3">
               <Label htmlFor="rating">Rating</Label>
               <Input
                 id="rating"
-                placeholder="Rating"
-                type="text"
-                {...createTestimonialForm.register("rating")}
+                placeholder="1 - 5"
+                type="number"
+                min={1}
+                max={5}
+                {...createTestimonialForm.register("rating", {
+                  valueAsNumber: true,
+                })}
               />
               {formState.errors.rating && (
                 <p className="text-sm text-red-500">
@@ -102,7 +120,53 @@ export function AddTestimonial() {
                 </p>
               )}
             </div>
+
+            {/* Owner name */}
+            <div className="grid gap-3">
+              <Label htmlFor="owner.name">Owner Name</Label>
+              <Input
+                id="owner.name"
+                placeholder="Owner name"
+                {...createTestimonialForm.register("owner.name")}
+              />
+              {formState.errors.owner?.name && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.owner.name.message}
+                </p>
+              )}
+            </div>
+
+            {/* Owner role */}
+            <div className="grid gap-3">
+              <Label htmlFor="owner.role">Owner Role</Label>
+              <Input
+                id="owner.role"
+                placeholder="Owner role"
+                {...createTestimonialForm.register("owner.role")}
+              />
+              {formState.errors.owner?.role && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.owner.role.message}
+                </p>
+              )}
+            </div>
+
+            {/* Owner avatar */}
+            <div className="grid gap-3">
+              <Label htmlFor="owner.avatar">Owner Avatar (URL)</Label>
+              <Input
+                id="owner.avatar"
+                placeholder="https://example.com/avatar.jpg"
+                {...createTestimonialForm.register("owner.avatar")}
+              />
+              {formState.errors.owner?.avatar && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.owner.avatar.message}
+                </p>
+              )}
+            </div>
           </div>
+
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>

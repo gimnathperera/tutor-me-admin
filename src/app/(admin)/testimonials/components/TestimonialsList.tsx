@@ -59,11 +59,12 @@ export default function TestimonialsTable() {
         <div className="flex items-center gap-3">
           {row.owner?.avatar ? (
             <Image
-              src={row.owner?.avatar || "/images/user/user.png"}
+              src={row.owner.avatar}
               alt={row.owner?.name || "Owner"}
               width={32}
               height={32}
               className="rounded-full object-cover"
+              onError={(e) => (e.currentTarget.src = "/images/user/user.png")}
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
@@ -87,12 +88,14 @@ export default function TestimonialsTable() {
       className:
         "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: Testimonial) => {
-        const safeTitle = getSafeValue(row.content, "No content provided");
+        const safeContent = getSafeValue(row.content, "No content provided");
         return (
           <span
-            className={`truncate block ${!row.content ? "text-gray-400 italic" : ""}`}
+            className={`truncate block ${
+              !row.content ? "text-gray-400 italic" : ""
+            }`}
           >
-            {safeTitle}
+            {safeContent}
           </span>
         );
       },
@@ -107,14 +110,14 @@ export default function TestimonialsTable() {
       className:
         "min-w-[100px] max-w-[150px] truncate text-center flex justify-center items-center",
       render: (row: Testimonial) => {
-        const safeDescription = getSafeValue(row.rating, "No rating provided");
+        const safeRating = getSafeValue(row.rating, "No rating provided");
         return (
           <span
             className={`truncate text-center ${
               !row.rating ? "text-gray-400 italic" : ""
             }`}
           >
-            {safeDescription}
+            {safeRating}
           </span>
         );
       },
@@ -128,7 +131,12 @@ export default function TestimonialsTable() {
           <UpdateTestimonial
             id={row.id}
             content={getSafeValue(row.content, "")}
-            rating={getSafeValue(row.rating, "")}
+            rating={Number(row.rating) || 0}
+            owner={{
+              name: getSafeValue(row.owner?.name, ""),
+              role: getSafeValue(row.owner?.role, ""),
+              avatar: getSafeValue(row.owner?.avatar, ""),
+            }}
           />
         </div>
       ),
@@ -152,6 +160,7 @@ export default function TestimonialsTable() {
           <TestimonialDetails
             content={getSafeValue(row.content, "No content provided")}
             rating={getSafeValue(row.rating, "No rating provided")}
+            owner={row.owner}
           />
         </div>
       ),

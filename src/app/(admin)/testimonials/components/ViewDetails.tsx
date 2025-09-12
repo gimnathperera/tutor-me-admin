@@ -14,14 +14,20 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Eye } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface TestimonialDetailsProps {
   content: string;
-  rating: string;
+  rating: string | number;
+  owner?: {
+    name?: string;
+    role?: string;
+    avatar?: string;
+  };
 }
 
-export function TestimonialDetails({ content, rating }: TestimonialDetailsProps) {
+export function TestimonialDetails({ content, rating, owner }: TestimonialDetailsProps) {
   const [open, setOpen] = useState(false);
 
   const displayFieldClass =
@@ -38,17 +44,40 @@ export function TestimonialDetails({ content, rating }: TestimonialDetailsProps)
           <DialogDescription>Testimonial Details</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4">
+          {/* Owner Section */}
+          <div className="grid gap-3">
+            <Label>Owner</Label>
+            <div className="flex items-center gap-3">
+              {owner?.avatar ? (
+                <Image
+                  src={owner.avatar}
+                  alt={owner.name || "Owner"}
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm text-gray-600">
+                  ?
+                </div>
+              )}
+              <div>
+                <div className="font-medium">{owner?.name || "Unknown"}</div>
+                <div className="text-xs text-gray-500">{owner?.role || "No role"}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Section */}
           <div className="grid gap-3">
             <Label>Content</Label>
-            <div className={cn(displayFieldClass)}>{content}</div>
+            <div className={cn(displayFieldClass)}>{content || "No content provided"}</div>
           </div>
+
+          {/* Rating Section */}
           <div className="grid gap-3">
             <Label>Rating</Label>
-            <div
-              className={cn(displayFieldClass, "min-h-[5rem]", "overflow-auto")}
-            >
-              {rating}
-            </div>
+            <div className={cn(displayFieldClass)}>{rating || "No rating provided"}</div>
           </div>
         </div>
         <DialogFooter>
