@@ -121,10 +121,11 @@ export default function DataTable<T extends { id: string | number }>({
 
       {/* Pagination Controls */}
       {!isLoading && showPagination && (
-        <Pagination className="text-gray-500 dark:text-white/90 mb-3">
+        <Pagination className="text-gray-500 mt-2 dark:text-white/90 mb-3">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
+                disabled={isFirstPage} // <-- Add this
                 onClick={() =>
                   !isFirstPage && onPageChange && onPageChange(page - 1)
                 }
@@ -142,6 +143,7 @@ export default function DataTable<T extends { id: string | number }>({
             ))}
             <PaginationItem>
               <PaginationNext
+                disabled={isLastPage} // <-- Add this
                 onClick={() =>
                   !isLastPage && onPageChange && onPageChange(page + 1)
                 }
