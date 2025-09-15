@@ -39,7 +39,10 @@ export default function SubjectsTable() {
     setPage(newPage);
   };
 
-  const getSafeValue = (value: string | undefined | null, fallback = "N/A"): string => {
+  const getSafeValue = (
+    value: string | undefined | null,
+    fallback = "N/A",
+  ): string => {
     if (value === undefined || value === null || value.trim() === "") {
       return fallback;
     }
@@ -57,13 +60,14 @@ export default function SubjectsTable() {
     {
       key: "title",
       header: "Title",
-      className: "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: Grade) => {
         const safeTitle = getSafeValue(row.title, "No title provided");
         return (
-          <span 
+          <span
             title={`Title: ${safeTitle}`}
-            className={`truncate block ${!row.title ? 'text-gray-400 italic' : ''}`}
+            className={`truncate block ${!row.title ? "text-gray-400 italic" : ""}`}
           >
             {safeTitle}
           </span>
@@ -73,13 +77,17 @@ export default function SubjectsTable() {
     {
       key: "description",
       header: "Description",
-      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
       render: (row: Grade) => {
-        const safeDescription = getSafeValue(row.description, "No description provided");
+        const safeDescription = getSafeValue(
+          row.description,
+          "No description provided",
+        );
         return (
-          <span 
+          <span
             title={`Description: ${safeDescription}`}
-            className={`truncate block ${!row.description ? 'text-gray-400 italic' : ''}`}
+            className={`truncate block ${!row.description ? "text-gray-400 italic" : ""}`}
           >
             {safeDescription}
           </span>
@@ -93,13 +101,15 @@ export default function SubjectsTable() {
       render: (row: Grade) => {
         const safeSubjects = getSafeArray(row.subjects);
         const subjectCount = safeSubjects.length;
-        
+
         return (
-          <span 
-            title={`${subjectCount} subject${subjectCount !== 1 ? 's' : ''}`}
-            className={`${subjectCount === 0 ? 'text-gray-400 italic' : 'text-blue-600 dark:text-blue-400'}`}
+          <span
+            title={`${subjectCount} subject${subjectCount !== 1 ? "s" : ""}`}
+            className={`${subjectCount === 0 ? "text-gray-400 italic" : "text-blue-600 dark:text-blue-400"}`}
           >
-            {subjectCount === 0 ? 'No subjects' : `${subjectCount} subject${subjectCount !== 1 ? 's' : ''}`}
+            {subjectCount === 0
+              ? "No subjects"
+              : `${subjectCount} subject${subjectCount !== 1 ? "s" : ""}`}
           </span>
         );
       },
@@ -137,7 +147,10 @@ export default function SubjectsTable() {
         <div className="w-full flex justify-center items-center">
           <GradeDetails
             title={getSafeValue(row.title, "No title provided")}
-            description={getSafeValue(row.description, "No description provided")}
+            description={getSafeValue(
+              row.description,
+              "No description provided",
+            )}
             subjects={getSafeArray(row.subjects)}
           />
         </div>

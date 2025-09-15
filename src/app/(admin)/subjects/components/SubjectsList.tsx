@@ -33,7 +33,10 @@ export default function SubjectsTable() {
     setPage(newPage);
   };
 
-  const getSafeValue = (value: string | undefined | null, fallback = "N/A"): string => {
+  const getSafeValue = (
+    value: string | undefined | null,
+    fallback = "N/A",
+  ): string => {
     if (value === undefined || value === null || value.trim() === "") {
       return fallback;
     }
@@ -44,13 +47,14 @@ export default function SubjectsTable() {
     {
       key: "title",
       header: "Title",
-      className: "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: Subject) => {
         const safeTitle = getSafeValue(row.title, "No title provided");
         return (
-          <span 
+          <span
             title={`Title: ${safeTitle}`}
-            className={`truncate block ${!row.title ? 'text-gray-400 italic' : ''}`}
+            className={`truncate block ${!row.title ? "text-gray-400 italic" : ""}`}
           >
             {safeTitle}
           </span>
@@ -60,13 +64,17 @@ export default function SubjectsTable() {
     {
       key: "description",
       header: "Description",
-      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      className:
+        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
       render: (row: Subject) => {
-        const safeDescription = getSafeValue(row.description, "No description provided");
+        const safeDescription = getSafeValue(
+          row.description,
+          "No description provided",
+        );
         return (
-          <span 
+          <span
             title={`Description: ${safeDescription}`}
-            className={`truncate block ${!row.description ? 'text-gray-400 italic' : ''}`}
+            className={`truncate block ${!row.description ? "text-gray-400 italic" : ""}`}
           >
             {safeDescription}
           </span>
@@ -103,9 +111,12 @@ export default function SubjectsTable() {
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Subject) => (
         <div className="w-full flex justify-center items-center">
-          <SubjectDetails 
-            title={getSafeValue(row.title, "No title provided")} 
-            description={getSafeValue(row.description, "No description provided")} 
+          <SubjectDetails
+            title={getSafeValue(row.title, "No title provided")}
+            description={getSafeValue(
+              row.description,
+              "No description provided",
+            )}
           />
         </div>
       ),

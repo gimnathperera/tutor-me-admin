@@ -5,7 +5,10 @@ import { Endpoints } from "../../endpoints";
 
 export const InquiriesApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    fetchInquiries: build.query<PaginatedResponse<Inquiry>, FetchInquiryRequest>({
+    fetchInquiries: build.query<
+      PaginatedResponse<Inquiry>,
+      FetchInquiryRequest
+    >({
       query: (payload) => ({
         url: Endpoints.Inquiries,
         method: "GET",

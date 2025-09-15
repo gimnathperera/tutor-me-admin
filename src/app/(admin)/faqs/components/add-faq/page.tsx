@@ -29,11 +29,16 @@ import TextArea from "@/components/form/input/TextArea";
 export function AddFAQ() {
   const [open, setOpen] = useState(false);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateFaqSchema>({
-  resolver: zodResolver(createFaqSchema),
-  defaultValues: initialFaqFormValues,
-  mode: "onChange",
-});
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<CreateFaqSchema>({
+    resolver: zodResolver(createFaqSchema),
+    defaultValues: initialFaqFormValues,
+    mode: "onChange",
+  });
 
   const [createFaq, { isLoading }] = useCreateFaqMutation();
 
