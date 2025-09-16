@@ -67,7 +67,7 @@ export type FetchFaqRequest = {
 
 export type FetchInquiryRequest = {
   page: number;
-  limit: number; 
+  limit: number;
 };
 
 export type FetchLevelRequest = {
@@ -96,6 +96,29 @@ export type UpdateSubjectRequest = {
   id: string;
   title: string;
   description: string;
+};
+export type UpdateUserRequest = {
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+  role: string;
+  phoneNumber: string;
+  birthday: string;
+  status: string;
+  country: string;
+  city: string;
+  state: string;
+  region: string;
+  zip: string;
+  address: string;
+  tutorType: string;
+  gender: string;
+  duration: string;
+  frequency: string;
+  timezone: string;
+  language: string;
+  avatar: string;
 };
 
 export type UpdateGradeRequest = {
@@ -151,6 +174,33 @@ export type FetchSubjectsRequest = {
   limit?: number;
   sortBy?: string;
   subjectId?: string;
+};
+
+export type FetchUserRequest = {
+  email?: string;
+  password?: string;
+  name?: string;
+  role?: string;
+  phoneNumber?: string;
+  birthday?: string;
+  status?: string;
+  country?: string;
+  city?: string;
+  state?: string;
+  region?: string;
+  zip?: string;
+  address?: string;
+  tutorType?: string;
+  gender?: string;
+  duration?: string;
+  frequency?: string;
+  timezone?: string;
+  language?: string;
+  avatar?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  userId?: string;
 };
 
 export type FetchTestimonialsRequest = {

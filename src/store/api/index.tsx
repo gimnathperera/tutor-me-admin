@@ -73,6 +73,7 @@ export const baseApi = createApi({
   reducerPath: "api",
   tagTypes: [
     "Faqs",
+    "Users",
     "Testimonials",
     "Grades",
     "Subjects",

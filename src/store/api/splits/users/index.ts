@@ -1,66 +1,69 @@
-import {
-  FetchProfileRequest,
-  UpdatePasswordRequest,
-  UpdateProfileRequest,
-  UserRegisterRequest,
-} from "@/types/request-types";
-import {
-  ProfileResponse,
-  UpdatePasswordResponse,
-  UserRegisterResponse,
-} from "@/types/response-types";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { CreateUserSchema } from "@/app/(admin)/users/all-users/components/add-user/schema";
+import { FetchUserRequest, UpdateUserRequest } from "@/types/request-types";
+import { PaginatedResponse, Users } from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
-export const usersApi = baseApi.injectEndpoints({
+export const UsersApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    registerUser: build.mutation<UserRegisterResponse, UserRegisterRequest>({
+    fetchUsers: build.query<PaginatedResponse<Users>, FetchUserRequest>({
+      query: (payload) => {
+        const { userId, ...rest } = payload;
+        return {
+          url: Endpoints.Users,
+          method: "GET",
+          params: rest,
+        };
+      },
+      providesTags: ["Users"],
+    }),
+
+    fetchUserById: build.query<Users, string>({
+      query: (id) => ({
+        url: `${Endpoints.Users}/${id}`,
+        method: "GET",
+      }),
+    }),
+
+    createUser: build.mutation<Users, CreateUserSchema>({
       query: (payload) => {
         return {
-          url: Endpoints.Register,
+          url: Endpoints.Users,
           method: "POST",
           body: payload,
         };
       },
+      invalidatesTags: ["Users"],
     }),
-    getProfile: build.query<ProfileResponse, FetchProfileRequest>({
-      query: ({ userId }) => {
-        // TODO: the api endpoint will be changed to a more secure and proper one [/profile/me]
-        return {
-          url: `${Endpoints.Users}/${userId}`,
-          method: "GET",
-        };
-      },
-    }),
-    updateProfile: build.mutation<ProfileResponse, UpdateProfileRequest>({
-      query: ({ id, payload }) => {
+
+    updateUser: build.mutation<Users, UpdateUserRequest>({
+      query: ({ id, ...payload }) => {
         return {
           url: `${Endpoints.Users}/${id}`,
           method: "PATCH",
           body: payload,
         };
       },
+      invalidatesTags: ["Users"],
     }),
-    updateUserPassword: build.mutation<
-      UpdatePasswordResponse,
-      UpdatePasswordRequest
-    >({
-      query: ({ id, payload }) => {
-        return {
-          url: `${Endpoints.ChangePassword}/${id}`,
-          method: "PATCH",
-          body: payload,
-        };
-      },
+
+    deleteUser: build.mutation<void, string>({
+      query: (id) => ({
+        url: `${Endpoints.Users}/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
     }),
   }),
-
   overrideExisting: false,
 });
 
 export const {
-  useRegisterUserMutation,
-  useLazyGetProfileQuery,
-  useUpdateProfileMutation,
-  useUpdateUserPasswordMutation,
-} = usersApi;
+  useFetchUsersQuery,
+  useFetchUserByIdQuery,
+  useLazyFetchUserByIdQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+} = UsersApi;

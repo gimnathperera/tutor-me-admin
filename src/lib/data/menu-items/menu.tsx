@@ -11,9 +11,11 @@ import {
   GraduationCap,
   HelpCircle,
   LibraryBig,
+  MessageSquareHeart,
   MessageSquareMore,
   NotebookText,
   TextSearch,
+  User,
 } from "lucide-react";
 
 const NavItems = [
@@ -46,6 +48,11 @@ const NavItems = [
     path: "/level-and-exams",
   },
   {
+    icon: <MessageSquareHeart />,
+    name: "Testimonials",
+    path: "/testimonials",
+  },
+  {
     icon: <HelpCircle />,
     name: "FAQ",
     path: "/faqs",
@@ -56,6 +63,15 @@ const NavItems = [
     path: "/inquiries",
     subItems: [
       { name: "Contact Us", path: "/inquiries/contactus", pro: false },
+    ],
+  },
+  {
+    name: "Users",
+    icon: <User />,
+    path: "/users",
+    subItems: [
+      { name: "Tutors", path: "/users/tutors", pro: false },
+      { name: "Users", path: "/users/all-users", pro: false },
     ],
   },
   {

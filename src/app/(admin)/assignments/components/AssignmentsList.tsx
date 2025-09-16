@@ -2,6 +2,7 @@
 
 import DataTable from "@/components/tables/DataTable";
 import { useFetchAssignmentsQuery } from "@/store/api/splits/tuition-assignments";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { DeleteAssignment } from "./DeleteAssignment";
 import ViewDetails from "./ViewDetails";
@@ -32,8 +33,15 @@ export default function AssignmentsList() {
     { key: "duration", header: "Duration" },
     { key: "assignmentPrice", header: "Price" },
     {
+      key: "createdAt",
+      header: "Created Date",
+      render: (row: { createdAt: string }) =>
+        dayjs(row.createdAt).format("YYYY-MM-DD HH:mm"),
+    },
+    {
       key: "edit",
       header: "Edit",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: {
         id: string;
         title: string;
@@ -42,21 +50,24 @@ export default function AssignmentsList() {
         duration: string;
         assignmentPrice: number;
       }) => (
-        <UpdateAssignment
-          id={row.id}
-          title={row.title}
-          assignmentNumber={row.assignmentNumber}
-          address={row.address}
-          duration={row.duration}
-          assignmentPrice={row.assignmentPrice}
-        />
+        <div className="w-full flex justify-center items-center">
+          <UpdateAssignment
+            id={row.id}
+            title={row.title}
+            assignmentNumber={row.assignmentNumber}
+            address={row.address}
+            duration={row.duration}
+            assignmentPrice={row.assignmentPrice}
+          />
+        </div>
       ),
     },
     {
       key: "delete",
       header: "Delete",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: { id: string }) => (
-        <div className="flex justify-center items-center">
+        <div className="w-full flex justify-center items-center">
           <DeleteAssignment assignmentId={row.id} />
         </div>
       ),
@@ -64,6 +75,7 @@ export default function AssignmentsList() {
     {
       key: "view",
       header: "View",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: {
         title: string;
         assignmentNumber: string;
@@ -71,7 +83,7 @@ export default function AssignmentsList() {
         duration: string;
         assignmentPrice: number;
       }) => (
-        <div className="flex justify-center items-center">
+        <div className="w-full flex justify-center items-center">
           <ViewDetails assignment={row} />
         </div>
       ),
