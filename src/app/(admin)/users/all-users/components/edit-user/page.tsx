@@ -36,6 +36,7 @@ import {
 interface UpdateUserProps {
   id: string;
   email: string;
+  role: "user" | "admin" | "tutor";
   name: string;
   phoneNumber?: string;
   birthday?: string;
@@ -67,7 +68,15 @@ export function UpdateUser(props: UpdateUserProps) {
   const { formState, register, setValue, handleSubmit, reset } = form;
 
   useEffect(() => {
-    if (open) reset({ ...initialFormValues, ...props });
+    if (open) {
+      reset({
+        ...initialFormValues,
+        ...props,
+        birthday: props.birthday
+          ? new Date(props.birthday).toISOString().substring(0, 10) // YYYY-MM-DD
+          : "",
+      });
+    }
   }, [open, props, reset]);
 
   const onSubmit = async (data: UpdateUserSchema) => {
@@ -75,6 +84,7 @@ export function UpdateUser(props: UpdateUserProps) {
       const payload = {
         id: props.id,
         email: data.email,
+        role: data.role,
         name: data.name,
         status: data.status || "active",
         phoneNumber: data.phoneNumber || "",
@@ -163,11 +173,37 @@ export function UpdateUser(props: UpdateUserProps) {
                 </p>
               )}
             </div>
+            {/* Role */}
+            <div className="grid gap-3">
+              <Label htmlFor="role">Role</Label>
+              <Select
+                onValueChange={(val) => setValue("role", val as any)}
+                defaultValue={props.role || "user"}
+              >
+                <SelectTrigger id="role">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="tutor">Tutor</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+              {formState.errors.role && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.role.message}
+                </p>
+              )}
+            </div>
 
             {/* Phone Number */}
             <div className="grid gap-3">
               <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input id="phoneNumber" {...register("phoneNumber")} />
+              <Input
+                id="phoneNumber"
+                placeholder="ex: 0712345678"
+                {...register("phoneNumber")}
+              />
               {formState.errors.phoneNumber && (
                 <p className="text-sm text-red-500">
                   {formState.errors.phoneNumber.message}

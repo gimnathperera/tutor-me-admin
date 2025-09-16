@@ -72,7 +72,15 @@ export function AddGrade() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          createGradeForm.reset();
+        }
+      }}
+    >
       <form onSubmit={createGradeForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
