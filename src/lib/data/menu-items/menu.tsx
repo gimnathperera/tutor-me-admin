@@ -5,6 +5,7 @@ import {
   HelpCircle,
   LibraryBig,
   MessageSquareHeart,
+  NotebookText,
   TextSearch,
   User,
 } from "lucide-react";
@@ -39,6 +40,11 @@ const NavItems = [
   //   path: "/level-and-exams",
   // },
   {
+    icon: <NotebookText />,
+    name: "Blog",
+    path: "/blogs",
+  },
+  {
     icon: <MessageSquareHeart />,
     name: "Testimonials",
     path: "/testimonials",
@@ -65,11 +71,6 @@ const NavItems = [
       { name: "Students", path: "/users/all-users", pro: false },
     ],
   },
-  // {
-  //   icon: <NotebookText />,
-  //   name: "Blog",
-  //   path: "/blogs",
-  // },
   // {
   //   icon: <MessageSquareMore />,
   //   name: "Contact Us",
