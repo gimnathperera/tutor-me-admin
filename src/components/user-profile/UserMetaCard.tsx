@@ -1,11 +1,10 @@
 "use client";
-import React from "react";
+import { Button } from "@/components/ui/button/Button";
+import Image from "next/image";
 import { useModal } from "../../hooks/useModal";
-import { Modal } from "../ui/modal";
-import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
-import Image from "next/image";
+import { Modal } from "../ui/modal";
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
