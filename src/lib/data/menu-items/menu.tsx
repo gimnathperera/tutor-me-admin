@@ -39,7 +39,7 @@ const NavItems = [
     icon: <LibraryBig />,
     subItems: [
       { name: "Tuition Rates", path: "/tuition-rates", pro: false },
-      { name: "Tuition Assignments", path: "/tuition-assignments", pro: false },
+      { name: "Tuition Assignments", path: "/assignments", pro: false },
     ],
   },
   {
