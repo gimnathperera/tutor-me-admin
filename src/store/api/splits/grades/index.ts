@@ -8,7 +8,7 @@ export const GradesApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchGrades: build.query<PaginatedResponse<Grade>, FetchGradesRequest>({
       query: (payload) => {
-        const { gradeId, ...rest } = payload;
+        const { ...rest } = payload;
         return {
           url: Endpoints.Grades,
           method: "GET",

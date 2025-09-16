@@ -8,7 +8,7 @@ export const LevelsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchLevels: build.query<PaginatedResponse<Level>, FetchLevelsRequest>({
       query: (payload) => {
-        const { levelId, ...rest } = payload || ({} as any);
+        const { ...rest } = payload || ({} as any);
         return {
           url: Endpoints.Levels,
           method: "GET",

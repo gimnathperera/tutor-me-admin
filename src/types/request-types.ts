@@ -218,36 +218,6 @@ export type FetchTuitionAssignments = {
   assignmentPrice: string;
 };
 
-type PersonalInfo = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  state: string;
-  zip: string;
-  region: string;
-  grade: string;
-};
-
-type LessonDetail = {
-  subjects: string[];
-  duration: string;
-  frequency: string;
-};
-
-type LessonInfo = {
-  tutorCount: string;
-  lessonDetails: LessonDetail[];
-};
-
-type TutorTypeInfo = {
-  tutorType: string;
-  studentSchool: string;
-  genderPreference: string;
-  isBilingualTutor: boolean;
-};
-
 export type FindMyTutorRequest = {
   fullName: string;
   contactNumber: string;
@@ -271,4 +241,21 @@ export type FindMyTutorRequest = {
   sellingPoints: string;
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
+};
+
+export type FetchLevelsRequest = {
+  title?: string;
+  details?: string[];
+  challenges?: string[];
+  subjects?: string[];
+  levelId?: string;
+};
+
+export type UpdateLevelRequest = {
+  id: string;
+  title: string;
+  description: string;
+  details: string[];
+  challenges: string[];
+  subjects: string[];
 };
