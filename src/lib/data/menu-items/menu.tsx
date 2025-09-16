@@ -33,11 +33,11 @@ const NavItems = [
       { name: "Tuition Assignments", path: "/assignments", pro: false },
     ],
   },
-  {
-    icon: <GraduationCap />,
-    name: "Levels and Exams",
-    path: "/level-and-exams",
-  },
+  // {
+  //   icon: <GraduationCap />,
+  //   name: "Levels and Exams",
+  //   path: "/level-and-exams",
+  // },
   {
     icon: <MessageSquareHeart />,
     name: "Testimonials",
@@ -61,7 +61,7 @@ const NavItems = [
     icon: <User />,
     path: "/users",
     subItems: [
-      { name: "Tutors", path: "/users/tutors", pro: false },
+      { name: "Tutors", path: "/tutors", pro: false },
       { name: "Students", path: "/users/all-users", pro: false },
     ],
   },
