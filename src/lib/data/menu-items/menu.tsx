@@ -1,18 +1,10 @@
-import {
-  CalenderIcon,
-  GridIcon,
-  ListIcon,
-  PageIcon,
-  TableIcon,
-  UserCircleIcon,
-} from "@/icons";
+import { GridIcon } from "@/icons";
 import {
   BookOpen,
   GraduationCap,
   HelpCircle,
   LibraryBig,
   MessageSquareHeart,
-  MessageSquareMore,
   NotebookText,
   TextSearch,
   User,
@@ -22,7 +14,7 @@ const NavItems = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    path: "/",
   },
   {
     name: "Academics",
@@ -42,10 +34,15 @@ const NavItems = [
       { name: "Tuition Assignments", path: "/assignments", pro: false },
     ],
   },
+  // {
+  //   icon: <GraduationCap />,
+  //   name: "Levels and Exams",
+  //   path: "/level-and-exams",
+  // },
   {
-    icon: <GraduationCap />,
-    name: "Levels and Exams",
-    path: "/level-and-exams",
+    icon: <NotebookText />,
+    name: "Blog",
+    path: "/blogs",
   },
   {
     icon: <MessageSquareHeart />,
@@ -70,48 +67,43 @@ const NavItems = [
     icon: <User />,
     path: "/users",
     subItems: [
-      { name: "Tutors", path: "/users/tutors", pro: false },
-      { name: "Users", path: "/users/all-users", pro: false },
+      { name: "Tutors", path: "/tutors", pro: false },
+      { name: "Students", path: "/users/all-users", pro: false },
     ],
   },
-  {
-    icon: <NotebookText />,
-    name: "Blog",
-    path: "/blogs",
-  },
-  {
-    icon: <MessageSquareMore />,
-    name: "Contact Us",
-    path: "/#keep-in-touch-section",
-  },
-  {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/calendar",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "User Profile",
-    path: "/profile",
-  },
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
-    subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/error-404", pro: false },
-    ],
-  },
+  // {
+  //   icon: <MessageSquareMore />,
+  //   name: "Contact Us",
+  //   path: "/#keep-in-touch-section",
+  // },
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "Calendar",
+  //   path: "/calendar",
+  // },
+  // {
+  //   icon: <UserCircleIcon />,
+  //   name: "User Profile",
+  //   path: "/profile",
+  // },
+  // {
+  //   name: "Forms",
+  //   icon: <ListIcon />,
+  //   subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
+  // },
+  // {
+  //   name: "Tables",
+  //   icon: <TableIcon />,
+  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+  // },
+  // {
+  //   name: "Pages",
+  //   icon: <PageIcon />,
+  //   subItems: [
+  //     { name: "Blank Page", path: "/blank", pro: false },
+  //     { name: "404 Error", path: "/error-404", pro: false },
+  //   ],
+  // },
 ];
 
 export default NavItems;
