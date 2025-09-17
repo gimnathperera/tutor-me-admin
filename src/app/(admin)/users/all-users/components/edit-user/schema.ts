@@ -4,7 +4,9 @@ export const updateUserSchema = z.object({
   email: z.string().email("Invalid email address").max(100, "Email too long"),
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
   role: z.enum(["admin", "user", "tutor"]).optional(),
-  phoneNumber: z.string().regex(/^\+?[0-9]{7,15}$/, "Invalid phone number"),
+  phoneNumber: z
+    .string()
+    .regex(/^\+?[0-9]{1,10}$/, "Invalid phone number (use 0712345678)"),
   birthday: z
     .string()
     .optional()
@@ -36,10 +38,8 @@ export const updateUserSchema = z.object({
     .optional(),
 });
 
-// Type inferred from schema
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
 
-// Default values for initializing form
 export const initialFormValues: UpdateUserSchema = {
   email: "",
   name: "",

@@ -90,29 +90,52 @@ export default function UsersTable() {
       header: "Role",
       className:
         "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
-      render: (row: User) => (
-        <span
-          title={row.role || "No role provided"}
-          className={`truncate block ${!row.role ? "text-gray-400 italic" : ""}`}
-        >
-          {getSafeValue(row.role, "No role provided")}
-        </span>
-      ),
+      render: (row: User) => {
+        const role = row.role
+          ? row.role.charAt(0).toUpperCase() + row.role.slice(1)
+          : null;
+
+        return (
+          <span
+            title={role || "No role provided"}
+            className={`truncate block ${!role ? "text-gray-400 italic" : ""}`}
+          >
+            {getSafeValue(role, "No role provided")}
+          </span>
+        );
+      },
     },
     {
       key: "createdAt",
-      header: "Created Date and Time",
+      header: "Created At",
       className:
-        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
-      render: (row: User) => (
-        <span
-          title={row.createdAt || "No role provided"}
-          className={`truncate block ${!row.createdAt ? "text-gray-400 italic" : ""}`}
-        >
-          {getSafeValue(row.createdAt, "No role provided")}
-        </span>
-      ),
+        "min-w-[140px] max-w-[140px] truncate overflow-hidden cursor-default",
+      bodyClassName: "text-[0.75rem] font-mono",
+      render: (row: User) => {
+        try {
+          const date = new Date(row.createdAt || "");
+          if (isNaN(date.getTime())) {
+            return <span className="text-gray-400 italic">Invalid date</span>;
+          }
+
+          return (
+            <span title={date.toISOString()}>
+              {date.toLocaleString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </span>
+          );
+        } catch {
+          return <span className="text-gray-400 italic">Invalid date</span>;
+        }
+      },
     },
+
     {
       key: "view",
       header: "View",
@@ -155,9 +178,7 @@ export default function UsersTable() {
           <UpdateUser
             id={row.id}
             email={row.email || ""}
-            password={row.password || ""}
             name={row.name || ""}
-            role={row.role || "user"}
             phoneNumber={row.phoneNumber || ""}
             birthday={row.birthday || ""}
             status={row.status || "active"}
@@ -171,9 +192,9 @@ export default function UsersTable() {
             gender={row.gender}
             duration={row.duration}
             frequency={row.frequency}
-            timezone={row.timeZone}
             language={row.language}
             avatar={row.avatar}
+            role={row.role || "user"}
           />
         </div>
       ),

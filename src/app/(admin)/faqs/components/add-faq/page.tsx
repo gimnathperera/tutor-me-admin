@@ -1,5 +1,6 @@
 "use client";
 
+import TextArea from "@/components/form/input/TextArea";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -24,7 +25,6 @@ import {
   createFaqSchema,
   initialFaqFormValues,
 } from "./schema";
-import TextArea from "@/components/form/input/TextArea";
 
 export function AddFAQ() {
   const [open, setOpen] = useState(false);
@@ -57,7 +57,6 @@ export function AddFAQ() {
       toast.error("An unexpected error occurred while creating the FAQ.");
     }
   };
-
   const onRegisterSuccess = () => {
     reset();
     toast.success("FAQ created successfully");

@@ -68,7 +68,15 @@ export default function AddUser() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          createUserForm.reset();
+        }
+      }}
+    >
       <form onSubmit={createUserForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
@@ -159,7 +167,7 @@ export default function AddUser() {
               <Input
                 id="phoneNumber"
                 type="text"
-                placeholder="Phone Number"
+                placeholder="ex: 0712345678"
                 {...createUserForm.register("phoneNumber")}
               />
               {formState.errors.phoneNumber && (
