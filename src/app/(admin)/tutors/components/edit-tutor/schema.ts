@@ -8,8 +8,16 @@ export const updateTutorSchema = z.object({
     .length(10, "Contact number must be exactly 10 digits"),
   email: z.string().email("Email must be valid"),
   dateOfBirth: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
+    .preprocess(
+      (arg) =>
+        typeof arg === "string" || arg instanceof Date
+          ? new Date(arg)
+          : undefined,
+      z.date(),
+    )
+    .refine((date) => date instanceof Date && !isNaN(date.getTime()), {
+      message: "Date of Birth is required and must be a valid date",
+    }),
   gender: z.enum(["Male", "Female"]),
   age: z.number().int().min(1),
   nationality: z.enum(["Singaporean", "Singapore PR", "Others"]),
