@@ -35,7 +35,9 @@ export function DeleteTestimonial({ testimonialId }: DeleteTestimonialProps) {
       }
     } catch (error) {
       console.error("Unexpected error during testimonial deletion:", error);
-      toast.error("An unexpected error occurred while deleting the testimonial");
+      toast.error(
+        "An unexpected error occurred while deleting the testimonial",
+      );
     }
   };
 

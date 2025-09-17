@@ -20,7 +20,7 @@ interface Level {
   id: string;
   title?: string;
   details?: string[];
-  challanges?: string[]; 
+  challanges?: string[];
   subjects?: Subject[];
   createdAt?: string;
 }

@@ -35,7 +35,7 @@ const staggeredBaseQuery = retry(
     retryCondition: (
       error: unknown,
       baseQueryArgs: FetchArgs,
-      { attempt }: { attempt: number }
+      { attempt }: { attempt: number },
     ) => {
       const err = error as FetchBaseQueryError | CustomError;
       if (ENDPOINTS_TO_AVOID_RETRY.includes(baseQueryArgs.url)) return false;

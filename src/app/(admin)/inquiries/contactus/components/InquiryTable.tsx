@@ -30,7 +30,7 @@ export default function InquiryTable() {
   });
 
   const inquiries =
-    data?.results.map((inq : Inquiry) => ({
+    data?.results.map((inq: Inquiry) => ({
       ...inq,
       senderName: inq.sender?.name || "",
       senderEmail: inq.sender?.email || "",

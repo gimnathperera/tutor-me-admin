@@ -74,7 +74,9 @@ export function UpdateTestimonial({
       }
     } catch (error) {
       console.error("Unexpected error during testimonial update:", error);
-      toast.error("An unexpected error occurred while updating the testimonial");
+      toast.error(
+        "An unexpected error occurred while updating the testimonial",
+      );
     }
   };
 
@@ -96,9 +98,7 @@ export function UpdateTestimonial({
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Edit Testimonial</DialogTitle>
-            <DialogDescription>
-              Edit the testimonial details.
-            </DialogDescription>
+            <DialogDescription>Edit the testimonial details.</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">

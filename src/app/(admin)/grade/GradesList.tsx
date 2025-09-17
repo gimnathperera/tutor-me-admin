@@ -124,7 +124,9 @@ export default function SubjectsTable() {
             id={row.id}
             title={getSafeValue(row.title, "")}
             description={getSafeValue(row.description, "")}
-            subjects={getSafeArray(row.subjects).map((subject) => subject.title)}
+            subjects={getSafeArray(row.subjects).map(
+              (subject) => subject.title,
+            )}
           />
         </div>
       ),

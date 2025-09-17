@@ -80,7 +80,9 @@ export default function TuitionRatesTable() {
     {
       key: "delete",
       header: "Delete",
-      render: (row: TuitionRateData) => <DeleteTuitionRate gradeId={row.id || ""} />,
+      render: (row: TuitionRateData) => (
+        <DeleteTuitionRate gradeId={row.id || ""} />
+      ),
     },
     {
       key: "view",

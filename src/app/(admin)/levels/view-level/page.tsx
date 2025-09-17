@@ -19,7 +19,7 @@ interface Level {
 }
 
 const ViewLevelPage = () => {
-  const [ loading ] = useState(true);
+  const [loading] = useState(true);
   const { data } = useFetchLevelsQuery({
     page: 1,
     limit: LIMIT,

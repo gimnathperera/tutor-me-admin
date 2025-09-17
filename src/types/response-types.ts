@@ -274,7 +274,7 @@ export type Tutor = BaseEntity & {
   teachingSummary: string;
   studentResults: string;
   sellingPoints: string;
-  tutoringLevels: string[]; 
+  tutoringLevels: string[];
   preferredLocations: string[];
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;

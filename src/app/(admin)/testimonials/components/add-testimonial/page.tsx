@@ -55,7 +55,7 @@ export function AddTestimonial() {
     } catch (error) {
       console.error("Unexpected error during testimonial creation:", error);
       toast.error(
-        "An unexpected error occurred while creating the testimonial"
+        "An unexpected error occurred while creating the testimonial",
       );
     }
   };

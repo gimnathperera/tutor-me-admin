@@ -82,14 +82,11 @@ export function UpdateTuitionRate({
   });
 
   const subjectOptions =
-    subjectsData?.results?.map((s) => ({ value: s.id, label: s.title })) ||
-    [];
+    subjectsData?.results?.map((s) => ({ value: s.id, label: s.title })) || [];
   const levelOptions =
-    levelsData?.results?.map((l) => ({ value: l.id, label: l.title })) ||
-    [];
+    levelsData?.results?.map((l) => ({ value: l.id, label: l.title })) || [];
   const gradeOptions =
-    gradesData?.results?.map((g) => ({ value: g.id, label: g.title })) ||
-    [];
+    gradesData?.results?.map((g) => ({ value: g.id, label: g.title })) || [];
 
   const displayLoading =
     isSubjectsLoading || isLevelsLoading || isGradesLoading;

@@ -27,7 +27,11 @@ interface TestimonialDetailsProps {
   };
 }
 
-export function TestimonialDetails({ content, rating, owner }: TestimonialDetailsProps) {
+export function TestimonialDetails({
+  content,
+  rating,
+  owner,
+}: TestimonialDetailsProps) {
   const [open, setOpen] = useState(false);
 
   const displayFieldClass =
@@ -63,7 +67,9 @@ export function TestimonialDetails({ content, rating, owner }: TestimonialDetail
               )}
               <div>
                 <div className="font-medium">{owner?.name || "Unknown"}</div>
-                <div className="text-xs text-gray-500">{owner?.role || "No role"}</div>
+                <div className="text-xs text-gray-500">
+                  {owner?.role || "No role"}
+                </div>
               </div>
             </div>
           </div>
@@ -71,13 +77,17 @@ export function TestimonialDetails({ content, rating, owner }: TestimonialDetail
           {/* Content Section */}
           <div className="grid gap-3">
             <Label>Content</Label>
-            <div className={cn(displayFieldClass)}>{content || "No content provided"}</div>
+            <div className={cn(displayFieldClass)}>
+              {content || "No content provided"}
+            </div>
           </div>
 
           {/* Rating Section */}
           <div className="grid gap-3">
             <Label>Rating</Label>
-            <div className={cn(displayFieldClass)}>{rating || "No rating provided"}</div>
+            <div className={cn(displayFieldClass)}>
+              {rating || "No rating provided"}
+            </div>
           </div>
         </div>
         <DialogFooter>
