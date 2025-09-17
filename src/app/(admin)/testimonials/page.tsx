@@ -1,5 +1,11 @@
+import { Metadata } from "next";
 import { AddTestimonial } from "./components/add-testimonial/page";
 import TestimonialsTable from "./components/TestimonialsList";
+
+export const metadata: Metadata = {
+  title: "Testimonials | TutorMe",
+  description: "This is the Testimonials management page for TutorMe",
+};
 
 export default function Testimonials() {
   return (
