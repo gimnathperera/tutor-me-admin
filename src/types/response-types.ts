@@ -257,6 +257,30 @@ type TutorTypeInfo = {
   genderPreference: string;
 };
 
+export type Tutor = BaseEntity & {
+  fullName: string;
+  contactNumber: string;
+  email: string;
+  dateOfBirth: string; // YYYY-MM-DD format
+  gender: string;
+  age: number;
+  nationality: string;
+  race: string;
+  last4NRIC: string;
+  tutorType: string;
+  yearsExperience: number;
+  highestEducation: string;
+  academicDetails: string;
+  teachingSummary: string;
+  studentResults: string;
+  sellingPoints: string;
+  tutoringLevels: string[]; 
+  preferredLocations: string[];
+  agreeTerms: boolean;
+  agreeAssignmentInfo: boolean;
+  captchaToken: string;
+};
+
 export type FindMyTutorResponse = {
   status: string;
   personalInfo: PersonalInfo;
@@ -270,5 +294,6 @@ export type InquiryResponse = PaginatedResponse<Inquiry>;
 export type SubjectResponse = PaginatedResponse<Subject>;
 export type GradeResponse = PaginatedResponse<Grade>;
 export type PaperResponse = PaginatedResponse<Paper>;
+export type TutorResponse = PaginatedResponse<Tutor>;
 export type TestimonialResponse = PaginatedResponse<Testimonial>;
 export type TuitionAssignmentResponse = PaginatedResponse<TuitionAssignment>;

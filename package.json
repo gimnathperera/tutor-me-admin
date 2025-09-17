@@ -33,6 +33,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.18",
     "destr": "^2.0.5",
     "flatpickr": "^4.6.13",
     "lodash-es": "^4.17.21",

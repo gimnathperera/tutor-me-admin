@@ -203,6 +203,37 @@ export type FetchUserRequest = {
   userId?: string;
 };
 
+export type CreateTutorRequest = {
+  fullName: string;
+  contactNumber: string;
+  confirmContactNumber: string;
+  email: string;
+  dateOfBirth: string;
+  confirmDateOfBirth: string;
+  gender: string;
+  age: number;
+  nationality: string;
+  race: string;
+  last4NRIC: string;
+  tutoringLevels: string[];
+  preferredLocations: string[];
+  tutorType: string;
+  yearsExperience: number;
+  highestEducation: string;
+  academicDetails: string;
+  teachingSummary: string;
+  studentResults: string;
+  sellingPoints: string;
+  agreeTerms: boolean;
+  agreeAssignmentInfo: boolean;
+  captchaToken: string;
+};
+
+export type UpdateTutorRequest = {
+  id: string;
+  payload: Partial<CreateTutorRequest>;
+};
+
 export type FetchTestimonialsRequest = {
   page: number;
   limit: number;

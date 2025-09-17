@@ -16,6 +16,10 @@ import { Endpoints } from "./endpoints";
 
 const ENDPOINTS_TO_AVOID_RETRY = [Endpoints.RefreshToken];
 
+type CustomError = {
+  status: "TIMEOUT_ERROR" | "FETCH_ERROR" | number;
+};
+
 const staggeredBaseQuery = retry(
   fetchBaseQuery({
     baseUrl: env.urls.apiUrl,
@@ -29,18 +33,19 @@ const staggeredBaseQuery = retry(
   }),
   {
     retryCondition: (
-      error: FetchBaseQueryError | any,
-      baseQueryArgs,
-      { attempt },
+      error: unknown,
+      baseQueryArgs: FetchArgs,
+      { attempt }: { attempt: number }
     ) => {
+      const err = error as FetchBaseQueryError | CustomError;
       if (ENDPOINTS_TO_AVOID_RETRY.includes(baseQueryArgs.url)) return false;
       if (attempt > 5) return false;
 
       return (
-        error.status === "TIMEOUT_ERROR" ||
-        error.status === "FETCH_ERROR" ||
-        (typeof error.status === "number" &&
-          (error.status === 429 || error.status > 500))
+        err.status === "TIMEOUT_ERROR" ||
+        err.status === "FETCH_ERROR" ||
+        (typeof err.status === "number" &&
+          (err.status === 429 || err.status > 500))
       );
     },
   },
