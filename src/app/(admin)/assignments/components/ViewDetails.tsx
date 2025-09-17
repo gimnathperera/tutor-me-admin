@@ -1,12 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -38,7 +35,7 @@ export default function ViewDetails({ assignment }: AssignmentDetailsProps) {
         <Eye cursor="pointer" />
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Assignment Details</DialogTitle>
           <DialogDescription>Full details of the assignment</DialogDescription>
@@ -74,12 +71,6 @@ export default function ViewDetails({ assignment }: AssignmentDetailsProps) {
             </div>
           </div>
         </div>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

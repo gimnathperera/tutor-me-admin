@@ -30,7 +30,7 @@ import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 import {
-  api,
+  TutorsApi,
   useFetchTutorByIdQuery,
   useUpdateTutorMutation,
 } from "@/store/api/splits/tutors";
@@ -121,7 +121,7 @@ export function EditTutor({ id }: EditTutorProps) {
       const result = await updateTutor({ id, ...values }).unwrap();
 
       // Update RTK Query cache
-      api.util.updateQueryData("fetchTutorById", id, (draft) => {
+      TutorsApi.util.updateQueryData("fetchTutorById", id, (draft) => {
         Object.assign(draft, result);
       });
 

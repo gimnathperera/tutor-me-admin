@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StarRating } from "@/components/ui/StarRating";
 import {
   testimonialSchema,
   TestimonialSchema,
@@ -90,7 +91,13 @@ export function UpdateTestimonial({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          updateTestimonialForm.reset({ content, rating, owner });
+        }
+      }}>
       <form onSubmit={updateTestimonialForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer" />
@@ -120,16 +127,17 @@ export function UpdateTestimonial({
             {/* Rating */}
             <div className="grid gap-3">
               <Label htmlFor="rating">Rating</Label>
-              <Input
-                id="rating"
-                placeholder="1 - 5"
-                type="number"
-                min={1}
-                max={5}
-                {...updateTestimonialForm.register("rating", {
-                  valueAsNumber: true,
-                })}
-              />
+              <div className="flex items-center space-x-2">
+                <StarRating
+                  value={updateTestimonialForm.watch("rating")}
+                  onChange={(val) =>
+                    updateTestimonialForm.setValue("rating", val)
+                  }
+                />
+                <span className="text-gray-700 dark:text-gray-200 font-medium">
+                  {updateTestimonialForm.watch("rating")}/5
+                </span>
+              </div>
               {formState.errors.rating && (
                 <p className="text-sm text-red-500">
                   {formState.errors.rating.message}

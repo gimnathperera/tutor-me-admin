@@ -24,6 +24,7 @@ export default function FAQTable() {
   const { data, isLoading } = useFetchFaqsQuery({
     page,
     limit,
+    sortBy: "createdAt:desc",
   });
 
   const faqs = data?.results || [];

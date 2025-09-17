@@ -1,20 +1,16 @@
 "use client";
 
-import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Eye } from "lucide-react";
-import Image from "next/image";
+import { Eye, Star } from "lucide-react";
 import { useState } from "react";
 
 interface TestimonialDetailsProps {
@@ -42,7 +38,7 @@ export function TestimonialDetails({
       <DialogTrigger asChild>
         <Eye cursor="pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Details</DialogTitle>
           <DialogDescription>Testimonial Details</DialogDescription>
@@ -53,12 +49,10 @@ export function TestimonialDetails({
             <Label>Owner</Label>
             <div className="flex items-center gap-3">
               {owner?.avatar ? (
-                <Image
+                <img
                   src={owner.avatar}
                   alt={owner.name || "Owner"}
-                  width={40}
-                  height={40}
-                  className="rounded-full object-cover"
+                  className="w-20 h-20 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm text-gray-600">
@@ -85,16 +79,21 @@ export function TestimonialDetails({
           {/* Rating Section */}
           <div className="grid gap-3">
             <Label>Rating</Label>
-            <div className={cn(displayFieldClass)}>
-              {rating || "No rating provided"}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  size={30}
+                  className={
+                    i < Number(rating)
+                      ? "fill-yellow-400 text-yellow-400" // filled stars
+                      : "text-gray-300" // empty stars
+                  }
+                />
+              ))}
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

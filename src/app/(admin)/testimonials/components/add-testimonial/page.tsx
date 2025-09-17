@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StarRating } from "@/components/ui/StarRating";
 import {
   initialFormValues,
   TestimonialSchema,
@@ -67,7 +68,13 @@ export function AddTestimonial() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          createTestimonialForm.reset();
+        }
+      }}>
       <form onSubmit={createTestimonialForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
@@ -104,16 +111,17 @@ export function AddTestimonial() {
             {/* Rating */}
             <div className="grid gap-3">
               <Label htmlFor="rating">Rating</Label>
-              <Input
-                id="rating"
-                placeholder="1 - 5"
-                type="number"
-                min={1}
-                max={5}
-                {...createTestimonialForm.register("rating", {
-                  valueAsNumber: true,
-                })}
-              />
+              <div className="flex items-center space-x-2">
+                <StarRating
+                  value={createTestimonialForm.watch("rating")}
+                  onChange={(val) =>
+                    createTestimonialForm.setValue("rating", val)
+                  }
+                />
+                <span className="text-gray-700 dark:text-gray-200 font-medium">
+                  {createTestimonialForm.watch("rating")}/5
+                </span>
+              </div>
               {formState.errors.rating && (
                 <p className="text-sm text-red-500">
                   {formState.errors.rating.message}

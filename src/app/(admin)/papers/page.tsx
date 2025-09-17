@@ -1,5 +1,11 @@
 import { AddPaper } from "./components/add-paper/page";
 import PapersTable from "./components/PapersList";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Papers | TutorMe",
+  description: "This is the Papers management page for TutorMe",
+};
 
 const TestPapers = () => {
   return (
