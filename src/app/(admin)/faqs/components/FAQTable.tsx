@@ -126,6 +126,7 @@ export default function FAQTable() {
             minute: "2-digit",
           });
         } catch (error) {
+          console.error("Error parsing date:", error);
           return <span className="text-gray-400 italic">Invalid date</span>;
         }
       },
