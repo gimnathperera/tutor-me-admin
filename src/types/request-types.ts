@@ -63,11 +63,13 @@ export type FetchProfileRequest = {
 export type FetchFaqRequest = {
   page: number;
   limit: number;
+  sortBy?: string;
 };
 
 export type FetchInquiryRequest = {
   page: number;
   limit: number;
+  sortBy?: string;
 };
 
 export type FetchLevelRequest = {
@@ -206,6 +208,7 @@ export type FetchUserRequest = {
 export type FetchTestimonialsRequest = {
   page: number;
   limit: number;
+  sortBy?: string;
 };
 
 export type FetchTuitionAssignments = {

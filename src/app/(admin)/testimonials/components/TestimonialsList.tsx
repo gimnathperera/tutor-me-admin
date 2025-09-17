@@ -3,11 +3,11 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTestimonialsQuery } from "@/store/api/splits/testimonials";
-import Image from "next/image";
 import { useState } from "react";
 import { DeleteTestimonial } from "./DeleteTestimonial";
 import { UpdateTestimonial } from "./edit-testimonial/page";
 import { TestimonialDetails } from "./ViewDetails";
+import { Star } from "lucide-react";
 
 interface Testimonial {
   id: string;
@@ -58,12 +58,10 @@ export default function TestimonialsTable() {
       render: (row: Testimonial) => (
         <div className="flex items-center gap-3">
           {row.owner?.avatar ? (
-            <Image
+            <img
               src={row.owner.avatar}
               alt={row.owner?.name || "Owner"}
-              width={32}
-              height={32}
-              className="rounded-full object-cover"
+              className="w-10 h-10 rounded-full object-cover"
               onError={(e) => (e.currentTarget.src = "/images/user/user.png")}
             />
           ) : (
@@ -102,23 +100,31 @@ export default function TestimonialsTable() {
     },
     {
       key: "rating",
-      header: (
-        <div className="flex justify-center items-center w-full text-center">
-          Rating
-        </div>
-      ),
-      className:
-        "min-w-[100px] max-w-[150px] truncate text-center flex justify-center items-center",
+      header: "Rating",
+      className: "min-w-[120px] max-w-[160px] text-center",
       render: (row: Testimonial) => {
-        const safeRating = getSafeValue(row.rating, "No rating provided");
+        const numericRating = Number(row.rating) || 0;
         return (
-          <span
-            className={`truncate text-center ${
-              !row.rating ? "text-gray-400 italic" : ""
-            }`}
-          >
-            {safeRating}
-          </span>
+          <div className="flex items-center justify-center gap-1">
+            {/* Stars */}
+            <div className="flex items-center">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  size={16}
+                  className={
+                    i < numericRating
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-400"
+                  }
+                />
+              ))}
+            </div>
+            {/* Number */}
+            <span className="text-xs text-gray-400">
+              ({numericRating || "N/A"})
+            </span>
+          </div>
         );
       },
     },
