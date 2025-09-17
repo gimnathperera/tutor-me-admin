@@ -32,6 +32,11 @@ interface UpdateLevelProps {
   subjects: string[];
 }
 
+interface Subject {
+  id: string;
+  title: string;
+}
+
 export function UpdateLevel({
   id,
   title,
@@ -48,9 +53,8 @@ export function UpdateLevel({
   });
 
   useEffect(() => {
-    // When props change (if any), reset form
     updateLevelForm.reset({ title, details, challanges, subjects });
-  }, [title, details, challanges, subjects]);
+  }, [title, details, challanges, subjects, updateLevelForm]);
 
   const { control, register, handleSubmit, setValue } = updateLevelForm;
   const detailsArray = useFieldArray({ control, name: "details" });
@@ -60,7 +64,7 @@ export function UpdateLevel({
   const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 100 });
 
   const subjectOptions =
-    subjectsData?.results?.map((s: any) => ({
+    subjectsData?.results?.map((s: Subject) => ({
       text: s.title,
       value: s.id,
       selected: subjects.includes(s.id),
@@ -68,7 +72,15 @@ export function UpdateLevel({
 
   const onSubmit = async (data: UpdateLevelSchema) => {
     try {
-      const result = await updateLevel({ id, ...data } as any);
+      const payload = {
+        id,
+        title: data.title,
+        description: "",
+        details: data.details,
+        challenges: data.challanges,
+        subjects: data.subjects ?? [],
+      };
+      const result = await updateLevel(payload);
       const error = getErrorInApiResult(result);
       if (error) {
         return toast.error(error);
