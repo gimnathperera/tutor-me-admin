@@ -73,7 +73,7 @@ export function UserDetails({
       <DialogTrigger asChild>
         <Eye cursor="pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[625px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Details</DialogTitle>
           <DialogDescription>User Details</DialogDescription>
@@ -227,18 +227,13 @@ export function UserDetails({
           <div className="grid gap-3">
             <Label>Avatar</Label>
             <div
-              className={cn(displayFieldClass, "min-h-[5rem]", "overflow-auto")}
+              className={cn(displayFieldClass, "min-h-[5rem]", "overflow-auto scrollbar-thin")}
             >
               {avatar}
               <img src={avatar} alt={"avatar Image"} />
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -38,7 +38,7 @@ export function TestimonialDetails({ content, rating, owner }: TestimonialDetail
       <DialogTrigger asChild>
         <Eye cursor="pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Details</DialogTitle>
           <DialogDescription>Testimonial Details</DialogDescription>
@@ -80,11 +80,6 @@ export function TestimonialDetails({ content, rating, owner }: TestimonialDetail
             <div className={cn(displayFieldClass)}>{rating || "No rating provided"}</div>
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

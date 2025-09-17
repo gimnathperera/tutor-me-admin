@@ -51,11 +51,6 @@ export function SubjectDetails({ title, description }: SubjectDetailsProps) {
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

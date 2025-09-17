@@ -45,13 +45,13 @@ export function PaperDetails({
       <DialogTrigger asChild>
         <Eye cursor="pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[500px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Paper Details</DialogTitle>
           <DialogDescription>Information about this paper</DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
+        <div className="grid gap-4 overflow-y-auto">
           <div className="grid gap-3">
             <Label>Title</Label>
             <div className={cn(displayFieldClass)}>{title}</div>
@@ -96,12 +96,6 @@ export function PaperDetails({
             </a>
           </div>
         </div>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
