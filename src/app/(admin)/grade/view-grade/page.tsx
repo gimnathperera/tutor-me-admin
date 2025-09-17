@@ -12,8 +12,8 @@ import Link from "next/link";
 import { useState } from "react";
 const GRADE_LIMIT = 10;
 const ViewGradePage = () => {
-  const [loading, setLoading] = useState(true);
-  const { data, isLoading } = useFetchGradesQuery({
+  const [loading] = useState(true);
+  const { data } = useFetchGradesQuery({
     page: 1,
     limit: GRADE_LIMIT,
   });

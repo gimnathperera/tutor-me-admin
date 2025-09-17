@@ -49,7 +49,7 @@ export default function SubjectsTable() {
     return value;
   };
 
-  const getSafeArray = (value: any[] | undefined | null): any[] => {
+  const getSafeArray = (value: Subject[] | undefined | null): Subject[] => {
     if (!Array.isArray(value)) {
       return [];
     }
@@ -124,7 +124,7 @@ export default function SubjectsTable() {
             id={row.id}
             title={getSafeValue(row.title, "")}
             description={getSafeValue(row.description, "")}
-            subjects={getSafeArray(row.subjects)}
+            subjects={getSafeArray(row.subjects).map((subject) => subject.title)}
           />
         </div>
       ),
