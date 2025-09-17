@@ -13,11 +13,11 @@ export default function TimeZoneSelect({ setValue, defaultValue }: any) {
   useEffect(() => {
     const fetchTimezones = async () => {
       try {
-        const res = await fetch("https://worldtimeapi.org/api/timezone");
+        const res = await fetch("/timezones.json");
         const data = await res.json();
         setTimezones(data);
       } catch (err) {
-        console.error("Failed to fetch timezones", err);
+        console.error("Failed to load timezones", err);
       }
     };
     fetchTimezones();

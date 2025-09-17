@@ -8,7 +8,9 @@ export const createUserSchema = z.object({
     .max(64, "Password must not exceed 64 characters"),
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
   role: z.enum(["admin", "user", "tutor"]).default("user"),
-  phoneNumber: z.string().regex(/^\+?[0-9]{7,15}$/, "Invalid phone number"),
+  phoneNumber: z
+    .string()
+    .regex(/^\+?[0-9]{1,10}$/, "Invalid phone number (use 0712345678)"),
   birthday: z
     .string()
     .refine(

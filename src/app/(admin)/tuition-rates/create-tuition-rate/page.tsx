@@ -74,7 +74,15 @@ export function AddTuitionRate() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          createTuitionRateForm.reset();
+        }
+      }}
+    >
       <form onSubmit={createTuitionRateForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
