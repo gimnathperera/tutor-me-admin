@@ -30,7 +30,7 @@ export default function ProtectedRoute({
         user.role === "admin" &&
         publicRoutes.includes(currentPath)
       ) {
-        router.push("/dashboard");
+        router.push("/");
         setHasRedirected(true);
       } else {
         setHasRedirected(false);

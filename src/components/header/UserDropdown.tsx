@@ -2,12 +2,14 @@
 import { useAuthContext } from "@/context";
 import Image from "next/image";
 import React, { useState } from "react";
+import { SignOutConfirmationModal } from "../shared/SignOutConfirmationModal";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuthContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -17,6 +19,17 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  const handleSignOutClick = () => {
+    closeDropdown();
+    setIsModalOpen(true);
+  };
+
+  const handleSignOutConfirm = () => {
+    logout();
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="relative">
       <button
@@ -123,7 +136,7 @@ export default function UserDropdown() {
           </li>
         </ul>
         <button
-          onClick={logout}
+          onClick={handleSignOutClick}
           className="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
         >
           <svg
@@ -144,6 +157,11 @@ export default function UserDropdown() {
           Sign out
         </button>
       </Dropdown>
+      <SignOutConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleSignOutConfirm}
+      />
     </div>
   );
 }
