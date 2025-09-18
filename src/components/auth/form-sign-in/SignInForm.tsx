@@ -24,7 +24,7 @@ export default function SignInForm() {
   watch(() => {
     if (isAuthError) setIsAuthError(null);
   });
-  
+
   const onSubmit = (data: LoginSchema) => {
     login(data);
   };
@@ -78,7 +78,11 @@ export default function SignInForm() {
                     </Link>
                   </div>
                   <div>
-                    <SubmitButton title="Sign In" type="submit" loading={isLoading} />
+                    <SubmitButton
+                      title="Sign In"
+                      type="submit"
+                      loading={isLoading}
+                    />
                   </div>
                 </div>
               </form>

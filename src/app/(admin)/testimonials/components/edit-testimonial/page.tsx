@@ -91,13 +91,15 @@ export function UpdateTestimonial({
   };
 
   return (
-    <Dialog open={open}
+    <Dialog
+      open={open}
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) {
           updateTestimonialForm.reset({ content, rating, owner });
         }
-      }}>
+      }}
+    >
       <form onSubmit={updateTestimonialForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer" />

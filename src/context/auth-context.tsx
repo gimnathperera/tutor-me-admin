@@ -50,7 +50,7 @@ const authProvider = {
 const AuthContext = createContext<AuthContextType>(authProvider);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const router = useRouter(); 
+  const router = useRouter();
   const [user, setUser] = useState<AuthUserData | null>(null);
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [isAuthError, setIsAuthError] = useState<string | null>(null);
@@ -81,9 +81,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleLoginSuccess = ({ user, tokens }: UserLoginResponse) => {
-    if (user.role !== 'admin') {
+    if (user.role !== "admin") {
       removeLocalStorageItem(LocalStorageKey.TOKENS);
-      setIsAuthError("Access denied: You do not have permission to view this panel.");
+      setIsAuthError(
+        "Access denied: You do not have permission to view this panel.",
+      );
       return;
     }
 
@@ -117,7 +119,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     removeLocalStorageItem(LocalStorageKey.USER_DATA);
     removeLocalStorageItem(LocalStorageKey.TOKENS);
     localStorage.clear();
-    
+
     router.push("/signin");
   };
 

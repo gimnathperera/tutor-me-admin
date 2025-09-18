@@ -223,7 +223,11 @@ export function UserDetails({
           <div className="grid gap-3">
             <Label>Avatar</Label>
             <div
-              className={cn(displayFieldClass, "min-h-[5rem]", "overflow-auto scrollbar-thin")}
+              className={cn(
+                displayFieldClass,
+                "min-h-[5rem]",
+                "overflow-auto scrollbar-thin",
+              )}
             >
               {avatar}
               <img src={avatar} alt={"avatar Image"} />

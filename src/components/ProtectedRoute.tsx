@@ -22,16 +22,17 @@ export default function ProtectedRoute({
       if (!user && !publicRoutes.includes(currentPath)) {
         router.push("/signin");
         setHasRedirected(true);
-      }
-      else if (user && user.role !== "admin") {
+      } else if (user && user.role !== "admin") {
         router.push("/403");
         setHasRedirected(true);
-      }
-      else if (user && user.role === "admin" && publicRoutes.includes(currentPath)) {
+      } else if (
+        user &&
+        user.role === "admin" &&
+        publicRoutes.includes(currentPath)
+      ) {
         router.push("/dashboard");
         setHasRedirected(true);
-      }
-      else {
+      } else {
         setHasRedirected(false);
       }
     }
