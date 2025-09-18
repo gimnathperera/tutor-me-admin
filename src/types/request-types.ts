@@ -102,7 +102,7 @@ export type UpdateSubjectRequest = {
 export type UpdateUserRequest = {
   id: string;
   email: string;
-  password: string;
+  password?: string;
   name: string;
   role: string;
   phoneNumber: string;
@@ -118,7 +118,7 @@ export type UpdateUserRequest = {
   gender: string;
   duration: string;
   frequency: string;
-  timezone: string;
+  timezone?: string;
   language: string;
   avatar: string;
 };

@@ -55,6 +55,13 @@ export const UsersApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Users"],
     }),
+    sendTempPassword: build.mutation<void, string>({
+      query: (id) => ({
+        url: `${Endpoints.Users}/temp-password/${id}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Users"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -66,4 +73,5 @@ export const {
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
+  useSendTempPasswordMutation,
 } = UsersApi;
