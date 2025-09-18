@@ -26,9 +26,12 @@ export default function ProtectedRoute({
       else if (user && user.role !== "admin") {
         router.push("/403");
         setHasRedirected(true);
-      }
-      else if (user && user.role === "admin" && publicRoutes.includes(currentPath)) {
-        router.push("/dashboard");
+      } else if (
+        user &&
+        user.role === "admin" &&
+        publicRoutes.includes(currentPath)
+      ) {
+        router.push("/");
         setHasRedirected(true);
       }
       else {
