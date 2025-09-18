@@ -6,6 +6,7 @@ import { useFetchUsersQuery } from "@/store/api/splits/users";
 import { useState } from "react";
 import { DeleteUser } from "./DeleteUser";
 import { UpdateUser } from "./edit-user/page";
+import { ResetPassword } from "./ResetPassword";
 import { UserDetails } from "./ViewDetails";
 
 interface User {
@@ -206,6 +207,16 @@ export default function UsersTable() {
       render: (row: User) => (
         <div className="w-full flex justify-left items-center">
           <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />
+        </div>
+      ),
+    },
+    {
+      key: "resetPassword",
+      header: "Reset Password",
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: User) => (
+        <div className="w-full flex justify-left items-center">
+          <ResetPassword userId={row.id} />
         </div>
       ),
     },

@@ -78,6 +78,13 @@ export function UpdateUser(props: UpdateUserProps) {
       });
     }
   }, [open, props, reset]);
+  function handleSelect<T extends keyof UpdateUserSchema>(
+    key: T,
+    val: string,
+    setValue: (field: T, value: UpdateUserSchema[T]) => void,
+  ) {
+    setValue(key, val as UpdateUserSchema[T]);
+  }
 
   const onSubmit = async (data: UpdateUserSchema) => {
     try {
@@ -155,7 +162,7 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="status">Status</Label>
               <Select
-                onValueChange={(val) => setValue("status", val as any)}
+                onValueChange={(val) => handleSelect("status", val, setValue)}
                 defaultValue={props.status || "active"}
               >
                 <SelectTrigger id="status">
@@ -177,7 +184,7 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="role">Role</Label>
               <Select
-                onValueChange={(val) => setValue("role", val as any)}
+                onValueChange={(val) => handleSelect("role", val, setValue)}
                 defaultValue={props.role || "user"}
               >
                 <SelectTrigger id="role">
@@ -293,7 +300,9 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="tutorType">Tutor Type</Label>
               <Select
-                onValueChange={(val) => setValue("tutorType", val as any)}
+                onValueChange={(val) =>
+                  handleSelect("tutorType", val, setValue)
+                }
                 defaultValue={props.tutorType || "full-time"}
               >
                 <SelectTrigger id="tutorType">
@@ -316,7 +325,7 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="gender">Gender</Label>
               <Select
-                onValueChange={(val) => setValue("gender", val as any)}
+                onValueChange={(val) => handleSelect("gender", val, setValue)}
                 defaultValue={props.gender || "male"}
               >
                 <SelectTrigger id="gender">
@@ -339,8 +348,8 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="duration">Duration</Label>
               <Select
-                onValueChange={(val) => setValue("duration", val as any)}
-                defaultValue={props.duration || ""}
+                onValueChange={(val) => handleSelect("duration", val, setValue)}
+                defaultValue={props.duration || "30 minutes"}
               >
                 <SelectTrigger id="duration">
                   <SelectValue placeholder="Select Duration" />
@@ -362,8 +371,10 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="frequency">Frequency</Label>
               <Select
-                onValueChange={(val) => setValue("frequency", val as any)}
-                defaultValue={props.frequency || ""}
+                onValueChange={(val) =>
+                  handleSelect("frequency", val, setValue)
+                }
+                defaultValue={props.frequency || "daily"}
               >
                 <SelectTrigger id="frequency">
                   <SelectValue placeholder="Select Frequency" />
@@ -385,8 +396,8 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="language">Language</Label>
               <Select
-                onValueChange={(val) => setValue("language", val as any)}
-                defaultValue={props.language || ""}
+                onValueChange={(val) => handleSelect("language", val, setValue)}
+                defaultValue={props.language || "Sinhala"}
               >
                 <SelectTrigger id="language">
                   <SelectValue placeholder="Select Language" />
