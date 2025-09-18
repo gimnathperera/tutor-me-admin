@@ -126,7 +126,7 @@ export function UpdateUser(props: UpdateUserProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={handleSubmit(onSubmit as any)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer" />
         </DialogTrigger>
@@ -434,7 +434,7 @@ export function UpdateUser(props: UpdateUserProps) {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={handleSubmit(onSubmit as any)}
+              onClick={handleSubmit(onSubmit)}
             >
               Save
             </Button>

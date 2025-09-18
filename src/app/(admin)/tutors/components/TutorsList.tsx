@@ -6,6 +6,31 @@ import { useState } from "react";
 import { DeleteTutor } from "./DeleteTutor";
 import { ViewTutor } from "./ViewTutor";
 import { EditTutor } from "./edit-tutor/page";
+type Tutor = {
+  id: string;
+  fullName: string;
+  email: string;
+  contactNumber: string;
+  dateOfBirth: string;
+  gender: string;
+  age: number;
+  nationality: string;
+  race: string;
+  last4NRIC: string;
+  tutorType: string;
+  yearsExperience: number;
+  highestEducation: string;
+  academicDetails: string;
+  teachingSummary: string;
+  studentResults: string;
+  sellingPoints: string;
+  tutoringLevels: string[];
+  preferredLocations: string[];
+  agreeTerms: boolean;
+  agreeAssignmentInfo: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export default function TutorsList() {
   const [page, setPage] = useState(1);
@@ -27,7 +52,12 @@ export default function TutorsList() {
   };
 
   // Choose 5 columns to show in table
-  const columns = [
+  const columns: {
+    key: string;
+    header: string;
+    className?: string;
+    render?: (row: Tutor) => React.ReactNode;
+  }[] = [
     { key: "fullName", header: "Full Name" },
     { key: "email", header: "Email" },
     { key: "contactNumber", header: "Contact Number" },
@@ -63,7 +93,7 @@ export default function TutorsList() {
       key: "delete",
       header: "Delete",
       className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: any) => (
+      render: (row: Tutor) => (
         <div className="flex justify-center items-center">
           <DeleteTutor tutorId={row.id} />
         </div>
@@ -75,7 +105,7 @@ export default function TutorsList() {
       key: "view",
       header: "View",
       className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: any) => (
+      render: (row: Tutor) => (
         <div className="flex justify-center items-center">
           <ViewTutor tutor={row} />
         </div>

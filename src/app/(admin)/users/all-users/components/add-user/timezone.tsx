@@ -7,7 +7,15 @@ import {
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 
-export default function TimeZoneSelect({ setValue, defaultValue }: any) {
+interface TimeZoneSelectProps {
+  setValue: (field: string, value: string) => void;
+  defaultValue?: string;
+}
+
+export default function TimeZoneSelect({
+  setValue,
+  defaultValue,
+}: TimeZoneSelectProps) {
   const [timezones, setTimezones] = useState<string[]>([]);
 
   useEffect(() => {

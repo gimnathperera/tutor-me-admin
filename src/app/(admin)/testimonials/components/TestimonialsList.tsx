@@ -3,11 +3,12 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTestimonialsQuery } from "@/store/api/splits/testimonials";
+import { Star } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { DeleteTestimonial } from "./DeleteTestimonial";
 import { UpdateTestimonial } from "./edit-testimonial/page";
 import { TestimonialDetails } from "./ViewDetails";
-import { Star } from "lucide-react";
 
 interface Testimonial {
   id: string;
@@ -58,7 +59,7 @@ export default function TestimonialsTable() {
       render: (row: Testimonial) => (
         <div className="flex items-center gap-3">
           {row.owner?.avatar ? (
-            <img
+            <Image
               src={row.owner.avatar}
               alt={row.owner?.name || "Owner"}
               className="w-10 h-10 rounded-full object-cover"

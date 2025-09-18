@@ -1,9 +1,11 @@
+import { AddTutorFormValues } from "@/app/(admin)/tutors/components/add-tutor/schema";
+import { UpdateTutorSchema } from "@/app/(admin)/tutors/components/edit-tutor/schema";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
 export const TutorsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    fetchTutors: build.query<any, void>({
+    fetchTutors: build.query<AddTutorFormValues, void>({
       // <- no params
       query: () => ({
         url: Endpoints.FindATutor,
@@ -12,7 +14,7 @@ export const TutorsApi = baseApi.injectEndpoints({
       providesTags: ["Tutors"],
     }),
 
-    fetchTutorById: build.query<any, string>({
+    fetchTutorById: build.query<AddTutorFormValues, string>({
       query: (id) => ({
         url: `${Endpoints.FindATutor}/${id}`,
         method: "GET",
@@ -20,7 +22,7 @@ export const TutorsApi = baseApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "Tutors", id }],
     }),
 
-    createTutor: build.mutation<any, Partial<any>>({
+    createTutor: build.mutation<AddTutorFormValues, Partial<any>>({
       query: (payload) => ({
         url: Endpoints.FindATutor,
         method: "POST",
@@ -29,7 +31,10 @@ export const TutorsApi = baseApi.injectEndpoints({
       invalidatesTags: ["Tutors"],
     }),
 
-    updateTutor: build.mutation<any, { id: string; [key: string]: any }>({
+    updateTutor: build.mutation<
+      UpdateTutorSchema,
+      { id: string; [key: string]: any }
+    >({
       query: ({ id, ...payload }) => ({
         url: `${Endpoints.FindATutor}/${id}`,
         method: "PATCH",

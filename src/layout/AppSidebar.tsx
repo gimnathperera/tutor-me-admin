@@ -1,12 +1,6 @@
 "use client";
 import { useSidebar } from "@/context/SidebarContext";
-import {
-  BoxCubeIcon,
-  ChevronDownIcon,
-  HorizontaLDots,
-  PieChartIcon,
-  PlugInIcon,
-} from "@/icons";
+import { ChevronDownIcon, HorizontaLDots } from "@/icons";
 import NavItems from "@/lib/data/menu-items/menu";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,37 +15,6 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = NavItems;
-
-const othersItems: NavItem[] = [
-  // {
-  //   icon: <PieChartIcon />,
-  //   name: "Charts",
-  //   subItems: [
-  //     { name: "Line Chart", path: "/line-chart", pro: false },
-  //     { name: "Bar Chart", path: "/bar-chart", pro: false },
-  //   ],
-  // },
-  // {
-  //   icon: <BoxCubeIcon />,
-  //   name: "UI Elements",
-  //   subItems: [
-  //     { name: "Alerts", path: "/alerts", pro: false },
-  //     { name: "Avatar", path: "/avatars", pro: false },
-  //     { name: "Badge", path: "/badge", pro: false },
-  //     { name: "Buttons", path: "/buttons", pro: false },
-  //     { name: "Images", path: "/images", pro: false },
-  //     { name: "Videos", path: "/videos", pro: false },
-  //   ],
-  // },
-  // {
-  //   icon: <PlugInIcon />,
-  //   name: "Authentication",
-  //   subItems: [
-  //     { name: "Sign In", path: "/signin", pro: false },
-  //     { name: "Sign Up", path: "/signup", pro: false },
-  //   ],
-  // },
-];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();

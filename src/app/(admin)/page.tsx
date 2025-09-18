@@ -1,9 +1,7 @@
-import DemographicCard from "@/components/ecommerce/DemographicCard";
 import { EcommerceMetrics } from "@/components/ecommerce/EcommerceMetrics";
 import MonthlySalesChart from "@/components/ecommerce/MonthlySalesChart";
 import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
-import RecentOrders from "@/components/ecommerce/RecentOrders";
-import StatisticsChart from "@/components/ecommerce/StatisticsChart";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -24,19 +22,6 @@ export default function Ecommerce() {
       <div className="col-span-12 xl:col-span-5">
         <MonthlyTarget />
       </div>
-
-      {/* Hide unwanted sections */}
-      {/* <div className="col-span-12">
-        <StatisticsChart />
-      </div>
-
-      <div className="col-span-12 xl:col-span-5">
-        <DemographicCard />
-      </div>
-
-      <div className="col-span-12 xl:col-span-7">
-        <RecentOrders />
-      </div> */}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { GridIcon } from "@/icons";
 import {
   BookOpen,
-  GraduationCap,
   HelpCircle,
   LibraryBig,
   MessageSquareHeart,
@@ -34,11 +33,6 @@ const NavItems = [
       { name: "Tuition Assignments", path: "/assignments", pro: false },
     ],
   },
-  // {
-  //   icon: <GraduationCap />,
-  //   name: "Levels and Exams",
-  //   path: "/level-and-exams",
-  // },
   {
     icon: <NotebookText />,
     name: "Blog",
