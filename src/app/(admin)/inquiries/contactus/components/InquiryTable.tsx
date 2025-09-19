@@ -15,6 +15,7 @@ export default function InquiryTable() {
   const { data, isLoading } = useFetchInquiriesQuery({
     page,
     limit,
+    sortBy: "createdAt:desc",
   });
 
   const inquiries =
@@ -115,7 +116,7 @@ export default function InquiryTable() {
     },
     {
       key: "delete",
-      header: "Delete",
+      header: <div className="text-center w-full">Delete</div>,
       className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: { id: string }) => (
         <div className="w-full flex justify-center items-center">
@@ -125,7 +126,7 @@ export default function InquiryTable() {
     },
     {
       key: "view",
-      header: "View",
+      header: <div className="text-center w-full">View</div>,
       className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: {
         id: string;

@@ -3,8 +3,8 @@ import { AddLevel } from "./create-level/page";
 import LevelsTable from "./LevelsList";
 
 export const metadata: Metadata = {
-  title: "TutorMe Admin | Levels",
-  description: "Manage Levels",
+  title: "Levels | TutorMe",
+  description: "This is the Levels management page for TutorMe",
 };
 
 export default function LevelsPage() {

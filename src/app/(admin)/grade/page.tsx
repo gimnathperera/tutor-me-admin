@@ -3,9 +3,8 @@ import { AddGrade } from "./create-grade/page";
 import GradesTable from "./GradesList";
 
 export const metadata: Metadata = {
-  title: "Next.js Profile | TutorMe - Next.js Dashboard Template",
-  description:
-    "This is Next.js Profile page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+  title: "Grades | TutorMe",
+  description: "This is the Grades management page for TutorMe",
 };
 
 export default function Profile() {

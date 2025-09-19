@@ -1,19 +1,16 @@
 "use client";
 
-import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Eye } from "lucide-react";
+import { Eye, Star } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -27,7 +24,11 @@ interface TestimonialDetailsProps {
   };
 }
 
-export function TestimonialDetails({ content, rating, owner }: TestimonialDetailsProps) {
+export function TestimonialDetails({
+  content,
+  rating,
+  owner,
+}: TestimonialDetailsProps) {
   const [open, setOpen] = useState(false);
 
   const displayFieldClass =
@@ -38,7 +39,7 @@ export function TestimonialDetails({ content, rating, owner }: TestimonialDetail
       <DialogTrigger asChild>
         <Eye cursor="pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Details</DialogTitle>
           <DialogDescription>Testimonial Details</DialogDescription>
@@ -49,12 +50,10 @@ export function TestimonialDetails({ content, rating, owner }: TestimonialDetail
             <Label>Owner</Label>
             <div className="flex items-center gap-3">
               {owner?.avatar ? (
-                <Image
+                <img
                   src={owner.avatar}
                   alt={owner.name || "Owner"}
-                  width={40}
-                  height={40}
-                  className="rounded-full object-cover"
+                  className="w-20 h-20 rounded-full object-cover"
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-sm text-gray-600">
@@ -63,7 +62,9 @@ export function TestimonialDetails({ content, rating, owner }: TestimonialDetail
               )}
               <div>
                 <div className="font-medium">{owner?.name || "Unknown"}</div>
-                <div className="text-xs text-gray-500">{owner?.role || "No role"}</div>
+                <div className="text-xs text-gray-500">
+                  {owner?.role || "No role"}
+                </div>
               </div>
             </div>
           </div>
@@ -71,20 +72,29 @@ export function TestimonialDetails({ content, rating, owner }: TestimonialDetail
           {/* Content Section */}
           <div className="grid gap-3">
             <Label>Content</Label>
-            <div className={cn(displayFieldClass)}>{content || "No content provided"}</div>
+            <div className={cn(displayFieldClass)}>
+              {content || "No content provided"}
+            </div>
           </div>
 
           {/* Rating Section */}
           <div className="grid gap-3">
             <Label>Rating</Label>
-            <div className={cn(displayFieldClass)}>{rating || "No rating provided"}</div>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  size={30}
+                  className={
+                    i < Number(rating)
+                      ? "fill-yellow-400 text-yellow-400" // filled stars
+                      : "text-gray-300" // empty stars
+                  }
+                />
+              ))}
+            </div>
           </div>
         </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Close</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

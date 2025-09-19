@@ -3,9 +3,8 @@ import { AddTuitionRate } from "./create-tuition-rate/page";
 import TuitionRatesTable from "./RatesList";
 
 export const metadata: Metadata = {
-  title: "Next.js Profile | TutorMe - Next.js Dashboard Template",
-  description:
-    "This is Next.js Profile page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+  title: "Tuition Rates | TutorMe",
+  description: "This is the Tuition Rates management page for TutorMe",
 };
 
 export default function Profile() {
