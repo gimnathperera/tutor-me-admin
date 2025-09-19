@@ -29,6 +29,7 @@ import {
 } from "@/store/api/splits/tuition-assignments";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isRejectedWithValue } from "@reduxjs/toolkit";
 import { SquarePen } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -94,8 +95,15 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
 
       toast.success("Assignment updated successfully");
       setOpen(false);
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to update assignment");
+    } catch (error) {
+      if (isRejectedWithValue(error)) {
+        const errorMessage =
+          (error.data as { message: string })?.message ||
+          "Failed to update assignment";
+        toast.error(errorMessage);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 

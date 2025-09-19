@@ -1,12 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import DataTable from "@/components/tables/DataTable";
 import { useFetchInquiriesQuery } from "@/store/api/splits/inquiries";
 import { Copy } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 import { DeleteInquiry } from "./DeleteInquiry";
 import { InquiryDetails } from "./ViewInquiries";
-import toast from "react-hot-toast";
+
+interface Sender {
+  name?: string;
+  email?: string;
+}
+
+interface Inquiry {
+  id: string;
+  message: string;
+  createdAt: string;
+  sender?: Sender;
+}
 
 export default function InquiryTable() {
   const [page, setPage] = useState(1);
@@ -19,7 +31,7 @@ export default function InquiryTable() {
   });
 
   const inquiries =
-    data?.results.map((inq: any) => ({
+    data?.results.map((inq: Inquiry) => ({
       ...inq,
       senderName: inq.sender?.name || "",
       senderEmail: inq.sender?.email || "",
@@ -30,8 +42,6 @@ export default function InquiryTable() {
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
   };
-  `
-  `;
   const copyToClipboard = async (id: string) => {
     try {
       await navigator.clipboard.writeText(id);

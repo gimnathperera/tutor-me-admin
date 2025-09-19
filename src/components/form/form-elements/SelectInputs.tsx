@@ -14,12 +14,7 @@ export default function SelectInputs() {
   ];
 
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
-  interface SelectProps {
-    options: { value: string; label: string }[];
-    placeholder?: string;
-    onChange?: (value: string) => void;
-    className?: string;
-  }
+
   const handleSelectChange = (value: string) => {
     console.log("Selected value:", value);
   };

@@ -14,7 +14,7 @@ export const TuitionRatesApi = baseApi.injectEndpoints({
       FetchTuitionRatesRequest
     >({
       query: (payload) => {
-        const { rateId, ...rest } = payload;
+        const { ...rest } = payload;
         return {
           url: Endpoints.TuitionRates,
           method: "GET",

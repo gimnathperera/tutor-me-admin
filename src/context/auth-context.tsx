@@ -1,6 +1,6 @@
 "use client";
 
-import { LoginSchema } from "@/components/auth/form-login/schema";
+import { LoginSchema } from "@/components/auth/form-sign-in/schema";
 import { useLoginMutation, useLogoutMutation } from "@/store/api/splits/auth";
 import { AuthUserData, Tokens } from "@/types/auth-types";
 import { UserLoginResponse } from "@/types/response-types";
@@ -11,6 +11,7 @@ import {
   removeLocalStorageItem,
   setLocalStorageItem,
 } from "@/utils/local-storage";
+import { useRouter } from "next/navigation";
 import { createContext, ReactNode, useEffect, useState } from "react";
 
 export type AuthProviderType = {
@@ -49,6 +50,7 @@ const authProvider = {
 const AuthContext = createContext<AuthContextType>(authProvider);
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
   const [user, setUser] = useState<AuthUserData | null>(null);
   const [isUserLoaded, setIsUserLoaded] = useState(false);
   const [isAuthError, setIsAuthError] = useState<string | null>(null);
@@ -79,6 +81,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleLoginSuccess = ({ user, tokens }: UserLoginResponse) => {
+    if (user.role !== "admin") {
+      removeLocalStorageItem(LocalStorageKey.TOKENS);
+      setIsAuthError(
+        "Access denied: You do not have permission to view this panel.",
+      );
+      return;
+    }
+
     const userData: AuthUserData = {
       id: user.id,
       role: user.role,
@@ -90,6 +100,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLocalStorageItem(LocalStorageKey.USER_DATA, userData);
     setLocalStorageItem(LocalStorageKey.TOKENS, tokens);
     setUser(user);
+
+    router.push("/");
   };
 
   const logout = async () => {
@@ -107,7 +119,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     removeLocalStorageItem(LocalStorageKey.USER_DATA);
     removeLocalStorageItem(LocalStorageKey.TOKENS);
     localStorage.clear();
-    window.location.reload();
+
+    router.push("/signin");
   };
 
   return (

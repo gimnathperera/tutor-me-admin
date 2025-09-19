@@ -52,15 +52,15 @@ export function UpdateGrade({
   const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 50 });
 
   const subjectOptions =
-    subjectsData?.results?.map((s: any) => ({
+    subjectsData?.results?.map((s) => ({
       text: s.title,
       value: s.id,
     })) || [];
   useEffect(() => {
     if (open && subjectsData) {
-      const subjectIds = subjects.map((s) => s.id);
+      const subjectIds = subjects;
       const validSubjects = subjectIds.filter((id) =>
-        subjectsData.results.some((s: any) => s.id === id),
+        subjectsData.results.some((s) => s.id === id),
       );
 
       reset({ title, description, subjects: validSubjects });

@@ -12,9 +12,15 @@ import Link from "next/link";
 import { useState } from "react";
 const LIMIT = 10;
 
+interface Level {
+  id: string;
+  title: string;
+  details: string[];
+}
+
 const ViewLevelPage = () => {
-  const [loading, setLoading] = useState(true);
-  const { data, isLoading } = useFetchLevelsQuery({
+  const [loading] = useState(true);
+  const { data } = useFetchLevelsQuery({
     page: 1,
     limit: LIMIT,
   });
@@ -45,7 +51,7 @@ const ViewLevelPage = () => {
                   <TableCell className="text-center py-5">Loading...</TableCell>
                 </TableRow>
               ) : levels.length > 0 ? (
-                levels.map((level: any) => (
+                levels.map((level: Level) => (
                   <TableRow key={level.id}>
                     <TableCell className="px-5 py-4 sm:px-6 text-start">
                       <span className="block font-medium text-gray-800 text-sm">
@@ -82,7 +88,7 @@ const ViewLevelPage = () => {
           {loading ? (
             <p className="text-center text-gray-500">Loading...</p>
           ) : levels.length > 0 ? (
-            levels.map((level: any) => (
+            levels.map((level: Level) => (
               <div
                 key={level.id}
                 className="rounded-lg border border-gray-200 p-4 shadow-sm bg-white"

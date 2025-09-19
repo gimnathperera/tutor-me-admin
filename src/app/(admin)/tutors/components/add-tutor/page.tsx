@@ -27,7 +27,13 @@ import { useCreateTutorMutation } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import {
+  Controller,
+  FieldValues,
+  Path,
+  useForm,
+  UseFormReturn,
+} from "react-hook-form";
 import toast from "react-hot-toast";
 import {
   AddTutorFormValues,
@@ -47,14 +53,12 @@ export function AddTutor() {
 
   const { formState, reset, setValue, watch, control } = form;
 
-  // Reset form when dialog closes
   useEffect(() => {
     if (!open) {
       reset(initialTutorFormValues);
     }
   }, [open, reset]);
 
-  // Alternative approach: Handle dialog close with custom function
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
@@ -62,7 +66,6 @@ export function AddTutor() {
     }
   };
 
-  // helper for mapping years select value -> numeric
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
     setValue("yearsExperience", parsed, {
@@ -119,12 +122,7 @@ export function AddTutor() {
   ].map((v) => ({ value: v, text: v }));
 
   const onSubmit = async (data: AddTutorFormValues) => {
-    // Since schema already validates confirm fields and agreements,
-    // we can just call API and check error wrapper.
-    const result = await createTutor({
-      ...data,
-      // ensure numeric fields are numbers (they are already typed)
-    });
+    const result = await createTutor({ ...data });
 
     const error = getErrorInApiResult(result);
     if (error) {
@@ -151,7 +149,7 @@ export function AddTutor() {
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+        <DialogContent className="sm:max-w-[700px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 overflow-y-auto scrollbar-thin">
           <DialogHeader>
             <DialogTitle>Add Tutor</DialogTitle>
           </DialogHeader>
@@ -169,10 +167,7 @@ export function AddTutor() {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="contactNumber">
-                Contact Number * (digits only)
-              </Label>
-              {/* Controller used to enforce digits-only + max 10 char client-side */}
+              <Label htmlFor="contactNumber">Contact Number *</Label>
               <Controller
                 name="contactNumber"
                 control={control}
@@ -184,7 +179,6 @@ export function AddTutor() {
                     maxLength={10}
                     value={field.value ?? ""}
                     onChange={(e) => {
-                      // keep only digits and limit length to 10
                       const digits = e.target.value
                         .replace(/\D/g, "")
                         .slice(0, 10);
@@ -210,117 +204,179 @@ export function AddTutor() {
               )}
             </div>
 
-            <DatePicker
-              label="Date of Birth"
-              required
-              value={watch("dateOfBirth")}
-              onChange={(date) =>
-                setValue("dateOfBirth", date, {
-                  shouldValidate: true,
-                  shouldDirty: true,
-                })
-              }
-              placeholder="Select your date of birth"
-              error={formState.errors.dateOfBirth?.message}
-            />
-
-            <div className="grid gap-3">
-              <Label htmlFor="gender">Gender *</Label>
-              <Select
-                onValueChange={(val) => setValue("gender", val as any)}
-                value={watch("gender")}
-              >
-                <SelectTrigger id="gender">
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Male">Male</SelectItem>
-                  <SelectItem value="Female">Female</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.gender && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.gender.message}
-                </p>
-              )}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="z-99">
+                <DatePicker
+                  label="Date of Birth"
+                  required
+                  value={watch("dateOfBirth")}
+                  onChange={(date) =>
+                    setValue("dateOfBirth", date, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                  placeholder="Select your date of birth"
+                  error={formState.errors.dateOfBirth?.message}
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="age">Age *</Label>
+                <Input
+                  id="age"
+                  type="number"
+                  {...form.register("age", { valueAsNumber: true })}
+                  min={1}
+                />
+                {formState.errors.age && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.age.message}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="age">Age *</Label>
-              <Input
-                id="age"
-                type="number"
-                {...form.register("age", { valueAsNumber: true })}
-                min={1}
-              />
-              {formState.errors.age && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.age.message}
-                </p>
-              )}
+            <div className="grid grid-cols-3 gap-3">
+              {/* Gender */}
+              <div className="grid gap-3">
+                <Label htmlFor="gender">Gender *</Label>
+                <Select
+                  onValueChange={(val) =>
+                    setValue("gender", val as AddTutorFormValues["gender"])
+                  }
+                  value={watch("gender")}
+                >
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formState.errors.gender && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.gender.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Nationality */}
+              <div className="grid gap-3">
+                <Label htmlFor="nationality">Nationality *</Label>
+                <Select
+                  onValueChange={(val) =>
+                    setValue(
+                      "nationality",
+                      val as AddTutorFormValues["nationality"],
+                    )
+                  }
+                  value={watch("nationality")}
+                >
+                  <SelectTrigger id="nationality">
+                    <SelectValue placeholder="Select nationality" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Singaporean">Singaporean</SelectItem>
+                    <SelectItem value="Singapore PR">Singapore PR</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formState.errors.nationality && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.nationality.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Race */}
+              <div className="grid gap-3">
+                <Label htmlFor="race">Race *</Label>
+                <Select
+                  onValueChange={(val) =>
+                    setValue("race", val as AddTutorFormValues["race"])
+                  }
+                  value={watch("race")}
+                >
+                  <SelectTrigger id="race">
+                    <SelectValue placeholder="Select race" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Chinese">Chinese</SelectItem>
+                    <SelectItem value="Malay">Malay</SelectItem>
+                    <SelectItem value="Indian">Indian</SelectItem>
+                    <SelectItem value="Eurasian">Eurasian</SelectItem>
+                    <SelectItem value="Caucasian">Caucasian</SelectItem>
+                    <SelectItem value="Punjabi">Punjabi</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formState.errors.race && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.race.message}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="nationality">Nationality *</Label>
-              <Select
-                onValueChange={(val) => setValue("nationality", val as any)}
-                value={watch("nationality")}
-              >
-                <SelectTrigger id="nationality">
-                  <SelectValue placeholder="Select nationality" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Singaporean">Singaporean</SelectItem>
-                  <SelectItem value="Singapore PR">Singapore PR</SelectItem>
-                  <SelectItem value="Others">Others</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.nationality && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.nationality.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="race">Race *</Label>
-              <Select
-                onValueChange={(val) => setValue("race", val as any)}
-                value={watch("race")}
-              >
-                <SelectTrigger id="race">
-                  <SelectValue placeholder="Select race" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Chinese">Chinese</SelectItem>
-                  <SelectItem value="Malay">Malay</SelectItem>
-                  <SelectItem value="Indian">Indian</SelectItem>
-                  <SelectItem value="Eurasian">Eurasian</SelectItem>
-                  <SelectItem value="Caucasian">Caucasian</SelectItem>
-                  <SelectItem value="Punjabi">Punjabi</SelectItem>
-                  <SelectItem value="Others">Others</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.race && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.race.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="last4NRIC">Last 4 digits of NRIC *</Label>
-              <Input
-                id="last4NRIC"
-                maxLength={4}
-                {...form.register("last4NRIC")}
-              />
-              {formState.errors.last4NRIC && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.last4NRIC.message}
-                </p>
-              )}
+            {/* NRIC & Tutor Type */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3">
+                <Label htmlFor="last4NRIC">Last 4 digits of NRIC *</Label>
+                <Input
+                  id="last4NRIC"
+                  maxLength={4}
+                  {...form.register("last4NRIC")}
+                />
+                {formState.errors.last4NRIC && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.last4NRIC.message}
+                  </p>
+                )}
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="tutorType">Tutor Type *</Label>
+                <Select
+                  onValueChange={(val) =>
+                    setValue(
+                      "tutorType",
+                      val as AddTutorFormValues["tutorType"],
+                    )
+                  }
+                  value={watch("tutorType")}
+                >
+                  <SelectTrigger id="tutorType">
+                    <SelectValue placeholder="Select tutor type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Full Time Student">
+                      Full Time Student
+                    </SelectItem>
+                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
+                    <SelectItem value="Part Time Tutor">
+                      Part Time Tutor
+                    </SelectItem>
+                    <SelectItem value="Full Time Tutor">
+                      Full Time Tutor
+                    </SelectItem>
+                    <SelectItem value="Ex/Current MOE Teacher">
+                      Ex/Current MOE Teacher
+                    </SelectItem>
+                    <SelectItem value="Ex-MOE Teacher">
+                      Ex-MOE Teacher
+                    </SelectItem>
+                    <SelectItem value="Current MOE Teacher">
+                      Current MOE Teacher
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                {formState.errors.tutorType && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.tutorType.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Tutoring Preferences */}
@@ -333,7 +389,9 @@ export function AddTutor() {
                   setValue(
                     "tutoringLevels",
                     selected as AddTutorFormValues["tutoringLevels"],
-                    { shouldValidate: true },
+                    {
+                      shouldValidate: true,
+                    },
                   )
                 }
               />
@@ -347,118 +405,90 @@ export function AddTutor() {
                 setValue(
                   "preferredLocations",
                   selected as AddTutorFormValues["preferredLocations"],
-                  { shouldValidate: true },
+                  {
+                    shouldValidate: true,
+                  },
                 )
               }
             />
 
-            {/* Academic & Experience */}
-            <div className="grid gap-3">
-              <Label htmlFor="tutorType">Tutor Type *</Label>
-              <Select
-                onValueChange={(val) => setValue("tutorType", val as any)}
-                value={watch("tutorType")}
-              >
-                <SelectTrigger id="tutorType">
-                  <SelectValue placeholder="Select tutor type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Full Time Student">
-                    Full Time Student
-                  </SelectItem>
-                  <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                  <SelectItem value="Part Time Tutor">
-                    Part Time Tutor
-                  </SelectItem>
-                  <SelectItem value="Full Time Tutor">
-                    Full Time Tutor
-                  </SelectItem>
-                  <SelectItem value="Ex/Current MOE Teacher">
-                    Ex/Current MOE Teacher
-                  </SelectItem>
-                  <SelectItem value="Ex-MOE Teacher">Ex-MOE Teacher</SelectItem>
-                  <SelectItem value="Current MOE Teacher">
-                    Current MOE Teacher
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.tutorType && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.tutorType.message}
-                </p>
-              )}
-            </div>
+            {/* Years & Education */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="grid gap-3">
+                <Label htmlFor="yearsExperience">Years of Experience *</Label>
+                <Select
+                  onValueChange={(val) => handleYearsSelect(val)}
+                  value={String(watch("yearsExperience"))}
+                >
+                  <SelectTrigger id="yearsExperience">
+                    <SelectValue placeholder="Select years" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[
+                      "0",
+                      "1",
+                      "2",
+                      "3",
+                      "4",
+                      "5",
+                      "6",
+                      "7",
+                      "8",
+                      "9",
+                      "10+",
+                    ].map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {formState.errors.yearsExperience && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.yearsExperience.message}
+                  </p>
+                )}
+              </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="yearsExperience">Years of Experience *</Label>
-              <Select
-                onValueChange={(val) => handleYearsSelect(val)}
-                value={String(watch("yearsExperience"))}
-              >
-                <SelectTrigger id="yearsExperience">
-                  <SelectValue placeholder="Select years" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[
-                    "0",
-                    "1",
-                    "2",
-                    "3",
-                    "4",
-                    "5",
-                    "6",
-                    "7",
-                    "8",
-                    "9",
-                    "10+",
-                  ].map((o) => (
-                    <SelectItem key={o} value={o}>
-                      {o}
+              <div className="grid gap-3">
+                <Label htmlFor="highestEducation">Highest Education *</Label>
+                <Select
+                  onValueChange={(val) =>
+                    setValue(
+                      "highestEducation",
+                      val as AddTutorFormValues["highestEducation"],
+                    )
+                  }
+                  value={watch("highestEducation")}
+                >
+                  <SelectTrigger id="highestEducation">
+                    <SelectValue placeholder="Select education" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PhD">PhD</SelectItem>
+                    <SelectItem value="Diploma">Diploma</SelectItem>
+                    <SelectItem value="Masters">Masters</SelectItem>
+                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
+                    <SelectItem value="Bachelor Degree">
+                      Bachelor Degree
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formState.errors.yearsExperience && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.yearsExperience.message}
-                </p>
-              )}
+                    <SelectItem value="Diploma and Professional">
+                      Diploma and Professional
+                    </SelectItem>
+                    <SelectItem value="JC/A Levels">JC/A Levels</SelectItem>
+                    <SelectItem value="Poly">Poly</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+                {formState.errors.highestEducation && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.highestEducation.message}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="highestEducation">Highest Education *</Label>
-              <Select
-                onValueChange={(val) =>
-                  setValue("highestEducation", val as any)
-                }
-                value={watch("highestEducation")}
-              >
-                <SelectTrigger id="highestEducation">
-                  <SelectValue placeholder="Select education" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PhD">PhD</SelectItem>
-                  <SelectItem value="Diploma">Diploma</SelectItem>
-                  <SelectItem value="Masters">Masters</SelectItem>
-                  <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                  <SelectItem value="Bachelor Degree">
-                    Bachelor Degree
-                  </SelectItem>
-                  <SelectItem value="Diploma and Professional">
-                    Diploma and Professional
-                  </SelectItem>
-                  <SelectItem value="JC/A Levels">JC/A Levels</SelectItem>
-                  <SelectItem value="Poly">Poly</SelectItem>
-                  <SelectItem value="Others">Others</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.highestEducation && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.highestEducation.message}
-                </p>
-              )}
-            </div>
-
+            {/* Academic Details */}
             <div className="grid gap-3">
               <Label htmlFor="academicDetails">Academic Details</Label>
               <Input
@@ -508,14 +538,14 @@ export function AddTutor() {
 
             {/* Agreements */}
             <div className="mt-2">
-              <CheckboxField
+              <CheckboxField<AddTutorFormValues>
                 label="I agree to Terms & Conditions *"
                 id="agreeTerms"
                 form={form}
               />
             </div>
             <div>
-              <CheckboxField
+              <CheckboxField<AddTutorFormValues>
                 label="I agree to receive assignment info *"
                 id="agreeAssignmentInfo"
                 form={form}
@@ -542,7 +572,16 @@ export function AddTutor() {
   );
 }
 
-function CheckboxField({ label, id, form }: any) {
+// Strongly typed reusable Checkbox
+function CheckboxField<T extends FieldValues>({
+  label,
+  id,
+  form,
+}: {
+  label: string;
+  id: Path<T>;
+  form: UseFormReturn<T>;
+}) {
   const { formState } = form;
   return (
     <div className="grid gap-1">
@@ -551,7 +590,12 @@ function CheckboxField({ label, id, form }: any) {
         <span>{label}</span>
       </Label>
       {formState.errors[id] && (
-        <p className="text-sm text-red-500">{formState.errors[id]?.message}</p>
+        <p className="text-sm text-red-500">
+          {
+            (formState.errors as Record<string, { message?: string }>)[id]
+              ?.message
+          }
+        </p>
       )}
     </div>
   );

@@ -68,13 +68,15 @@ export function AddTestimonial() {
   };
 
   return (
-    <Dialog open={open}
+    <Dialog
+      open={open}
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) {
           createTestimonialForm.reset();
         }
-      }}>
+      }}
+    >
       <form onSubmit={createTestimonialForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button

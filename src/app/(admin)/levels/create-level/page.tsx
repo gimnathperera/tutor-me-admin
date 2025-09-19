@@ -125,7 +125,7 @@ export function AddLevel() {
                 </button>
                 {errors.details && (
                   <p className="text-red-500 text-sm">
-                    {(errors.details as any)?.message}
+                    {errors.details.message}
                   </p>
                 )}
               </div>
@@ -160,7 +160,7 @@ export function AddLevel() {
                 </button>
                 {errors.challanges && (
                   <p className="text-red-500 text-sm">
-                    {(errors.challanges as any)?.message}
+                    {errors.challanges.message}
                   </p>
                 )}
               </div>

@@ -79,7 +79,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         customInput={<CustomInput error={error} />}
         placeholderText={placeholder}
         calendarClassName="shadow-xl border-0 rounded-lg bg-white"
-        popperClassName="z-50"
+        popperClassName="z-99"
         wrapperClassName="w-full"
         dayClassName={(date) => {
           const today = new Date();

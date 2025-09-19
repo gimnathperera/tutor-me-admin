@@ -143,7 +143,9 @@ export default function AddUser() {
             <div className="grid gap-3">
               <Label htmlFor="role">Role</Label>
               <Select
-                onValueChange={(val) => setValue("role", val as any)}
+                onValueChange={(val: CreateUserSchema["role"]) =>
+                  setValue("role", val)
+                }
                 defaultValue={initialFormValues.role}
               >
                 <SelectTrigger id="role">
@@ -285,7 +287,9 @@ export default function AddUser() {
             <div className="grid gap-3">
               <Label htmlFor="tutorType">Tutor Type</Label>
               <Select
-                onValueChange={(val) => setValue("tutorType", val as any)}
+                onValueChange={(val) =>
+                  setValue("tutorType", val as CreateUserSchema["tutorType"])
+                }
                 defaultValue={initialFormValues.tutorType}
               >
                 <SelectTrigger id="tutorType">
@@ -307,7 +311,9 @@ export default function AddUser() {
             <div className="grid gap-3">
               <Label htmlFor="gender">Gender</Label>
               <Select
-                onValueChange={(val) => setValue("gender", val as any)}
+                onValueChange={(val) =>
+                  setValue("gender", val as CreateUserSchema["gender"])
+                }
                 defaultValue={initialFormValues.gender}
               >
                 <SelectTrigger id="gender">
@@ -329,7 +335,9 @@ export default function AddUser() {
             <div className="grid gap-3">
               <Label htmlFor="duration">Duration</Label>
               <Select
-                onValueChange={(val) => setValue("duration", val as any)}
+                onValueChange={(val) =>
+                  setValue("duration", val as CreateUserSchema["duration"])
+                }
                 defaultValue={initialFormValues.duration}
               >
                 <SelectTrigger id="duration">
@@ -351,7 +359,9 @@ export default function AddUser() {
             <div className="grid gap-3">
               <Label htmlFor="frequency">Frequency</Label>
               <Select
-                onValueChange={(val) => setValue("frequency", val as any)}
+                onValueChange={(val) =>
+                  setValue("frequency", val as CreateUserSchema["frequency"])
+                }
                 defaultValue={initialFormValues.frequency}
               >
                 <SelectTrigger id="frequency">
@@ -387,7 +397,9 @@ export default function AddUser() {
             <div className="grid gap-3">
               <Label htmlFor="language">Language</Label>
               <Select
-                onValueChange={(val) => setValue("language", val as any)}
+                onValueChange={(val) =>
+                  setValue("language", val as CreateUserSchema["language"])
+                }
                 defaultValue={initialFormValues.language}
               >
                 <SelectTrigger id="language">
@@ -408,7 +420,9 @@ export default function AddUser() {
             <div className="grid gap-3">
               <Label htmlFor="status">Status</Label>
               <Select
-                onValueChange={(val) => setValue("status", val as any)}
+                onValueChange={(val) =>
+                  setValue("status", val as CreateUserSchema["status"])
+                }
                 defaultValue={initialFormValues.status}
               >
                 <SelectTrigger id="status">

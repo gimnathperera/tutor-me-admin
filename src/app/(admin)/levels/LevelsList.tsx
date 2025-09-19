@@ -11,14 +11,16 @@ import { UpdateLevel } from "./edit-level/page";
 interface Subject {
   id: string;
   title: string;
-  [key: string]: any;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface Level {
   id: string;
   title?: string;
   details?: string[];
-  challanges?: any[];
+  challanges?: string[];
   subjects?: Subject[];
   createdAt?: string;
 }

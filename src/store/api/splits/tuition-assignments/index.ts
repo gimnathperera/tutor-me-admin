@@ -1,11 +1,20 @@
 import { CreateAssignmentSchema } from "@/app/(admin)/assignments/components/add-assignment/schema";
+import { UpdateAssignmentSchema } from "@/app/(admin)/assignments/components/edit-assignment/schema";
+import {
+  TuitionAssignment,
+  TuitionAssignmentResponse,
+} from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
+
+export type UpdateAssignmentPayload = {
+  id: string;
+} & Partial<UpdateAssignmentSchema>;
 
 export const AssignmentsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchAssignments: build.query<
-      any,
+      TuitionAssignmentResponse, // Replaced any with the correct type
       { page: number; limit: number; sortBy: string }
     >({
       query: (params) => ({
@@ -16,29 +25,43 @@ export const AssignmentsApi = baseApi.injectEndpoints({
       providesTags: ["TuitionAssignments"],
     }),
 
-    fetchAssignmentById: build.query<any, string>({
+    fetchAssignmentById: build.query<TuitionAssignment, string>({
+      // Replaced any with the correct type
       query: (id) => ({
         url: `${Endpoints.TuitionAssignments}/${id}`,
         method: "GET",
       }),
+      providesTags: (result, error, arg) => [
+        { type: "TuitionAssignments", id: arg },
+      ],
     }),
 
-    createAssignment: build.mutation<any, CreateAssignmentSchema>({
-      query: (payload) => ({
-        url: Endpoints.TuitionAssignments,
-        method: "POST",
-        body: payload,
-      }),
-      invalidatesTags: ["TuitionAssignments"],
-    }),
+    createAssignment: build.mutation<TuitionAssignment, CreateAssignmentSchema>(
+      {
+        // Replaced any with the correct type
+        query: (payload) => ({
+          url: Endpoints.TuitionAssignments,
+          method: "POST",
+          body: payload,
+        }),
+        invalidatesTags: ["TuitionAssignments"],
+      },
+    ),
 
-    updateAssignment: build.mutation<any, { id: string; [key: string]: any }>({
+    updateAssignment: build.mutation<
+      TuitionAssignment,
+      UpdateAssignmentPayload
+    >({
+      // Replaced any with the new type
       query: ({ id, ...payload }) => ({
         url: `${Endpoints.TuitionAssignments}/${id}`,
         method: "PATCH",
         body: payload,
       }),
-      invalidatesTags: ["TuitionAssignments"],
+      invalidatesTags: [
+        "TuitionAssignments",
+        { type: "TuitionAssignments", id: "LIST" },
+      ], // Invalidate list and specific item
     }),
 
     deleteAssignment: build.mutation<void, string>({

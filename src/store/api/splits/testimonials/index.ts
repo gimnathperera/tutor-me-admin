@@ -39,13 +39,15 @@ export const testimonialsApi = baseApi.injectEndpoints({
       invalidatesTags: ["Testimonials"],
     }),
 
-    deleteTestimonial: build.mutation<{ success: boolean; id: string }, string>({
-      query: (id) => ({
-        url: `${Endpoints.Testimonials}/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Testimonials"],
-    }),
+    deleteTestimonial: build.mutation<{ success: boolean; id: string }, string>(
+      {
+        query: (id) => ({
+          url: `${Endpoints.Testimonials}/${id}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["Testimonials"],
+      },
+    ),
   }),
   overrideExisting: false,
 });

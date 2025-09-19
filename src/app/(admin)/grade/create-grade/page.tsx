@@ -94,7 +94,9 @@ export function AddGrade() {
         <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add Grade</DialogTitle>
-            <DialogDescription>Add a new grade to the list.</DialogDescription>
+            <DialogDescription>
+              Add a new grade to the list. {subjectsLoading ? "..." : ""}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">

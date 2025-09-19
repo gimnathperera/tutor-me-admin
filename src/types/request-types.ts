@@ -102,7 +102,7 @@ export type UpdateSubjectRequest = {
 export type UpdateUserRequest = {
   id: string;
   email: string;
-  password: string;
+  password?: string;
   name: string;
   role: string;
   phoneNumber: string;
@@ -118,7 +118,7 @@ export type UpdateUserRequest = {
   gender: string;
   duration: string;
   frequency: string;
-  timezone: string;
+  timezone?: string;
   language: string;
   avatar: string;
 };
@@ -205,6 +205,37 @@ export type FetchUserRequest = {
   userId?: string;
 };
 
+export type CreateTutorRequest = {
+  fullName: string;
+  contactNumber: string;
+  confirmContactNumber: string;
+  email: string;
+  dateOfBirth: string;
+  confirmDateOfBirth: string;
+  gender: string;
+  age: number;
+  nationality: string;
+  race: string;
+  last4NRIC: string;
+  tutoringLevels: string[];
+  preferredLocations: string[];
+  tutorType: string;
+  yearsExperience: number;
+  highestEducation: string;
+  academicDetails: string;
+  teachingSummary: string;
+  studentResults: string;
+  sellingPoints: string;
+  agreeTerms: boolean;
+  agreeAssignmentInfo: boolean;
+  captchaToken: string;
+};
+
+export type UpdateTutorRequest = {
+  id: string;
+  payload: Partial<CreateTutorRequest>;
+};
+
 export type FetchTestimonialsRequest = {
   page: number;
   limit: number;
@@ -219,36 +250,6 @@ export type FetchTuitionAssignments = {
   gradeId: string;
   tutorId: string;
   assignmentPrice: string;
-};
-
-type PersonalInfo = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  state: string;
-  zip: string;
-  region: string;
-  grade: string;
-};
-
-type LessonDetail = {
-  subjects: string[];
-  duration: string;
-  frequency: string;
-};
-
-type LessonInfo = {
-  tutorCount: string;
-  lessonDetails: LessonDetail[];
-};
-
-type TutorTypeInfo = {
-  tutorType: string;
-  studentSchool: string;
-  genderPreference: string;
-  isBilingualTutor: boolean;
 };
 
 export type FindMyTutorRequest = {
@@ -274,4 +275,21 @@ export type FindMyTutorRequest = {
   sellingPoints: string;
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
+};
+
+export type FetchLevelsRequest = {
+  title?: string;
+  details?: string[];
+  challenges?: string[];
+  subjects?: string[];
+  levelId?: string;
+};
+
+export type UpdateLevelRequest = {
+  id: string;
+  title: string;
+  description: string;
+  details: string[];
+  challenges: string[];
+  subjects: string[];
 };
