@@ -6,8 +6,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect, useState } from "react";
+import { UseFormSetValue } from "react-hook-form";
 
-export default function TimeZoneSelect({ setValue, defaultValue }: any) {
+interface TimeZoneSelectProps {
+  setValue: UseFormSetValue<FormValues>;
+  defaultValue?: string;
+}
+interface FormValues {
+  timeZone: string;
+}
+export default function TimeZoneSelect({
+  setValue,
+  defaultValue,
+}: TimeZoneSelectProps) {
   const [timezones, setTimezones] = useState<string[]>([]);
 
   useEffect(() => {

@@ -37,10 +37,8 @@ interface SubjectDetailsProps {
 }
 
 export function UserDetails({
-  id,
   name,
   email,
-  password,
   role,
   phoneNumber,
   birthday,
@@ -229,7 +227,6 @@ export function UserDetails({
                 "overflow-auto scrollbar-thin",
               )}
             >
-              {avatar}
               <img src={avatar} alt={"avatar Image"} />
             </div>
           </div>

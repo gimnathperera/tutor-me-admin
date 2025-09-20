@@ -1,12 +1,6 @@
 "use client";
 import { useSidebar } from "@/context/SidebarContext";
-import {
-  BoxCubeIcon,
-  ChevronDownIcon,
-  HorizontaLDots,
-  PieChartIcon,
-  PlugInIcon,
-} from "@/icons";
+import { ChevronDownIcon, HorizontaLDots } from "@/icons";
 import NavItems from "@/lib/data/menu-items/menu";
 import Image from "next/image";
 import Link from "next/link";

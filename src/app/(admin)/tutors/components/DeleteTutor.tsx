@@ -32,7 +32,7 @@ export function DeleteTutor({ tutorId }: DeleteTutorProps) {
       } else {
         toast.success("Tutor deleted successfully");
       }
-    } catch (err: any) {
+    } catch (err: Error) {
       toast.error(err?.message || "Failed to delete tutor");
     }
   };
