@@ -89,14 +89,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    const userData: AuthUserData = {
-      id: user.id,
-      role: user.role,
-      name: user.name,
-      email: user.email,
-      status: user.status,
-    };
-
+    const userData: AuthUserData = { ...user };
     setLocalStorageItem(LocalStorageKey.USER_DATA, userData);
     setLocalStorageItem(LocalStorageKey.TOKENS, tokens);
     setUser(user);

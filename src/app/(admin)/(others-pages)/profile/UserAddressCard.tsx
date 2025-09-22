@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button/Button";
 import { useModal } from "../../hooks/useModal";
 import Input from "../form/input/InputField";
 import { Label } from "@/components/ui/label";
-import { Modal } from "../ui/modal";
-
+import { Modal } from "@/components/ui/Modal";
 
 export default function UserAddressCard() {
   const { isOpen, openModal, closeModal } = useModal();
