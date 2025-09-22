@@ -5,6 +5,36 @@ export type ContactUsRequest = {
     email: string;
   };
 };
+export type FetchBlogsRequest = {
+  blogId?: string;
+  image?: string;
+  status?: "pending" | "approved" | "draft";
+  authorName?: string;
+  title?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+};
+
+export type UpdateBlogRequest = {
+  id: string;
+  name: string;
+  avatar: string;
+  role: string;
+  image?: string;
+  relatedArticles: string[];
+  status?: "pending" | "approved" | "rejected";
+  authorName?: string;
+  title?: string;
+  sortBy?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type UpdateBlogStatusRequest = {
+  blogId: string;
+  status?: "pending" | "approved" | "rejected";
+};
 
 export type UserLoginRequest = {
   email: string;
