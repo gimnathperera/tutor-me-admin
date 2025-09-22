@@ -1,7 +1,6 @@
 import { GridIcon } from "@/icons";
 import {
   BookOpen,
-  GraduationCap,
   HelpCircle,
   LibraryBig,
   MessageSquareHeart,

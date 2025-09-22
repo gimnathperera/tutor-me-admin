@@ -18,7 +18,24 @@ export type PaginatedResponse<T> = {
   totalResults: number;
   totalPages: number;
 };
-
+export type Blogs = BaseEntity &
+  WithTitleDescription & {
+    _id: string;
+    title: string;
+    image: string;
+    author: {
+      name: string;
+      avatar: string;
+      role: string;
+    };
+    content: Array<
+      | { type: "paragraph"; text: string }
+      | { type: "heading"; text: string; level: number }
+      | { type: "image"; src: string; caption?: string }
+    >;
+    relatedArticles: string[];
+    status: "pending" | "approved" | "rejected";
+  };
 // FAQ
 export type Faq = BaseEntity & {
   question: string;
