@@ -4,20 +4,14 @@ import { useModal } from "../../hooks/useModal";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import { Modal } from "../ui/modal";
-import { useAuthContext } from "@/context";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
-  const { user } = useAuthContext();
   const handleSave = () => {
-    console.log("Saving changes for:", user?.id);
+    // Handle save logic here
+    console.log("Saving changes...");
     closeModal();
   };
-
-  if (!user) {
-    return <p>Loading user data...</p>;
-  }
-
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
@@ -29,10 +23,19 @@ export default function UserInfoCard() {
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Full Name
+                First Name
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user.name}
+                Musharof
+              </p>
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+                Last Name
+              </p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                Chowdhury
               </p>
             </div>
 
@@ -41,47 +44,24 @@ export default function UserInfoCard() {
                 Email address
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user.email || "-"}
-              </p>
-            </div>
-            
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone number
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user.phoneNumber || "-"}
+                randomuser@pimjo.com
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Role
+                Phone
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user.role}
+                +09 363 398 46
               </p>
             </div>
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Status
+                Bio
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {user.status}
-              </p>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Created At
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {new Date(user.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
                 Team Manager
               </p>
             </div>
@@ -122,7 +102,7 @@ export default function UserInfoCard() {
             </p>
           </div>
           <form className="flex flex-col">
-            <div className="scrollbar-thin h-[450px] overflow-y-auto px-2 pb-3">
+            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
               <div>
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
                   Social Links
