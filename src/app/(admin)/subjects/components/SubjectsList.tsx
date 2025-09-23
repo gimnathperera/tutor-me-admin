@@ -83,7 +83,7 @@ export default function SubjectsTable() {
     },
     {
       key: "edit",
-      header: "Edit",
+      header: <div className="w-full text-center">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Subject) => (
         <div className="w-full flex justify-center items-center">
@@ -97,7 +97,7 @@ export default function SubjectsTable() {
     },
     {
       key: "delete",
-      header: "Delete",
+      header: <div className="w-full text-center">Delete</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Subject) => (
         <div className="w-full flex justify-center items-center">
@@ -107,7 +107,7 @@ export default function SubjectsTable() {
     },
     {
       key: "view",
-      header: "View",
+      header: <div className="w-full text-center">View</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Subject) => (
         <div className="w-full flex justify-center items-center">

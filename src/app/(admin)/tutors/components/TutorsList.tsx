@@ -47,6 +47,7 @@ export default function TutorsList() {
         tutorType: string;
         yearsExperience: number;
       }) => (
+        <div className="w-full flex justify-center items-center">
         <EditTutor
           id={row.id}
           fullName={row.fullName}
@@ -55,6 +56,7 @@ export default function TutorsList() {
           tutorType={row.tutorType}
           yearsExperience={row.yearsExperience}
         />
+      </div>
       ),
     },
 
@@ -64,7 +66,7 @@ export default function TutorsList() {
       header: "Delete",
       className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: any) => (
-        <div className="flex justify-center items-center">
+        <div className="w-full flex justify-center items-center">
           <DeleteTutor tutorId={row.id} />
         </div>
       ),
@@ -76,7 +78,7 @@ export default function TutorsList() {
       header: "View",
       className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: any) => (
-        <div className="flex justify-center items-center">
+        <div className="w-full flex justify-center items-center">
           <ViewTutor tutor={row} />
         </div>
       ),

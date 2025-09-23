@@ -116,7 +116,7 @@ export function UpdateGrade({
                 name="subjects"
                 render={({ field }) => (
                   <MultiSelect
-                    label=""
+                    label="Subjects"
                     options={subjectOptions}
                     defaultSelected={field.value}
                     onChange={field.onChange}
