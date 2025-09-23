@@ -235,6 +235,21 @@ export type FetchUserRequest = {
   userId?: string;
 };
 
+export type FetchTutorsRequest = {
+  fullName?: string;
+  contactNumber?: string;
+  email?: string;
+  gender?: string;
+  nationality?: string;
+  tutorType?: string;
+  yearsExperience?: number;
+  highestEducation?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  tutorId?: string;
+};
+
 export type CreateTutorRequest = {
   fullName: string;
   contactNumber: string;
@@ -263,7 +278,28 @@ export type CreateTutorRequest = {
 
 export type UpdateTutorRequest = {
   id: string;
-  payload: Partial<CreateTutorRequest>;
+  payload: {
+    fullName?: string;
+    contactNumber?: string;
+    email?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    age?: number;
+    nationality?: string;
+    race?: string;
+    last4NRIC?: string;
+    tutoringLevels?: string[];
+    preferredLocations?: string[];
+    tutorType?: string;
+    yearsExperience?: number;
+    highestEducation?: string;
+    academicDetails?: string;
+    teachingSummary?: string;
+    studentResults?: string;
+    sellingPoints?: string;
+    agreeTerms?: boolean;
+    agreeAssignmentInfo?: boolean;
+  } & Record<string, unknown>; // ensures object is not empty
 };
 
 export type FetchTestimonialsRequest = {
