@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Eye } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface BlogContentBlock {
@@ -71,10 +72,12 @@ export function BlogDetails({ blog }: BlogDetailsProps) {
             <Label>Author</Label>
             <div className={displayFieldClass}>
               <div className="flex items-center gap-2">
-                <img
-                  src={blog.author.avatar}
+                <Image
+                  src={blog.author.avatar || "/images/user/user.png"}
                   alt={blog.author.name}
-                  className="w-8 h-8 rounded-full"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover"
                 />
                 <div>
                   <p className="font-medium">{blog.author.name}</p>
@@ -144,12 +147,12 @@ export function BlogDetails({ blog }: BlogDetailsProps) {
                   case "image":
                     return (
                       <div key={block._id} className="flex flex-col gap-1">
-                        <h1 className="text-lg font-semibold">
-                          Article Image:
-                        </h1>
-                        <img
-                          src={block.src}
+                        <h1 className="text-lg font-semibold">Article Image:</h1>
+                        <Image
+                          src={block.src || "/images/blog/default.png"} // fallback if missing
                           alt={block.caption ?? "Blog image"}
+                          width={600} // pick a sensible default, required by next/image
+                          height={400}
                           className="rounded-md w-full object-cover"
                         />
                         {block.caption && (
