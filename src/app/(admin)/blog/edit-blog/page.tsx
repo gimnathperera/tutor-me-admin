@@ -12,19 +12,16 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SquarePen } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { SquarePen } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-import {
-  UpdateArticleSchema,
-  updateArticleSchema,
-} from "./schema";
+import { Button } from "@/components/ui/button/Button";
 import { useUpdateBlogMutation } from "@/store/api/splits/blogs";
 import { getErrorInApiResult } from "@/utils/api";
-import { Button } from "@/components/ui/button/Button";
+import { UpdateArticleSchema, updateArticleSchema } from "./schema";
 
 interface UpdateBlogProps {
   id: string;
@@ -62,9 +59,14 @@ export function UpdateBlog({
     if (open) {
       reset({
         title,
-        author.name,
+        author:
+          typeof author === "object"
+            ? author
+            : { name: author, avatar: "", role: "" },
         image: image || "",
-        status: status || "pending",
+        status: status === "approved" ? "pending" : status || "pending",
+        content: [{ type: "paragraph", text: "" }],
+        relatedArticles: [""],
       });
     }
   }, [open, title, author, image, status, reset]);
@@ -95,7 +97,9 @@ export function UpdateBlog({
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>Edit Blog</DialogTitle>
-            <DialogDescription>Update the blog details below.</DialogDescription>
+            <DialogDescription>
+              Update the blog details below.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
