@@ -177,7 +177,7 @@ export default function LevelsTable() {
     },
     {
       key: "edit",
-      header: "Edit",
+      header: <div className="w-full text-center">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Level) => (
         <div className="w-full flex justify-center items-center">
@@ -193,7 +193,7 @@ export default function LevelsTable() {
     },
     {
       key: "delete",
-      header: "Delete",
+      header: <div className="w-full text-center">Delete</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Level) => (
         <div className="w-full flex justify-center items-center">
@@ -203,7 +203,7 @@ export default function LevelsTable() {
     },
     {
       key: "view",
-      header: "View",
+      header: <div className="w-full text-center">View</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Level) => (
         <div className="w-full flex justify-center items-center">

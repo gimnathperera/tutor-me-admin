@@ -38,7 +38,7 @@ export function GradeDetails({
       <DialogTrigger asChild>
         <Eye cursor="pointer" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-h-[75vh] scrollbar-thin overflow-y-auto bg-white z-[50] dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[425px] max-h-[75vh] overflow-y-auto bg-white z-[50] dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>
           <DialogTitle>Grade Details</DialogTitle>
           <DialogDescription>

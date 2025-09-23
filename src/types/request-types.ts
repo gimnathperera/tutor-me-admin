@@ -115,8 +115,9 @@ export type FetchLevelRequest = {
 export type FetchPapersRequest = {
   page: number;
   limit: number;
-  grade: string;
-  subject: string;
+  grade?: string;
+  subject?: string;
+  sortBy?: string;
 };
 
 export type CreateSubjectRequest = {
@@ -344,11 +345,13 @@ export type FindMyTutorRequest = {
 };
 
 export type FetchLevelsRequest = {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
   title?: string;
   details?: string[];
   challenges?: string[];
   subjects?: string[];
-  levelId?: string;
 };
 
 export type UpdateLevelRequest = {
