@@ -174,6 +174,7 @@ export function UpdateLevel({
             <div>
               <Label>Subjects</Label>
               <MultiSelect
+                label="Subjects"
                 options={subjectOptions}
                 defaultSelected={subjects}
                 onChange={(values: string[]) => setValue("subjects", values)}
