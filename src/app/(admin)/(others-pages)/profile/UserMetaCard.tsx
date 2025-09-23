@@ -1,20 +1,10 @@
 "use client";
-import { Button } from "@/components/ui/button/Button";
 import Image from "next/image";
-import { useModal } from "../../hooks/useModal";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
-import { Modal } from "../ui/modal";
 import { useAuthContext } from "@/context";
 
-export default function UserMetaCard() {
-  const { isOpen, openModal, closeModal } = useModal();
-  const { user } = useAuthContext();
-  const handleSave = () => {
-    console.log("Saving changes for:", user?.id);
-    closeModal();
-  };
 
+export default function UserMetaCard() {
+  const { user } = useAuthContext();
   if (!user) {
     return <p>Loading user data...</p>;
   }

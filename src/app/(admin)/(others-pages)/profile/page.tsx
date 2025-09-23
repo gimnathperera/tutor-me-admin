@@ -1,6 +1,6 @@
-import UserAddressCard from "@/components/user-profile/UserAddressCard";
-import UserInfoCard from "@/components/user-profile/UserInfoCard";
-import UserMetaCard from "@/components/user-profile/UserMetaCard";
+import UserAddressCard from "./UserAddressCard";
+import UserInfoCard from "./UserInfoCard";
+import UserMetaCard from "./UserMetaCard";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

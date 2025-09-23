@@ -1,9 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button/Button";
-import { useModal } from "../../hooks/useModal";
-import Input from "../form/input/InputField";
-import { Label } from "@/components/ui/label";
-import { Modal } from "@/components/ui/Modal";
+import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
+import { useModal } from "@/hooks/useModal";
+import { Label } from "@radix-ui/react-label";
+
 
 export default function UserAddressCard() {
   const { isOpen, openModal, closeModal } = useModal();

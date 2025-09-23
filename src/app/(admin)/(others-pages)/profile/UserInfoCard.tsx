@@ -1,10 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button/Button";
-import { useModal } from "../../hooks/useModal";
-import Input from "../form/input/InputField";
-import Label from "../form/Label";
-import { Modal } from "../ui/modal";
+import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { useAuthContext } from "@/context";
+import { useModal } from "@/hooks/useModal";
+import { Label } from "@radix-ui/react-label";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
@@ -77,7 +77,7 @@ export default function UserInfoCard() {
                 Created At
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                {new Date(user.createdAt).toLocaleDateString()}
+                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
               </p>
             </div>
             <div>
