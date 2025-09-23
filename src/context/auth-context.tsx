@@ -92,7 +92,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const userData: AuthUserData = { ...user };
     setLocalStorageItem(LocalStorageKey.USER_DATA, userData);
     setLocalStorageItem(LocalStorageKey.TOKENS, tokens);
-    setUser(user);
+    setUser(userData);
 
     router.push("/");
   };

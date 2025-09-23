@@ -22,6 +22,8 @@ export type AuthUserData = {
   address?: string;
   gender?: string;
   avatar?: string;
+  language?: string;
+  timeZone?: string;
   createdAt?: string;
   updatedAt?: string;
 };
