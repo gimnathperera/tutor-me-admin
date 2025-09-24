@@ -22,7 +22,7 @@ function InfoRow({ label, value }: InfoRowProps) {
 
 export default function UserInfoCard() {
   const { user } = useAuthContext();
-
+  console.log("user data", user);
   if (!user) {
     return <p>Loading user data...</p>;
   }

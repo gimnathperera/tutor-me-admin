@@ -6,26 +6,12 @@ export type AuthTokenParams = {
 export type ErrorCallback = (err: { [key: string]: string }) => void;
 
 export type AuthUserData = {
-  id: string;
+  id: number | string;
   role: string;
-  name: string;
   email: string;
-  status: string;
-  isEmailVerified?: boolean;
-  phoneNumber?: string;
-  birthday?: string;
-  country?: string;
-  city?: string;
-  state?: string;
-  region?: string;
-  zip?: string;
-  address?: string;
-  gender?: string;
+  name: string;
   avatar?: string;
-  language?: string;
-  timeZone?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  status: string;
 };
 
 export type Tokens = {

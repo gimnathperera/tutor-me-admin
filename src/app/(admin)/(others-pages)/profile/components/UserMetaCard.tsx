@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import { useAuthContext } from "@/context";
-import { cn } from "@/lib/utils";
 import { Modal } from "@/components/ui/modal";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "@/components/ui/input";
