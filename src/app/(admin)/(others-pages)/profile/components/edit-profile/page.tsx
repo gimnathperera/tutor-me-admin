@@ -136,11 +136,11 @@ export default function UpdateUser() {
                   alt="avatar preview"
                   className="w-30 h-30 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
                 />
-                {avatarUrl && avatarUrl !== user?.avatar && (
+                {/* {avatarUrl && avatarUrl !== user?.avatar && (
                   <div className="text-sm text-green-600 dark:text-green-400">
                     Preview of new avatar
                   </div>
-                )}
+                )} */}
               </div>
             </div>
 
