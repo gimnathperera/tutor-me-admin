@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuthContext } from "@/context";
+import { useFetchUserByIdQuery } from "@/store/api/splits/users";
 
 type InfoRowProps = {
   label: string;
@@ -21,14 +22,20 @@ function InfoRow({ label, value }: InfoRowProps) {
 }
 
 export default function UserInfoCard() {
-  const { user } = useAuthContext();
+  const { user: authUser } = useAuthContext();
+  const { data: user, isLoading } = useFetchUserByIdQuery(authUser?.id!, {
+    skip: !authUser?.id,
+  });
+
+  if (isLoading) return <p>Loading user data...</p>;
+  if (!user) return <p>No user data found</p>;
   console.log("user data", user);
   if (!user) {
     return <p>Loading user data...</p>;
   }
 
   return (
-    <>
+    <div>
       {/* Personal Information Card */}
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
         <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-6">
@@ -39,7 +46,19 @@ export default function UserInfoCard() {
           <InfoRow label="Name" value={user.name} />
           <InfoRow label="Email address" value={user.email} />
           <InfoRow label="Phone number" value={user.phoneNumber} />
-          <InfoRow label="Birthday" value={user.birthday} />
+          <InfoRow
+            label="Birthday"
+            value={
+              user.birthday
+                ? new Date(user.birthday).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : "Not available"
+            }
+          />
+          <InfoRow label="Gender" value={user.gender} />
         </div>
       </div>
 
@@ -54,11 +73,33 @@ export default function UserInfoCard() {
           <InfoRow label="Role" value={user.role} />
           <InfoRow label="Status" value={user.status} />
           <InfoRow
-            label="Email Verified"
-            value={user.isEmailVerified ? "Yes" : "No"}
+            label="Created At"
+            value={
+              user.createdAt
+                ? new Date(user.createdAt).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Not available"
+            }
           />
-          <InfoRow label="Created At" value={user.createdAt} />
-          <InfoRow label="Updated At" value={user.updatedAt} />
+          <InfoRow
+            label="Updated At"
+            value={
+              user.updatedAt
+                ? new Date(user.updatedAt).toLocaleString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Not available"
+            }
+          />
         </div>
       </div>
 
@@ -77,6 +118,6 @@ export default function UserInfoCard() {
           <InfoRow label="Address" value={user.address} />
         </div>
       </div>
-    </>
+    </div>
   );
 }

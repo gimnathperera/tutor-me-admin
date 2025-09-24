@@ -47,8 +47,8 @@ export const Modal: React.FC<ModalProps> = ({
   const contentClasses = cn(
     "relative bg-white dark:bg-gray-900 transition-all duration-200",
     isFullscreen
-      ? "w-full h-full" 
-      : "w-full max-w-2xl rounded-3xl shadow-xl", 
+      ? "w-full"
+      : "w-full max-w-2xl rounded-3xl shadow-xl",
     className,
   );
 
