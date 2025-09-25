@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuthContext } from "@/context";
 import { useFetchUserByIdQuery } from "@/store/api/splits/users";
 import { SignOutConfirmationModal } from "../shared/SignOutConfirmationModal";
@@ -11,6 +11,7 @@ export default function UserDropdown() {
   const { user: authUser, logout } = useAuthContext();
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImageError, setIsImageError] = useState(false);
 
   const { data: fullUser } = useFetchUserByIdQuery(authUser?.id ?? "", {
     skip: !authUser?.id,
@@ -22,6 +23,14 @@ export default function UserDropdown() {
       email: "guest@example.com",
       avatar: "/images/user/user.png",
     };
+
+  useEffect(() => {
+    setIsImageError(false);
+  }, [user?.avatar]);
+
+  const avatarSrc = isImageError || !user.avatar
+    ? "/images/user/user.png"
+    : user.avatar;
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
@@ -50,9 +59,10 @@ export default function UserDropdown() {
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
           <img
-            src={user.avatar || "/images/user/user.png"}
+            src={avatarSrc}
             alt="User"
             className="h-full w-full object-cover"
+            onError={() => setIsImageError(true)}
           />
         </span>
 
@@ -102,7 +112,7 @@ export default function UserDropdown() {
               href="/profile"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
-              Edit profile
+              User profile
             </DropdownItem>
           </li>
         </ul>

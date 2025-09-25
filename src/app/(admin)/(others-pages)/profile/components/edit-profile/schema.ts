@@ -1,21 +1,15 @@
 import { z } from "zod";
 
 export const updateUserSchema = z.object({
-  email: z
-    .string()
-    .email("Invalid email address")
-    .max(100, "Email too long"),
+  email: z.string().email("Invalid email address").max(100, "Email too long"),
 
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(100, "Name too long"),
+  name: z.string().min(1, "Name is required").max(100, "Name too long"),
 
   phoneNumber: z
     .string()
     .regex(
       /^(\+94|0)?[0-9]{9}$/,
-      "Invalid phone number (use 0712345678 or +94712345678)"
+      "Invalid phone number (use 0712345678 or +94712345678)",
     )
     .optional(),
 
@@ -24,29 +18,31 @@ export const updateUserSchema = z.object({
     .refine((val) => !val || !isNaN(Date.parse(val)), {
       message: "Invalid date",
     })
-    .transform((val) => (val ? new Date(val).toISOString().split("T")[0] : undefined))
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const birthdayDate = new Date(val);
+        const today = new Date();
+        return birthdayDate <= today;
+      },
+      {
+        message: "Birthday cannot be in the future",
+      },
+    )
+    .transform((val) =>
+      val ? new Date(val).toISOString().split("T")[0] : undefined,
+    )
     .optional(),
 
-  status: z.enum(["active", "inactive", "blocked"]).default("active"),
+  country: z.string().min(1, "Country is required").max(56, "Country too long"),
 
-  country: z
-    .string()
-    .min(1, "Country is required")
-    .max(56, "Country too long"),
-
-  city: z
-    .string()
-    .min(1, "City is required")
-    .max(85, "City too long"),
+  city: z.string().min(1, "City is required").max(85, "City too long"),
 
   state: z.string().max(85, "State too long").optional(),
 
   region: z.string().max(85, "Region too long").optional(),
 
-  zip: z
-    .string()
-    .min(1, "ZIP code is required")
-    .max(20, "ZIP code too long"),
+  zip: z.string().min(1, "ZIP code is required").max(20, "ZIP code too long"),
 
   address: z
     .string()
@@ -55,7 +51,10 @@ export const updateUserSchema = z.object({
 
   gender: z.enum(["male", "female", "other"]).optional(),
 
-  avatar: z.string().url("Invalid avatar URL").max(255, "Avatar URL too long").optional(),
+  avatar: z
+    .string()
+    .url("Invalid avatar URL")
+    .optional(),
 });
 
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
@@ -65,7 +64,6 @@ export const initialFormValues: UpdateUserSchema = {
   name: "",
   phoneNumber: undefined,
   birthday: undefined,
-  status: "active",
   country: "",
   city: "",
   state: undefined,

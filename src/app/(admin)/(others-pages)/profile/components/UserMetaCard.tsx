@@ -1,35 +1,56 @@
 "use client";
 
-import React from "react";
-
 import { useAuthContext } from "@/context";
 import { useFetchUserByIdQuery } from "@/store/api/splits/users";
+import { useState, useEffect } from "react";
 import UpdateUser from "./edit-profile/page";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button/Button";
+import { SignOutConfirmationModal } from "@/components/shared/SignOutConfirmationModal";
+import { cn } from "@/lib/utils";
+import { LogOut } from "lucide-react";
 
 export default function UserMetaCard() {
-  const { user: authUser } = useAuthContext();
+  const { user: authUser, logout } = useAuthContext();
 
   const { data: user, isLoading } = useFetchUserByIdQuery(authUser?.id || "", {
     skip: !authUser?.id,
   });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImageError, setIsImageError] = useState(false);
+
+  useEffect(() => {
+    setIsImageError(false);
+  }, [user?.avatar]);
 
   if (!authUser || isLoading) {
-    return <p>Loading user data...</p>;
+    return <Skeleton />;
   }
 
   if (!user) {
     return <p>User not found.</p>;
   }
 
+  const avatarSrc =
+    isImageError || !user.avatar ? "/images/user/user.png" : user.avatar;
+  const handleSignOutClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleSignOutConfirm = () => {
+    logout();
+    setIsModalOpen(false);
+  };
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
           <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
             <img
-              src={user.avatar || "/images/user/user.png"}
+              src={avatarSrc}
               alt="user"
               className="h-full w-full object-cover"
+              onError={() => setIsImageError(true)}
             />
           </div>
           <div className="order-3 xl:order-2">
@@ -37,18 +58,50 @@ export default function UserMetaCard() {
               {user.name}
             </h4>
             <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {user.email}
-              </p>
+              <div
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
+                  user.status === "active"
+                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                    : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",
+                )}
+              >
+                <span
+                  className={cn(
+                    "h-2 w-2 rounded-full",
+                    user.status === "active" ? "bg-green-500" : "bg-red-500",
+                  )}
+                ></span>
+                <span>
+                  {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                </span>
+              </div>
               <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {user.role}
+                {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+              </p>
+              <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                (Since {new Date(user.createdAt).getFullYear()})
               </p>
             </div>
           </div>
         </div>
+        <Button
+          onClick={handleSignOutClick}
+          className="flex w-full items-center justify-center gap-2 rounded-full border border-red-500 bg-red-500 px-4 py-3 text-sm font-medium text-white shadow-theme-xs hover:bg-red-600 hover:text-white dark:border-red-700 dark:bg-red-800 dark:text-red-100 dark:hover:bg-red-900 lg:inline-flex lg:w-auto"
+        >
+          <LogOut />
+          Sign Out
+        </Button>
+
         <UpdateUser />
       </div>
+      <SignOutConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleSignOutConfirm}
+      />
     </div>
   );
 }

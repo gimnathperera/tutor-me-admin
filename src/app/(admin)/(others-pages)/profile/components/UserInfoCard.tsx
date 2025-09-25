@@ -1,5 +1,6 @@
 "use client";
 
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthContext } from "@/context";
 import { useFetchUserByIdQuery } from "@/store/api/splits/users";
 
@@ -27,11 +28,11 @@ export default function UserInfoCard() {
     skip: !authUser?.id,
   });
 
-  if (isLoading) return <p>Loading user data...</p>;
+  if (isLoading) return <Skeleton />;
   if (!user) return <p>No user data found</p>;
   console.log("user data", user);
   if (!user) {
-    return <p>Loading user data...</p>;
+    return <Skeleton />;
   }
 
   return (
@@ -58,7 +59,7 @@ export default function UserInfoCard() {
                 : "Not available"
             }
           />
-          <InfoRow label="Gender" value={user.gender} />
+          <InfoRow label="Gender" value={user.gender.charAt(0).toUpperCase() + user.gender.slice(1)} />
         </div>
       </div>
 
@@ -70,8 +71,8 @@ export default function UserInfoCard() {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
           <InfoRow label="User ID" value={user.id} />
-          <InfoRow label="Role" value={user.role} />
-          <InfoRow label="Status" value={user.status} />
+          <InfoRow label="Role" value={user.role.charAt(0).toUpperCase() + user.role.slice(1)} />
+          <InfoRow label="Status" value={user.status.charAt(0).toUpperCase() + user.status.slice(1)} />
           <InfoRow
             label="Created At"
             value={
@@ -114,7 +115,7 @@ export default function UserInfoCard() {
           <InfoRow label="City" value={user.city} />
           <InfoRow label="State" value={user.state} />
           <InfoRow label="Region" value={user.region} />
-          <InfoRow label="Zip" value={user.zip} />
+          <InfoRow label="Zip / Postal Code" value={user.zip} />
           <InfoRow label="Address" value={user.address} />
         </div>
       </div>

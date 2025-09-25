@@ -10,12 +10,12 @@ import {
   useFetchUserByIdQuery,
   useUpdateUserMutation,
 } from "@/store/api/splits/users";
-import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { updateUserSchema, UpdateUserSchema } from "./schema";
+import { Pencil } from "lucide-react";
 
 export default function UpdateUser() {
   const { user: authUser } = useAuthContext();
@@ -39,6 +39,11 @@ export default function UpdateUser() {
 
   const genderValue = watch("gender") || "not specified";
   const avatarUrl = watch("avatar");
+
+  const [imageSrc, setImageSrc] = useState<string>(
+    user?.avatar || "/images/user/user.png",
+  );
+  const [hasImageError, setHasImageError] = useState(false);
 
   useEffect(() => {
     if (user && isModalOpen) {
@@ -67,32 +72,35 @@ export default function UpdateUser() {
         address: user.address || "",
         gender: (user.gender as "male" | "female" | "other") ?? "other",
       });
+
+      setImageSrc(user.avatar || "/images/user/user.png");
+      setHasImageError(false);
     }
   }, [user, isModalOpen, reset]);
+
+  useEffect(() => {
+    if (avatarUrl) {
+      setImageSrc(avatarUrl);
+      setHasImageError(false);
+    }
+  }, [avatarUrl]);
 
   const onSubmit = async (data: UpdateUserSchema) => {
     if (!user) return;
 
     const payload = {
       ...data,
-      birthday: data.birthday ? new Date(data.birthday).toISOString() : null,
     };
 
     try {
-      const result = await updateUser({ id: user.id, ...payload });
-      const error = getErrorInApiResult(result);
-      if (error) return toast.error(error);
+      await updateUser({ id: user.id, ...payload }).unwrap();
       toast.success("Profile updated successfully");
       setIsModalOpen(false);
-    } catch (err) {
-      console.error(err);
-      toast.error("An unexpected error occurred.");
+    } catch (err: any) {
+      const errorMessage =
+        err?.data?.message || "An unexpected error occurred.";
+      toast.error(errorMessage);
     }
-  };
-
-  const getPreviewImage = () => {
-    const currentAvatarUrl = avatarUrl || user?.avatar;
-    return currentAvatarUrl || "/images/user/user.png";
   };
 
   if (isLoading) return <p>Loading user data...</p>;
@@ -104,6 +112,7 @@ export default function UpdateUser() {
         onClick={() => setIsModalOpen(true)}
         className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
       >
+        <Pencil />
         Edit Profile
       </Button>
 
@@ -114,39 +123,17 @@ export default function UpdateUser() {
       >
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 p-6 max-h-[85vh]"
+          className="space-y-4 py-6 max-h-[85vh] px-2"
         >
-          <h2 className="text-xl font-semibold">Edit Profile</h2>
-          <div className="max-h-[75vh] overflow-y-auto scrollbar-thin space-y-4 px-4">
-            {/* Avatar */}
-            <div className="grid gap-3">
-              <Label htmlFor="avatar">Profile Image URL</Label>
-              <Input
-                id="avatar"
-                placeholder="https://example.com/avatar.jpg"
-                {...register("avatar")}
-              />
-              {errors.avatar && (
-                <p className="text-sm text-red-500">{errors.avatar.message}</p>
-              )}
-
-              <div className="flex items-center gap-4 mt-2">
-                <img
-                  src={getPreviewImage()}
-                  alt="avatar preview"
-                  className="w-30 h-30 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
-                />
-                {/* {avatarUrl && avatarUrl !== user?.avatar && (
-                  <div className="text-sm text-green-600 dark:text-green-400">
-                    Preview of new avatar
-                  </div>
-                )} */}
-              </div>
-            </div>
-
+          <div className="flex items-center justify-between mb-4 px-2">
+            <h2 className="text-xl font-semibold">Edit Profile</h2>
+            <p className="text-sm text-gray-600 italic">* Required</p>
+          </div>
+          <div className="max-h-[75vh] overflow-y-auto scrollbar-thin space-y-4 px-4 ">
+            <Label className="text-md font-semibold">Personal Information</Label>
             {/* Name */}
             <div className="grid gap-3">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">Name *</Label>
               <Input id="name" {...register("name")} />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
@@ -155,104 +142,144 @@ export default function UpdateUser() {
 
             {/* Email */}
             <div className="grid gap-3">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email *</Label>
               <Input id="email" type="email" {...register("email")} />
               {errors.email && (
                 <p className="text-sm text-red-500">{errors.email.message}</p>
               )}
             </div>
 
-            {/* Gender */}
+            {/* Avatar */}
             <div className="grid gap-3">
-              <Label htmlFor="gender">Gender</Label>
-              <Select
-                options={[
-                  { value: "male", label: "Male" },
-                  { value: "female", label: "Female" },
-                  { value: "other", label: "Other" },
-                ]}
-                value={genderValue}
-                onChange={(value) => setValue("gender", value)}
+              <Label htmlFor="avatar">Profile Image URL *</Label>
+              <Input
+                id="avatar"
+                placeholder="https://example.com/avatar.jpg"
+                {...register("avatar")}
+                className={hasImageError ? "border-red-500" : ""}
               />
-              {errors.gender && (
-                <p className="text-sm text-red-500">{errors.gender.message}</p>
+              {errors.avatar && (
+                <p className="text-sm text-red-500">{errors.avatar.message}</p>
               )}
+              <div className="flex items-center gap-4 mt-2">
+                <img
+                  src={imageSrc}
+                  alt="avatar preview"
+                  className="w-30 h-30 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+                  onError={() => {
+                    setImageSrc("/images/user/user.png");
+                    setHasImageError(true);
+                  }}
+                />
+                {hasImageError && (
+                  <p className="text-sm text-red-500">
+                    Failed to load image. Showing default avatar.
+                  </p>
+                )}
+              </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Gender */}
+              <div className="grid gap-3">
+                <Label htmlFor="gender">Gender *</Label>
+                <Select
+                  options={[
+                    { value: "male", label: "Male" },
+                    { value: "female", label: "Female" },
+                    { value: "other", label: "Other" },
+                  ]}
+                  value={genderValue}
+                  onChange={(value) =>
+                    setValue("gender", value as "male" | "female" | "other")
+                  }
+                />
+                {errors.gender && (
+                  <p className="text-sm text-red-500">
+                    {errors.gender.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Phone Number */}
-            <div className="grid gap-3">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input id="phoneNumber" {...register("phoneNumber")} />
-              {errors.phoneNumber && (
-                <p className="text-sm text-red-500">
-                  {errors.phoneNumber.message}
-                </p>
-              )}
+              {/* Phone Number */}
+              <div className="grid gap-3">
+                <Label htmlFor="phoneNumber">Phone Number *</Label>
+                <Input id="phoneNumber" {...register("phoneNumber")} />
+                {errors.phoneNumber && (
+                  <p className="text-sm text-red-500">
+                    {errors.phoneNumber.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Birthday */}
+              <div className="grid gap-3">
+                <Label htmlFor="birthday">Birthday *</Label>
+                <Input id="birthday" type="date" {...register("birthday")} />
+                {errors.birthday && (
+                  <p className="text-sm text-red-500">
+                    {errors.birthday.message}
+                  </p>
+                )}
+              </div>
             </div>
-
-            {/* Birthday */}
-            <div className="grid gap-3">
-              <Label htmlFor="birthday">Birthday</Label>
-              <Input id="birthday" type="date" {...register("birthday")} />
-              {errors.birthday && (
-                <p className="text-sm text-red-500">
-                  {errors.birthday.message}
-                </p>
-              )}
-            </div>
-
-            {/* Country */}
-            <div className="grid gap-3">
-              <Label htmlFor="country">Country</Label>
-              <Input id="country" {...register("country")} />
-              {errors.country && (
-                <p className="text-sm text-red-500">{errors.country.message}</p>
-              )}
-            </div>
-
-            {/* City */}
-            <div className="grid gap-3">
-              <Label htmlFor="city">City</Label>
-              <Input id="city" {...register("city")} />
-              {errors.city && (
-                <p className="text-sm text-red-500">{errors.city.message}</p>
-              )}
-            </div>
-
-            {/* State */}
-            <div className="grid gap-3">
-              <Label htmlFor="state">State</Label>
-              <Input id="state" {...register("state")} />
-              {errors.state && (
-                <p className="text-sm text-red-500">{errors.state.message}</p>
-              )}
-            </div>
-
-            {/* Region */}
-            <div className="grid gap-3">
-              <Label htmlFor="region">Region</Label>
-              <Input id="region" {...register("region")} />
-              {errors.region && (
-                <p className="text-sm text-red-500">{errors.region.message}</p>
-              )}
-            </div>
-
-            {/* Zip */}
-            <div className="grid gap-3">
-              <Label htmlFor="zip">Zip</Label>
-              <Input id="zip" {...register("zip")} />
-              {errors.zip && (
-                <p className="text-sm text-red-500">{errors.zip.message}</p>
-              )}
-            </div>
-
+            <Label className="text-md font-semibold">Location Information</Label>
             {/* Address */}
             <div className="grid gap-3">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">Address *</Label>
               <Input id="address" {...register("address")} />
               {errors.address && (
                 <p className="text-sm text-red-500">{errors.address.message}</p>
               )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* City */}
+              <div className="grid gap-3">
+                <Label htmlFor="city">City *</Label>
+                <Input id="city" {...register("city")} />
+                {errors.city && (
+                  <p className="text-sm text-red-500">{errors.city.message}</p>
+                )}
+              </div>
+
+              {/* Country */}
+              <div className="grid gap-3">
+                <Label htmlFor="country">Country *</Label>
+                <Input id="country" {...register("country")} />
+                {errors.country && (
+                  <p className="text-sm text-red-500">
+                    {errors.country.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Zip */}
+              <div className="grid gap-3">
+                <Label htmlFor="zip">Zip / Postal Code *</Label>
+                <Input id="zip" {...register("zip")} />
+                {errors.zip && (
+                  <p className="text-sm text-red-500">{errors.zip.message}</p>
+                )}
+              </div>
+
+              {/* State */}
+              <div className="grid gap-3">
+                <Label htmlFor="state">State</Label>
+                <Input id="state" {...register("state")} />
+                {errors.state && (
+                  <p className="text-sm text-red-500">{errors.state.message}</p>
+                )}
+              </div>
+
+              {/* Region */}
+              <div className="grid gap-3">
+                <Label htmlFor="region">Region</Label>
+                <Input id="region" {...register("region")} />
+                {errors.region && (
+                  <p className="text-sm text-red-500">
+                    {errors.region.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Actions */}
@@ -264,7 +291,11 @@ export default function UpdateUser() {
               >
                 Cancel
               </Button>
-              <Button type="submit" isLoading={isUpdating}>
+              <Button
+                type="submit"
+                isLoading={isUpdating}
+                className="bg-blue-700 text-white hover:bg-blue-600"
+              >
                 Save Changes
               </Button>
             </div>
