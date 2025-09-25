@@ -111,12 +111,12 @@ export default function UserInfoCard() {
         </h4>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
-          <InfoRow label="Country" value={user.country} />
+          <InfoRow label="Address" value={user.address} />
           <InfoRow label="City" value={user.city} />
           <InfoRow label="State" value={user.state} />
           <InfoRow label="Region" value={user.region} />
+          <InfoRow label="Country" value={user.country} />
           <InfoRow label="Zip / Postal Code" value={user.zip} />
-          <InfoRow label="Address" value={user.address} />
         </div>
       </div>
     </div>
