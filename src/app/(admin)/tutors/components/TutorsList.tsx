@@ -5,8 +5,9 @@ import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { useMemo, useState } from "react";
 import { DeleteTutor } from "./DeleteTutor";
-import { ViewTutor } from "./ViewTutor";
 import { EditTutor } from "./edit-tutor/page";
+import { ResetPassword } from "./ResetPassword";
+import { ViewTutor } from "./ViewTutor";
 
 interface Tutor {
   id: string;
@@ -168,6 +169,19 @@ export default function TutorsList() {
         render: (row: Tutor) => (
           <div className="w-full flex justify-center items-center">
             <ViewTutor tutor={row} />
+          </div>
+        ),
+      },
+
+      //Reset Password
+
+      {
+        key: "resetPassword",
+        header: "Reset Password",
+        className: "min-w-[80px] max-w-[80px] cursor-default",
+        render: (row: Tutor) => (
+          <div className="w-full flex justify-left items-center">
+            <ResetPassword userId={row.id} />
           </div>
         ),
       },
