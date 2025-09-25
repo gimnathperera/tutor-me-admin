@@ -206,7 +206,7 @@ export default function PapersTable() {
     },
     {
       key: "edit",
-      header: "Edit",
+      header: <div className="w-full text-center">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Paper) => (
         <div className="w-full flex justify-center items-center">
@@ -224,7 +224,7 @@ export default function PapersTable() {
     },
     {
       key: "delete",
-      header: "Delete",
+      header: <div className="w-full text-center">Delete</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Paper) => (
         <div className="w-full flex justify-center items-center">
@@ -234,7 +234,7 @@ export default function PapersTable() {
     },
     {
       key: "view",
-      header: "View",
+      header: <div className="w-full text-center">View</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Paper) => (
         <div className="w-full flex justify-center items-center">

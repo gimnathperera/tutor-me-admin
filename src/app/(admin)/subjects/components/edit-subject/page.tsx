@@ -21,6 +21,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateSubjectSchema, updateSubjectSchema } from "./schema";
+import { Textarea } from "@/components/ui/textarea";
 
 interface UpdateSubjectProps {
   id: string;
@@ -91,10 +92,9 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
-              <Input
+              <Textarea
                 id="description"
                 placeholder="Description"
-                type="text"
                 {...updateSubjectForm.register("description")}
               />
               {formState.errors.description && (
