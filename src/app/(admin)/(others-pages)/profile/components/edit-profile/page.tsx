@@ -36,6 +36,7 @@ export default function UpdateUser() {
     formState: { errors },
   } = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
+    mode: "onChange", 
   });
 
   const genderValue = watch("gender") || "not specified";
@@ -85,6 +86,7 @@ export default function UpdateUser() {
       setHasImageError(false);
     }
   }, [avatarUrl]);
+  
   const [initialValues, setInitialValues] = useState<UpdateUserSchema | null>(
     null,
   );
@@ -117,6 +119,7 @@ export default function UpdateUser() {
       setHasImageError(false);
     }
   }, [user, isModalOpen, reset]);
+  
   const watchedValues = watch();
   const isFormChanged = initialValues
     ? Object.keys(initialValues).some(
@@ -241,7 +244,9 @@ export default function UpdateUser() {
                   ]}
                   value={genderValue}
                   onChange={(value) =>
-                    setValue("gender", value as "male" | "female" | "other")
+                    setValue("gender", value as "male" | "female" | "other", {
+                      shouldValidate: true,
+                    })
                   }
                 />
                 <div className="mt-1">
@@ -275,7 +280,9 @@ export default function UpdateUser() {
                 </Label>
                 <DatePicker
                   value={watch("birthday")}
-                  onChange={(date) => setValue("birthday", date)}
+                  onChange={(date) => setValue("birthday", date, {
+                    shouldValidate: true, 
+                  })}
                   error={errors.birthday?.message}
                   placeholder="DD/MM/YYYY"
                   label=""
