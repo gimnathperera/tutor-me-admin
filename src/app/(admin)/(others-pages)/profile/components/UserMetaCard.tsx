@@ -5,18 +5,14 @@ import { useFetchUserByIdQuery } from "@/store/api/splits/users";
 import { useState, useEffect } from "react";
 import UpdateUser from "./edit-profile/page";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button/Button";
-import { SignOutConfirmationModal } from "@/components/shared/SignOutConfirmationModal";
 import { cn } from "@/lib/utils";
-import { LogOut } from "lucide-react";
 
 export default function UserMetaCard() {
-  const { user: authUser, logout } = useAuthContext();
+  const { user: authUser } = useAuthContext();
 
   const { data: user, isLoading } = useFetchUserByIdQuery(authUser?.id || "", {
     skip: !authUser?.id,
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImageError, setIsImageError] = useState(false);
 
   useEffect(() => {
@@ -33,14 +29,8 @@ export default function UserMetaCard() {
 
   const avatarSrc =
     isImageError || !user.avatar ? "/images/user/user.png" : user.avatar;
-  const handleSignOutClick = () => {
-    setIsModalOpen(true);
-  };
 
-  const handleSignOutConfirm = () => {
-    logout();
-    setIsModalOpen(false);
-  };
+
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
@@ -80,28 +70,11 @@ export default function UserMetaCard() {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
               </p>
-              <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                (Since {new Date(user.createdAt).getFullYear()})
-              </p>
             </div>
           </div>
         </div>
-        <Button
-          onClick={handleSignOutClick}
-          className="flex w-full items-center justify-center gap-2 rounded-full border border-red-500 bg-red-500 px-4 py-3 text-sm font-medium text-white shadow-theme-xs hover:bg-red-600 hover:text-white dark:border-red-700 dark:bg-red-800 dark:text-red-100 dark:hover:bg-red-900 lg:inline-flex lg:w-auto"
-        >
-          <LogOut />
-          Sign Out
-        </Button>
-
         <UpdateUser />
       </div>
-      <SignOutConfirmationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleSignOutConfirm}
-      />
     </div>
   );
 }
