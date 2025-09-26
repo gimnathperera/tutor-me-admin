@@ -11,7 +11,7 @@ export const BlogsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchBlogs: build.query<PaginatedResponse<Blogs>, FetchBlogsRequest>({
       query: (payload) => {
-        const { blogId, ...rest } = payload;
+        const { ...rest } = payload;
         return {
           url: Endpoints.Blogs,
           method: "GET",

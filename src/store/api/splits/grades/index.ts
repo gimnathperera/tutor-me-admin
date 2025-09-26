@@ -1,4 +1,4 @@
-import { CreateGradeSchema } from "@/app/(admin)/grade/create-grade/schema";
+import { CreateGradeSchema } from "@/app/(admin)/grades/create-grade/schema";
 import { FetchGradesRequest, UpdateGradeRequest } from "@/types/request-types";
 import { Grade, PaginatedResponse } from "@/types/response-types";
 import { baseApi } from "../..";
