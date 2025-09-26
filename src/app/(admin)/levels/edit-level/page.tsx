@@ -18,7 +18,7 @@ import { useUpdateLevelMutation } from "@/store/api/splits/levels";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SquarePen } from "lucide-react";
+import { SquarePen, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -98,7 +98,7 @@ export function UpdateLevel({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer" />
         </DialogTrigger>
@@ -119,7 +119,7 @@ export function UpdateLevel({
               <Label>Details</Label>
               <div className="space-y-2">
                 {detailsArray.fields.map((f, idx) => (
-                  <div key={f.id} className="flex gap-2 items-center">
+                  <div key={f.id} className="flex gap-2 items-center mt-3">
                     <input
                       {...register(`details.${idx}` as const)}
                       className="border rounded p-2 flex-1"
@@ -127,9 +127,8 @@ export function UpdateLevel({
                     <button
                       type="button"
                       onClick={() => detailsArray.remove(idx)}
-                      className="text-red-500 text-sm"
                     >
-                      Remove
+                      <Trash2 className="text-red-500" />
                     </button>
                   </div>
                 ))}
@@ -147,7 +146,7 @@ export function UpdateLevel({
               <Label>Challenges</Label>
               <div className="space-y-2">
                 {challangesArray.fields.map((f, idx) => (
-                  <div key={f.id} className="flex gap-2 items-center">
+                  <div key={f.id} className="flex gap-2 items-center mt-3">
                     <input
                       {...register(`challanges.${idx}` as const)}
                       className="border rounded p-2 flex-1"
@@ -155,9 +154,8 @@ export function UpdateLevel({
                     <button
                       type="button"
                       onClick={() => challangesArray.remove(idx)}
-                      className="text-red-500 text-sm"
                     >
-                      Remove
+                      <Trash2 className="text-red-500" />
                     </button>
                   </div>
                 ))}
@@ -172,9 +170,9 @@ export function UpdateLevel({
             </div>
 
             <div>
-              <Label>Subjects</Label>
+              <Label className="mb-3">Subjects</Label>
               <MultiSelect
-                label="Subjects"
+                label=""
                 options={subjectOptions}
                 defaultSelected={subjects}
                 onChange={(values: string[]) => setValue("subjects", values)}

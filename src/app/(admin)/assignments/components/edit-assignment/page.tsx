@@ -122,7 +122,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
             <DialogDescription>Update the assignment details</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
+          <div className="grid gap-4">
             {/* Title */}
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
