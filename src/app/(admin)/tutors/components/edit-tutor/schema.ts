@@ -1,62 +1,37 @@
 import { z } from "zod";
 
+// Update schema - matching backend validation but optional for updates
 export const updateTutorSchema = z.object({
-  fullName: z.string().nonempty("Full Name is required"),
+  fullName: z.string().optional(),
   contactNumber: z
     .string()
-    .regex(/^[0-9]+$/, "Contact number must contain only numbers")
-    .length(10, "Contact number must be exactly 10 digits"),
-  email: z.string().email("Email must be valid"),
-  dateOfBirth: z
-    .preprocess(
-      (arg) =>
-        typeof arg === "string" || arg instanceof Date
-          ? new Date(arg)
-          : undefined,
-      z.date(),
-    )
-    .refine((date) => date instanceof Date && !isNaN(date.getTime()), {
-      message: "Date of Birth is required and must be a valid date",
-    }),
-  gender: z.enum(["Male", "Female"]),
-  age: z.number().int().min(1),
-  nationality: z.enum(["Singaporean", "Singapore PR", "Others"]),
-  race: z.enum([
-    "Chinese",
-    "Malay",
-    "Indian",
-    "Eurasian",
-    "Caucasian",
-    "Punjabi",
-    "Others",
-  ]),
+    .regex(/^\d+$/, "Contact number must contain only numbers")
+    .min(7, "Contact number must be at least 7 digits")
+    .max(15, "Contact number must be at most 15 digits")
+    .optional(),
+  email: z.string().email("Email must be valid").optional(),
+  dateOfBirth: z.string().optional(),
+  gender: z.enum(["Male", "Female"]).optional(),
+  age: z.number().int().min(1, "Age must be at least 1").optional(),
+  nationality: z.enum(["Singaporean", "Singapore PR", "Others"]).optional(),
+  race: z
+    .enum([
+      "Chinese",
+      "Malay",
+      "Indian",
+      "Eurasian",
+      "Caucasian",
+      "Punjabi",
+      "Others",
+    ])
+    .optional(),
   last4NRIC: z
     .string()
-    .length(4, "Last 4 digits of NRIC must be exactly 4 digits"),
+    .length(4, "Last 4 digits of NRIC must be exactly 4 digits")
+    .regex(/^\d{4}$/, "Last 4 digits of NRIC must be numbers")
+    .optional(),
 
-  tutorType: z.enum([
-    "Full Time Student",
-    "Undergraduate",
-    "Part Time Tutor",
-    "Full Time Tutor",
-    "Ex/Current MOE Teacher",
-    "Ex-MOE Teacher",
-    "Current MOE Teacher",
-  ]),
-  yearsExperience: z.number().int().min(0).max(50),
-  highestEducation: z.enum([
-    "PhD",
-    "Diploma",
-    "Masters",
-    "Undergraduate",
-    "Bachelor Degree",
-    "Diploma and Professional",
-    "JC/A Levels",
-    "Poly",
-    "Others",
-  ]),
-  academicDetails: z.string().max(1000).optional(),
-
+  // Tutoring preferences
   tutoringLevels: z
     .array(
       z.enum([
@@ -73,7 +48,9 @@ export const updateTutorSchema = z.object({
         "Music",
       ]),
     )
-    .min(1, "Select at least one tutoring level"),
+    .min(1, "Select at least one tutoring level")
+    .optional(),
+
   preferredLocations: z
     .array(
       z.enum([
@@ -106,7 +83,6 @@ export const updateTutorSchema = z.object({
         "Serangoon",
         "Tampines",
         "Ubi",
-        "Boon Lay",
         "Bukit Merah",
         "Bukit Timah",
         "Dover",
@@ -126,11 +102,9 @@ export const updateTutorSchema = z.object({
         "Raffles Place",
         "Robertson Quay",
         "Tanjong Pagar",
-        "Bukit Panjang",
         "Hillview",
         "Keat Hong",
         "Teck Whye",
-        "Ang Mo Kio",
         "Balestier",
         "Bras Basah",
         "Farrer Park",
@@ -145,18 +119,44 @@ export const updateTutorSchema = z.object({
         "No Preference",
       ]),
     )
-    .min(1, "Select at least one preferred location"),
+    .min(1, "Select at least one preferred location")
+    .optional(),
 
-  teachingSummary: z.string().max(750),
-  studentResults: z.string().max(750),
-  sellingPoints: z.string().max(750),
+  // Academic qualifications
+  tutorType: z
+    .enum([
+      "Full Time Student",
+      "Undergraduate",
+      "Part Time Tutor",
+      "Full Time Tutor",
+      "Ex/Current MOE Teacher",
+      "Ex-MOE Teacher",
+      "Current MOE Teacher",
+    ])
+    .optional(),
 
-  agreeTerms: z
-    .boolean()
-    .refine((val) => val === true, "You must agree to Terms and Conditions"),
-  agreeAssignmentInfo: z
-    .boolean()
-    .refine((val) => val === true, "You must agree to Assignment Info"),
+  yearsExperience: z.number().int().min(0).max(50).optional(),
+
+  highestEducation: z
+    .enum([
+      "PhD",
+      "Diploma",
+      "Masters",
+      "Undergraduate",
+      "Bachelor Degree",
+      "Diploma and Professional",
+      "JC/A Levels",
+      "Poly",
+      "Others",
+    ])
+    .optional(),
+
+  academicDetails: z.string().max(1000).optional(),
+
+  // Tutor's profile
+  teachingSummary: z.string().max(750).optional(),
+  studentResults: z.string().max(750).optional(),
+  sellingPoints: z.string().max(750).optional(),
 });
 
 export type UpdateTutorSchema = z.infer<typeof updateTutorSchema>;
