@@ -294,7 +294,7 @@ export type Tutor = BaseEntity & {
   fullName: string;
   contactNumber: string;
   email: string;
-  dateOfBirth: string; // YYYY-MM-DD format
+  dateOfBirth: string;
   gender: string;
   age: number;
   nationality: string;
@@ -303,7 +303,7 @@ export type Tutor = BaseEntity & {
   tutorType: string;
   yearsExperience: number;
   highestEducation: string;
-  academicDetails: string;
+  academicDetails?: string;
   teachingSummary: string;
   studentResults: string;
   sellingPoints: string;
@@ -311,7 +311,6 @@ export type Tutor = BaseEntity & {
   preferredLocations: string[];
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
-  captchaToken: string;
 };
 
 export type FindMyTutorResponse = {

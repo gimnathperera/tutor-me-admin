@@ -49,7 +49,7 @@ export function EditTutor({ id }: EditTutorProps) {
       fullName: "",
       contactNumber: "",
       email: "",
-      dateOfBirth: undefined,
+      dateOfBirth: "",
       gender: "Male",
       age: 18,
       nationality: "Singaporean",
@@ -64,73 +64,361 @@ export function EditTutor({ id }: EditTutorProps) {
       teachingSummary: "",
       studentResults: "",
       sellingPoints: "",
-      agreeTerms: false,
-      agreeAssignmentInfo: false,
     },
     mode: "onChange",
   });
 
   const { formState, reset, setValue, watch, control, handleSubmit } = form;
 
+  // Helper function to safely cast enum values
+  const safeEnumValue = <T extends string>(
+    value: string | undefined,
+    enumValues: readonly T[],
+    fallback: T,
+  ): T => {
+    if (!value) return fallback;
+    return enumValues.includes(value as T) ? (value as T) : fallback;
+  };
+
+  // Helper function to format date from ISO to YYYY-MM-DD
+  const formatDateForForm = (isoDate: string | undefined): string => {
+    if (!isoDate) return "";
+    try {
+      const date = new Date(isoDate);
+      return date.toISOString().split("T")[0];
+    } catch {
+      return "";
+    }
+  };
+
+  // Helper function to safely cast array enum values
+  const safeArrayEnumValue = <T extends string>(
+    values: string[] | undefined,
+    enumValues: readonly T[],
+  ): T[] => {
+    if (!values) return [];
+    return values.filter((value) => enumValues.includes(value as T)) as T[];
+  };
+
   // Pre-fill form when tutor data is loaded
   useEffect(() => {
     if (tutorData && open) {
+      const genderOptions = ["Male", "Female"] as const;
+      const nationalityOptions = [
+        "Singaporean",
+        "Singapore PR",
+        "Others",
+      ] as const;
+      const raceOptions = [
+        "Chinese",
+        "Malay",
+        "Indian",
+        "Eurasian",
+        "Caucasian",
+        "Punjabi",
+        "Others",
+      ] as const;
+      const tutorTypeOptions = [
+        "Full Time Student",
+        "Undergraduate",
+        "Part Time Tutor",
+        "Full Time Tutor",
+        "Ex/Current MOE Teacher",
+        "Ex-MOE Teacher",
+        "Current MOE Teacher",
+      ] as const;
+      const educationOptions = [
+        "PhD",
+        "Diploma",
+        "Masters",
+        "Undergraduate",
+        "Bachelor Degree",
+        "Diploma and Professional",
+        "JC/A Levels",
+        "Poly",
+        "Others",
+      ] as const;
+      const tutoringLevelOptions = [
+        "Pre-School",
+        "Primary School",
+        "Lower Secondary",
+        "Upper Secondary",
+        "Junior College",
+        "IB/IGCSE",
+        "Diploma / Degree",
+        "Language",
+        "Computing",
+        "Special Skills",
+        "Music",
+      ] as const;
+      const locationOptions = [
+        "Admiralty",
+        "Ang Mo Kio",
+        "Bishan",
+        "Boon Lay",
+        "Bukit Batok",
+        "Bukit Panjang",
+        "Choa Chu Kang",
+        "Clementi",
+        "Jurong East",
+        "Jurong West",
+        "Kranji",
+        "Marsiling",
+        "Sembawang",
+        "Sengkang",
+        "Woodlands",
+        "Yew Tee",
+        "Yishun",
+        "Bedok",
+        "Changi",
+        "East Coast",
+        "Geylang",
+        "Hougang",
+        "Katong",
+        "Marine Parade",
+        "Pasir Ris",
+        "Punggol",
+        "Serangoon",
+        "Tampines",
+        "Ubi",
+        "Bukit Merah",
+        "Bukit Timah",
+        "Dover",
+        "Holland Village",
+        "Newton",
+        "Queenstown",
+        "Toa Payoh",
+        "West Coast",
+        "Boat Quay",
+        "Bugis",
+        "Chinatown",
+        "City Hall",
+        "Clarke Quay",
+        "Dhoby Ghaut",
+        "Marina Bay",
+        "Orchard",
+        "Raffles Place",
+        "Robertson Quay",
+        "Tanjong Pagar",
+        "Hillview",
+        "Keat Hong",
+        "Teck Whye",
+        "Balestier",
+        "Bras Basah",
+        "Farrer Park",
+        "Kallang",
+        "Lavender",
+        "Little India",
+        "MacPherson",
+        "Novena",
+        "Potong Pasir",
+        "Rochor",
+        "Thomson",
+        "No Preference",
+      ] as const;
+
       reset({
         fullName: tutorData.fullName || "",
         contactNumber: tutorData.contactNumber || "",
         email: tutorData.email || "",
-        dateOfBirth: tutorData.dateOfBirth || "",
-        gender: tutorData.gender || "Male",
+        dateOfBirth: formatDateForForm(tutorData.dateOfBirth),
+        gender: safeEnumValue(tutorData.gender, genderOptions, "Male"),
         age: tutorData.age || 18,
-        nationality: tutorData.nationality || "Singaporean",
-        race: tutorData.race || "Chinese",
+        nationality: safeEnumValue(
+          tutorData.nationality,
+          nationalityOptions,
+          "Singaporean",
+        ),
+        race: safeEnumValue(tutorData.race, raceOptions, "Chinese"),
         last4NRIC: tutorData.last4NRIC || "",
-        tutoringLevels: tutorData.tutoringLevels || [],
-        preferredLocations: tutorData.preferredLocations || [],
-        tutorType: tutorData.tutorType || "Full Time Student",
+        tutoringLevels: safeArrayEnumValue(
+          tutorData.tutoringLevels,
+          tutoringLevelOptions,
+        ),
+        preferredLocations: safeArrayEnumValue(
+          tutorData.preferredLocations,
+          locationOptions,
+        ),
+        tutorType: safeEnumValue(
+          tutorData.tutorType,
+          tutorTypeOptions,
+          "Full Time Student",
+        ),
         yearsExperience: tutorData.yearsExperience || 0,
-        highestEducation: tutorData.highestEducation || "Undergraduate",
+        highestEducation: safeEnumValue(
+          tutorData.highestEducation,
+          educationOptions,
+          "Undergraduate",
+        ),
         academicDetails: tutorData.academicDetails || "",
         teachingSummary: tutorData.teachingSummary || "",
         studentResults: tutorData.studentResults || "",
         sellingPoints: tutorData.sellingPoints || "",
-        agreeTerms: tutorData.agreeTerms || false,
-        agreeAssignmentInfo: tutorData.agreeAssignmentInfo || false,
       });
     }
   }, [tutorData, open, reset]);
 
-  // Reset form to original values when dialog closes
+  // Reset form when dialog closes
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen && tutorData) {
       // Reset form to original values when closing
+      const genderOptions = ["Male", "Female"] as const;
+      const nationalityOptions = [
+        "Singaporean",
+        "Singapore PR",
+        "Others",
+      ] as const;
+      const raceOptions = [
+        "Chinese",
+        "Malay",
+        "Indian",
+        "Eurasian",
+        "Caucasian",
+        "Punjabi",
+        "Others",
+      ] as const;
+      const tutorTypeOptions = [
+        "Full Time Student",
+        "Undergraduate",
+        "Part Time Tutor",
+        "Full Time Tutor",
+        "Ex/Current MOE Teacher",
+        "Ex-MOE Teacher",
+        "Current MOE Teacher",
+      ] as const;
+      const educationOptions = [
+        "PhD",
+        "Diploma",
+        "Masters",
+        "Undergraduate",
+        "Bachelor Degree",
+        "Diploma and Professional",
+        "JC/A Levels",
+        "Poly",
+        "Others",
+      ] as const;
+      const tutoringLevelOptions = [
+        "Pre-School",
+        "Primary School",
+        "Lower Secondary",
+        "Upper Secondary",
+        "Junior College",
+        "IB/IGCSE",
+        "Diploma / Degree",
+        "Language",
+        "Computing",
+        "Special Skills",
+        "Music",
+      ] as const;
+      const locationOptions = [
+        "Admiralty",
+        "Ang Mo Kio",
+        "Bishan",
+        "Boon Lay",
+        "Bukit Batok",
+        "Bukit Panjang",
+        "Choa Chu Kang",
+        "Clementi",
+        "Jurong East",
+        "Jurong West",
+        "Kranji",
+        "Marsiling",
+        "Sembawang",
+        "Sengkang",
+        "Woodlands",
+        "Yew Tee",
+        "Yishun",
+        "Bedok",
+        "Changi",
+        "East Coast",
+        "Geylang",
+        "Hougang",
+        "Katong",
+        "Marine Parade",
+        "Pasir Ris",
+        "Punggol",
+        "Serangoon",
+        "Tampines",
+        "Ubi",
+        "Bukit Merah",
+        "Bukit Timah",
+        "Dover",
+        "Holland Village",
+        "Newton",
+        "Queenstown",
+        "Toa Payoh",
+        "West Coast",
+        "Boat Quay",
+        "Bugis",
+        "Chinatown",
+        "City Hall",
+        "Clarke Quay",
+        "Dhoby Ghaut",
+        "Marina Bay",
+        "Orchard",
+        "Raffles Place",
+        "Robertson Quay",
+        "Tanjong Pagar",
+        "Hillview",
+        "Keat Hong",
+        "Teck Whye",
+        "Balestier",
+        "Bras Basah",
+        "Farrer Park",
+        "Kallang",
+        "Lavender",
+        "Little India",
+        "MacPherson",
+        "Novena",
+        "Potong Pasir",
+        "Rochor",
+        "Thomson",
+        "No Preference",
+      ] as const;
+
       reset({
         fullName: tutorData.fullName || "",
         contactNumber: tutorData.contactNumber || "",
         email: tutorData.email || "",
-        dateOfBirth: tutorData.dateOfBirth || "",
-        gender: tutorData.gender || "Male",
+        dateOfBirth: formatDateForForm(tutorData.dateOfBirth),
+        gender: safeEnumValue(tutorData.gender, genderOptions, "Male"),
         age: tutorData.age || 18,
-        nationality: tutorData.nationality || "Singaporean",
-        race: tutorData.race || "Chinese",
+        nationality: safeEnumValue(
+          tutorData.nationality,
+          nationalityOptions,
+          "Singaporean",
+        ),
+        race: safeEnumValue(tutorData.race, raceOptions, "Chinese"),
         last4NRIC: tutorData.last4NRIC || "",
-        tutoringLevels: tutorData.tutoringLevels || [],
-        preferredLocations: tutorData.preferredLocations || [],
-        tutorType: tutorData.tutorType || "Full Time Student",
+        tutoringLevels: safeArrayEnumValue(
+          tutorData.tutoringLevels,
+          tutoringLevelOptions,
+        ),
+        preferredLocations: safeArrayEnumValue(
+          tutorData.preferredLocations,
+          locationOptions,
+        ),
+        tutorType: safeEnumValue(
+          tutorData.tutorType,
+          tutorTypeOptions,
+          "Full Time Student",
+        ),
         yearsExperience: tutorData.yearsExperience || 0,
-        highestEducation: tutorData.highestEducation || "Undergraduate",
+        highestEducation: safeEnumValue(
+          tutorData.highestEducation,
+          educationOptions,
+          "Undergraduate",
+        ),
         academicDetails: tutorData.academicDetails || "",
         teachingSummary: tutorData.teachingSummary || "",
         studentResults: tutorData.studentResults || "",
         sellingPoints: tutorData.sellingPoints || "",
-        agreeTerms: tutorData.agreeTerms || false,
-        agreeAssignmentInfo: tutorData.agreeAssignmentInfo || false,
       });
     }
   };
 
-  // helper for mapping years select value -> numeric
+  // Helper for mapping years select value -> numeric
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
     setValue("yearsExperience", parsed, {
@@ -169,6 +457,39 @@ export function EditTutor({ id }: EditTutorProps) {
     "Serangoon",
     "Tampines",
     "Ubi",
+    "Bukit Merah",
+    "Bukit Timah",
+    "Dover",
+    "Holland Village",
+    "Newton",
+    "Queenstown",
+    "Toa Payoh",
+    "West Coast",
+    "Boat Quay",
+    "Bugis",
+    "Chinatown",
+    "City Hall",
+    "Clarke Quay",
+    "Dhoby Ghaut",
+    "Marina Bay",
+    "Orchard",
+    "Raffles Place",
+    "Robertson Quay",
+    "Tanjong Pagar",
+    "Hillview",
+    "Keat Hong",
+    "Teck Whye",
+    "Balestier",
+    "Bras Basah",
+    "Farrer Park",
+    "Kallang",
+    "Lavender",
+    "Little India",
+    "MacPherson",
+    "Novena",
+    "Potong Pasir",
+    "Rochor",
+    "Thomson",
     "No Preference",
   ].map((v) => ({ value: v, text: v }));
 
@@ -219,7 +540,7 @@ export function EditTutor({ id }: EditTutorProps) {
           <SquarePen className="cursor-pointer text-blue-600 hover:text-blue-800" />
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 overflow-y-auto scrollbar-thin">
+        <DialogContent className="sm:max-w-[700px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 max-h-[80vh] overflow-y-auto scrollbar-thin">
           <DialogHeader>
             <DialogTitle>Edit Tutor</DialogTitle>
           </DialogHeader>
@@ -227,8 +548,12 @@ export function EditTutor({ id }: EditTutorProps) {
           <div className="grid gap-4 p-3">
             {/* Personal Info */}
             <div className="grid gap-3">
-              <Label htmlFor="fullName">Full Name *</Label>
-              <Input id="fullName" {...form.register("fullName")} />
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                placeholder="Full Name"
+                {...form.register("fullName")}
+              />
               {formState.errors.fullName && (
                 <p className="text-sm text-red-500">
                   {formState.errors.fullName.message}
@@ -237,7 +562,7 @@ export function EditTutor({ id }: EditTutorProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="contactNumber">Contact Number *</Label>
+              <Label htmlFor="contactNumber">Contact Number</Label>
               <Controller
                 name="contactNumber"
                 control={control}
@@ -249,7 +574,6 @@ export function EditTutor({ id }: EditTutorProps) {
                     maxLength={15}
                     value={field.value ?? ""}
                     onChange={(e) => {
-                      // keep only digits and limit length to 15
                       const digits = e.target.value
                         .replace(/\D/g, "")
                         .slice(0, 15);
@@ -266,19 +590,24 @@ export function EditTutor({ id }: EditTutorProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="email">Email *</Label>
-              <Input id="email" type="email" {...form.register("email")} />
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Email"
+                {...form.register("email")}
+              />
               {formState.errors.email && (
                 <p className="text-sm text-red-500">
                   {formState.errors.email.message}
                 </p>
               )}
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="z-99">
                 <DatePicker
                   label="Date of Birth"
-                  required
                   value={watch("dateOfBirth")}
                   onChange={(date) =>
                     setValue("dateOfBirth", date, {
@@ -291,10 +620,11 @@ export function EditTutor({ id }: EditTutorProps) {
                 />
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="age">Age *</Label>
+                <Label htmlFor="age">Age</Label>
                 <Input
                   id="age"
                   type="number"
+                  placeholder="Age"
                   {...form.register("age", { valueAsNumber: true })}
                   min={1}
                 />
@@ -305,11 +635,14 @@ export function EditTutor({ id }: EditTutorProps) {
                 )}
               </div>
             </div>
+
             <div className="grid grid-cols-3 gap-3">
-              <div className="grid gap-3 ">
-                <Label htmlFor="gender">Gender *</Label>
+              <div className="grid gap-3">
+                <Label htmlFor="gender">Gender</Label>
                 <Select
-                  onValueChange={(val) => setValue("gender", val as any)}
+                  onValueChange={(val) =>
+                    setValue("gender", val as UpdateTutorSchema["gender"])
+                  }
                   value={watch("gender")}
                 >
                   <SelectTrigger id="gender">
@@ -318,7 +651,6 @@ export function EditTutor({ id }: EditTutorProps) {
                   <SelectContent>
                     <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="Female">Female</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
                 {formState.errors.gender && (
@@ -329,9 +661,14 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="nationality">Nationality *</Label>
+                <Label htmlFor="nationality">Nationality</Label>
                 <Select
-                  onValueChange={(val: string) => setValue("nationality", val)}
+                  onValueChange={(val) =>
+                    setValue(
+                      "nationality",
+                      val as UpdateTutorSchema["nationality"],
+                    )
+                  }
                   value={watch("nationality")}
                 >
                   <SelectTrigger id="nationality">
@@ -351,9 +688,11 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="race">Race *</Label>
+                <Label htmlFor="race">Race</Label>
                 <Select
-                  onValueChange={(val) => setValue("race", val as any)}
+                  onValueChange={(val) =>
+                    setValue("race", val as UpdateTutorSchema["race"])
+                  }
                   value={watch("race")}
                 >
                   <SelectTrigger id="race">
@@ -376,12 +715,14 @@ export function EditTutor({ id }: EditTutorProps) {
                 )}
               </div>
             </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
-                <Label htmlFor="last4NRIC">Last 4 digits of NRIC *</Label>
+                <Label htmlFor="last4NRIC">Last 4 digits of NRIC</Label>
                 <Input
                   id="last4NRIC"
                   maxLength={4}
+                  placeholder="1234"
                   {...form.register("last4NRIC")}
                 />
                 {formState.errors.last4NRIC && (
@@ -391,9 +732,11 @@ export function EditTutor({ id }: EditTutorProps) {
                 )}
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="tutorType">Tutor Type *</Label>
+                <Label htmlFor="tutorType">Tutor Type</Label>
                 <Select
-                  onValueChange={(val) => setValue("tutorType", val as any)}
+                  onValueChange={(val) =>
+                    setValue("tutorType", val as UpdateTutorSchema["tutorType"])
+                  }
                   value={watch("tutorType")}
                 >
                   <SelectTrigger id="tutorType">
@@ -439,7 +782,9 @@ export function EditTutor({ id }: EditTutorProps) {
                   setValue(
                     "tutoringLevels",
                     selected as UpdateTutorSchema["tutoringLevels"],
-                    { shouldValidate: true },
+                    {
+                      shouldValidate: true,
+                    },
                   )
                 }
               />
@@ -453,13 +798,16 @@ export function EditTutor({ id }: EditTutorProps) {
                 setValue(
                   "preferredLocations",
                   selected as UpdateTutorSchema["preferredLocations"],
-                  { shouldValidate: true },
+                  {
+                    shouldValidate: true,
+                  },
                 )
               }
             />
+
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
-                <Label htmlFor="yearsExperience">Years of Experience *</Label>
+                <Label htmlFor="yearsExperience">Years of Experience</Label>
                 <Select
                   onValueChange={(val) => handleYearsSelect(val)}
                   value={String(watch("yearsExperience"))}
@@ -495,10 +843,13 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="highestEducation">Highest Education *</Label>
+                <Label htmlFor="highestEducation">Highest Education</Label>
                 <Select
                   onValueChange={(val) =>
-                    setValue("highestEducation", val as any)
+                    setValue(
+                      "highestEducation",
+                      val as UpdateTutorSchema["highestEducation"],
+                    )
                   }
                   value={watch("highestEducation")}
                 >
@@ -533,6 +884,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <Label htmlFor="academicDetails">Academic Details</Label>
               <Textarea
                 id="academicDetails"
+                placeholder="Academic Details"
                 {...form.register("academicDetails")}
               />
               {formState.errors.academicDetails && (
@@ -544,9 +896,10 @@ export function EditTutor({ id }: EditTutorProps) {
 
             {/* Tutor Profile */}
             <div className="grid gap-3">
-              <Label htmlFor="teachingSummary">Teaching Summary *</Label>
+              <Label htmlFor="teachingSummary">Teaching Summary</Label>
               <Textarea
                 id="teachingSummary"
+                placeholder="Teaching Summary"
                 {...form.register("teachingSummary")}
               />
               {formState.errors.teachingSummary && (
@@ -557,9 +910,10 @@ export function EditTutor({ id }: EditTutorProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="studentResults">Student Results *</Label>
+              <Label htmlFor="studentResults">Student Results</Label>
               <Textarea
                 id="studentResults"
+                placeholder="Student Results"
                 {...form.register("studentResults")}
               />
               {formState.errors.studentResults && (
@@ -570,9 +924,10 @@ export function EditTutor({ id }: EditTutorProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="sellingPoints">Selling Points *</Label>
+              <Label htmlFor="sellingPoints">Selling Points</Label>
               <Textarea
                 id="sellingPoints"
+                placeholder="Selling Points"
                 {...form.register("sellingPoints")}
               />
               {formState.errors.sellingPoints && (
@@ -580,22 +935,6 @@ export function EditTutor({ id }: EditTutorProps) {
                   {formState.errors.sellingPoints.message}
                 </p>
               )}
-            </div>
-
-            {/* Agreements */}
-            <div className="mt-2">
-              <CheckboxField
-                label="I agree to Terms & Conditions *"
-                id="agreeTerms"
-                form={form}
-              />
-            </div>
-            <div>
-              <CheckboxField
-                label="I agree to receive assignment info *"
-                id="agreeAssignmentInfo"
-                form={form}
-              />
             </div>
           </div>
 
@@ -607,7 +946,7 @@ export function EditTutor({ id }: EditTutorProps) {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isUpdating}
-              onClick={() => handleSubmit(onSubmit)()}
+              onClick={handleSubmit(onSubmit)}
             >
               Update Tutor
             </Button>
@@ -615,20 +954,5 @@ export function EditTutor({ id }: EditTutorProps) {
         </DialogContent>
       </form>
     </Dialog>
-  );
-}
-
-function CheckboxField({ label, id, form }: any) {
-  const { formState } = form;
-  return (
-    <div className="grid gap-1">
-      <Label className="flex items-center gap-2">
-        <input type="checkbox" {...form.register(id)} />
-        <span>{label}</span>
-      </Label>
-      {formState.errors[id] && (
-        <p className="text-sm text-red-500">{formState.errors[id]?.message}</p>
-      )}
-    </div>
   );
 }
