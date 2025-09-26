@@ -1,41 +1,53 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { AddTutorFormValues } from "@/app/(admin)/tutors/components/add-tutor/schema";
+import { UpdateTutorSchema } from "@/app/(admin)/tutors/components/edit-tutor/schema";
+import { FetchTutorsRequest } from "@/types/request-types";
+import { PaginatedResponse, Tutor } from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
 export const TutorsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    fetchTutors: build.query<any, void>({
-      // <- no params
-      query: () => ({
-        url: Endpoints.FindATutor,
-        method: "GET",
-      }),
-      providesTags: ["Tutors"],
+    fetchTutors: build.query<PaginatedResponse<Tutor>, FetchTutorsRequest>({
+      query: (payload) => {
+        const { tutorId, ...rest } = payload;
+        return {
+          url: Endpoints.FindATutor,
+          method: "GET",
+          params: rest,
+        };
+      },
+      providesTags: ["FindATutor"],
     }),
 
-    fetchTutorById: build.query<any, string>({
+    fetchTutorById: build.query<Tutor, string>({
       query: (id) => ({
         url: `${Endpoints.FindATutor}/${id}`,
         method: "GET",
       }),
-      providesTags: (result, error, id) => [{ type: "Tutors", id }],
+      providesTags: ["FindATutor"],
     }),
 
-    createTutor: build.mutation<any, Partial<any>>({
-      query: (payload) => ({
-        url: Endpoints.FindATutor,
-        method: "POST",
-        body: payload,
-      }),
-      invalidatesTags: ["Tutors"],
+    createTutor: build.mutation<Tutor, AddTutorFormValues>({
+      query: (payload) => {
+        return {
+          url: Endpoints.FindATutor,
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["FindATutor"],
     }),
 
-    updateTutor: build.mutation<any, { id: string; [key: string]: any }>({
-      query: ({ id, ...payload }) => ({
-        url: `${Endpoints.FindATutor}/${id}`,
-        method: "PATCH",
-        body: payload,
-      }),
-      invalidatesTags: ["Tutors"],
+    updateTutor: build.mutation<Tutor, { id: string } & UpdateTutorSchema>({
+      query: ({ id, ...payload }) => {
+        return {
+          url: `${Endpoints.FindATutor}/${id}`,
+          method: "PATCH",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["FindATutor"],
     }),
 
     deleteTutor: build.mutation<void, string>({
@@ -43,7 +55,15 @@ export const TutorsApi = baseApi.injectEndpoints({
         url: `${Endpoints.FindATutor}/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Tutors"],
+      invalidatesTags: ["FindATutor"],
+    }),
+
+    sendTempPassword: build.mutation<void, string>({
+      query: (id) => ({
+        url: `${Endpoints.FindATutor}/temp-password/${id}`,
+        method: "POST",
+      }),
+      invalidatesTags: ["FindATutor"],
     }),
   }),
   overrideExisting: false,
@@ -52,7 +72,9 @@ export const TutorsApi = baseApi.injectEndpoints({
 export const {
   useFetchTutorsQuery,
   useFetchTutorByIdQuery,
+  useLazyFetchTutorByIdQuery,
   useCreateTutorMutation,
   useUpdateTutorMutation,
   useDeleteTutorMutation,
+  useSendTempPasswordMutation,
 } = TutorsApi;

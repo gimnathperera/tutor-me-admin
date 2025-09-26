@@ -89,7 +89,7 @@ export const baseApi = createApi({
     "Levels",
     "Blogs",
     "Inquiries",
-    "Tutors",
+    "FindATutor",
   ],
   baseQuery: baseQueryWithAuth,
   endpoints: () => ({}),
