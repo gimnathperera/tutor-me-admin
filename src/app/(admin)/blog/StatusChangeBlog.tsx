@@ -23,17 +23,24 @@ import toast from "react-hot-toast";
 interface BlogStatusDialogProps {
   id: string;
   currentStatus: "pending" | "approved" | "rejected";
+  onStatusChange?: () => void; // parent callback
 }
 
-export function BlogStatusDialog({ id, currentStatus }: BlogStatusDialogProps) {
+export function BlogStatusDialog({
+  id,
+  currentStatus,
+  onStatusChange,
+}: BlogStatusDialogProps) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState(currentStatus);
   const [updateStatus, { isLoading }] = useUpdateBlogStatusMutation();
+
   const handleSave = async () => {
     try {
       await updateStatus({ blogId: id, status }).unwrap();
       toast.success("Status updated successfully");
       setOpen(false);
+      onStatusChange?.(); // trigger parent refresh/list update
     } catch (error) {
       console.error(error);
       toast.error("Failed to update status");
