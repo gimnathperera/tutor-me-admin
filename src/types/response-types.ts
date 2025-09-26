@@ -86,8 +86,24 @@ export type TuitionRateGroup = {
 // Subject
 export type Subject = BaseEntity & WithTitleDescription;
 
-//User
-export type Users = BaseEntity & WithTitleDescription;
+// User
+export type Users = BaseEntity & {
+  role: string;
+  name: string;
+  email: string;
+  phoneNumber: string;
+  birthday: string;
+  gender: "male" | "female" | "other" | string;
+  status: string;
+  isEmailVerified: boolean;
+  country: string;
+  city: string;
+  state: string;
+  region: string;
+  zip: string;
+  address: string;
+  avatar?: string;
+};
 
 // Grade
 export type Grade = BaseEntity &
