@@ -19,11 +19,15 @@ export const UsersApi = baseApi.injectEndpoints({
       providesTags: ["Users"],
     }),
 
-    fetchUserById: build.query<Users, string>({
+    fetchUserById: build.query<Users, string | number>({
       query: (id) => ({
         url: `${Endpoints.Users}/${id}`,
         method: "GET",
       }),
+      providesTags: (result, error, id) => [
+        { type: "Users", id },
+        { type: "Users", id: "LIST" },
+      ],
     }),
 
     createUser: build.mutation<Users, CreateUserSchema>({
@@ -45,7 +49,10 @@ export const UsersApi = baseApi.injectEndpoints({
           body: payload,
         };
       },
-      invalidatesTags: ["Users"],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Users", id },
+        { type: "Users", id: "LIST" },
+      ],
     }),
 
     deleteUser: build.mutation<void, string>({
@@ -53,14 +60,18 @@ export const UsersApi = baseApi.injectEndpoints({
         url: `${Endpoints.Users}/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Users"],
+      invalidatesTags: (result, error, id) => [
+        { type: "Users", id },
+        { type: "Users", id: "LIST" },
+      ],
     }),
+
     sendTempPassword: build.mutation<void, string>({
       query: (id) => ({
         url: `${Endpoints.Users}/temp-password/${id}`,
         method: "POST",
       }),
-      invalidatesTags: ["Users"],
+      invalidatesTags: (result, error, id) => [{ type: "Users", id }],
     }),
   }),
   overrideExisting: false,
