@@ -100,7 +100,7 @@ export function UpdateLevel({
     <Dialog open={open} onOpenChange={setOpen}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <SquarePen className="cursor-pointer" />
+          <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-[700px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">

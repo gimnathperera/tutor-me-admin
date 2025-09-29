@@ -3,11 +3,11 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTestimonialsQuery } from "@/store/api/splits/testimonials";
+import { Star } from "lucide-react";
 import { useState } from "react";
 import { DeleteTestimonial } from "./DeleteTestimonial";
 import { UpdateTestimonial } from "./edit-testimonial/page";
 import { TestimonialDetails } from "./ViewDetails";
-import { Star } from "lucide-react";
 
 interface Testimonial {
   id: string;
@@ -129,6 +129,20 @@ export default function TestimonialsTable() {
       },
     },
     {
+      key: "view",
+      header: <div className="text-center w-full">View</div>,
+      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
+      render: (row: Testimonial) => (
+        <div className="w-full flex justify-center items-center">
+          <TestimonialDetails
+            content={getSafeValue(row.content, "No content provided")}
+            rating={getSafeValue(row.rating, "No rating provided")}
+            owner={row.owner}
+          />
+        </div>
+      ),
+    },
+    {
       key: "edit",
       header: <div className="text-center w-full">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default text-center",
@@ -154,20 +168,6 @@ export default function TestimonialsTable() {
       render: (row: Testimonial) => (
         <div className="w-full flex justify-center items-center">
           <DeleteTestimonial testimonialId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: <div className="text-center w-full">View</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
-      render: (row: Testimonial) => (
-        <div className="w-full flex justify-center items-center">
-          <TestimonialDetails
-            content={getSafeValue(row.content, "No content provided")}
-            rating={getSafeValue(row.rating, "No rating provided")}
-            owner={row.owner}
-          />
         </div>
       ),
     },

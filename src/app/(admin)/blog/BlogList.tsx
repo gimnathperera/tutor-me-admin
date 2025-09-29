@@ -76,23 +76,12 @@ export default function BlogsTable() {
         </div>
       ),
     },
-
-    {
-      key: "delete",
-      header: "Delete",
-      className: "cursor-default",
-      render: (row: Blogs) => (
-        <div className="w-full flex items-left justify-left">
-          <DeleteBlog blogId={row.id} />
-        </div>
-      ),
-    },
     {
       key: "view",
       header: "View",
       className: " cursor-default",
       render: (row: Blogs) => (
-        <div className="w-full flex items-left justify-left">
+        <div className="w-full flex items-center justify-center">
           <BlogDetails
             blog={{
               id: row.id,
@@ -113,6 +102,16 @@ export default function BlogsTable() {
               relatedArticles: row.relatedArticles ?? [],
             }}
           />
+        </div>
+      ),
+    },
+    {
+      key: "delete",
+      header: "Delete",
+      className: "cursor-default",
+      render: (row: Blogs) => (
+        <div className="w-full flex items-center justify-center">
+          <DeleteBlog blogId={row.id} />
         </div>
       ),
     },

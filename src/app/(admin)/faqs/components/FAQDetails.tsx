@@ -45,7 +45,7 @@ export function FAQDetails({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Eye className="cursor-pointer" />
+        <Eye className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px] max-h-[75vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>

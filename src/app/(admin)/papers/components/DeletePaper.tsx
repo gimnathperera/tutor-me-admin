@@ -42,7 +42,7 @@ export function DeletePaper({ paperId }: DeletePaperProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Trash2 className="text-red-500 cursor-pointer" />
+        <Trash2 className="text-red-500 hover:text-red-600 cursor-pointer" />
       </AlertDialogTrigger>
       <AlertDialogContent className="bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>

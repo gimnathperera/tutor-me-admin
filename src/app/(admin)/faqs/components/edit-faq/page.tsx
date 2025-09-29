@@ -79,7 +79,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <SquarePen className="cursor-pointer" />
+          <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>

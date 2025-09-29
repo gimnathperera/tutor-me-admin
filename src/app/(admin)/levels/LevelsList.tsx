@@ -176,6 +176,21 @@ export default function LevelsTable() {
       },
     },
     {
+      key: "view",
+      header: <div className="w-full text-center">View</div>,
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Level) => (
+        <div className="w-full flex justify-center items-center">
+          <LevelDetails
+            title={getSafeValue(row.title, "No title provided")}
+            details={getSafeArray(row.details)}
+            challanges={getSafeArray(row.challanges)}
+            subjects={getSafeSubjects(row.subjects)}
+          />
+        </div>
+      ),
+    },
+    {
       key: "edit",
       header: <div className="w-full text-center">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
@@ -198,21 +213,6 @@ export default function LevelsTable() {
       render: (row: Level) => (
         <div className="w-full flex justify-center items-center">
           <DeleteLevel levelId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: <div className="w-full text-center">View</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default",
-      render: (row: Level) => (
-        <div className="w-full flex justify-center items-center">
-          <LevelDetails
-            title={getSafeValue(row.title, "No title provided")}
-            details={getSafeArray(row.details)}
-            challanges={getSafeArray(row.challanges)}
-            subjects={getSafeSubjects(row.subjects)}
-          />
         </div>
       ),
     },

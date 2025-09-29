@@ -124,39 +124,24 @@ export default function TutorsList() {
       },
       {
         key: "yearsExperience",
-        header: "Experience (Years)",
-        className:
-          "min-w-[120px] max-w-[160px] truncate overflow-hidden cursor-default",
-        render: (row: Tutor) => (
+        header: (
           <span
-            title={row.yearsExperience?.toString() || "N/A"}
-            className={`truncate block ${row.yearsExperience === undefined ? "text-gray-400 italic" : ""}`}
+            className="truncate  w-full  text-center block max-w-[100px]"
+            title="Experience (Years)"
           >
-            {getSafeValue(row.yearsExperience, "N/A")}
+            Experience (Years)
           </span>
         ),
-      },
-
-      // Edit button
-      {
-        key: "edit",
-        header: "Edit",
-        className: "min-w-[80px] max-w-[80px] cursor-default",
+        className:
+          "min-w-[100px] truncate  max-w-[100px] overflow-hidden cursor-default",
         render: (row: Tutor) => (
-          <div className="w-full flex justify-center items-center">
-            <EditTutor id={row.id} />
-          </div>
-        ),
-      },
-
-      // Delete button
-      {
-        key: "delete",
-        header: "Delete",
-        className: "min-w-[80px] max-w-[80px] cursor-default",
-        render: (row: Tutor) => (
-          <div className="w-full flex justify-center items-center">
-            <DeleteTutor tutorId={row.id} />
+          <div className="flex justify-center w-full ">
+            <span
+              title={row.yearsExperience?.toString() || "N/A"}
+              className={`truncate block ${row.yearsExperience === undefined ? "text-gray-400 italic" : ""}`}
+            >
+              {getSafeValue(row.yearsExperience, "N/A")}
+            </span>
           </div>
         ),
       },
@@ -164,24 +149,54 @@ export default function TutorsList() {
       // View button
       {
         key: "view",
-        header: "View",
+        header: <div className="text-center w-full">View</div>,
         className: "min-w-[80px] max-w-[80px] cursor-default",
         render: (row: Tutor) => (
-          <div className="w-full flex justify-center items-center">
+          <div className="flex justify-center items-center w-full">
             <ViewTutor tutor={row} />
           </div>
         ),
       },
 
-      //Reset Password
-
+      // Edit button
       {
-        key: "resetPassword",
-        header: "Reset Password",
+        key: "edit",
+        header: <div className="text-center w-full">Edit</div>,
         className: "min-w-[80px] max-w-[80px] cursor-default",
         render: (row: Tutor) => (
-          <div className="w-full flex justify-left items-center">
+          <div className="flex justify-center items-center w-full">
+            <EditTutor id={row.id} />
+          </div>
+        ),
+      },
+
+      //Reset Password
+      {
+        key: "resetPassword",
+        header: (
+          <span
+            className="truncate w-full text-center block max-w-[100px]"
+            title="Reset Password"
+          >
+            Reset Password
+          </span>
+        ),
+        className: "min-w-[80px] max-w-[80px] cursor-default",
+        render: (row: Tutor) => (
+          <div className="flex justify-center items-center w-full">
             <ResetPassword userId={row.id} />
+          </div>
+        ),
+      },
+
+      // Delete button
+      {
+        key: "delete",
+        header: <div className="text-center w-full">Delete</div>,
+        className: "min-w-[80px] max-w-[80px] cursor-default",
+        render: (row: Tutor) => (
+          <div className="flex justify-center items-center w-full">
+            <DeleteTutor tutorId={row.id} />
           </div>
         ),
       },
