@@ -27,13 +27,11 @@ export function ResetPassword({ userId }: ResetPasswordProps) {
 
   const handleResend = async () => {
     try {
-      // unwrap() throws error if mutation fails
       await resendPassword(userId).unwrap();
 
       toast.success("Temporary password sent successfully!");
-      setOpen(false); // close dialog on success
+      setOpen(false);
     } catch (error) {
-      // handle backend or network errors
       const message =
         getErrorInApiResult({ error }) || "Failed to send temporary password";
       toast.error(message);
