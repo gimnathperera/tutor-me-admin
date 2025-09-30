@@ -6,7 +6,11 @@ import { useEffect } from "react";
 
 const publicRoutes = ["/signin", "/signup", "/reset-password"];
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+export default function ProtectedRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { user, isUserLoaded } = useAuthContext();
   const router = useRouter();
 
@@ -19,7 +23,11 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       router.replace("/signin");
     } else if (user && user.role !== "admin") {
       router.replace("/403");
-    } else if (user && user.role === "admin" && publicRoutes.includes(currentPath)) {
+    } else if (
+      user &&
+      user.role === "admin" &&
+      publicRoutes.includes(currentPath)
+    ) {
       router.replace("/");
     }
   }, [isUserLoaded, user, router]);
