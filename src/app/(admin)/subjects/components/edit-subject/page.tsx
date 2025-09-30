@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useUpdateSubjectMutation } from "@/store/api/splits/subjects";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +22,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateSubjectSchema, updateSubjectSchema } from "./schema";
-import { Textarea } from "@/components/ui/textarea";
 
 interface UpdateSubjectProps {
   id: string;
@@ -69,7 +69,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <form onSubmit={updateSubjectForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <SquarePen className="cursor-pointer" />
+          <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
