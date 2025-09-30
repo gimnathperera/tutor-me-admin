@@ -115,8 +115,9 @@ export type FetchLevelRequest = {
 export type FetchPapersRequest = {
   page: number;
   limit: number;
-  grade: string;
-  subject: string;
+  grade?: string;
+  subject?: string;
+  sortBy?: string;
 };
 
 export type CreateSubjectRequest = {
@@ -131,26 +132,26 @@ export type UpdateSubjectRequest = {
 };
 export type UpdateUserRequest = {
   id: string;
-  email: string;
+  email?: string;
   password?: string;
-  name: string;
-  role: string;
-  phoneNumber: string;
-  birthday: string;
-  status: string;
-  country: string;
-  city: string;
-  state: string;
-  region: string;
-  zip: string;
-  address: string;
-  tutorType: string;
-  gender: string;
-  duration: string;
-  frequency: string;
+  name?: string;
+  role?: string;
+  phoneNumber?: string;
+  birthday?: string;
+  status?: string;
+  country?: string;
+  city?: string;
+  state?: string;
+  region?: string;
+  zip?: string;
+  address?: string;
+  tutorType?: string;
+  gender?: string;
+  duration?: string;
+  frequency?: string;
   timezone?: string;
-  language: string;
-  avatar: string;
+  language?: string;
+  avatar?: string;
 };
 
 export type UpdateGradeRequest = {
@@ -169,7 +170,6 @@ export type FetchGradesRequest = {
   limit?: number;
   gradeId?: string;
 };
-//tuition rates types
 
 export type TuitionRate = {
   minimumRate: string;
@@ -235,6 +235,21 @@ export type FetchUserRequest = {
   userId?: string;
 };
 
+export type FetchTutorsRequest = {
+  fullName?: string;
+  contactNumber?: string;
+  email?: string;
+  gender?: string;
+  nationality?: string;
+  tutorType?: string;
+  yearsExperience?: number;
+  highestEducation?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  tutorId?: string;
+};
+
 export type CreateTutorRequest = {
   fullName: string;
   contactNumber: string;
@@ -263,7 +278,28 @@ export type CreateTutorRequest = {
 
 export type UpdateTutorRequest = {
   id: string;
-  payload: Partial<CreateTutorRequest>;
+  payload: {
+    fullName?: string;
+    contactNumber?: string;
+    email?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    age?: number;
+    nationality?: string;
+    race?: string;
+    last4NRIC?: string;
+    tutoringLevels?: string[];
+    preferredLocations?: string[];
+    tutorType?: string;
+    yearsExperience?: number;
+    highestEducation?: string;
+    academicDetails?: string;
+    teachingSummary?: string;
+    studentResults?: string;
+    sellingPoints?: string;
+    agreeTerms?: boolean;
+    agreeAssignmentInfo?: boolean;
+  } & Record<string, unknown>; // ensures object is not empty
 };
 
 export type FetchTestimonialsRequest = {
@@ -287,16 +323,16 @@ export type FindMyTutorRequest = {
   contactNumber: string;
   confirmContactNumber: string;
   email: string;
-  dateOfBirth: string; // YYYY-MM-DD format
-  confirmDateOfBirth: string; // YYYY-MM-DD format
+  dateOfBirth: string; 
+  confirmDateOfBirth: string; 
   gender: string;
   age: number;
   nationality: string;
   race: string;
   last4NRIC: string;
-  tutoringLevels: string[]; // e.g., ["Primary School", "Upper Secondary"]
-  preferredLocations: string[]; // e.g., ["Bukit Timah", "Toa Payoh"]
-  tutorType: string; // Full Time Tutor / Part Time Tutor
+  tutoringLevels: string[]; 
+  preferredLocations: string[]; 
+  tutorType: string; 
   yearsExperience: number;
   highestEducation: string;
   academicDetails: string;
@@ -308,11 +344,13 @@ export type FindMyTutorRequest = {
 };
 
 export type FetchLevelsRequest = {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
   title?: string;
   details?: string[];
   challenges?: string[];
   subjects?: string[];
-  levelId?: string;
 };
 
 export type UpdateLevelRequest = {

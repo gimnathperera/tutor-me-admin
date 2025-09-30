@@ -82,8 +82,24 @@ export default function SubjectsTable() {
       },
     },
     {
+      key: "view",
+      header: <div className="w-full text-center">View</div>,
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Subject) => (
+        <div className="w-full flex justify-center items-center">
+          <SubjectDetails
+            title={getSafeValue(row.title, "No title provided")}
+            description={getSafeValue(
+              row.description,
+              "No description provided",
+            )}
+          />
+        </div>
+      ),
+    },
+    {
       key: "edit",
-      header: "Edit",
+      header: <div className="w-full text-center">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Subject) => (
         <div className="w-full flex justify-center items-center">
@@ -97,27 +113,11 @@ export default function SubjectsTable() {
     },
     {
       key: "delete",
-      header: "Delete",
+      header: <div className="w-full text-center">Delete</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Subject) => (
         <div className="w-full flex justify-center items-center">
           <DeleteSubject subjectId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: "View",
-      className: "min-w-[80px] max-w-[80px] cursor-default",
-      render: (row: Subject) => (
-        <div className="w-full flex justify-center items-center">
-          <SubjectDetails
-            title={getSafeValue(row.title, "No title provided")}
-            description={getSafeValue(
-              row.description,
-              "No description provided",
-            )}
-          />
         </div>
       ),
     },

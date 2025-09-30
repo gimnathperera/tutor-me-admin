@@ -50,52 +50,67 @@ export default function TuitionRatesTable() {
     {
       key: "level",
       header: "Level",
+      className:
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: TuitionRateData) => row.level?.title || "N/A",
     },
     {
       key: "grade",
       header: "Grade",
+      className:
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: TuitionRateData) => row.grade?.title || "N/A",
     },
     {
       key: "subject",
       header: "Subject",
+      className:
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
       render: (row: TuitionRateData) => row.subject?.title || "N/A",
     },
     {
-      key: "edit",
-      header: "Edit",
+      key: "view",
+      header: <div className="w-full text-center">View</div>,
+      className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: TuitionRateData) => (
-        <UpdateTuitionRate
-          id={row.id}
-          level={row.level?.id || ""}
-          subject={row.subject?.id || ""}
-          grade={row.grade?.id || ""}
-          fullTimeTuitionRate={row.fullTimeTuitionRate || []}
-          govTuitionRate={row.govTuitionRate || []}
-          partTimeTuitionRate={row.partTimeTuitionRate || []}
-        />
+        <div className="w-full flex justify-center items-center">
+          <TuitionRateDetails
+            level={row.level || { id: "", title: "N/A" }}
+            grade={row.grade || { id: "", title: "N/A" }}
+            subject={row.subject || { id: "", title: "N/A" }}
+            fullTimeTuitionRate={row.fullTimeTuitionRate || []}
+            govTuitionRate={row.govTuitionRate || []}
+            partTimeTuitionRate={row.partTimeTuitionRate || []}
+          />
+        </div>
+      ),
+    },
+    {
+      key: "edit",
+      header: <div className="w-full text-center">Edit</div>,
+      className: "min-w-[10px] max-w-[10px] cursor-default",
+      render: (row: TuitionRateData) => (
+        <div className="w-full flex justify-center items-center">
+          <UpdateTuitionRate
+            id={row.id}
+            level={row.level?.id || ""}
+            subject={row.subject?.id || ""}
+            grade={row.grade?.id || ""}
+            fullTimeTuitionRate={row.fullTimeTuitionRate || []}
+            govTuitionRate={row.govTuitionRate || []}
+            partTimeTuitionRate={row.partTimeTuitionRate || []}
+          />
+        </div>
       ),
     },
     {
       key: "delete",
-      header: "Delete",
+      header: <div className="w-full text-center">Delete</div>,
+      className: "min-w-[10px] max-w-[10px] cursor-default",
       render: (row: TuitionRateData) => (
-        <DeleteTuitionRate gradeId={row.id || ""} />
-      ),
-    },
-    {
-      key: "view",
-      header: "View",
-      render: (row: TuitionRateData) => (
-        <TuitionRateDetails
-          level={row.level || { id: "", title: "N/A" }}
-          grade={row.grade || { id: "", title: "N/A" }}
-          subject={row.subject || { id: "", title: "N/A" }}
-          fullTimeTuitionRate={row.fullTimeTuitionRate || []}
-          govTuitionRate={row.govTuitionRate || []}
-          partTimeTuitionRate={row.partTimeTuitionRate || []}
-        />
+        <div className="w-full flex justify-center items-center">
+          <DeleteTuitionRate gradeId={row.id || ""} />
+        </div>
       ),
     },
   ];

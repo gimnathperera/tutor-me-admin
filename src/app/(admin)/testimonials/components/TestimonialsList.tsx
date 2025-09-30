@@ -3,11 +3,12 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTestimonialsQuery } from "@/store/api/splits/testimonials";
+import { Star } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { DeleteTestimonial } from "./DeleteTestimonial";
 import { UpdateTestimonial } from "./edit-testimonial/page";
 import { TestimonialDetails } from "./ViewDetails";
-import { Star } from "lucide-react";
 
 interface Testimonial {
   id: string;
@@ -58,11 +59,16 @@ export default function TestimonialsTable() {
       render: (row: Testimonial) => (
         <div className="flex items-center gap-3">
           {row.owner?.avatar ? (
-            <img
+            <Image
               src={row.owner.avatar}
               alt={row.owner?.name || "Owner"}
+              width={40}
+              height={40}
               className="w-10 h-10 rounded-full object-cover"
-              onError={(e) => (e.currentTarget.src = "/images/user/user.png")}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src =
+                  "/images/user/user.png";
+              }}
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
@@ -129,6 +135,20 @@ export default function TestimonialsTable() {
       },
     },
     {
+      key: "view",
+      header: <div className="text-center w-full">View</div>,
+      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
+      render: (row: Testimonial) => (
+        <div className="w-full flex justify-center items-center">
+          <TestimonialDetails
+            content={getSafeValue(row.content, "No content provided")}
+            rating={getSafeValue(row.rating, "No rating provided")}
+            owner={row.owner}
+          />
+        </div>
+      ),
+    },
+    {
       key: "edit",
       header: <div className="text-center w-full">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default text-center",
@@ -154,20 +174,6 @@ export default function TestimonialsTable() {
       render: (row: Testimonial) => (
         <div className="w-full flex justify-center items-center">
           <DeleteTestimonial testimonialId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: <div className="text-center w-full">View</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
-      render: (row: Testimonial) => (
-        <div className="w-full flex justify-center items-center">
-          <TestimonialDetails
-            content={getSafeValue(row.content, "No content provided")}
-            rating={getSafeValue(row.rating, "No rating provided")}
-            owner={row.owner}
-          />
         </div>
       ),
     },

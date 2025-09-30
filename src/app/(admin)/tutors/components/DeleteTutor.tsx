@@ -32,15 +32,19 @@ export function DeleteTutor({ tutorId }: DeleteTutorProps) {
       } else {
         toast.success("Tutor deleted successfully");
       }
-    } catch (err: Error) {
-      toast.error(err?.message || "Failed to delete tutor");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message || "Failed to delete tutor");
+      } else {
+        toast.error("Failed to delete tutor");
+      }
     }
   };
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Trash2 color="#EF4444" className="cursor-pointer" />
+        <Trash2 className="cursor-pointer text-red-500 hover:text-red-600" />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

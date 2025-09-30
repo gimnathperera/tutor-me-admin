@@ -54,7 +54,7 @@ export function UpdateTuitionRate({
     control,
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors , isDirty },
   } = useForm<UpdateTuitionSchema>({
     resolver: zodResolver(updateTuitionSchema),
     defaultValues: {
@@ -143,7 +143,7 @@ export function UpdateTuitionRate({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <SquarePen className="cursor-pointer" />
+        <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[500px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
@@ -262,7 +262,7 @@ export function UpdateTuitionRate({
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              disabled={displayLoading}
+              disabled={displayLoading|| !isDirty}
             >
               Save
             </Button>

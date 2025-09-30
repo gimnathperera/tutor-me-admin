@@ -205,36 +205,8 @@ export default function PapersTable() {
       },
     },
     {
-      key: "edit",
-      header: "Edit",
-      className: "min-w-[80px] max-w-[80px] cursor-default",
-      render: (row: Paper) => (
-        <div className="w-full flex justify-center items-center">
-          <EditPaper
-            id={row.id}
-            title={getSafeValue(row.title, "")}
-            description={getSafeValue(row.description, "")}
-            grade={getSafeNestedValue(row.grade, "id", "")}
-            subject={getSafeNestedValue(row.subject, "id", "")}
-            year={getSafeValue(row.year, "")}
-            url={getSafeValue(row.url, "")}
-          />
-        </div>
-      ),
-    },
-    {
-      key: "delete",
-      header: "Delete",
-      className: "min-w-[80px] max-w-[80px] cursor-default",
-      render: (row: Paper) => (
-        <div className="w-full flex justify-center items-center">
-          <DeletePaper paperId={row.id} />
-        </div>
-      ),
-    },
-    {
       key: "view",
-      header: "View",
+      header: <div className="w-full text-center">View</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: Paper) => (
         <div className="w-full flex justify-center items-center">
@@ -253,6 +225,34 @@ export default function PapersTable() {
             year={getSafeValue(row.year, "No year specified")}
             url={getSafeValue(row.url, "")}
           />
+        </div>
+      ),
+    },
+    {
+      key: "edit",
+      header: <div className="w-full text-center">Edit</div>,
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Paper) => (
+        <div className="w-full flex justify-center items-center">
+          <EditPaper
+            id={row.id}
+            title={getSafeValue(row.title, "")}
+            description={getSafeValue(row.description, "")}
+            grade={getSafeNestedValue(row.grade, "id", "")}
+            subject={getSafeNestedValue(row.subject, "id", "")}
+            year={getSafeValue(row.year, "")}
+            url={getSafeValue(row.url, "")}
+          />
+        </div>
+      ),
+    },
+    {
+      key: "delete",
+      header: <div className="w-full text-center">Delete</div>,
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Paper) => (
+        <div className="w-full flex justify-center items-center">
+          <DeletePaper paperId={row.id} />
         </div>
       ),
     },

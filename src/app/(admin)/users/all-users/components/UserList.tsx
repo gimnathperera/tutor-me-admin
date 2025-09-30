@@ -90,7 +90,7 @@ export default function UsersTable() {
       key: "role",
       header: "Role",
       className:
-        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+        "min-w-[70px] max-w-[70px] truncate overflow-hidden cursor-default",
       render: (row: User) => {
         const role = row.role
           ? row.role.charAt(0).toUpperCase() + row.role.slice(1)
@@ -172,10 +172,9 @@ export default function UsersTable() {
     {
       key: "edit",
       header: "Edit",
-      className:
-        "min-w-[80px]  flex justify-center items-center max-w-[80px] cursor-default",
+      className: "min-w-[80px] max-w-[80px]  cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-left items-center">
+        <div className="w-full ">
           <UpdateUser
             id={row.id}
             email={row.email || ""}
@@ -203,9 +202,9 @@ export default function UsersTable() {
     {
       key: "delete",
       header: "Delete",
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] flex justify-center cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-left items-center">
+        <div className="w-full ">
           <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />
         </div>
       ),
@@ -213,9 +212,9 @@ export default function UsersTable() {
     {
       key: "resetPassword",
       header: "Reset Password",
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      className: "min-w-[80px] max-w-[100px]  cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-left items-center">
+        <div className="w-full flex justify-center">
           <ResetPassword userId={row.id} />
         </div>
       ),

@@ -2,7 +2,6 @@
 
 import DataTable from "@/components/tables/DataTable";
 import { useFetchAssignmentsQuery } from "@/store/api/splits/tuition-assignments";
-import dayjs from "dayjs";
 import { useState } from "react";
 import { DeleteAssignment } from "./DeleteAssignment";
 import ViewDetails from "./ViewDetails";
@@ -35,8 +34,41 @@ export default function AssignmentsList() {
     {
       key: "createdAt",
       header: "Created Date",
-      render: (row: { createdAt: string }) =>
-        dayjs(row.createdAt).format("YYYY-MM-DD HH:mm"),
+      bodyClassName: "text-[0.75rem] font-mono",
+      render: (row: { createdAt: string }) => {
+        try {
+          const date = new Date(row.createdAt);
+          if (isNaN(date.getTime())) {
+            return <span className="text-gray-400 italic">Invalid date</span>;
+          }
+          return date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        } catch (error) {
+          console.error("Error parsing date:", error);
+          return <span className="text-gray-400 italic">Invalid date</span>;
+        }
+      },
+    },
+    {
+      key: "view",
+      header: "View",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
+      render: (row: {
+        title: string;
+        assignmentNumber: string;
+        address: string;
+        duration: string;
+        assignmentPrice: number;
+      }) => (
+        <div className="w-full flex justify-center items-center">
+          <ViewDetails assignment={row} />
+        </div>
+      ),
     },
     {
       key: "edit",
@@ -69,22 +101,6 @@ export default function AssignmentsList() {
       render: (row: { id: string }) => (
         <div className="w-full flex justify-center items-center">
           <DeleteAssignment assignmentId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: "View",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: {
-        title: string;
-        assignmentNumber: string;
-        address: string;
-        duration: string;
-        assignmentPrice: number;
-      }) => (
-        <div className="w-full flex justify-center items-center">
-          <ViewDetails assignment={row} />
         </div>
       ),
     },

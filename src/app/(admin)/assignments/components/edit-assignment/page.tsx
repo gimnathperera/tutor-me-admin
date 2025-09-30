@@ -113,7 +113,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <SquarePen className="cursor-pointer" />
+          <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-[500px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
@@ -122,7 +122,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
             <DialogDescription>Update the assignment details</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
+          <div className="grid gap-4">
             {/* Title */}
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>

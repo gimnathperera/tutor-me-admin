@@ -90,7 +90,7 @@ export function AddAssignment() {
             <DialogTitle>Add Assignment</DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
+          <div className="grid gap-4">
             {/* Title */}
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>

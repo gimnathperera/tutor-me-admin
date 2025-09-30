@@ -24,6 +24,7 @@ import {
   createSubjectSchema,
   initialFormValues,
 } from "./schema";
+import TextArea from "@/components/form/input/TextArea";
 
 export function AddSubject() {
   const [open, setOpen] = useState(false);
@@ -93,10 +94,9 @@ export function AddSubject() {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
-              <Input
+              <TextArea
                 id="description"
                 placeholder="Description"
-                type="text"
                 {...createSubjectForm.register("description")}
               />
               {formState.errors.description && (
