@@ -36,7 +36,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<UpdateFaqSchema>({
     resolver: zodResolver(updateFaqSchema),
     defaultValues: { question, answer },
@@ -77,7 +77,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
         }
       }}
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
@@ -122,14 +122,17 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button
-              type="submit"
-              className="bg-blue-700 text-white hover:bg-blue-500"
-              isLoading={isLoading}
-              onClick={() => handleSubmit(onSubmit)()}
-            >
-              Save
-            </Button>
+            <span title={!isDirty ? "Make changes to enable Save" : "Save"}>
+              <Button
+                type="submit"
+                className="bg-blue-700 text-white hover:bg-blue-500"
+                isLoading={isLoading}
+                disabled={!isDirty}
+                onClick={() => handleSubmit(onSubmit)()}
+              >
+                Save
+              </Button>
+            </span>
           </DialogFooter>
         </DialogContent>
       </form>

@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUpdateUserMutation } from "@/store/api/splits/users";
+import { useFetchUsersQuery, useUpdateUserMutation } from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
@@ -58,6 +58,11 @@ interface UpdateUserProps {
 export function UpdateUser(props: UpdateUserProps) {
   const [open, setOpen] = useState(false);
   const [updateUser, { isLoading }] = useUpdateUserMutation();
+   const { refetch } = useFetchUsersQuery({
+    page: 1,
+    limit: 10,
+    sortBy: "createdAt:desc",
+  });
 
   const form = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
@@ -117,6 +122,7 @@ export function UpdateUser(props: UpdateUserProps) {
       if (error) return toast.error(error);
 
       toast.success("User updated successfully");
+      refetch();
       setOpen(false);
     } catch (error) {
       console.error("Unexpected error during user update:", error);

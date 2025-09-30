@@ -39,7 +39,7 @@ export function TestimonialDetails({
       <DialogTrigger asChild>
         <Eye cursor="pointer" className="text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90 pb-9">
         <DialogHeader>
           <DialogTitle>Details</DialogTitle>
           <DialogDescription>Testimonial Details</DialogDescription>

@@ -38,6 +38,14 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
     mode: "onChange",
   });
 
+  const {
+    handleSubmit,
+    register,
+    reset,
+    getValues,
+    formState: { errors, isDirty },
+  } = updateSubjectForm;
+
   const [updateSubject, { isLoading }] = useUpdateSubjectMutation();
 
   const onSubmit = async (data: UpdateSubjectSchema) => {
@@ -56,18 +64,16 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
     }
   };
 
-  const { formState } = updateSubjectForm;
-
   const onUpdateSuccess = () => {
-    const updatedValues = updateSubjectForm.getValues();
+    const updatedValues = getValues();
     setOpen(false);
-    updateSubjectForm.reset(updatedValues);
+    reset(updatedValues);
     toast.success("Subject updated successfully");
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={updateSubjectForm.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
@@ -79,15 +85,9 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
           <div className="grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="Title"
-                {...updateSubjectForm.register("title")}
-              />
-              {formState.errors.title && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.title.message}
-                </p>
+              <Input id="title" placeholder="Title" {...register("title")} />
+              {errors.title && (
+                <p className="text-sm text-red-500">{errors.title.message}</p>
               )}
             </div>
             <div className="grid gap-3">
@@ -95,11 +95,11 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
               <Textarea
                 id="description"
                 placeholder="Description"
-                {...updateSubjectForm.register("description")}
+                {...register("description")}
               />
-              {formState.errors.description && (
+              {errors.description && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.description.message}
+                  {errors.description.message}
                 </p>
               )}
             </div>
@@ -112,6 +112,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
+              disabled={!isDirty}
               onClick={updateSubjectForm.handleSubmit(onSubmit)}
             >
               Save

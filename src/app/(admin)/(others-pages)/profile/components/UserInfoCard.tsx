@@ -59,7 +59,14 @@ export default function UserInfoCard() {
                 : "Not available"
             }
           />
-          <InfoRow label="Gender" value={user.gender.charAt(0).toUpperCase() + user.gender.slice(1)} />
+          <InfoRow
+            label="Gender"
+            value={
+              user?.gender
+                ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
+                : "Not specified"
+            }
+          />
         </div>
       </div>
 
@@ -71,8 +78,14 @@ export default function UserInfoCard() {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
           <InfoRow label="User ID" value={user.id} />
-          <InfoRow label="Role" value={user.role.charAt(0).toUpperCase() + user.role.slice(1)} />
-          <InfoRow label="Status" value={user.status.charAt(0).toUpperCase() + user.status.slice(1)} />
+          <InfoRow
+            label="Role"
+            value={user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+          />
+          <InfoRow
+            label="Status"
+            value={user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+          />
           <InfoRow
             label="Created At"
             value={
