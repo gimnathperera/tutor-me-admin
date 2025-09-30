@@ -19,7 +19,10 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button/Button";
-import { useUpdateBlogMutation } from "@/store/api/splits/blogs";
+import {
+  useFetchBlogsQuery,
+  useUpdateBlogMutation,
+} from "@/store/api/splits/blogs";
 import { getErrorInApiResult } from "@/utils/api";
 import { UpdateArticleSchema, updateArticleSchema } from "./schema";
 
@@ -53,7 +56,11 @@ export function UpdateBlog({
 
   const { register, reset, handleSubmit } = updateBlogForm;
   const [updateBlog, { isLoading }] = useUpdateBlogMutation();
-
+  const { refetch } = useFetchBlogsQuery({
+    page: 1,
+    limit: 10,
+    sortBy: "createdAt:desc",
+  });
   // preload values when opening dialog
   useEffect(() => {
     if (open) {
@@ -78,6 +85,7 @@ export function UpdateBlog({
       if (error) return toast.error(error);
 
       if ("data" in result) {
+        refetch();
         toast.success("Blog updated successfully");
         setOpen(false);
       }

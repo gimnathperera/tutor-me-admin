@@ -34,8 +34,7 @@ export default function BlogsTable() {
     {
       key: "title",
       header: "Title",
-      className:
-        "truncate overflow-hidden lg:min-w-[300px] min-w-[150px] max-w-[250px] cursor-default",
+      className: "truncate overflow-hidden cursor-default",
       render: (row: Blogs) => {
         const safeTitle = getSafeValue(row.title, "No title provided");
         return (
@@ -51,8 +50,7 @@ export default function BlogsTable() {
     {
       key: "status",
       header: "Status",
-      className:
-        "truncate min-w-[150px] max-w-[250px] lg:min-w-[300px] overflow-hidden cursor-default",
+      className: "truncate overflow-hidden cursor-default",
       render: (row: Blogs) => {
         const safeStatus = getSafeValue(row.status, "No status");
         const formattedStatus =
@@ -78,17 +76,34 @@ export default function BlogsTable() {
     },
 
     {
-      key: "view",
-      header: (
-        <span className="truncate text-center block w-full" title="View">
-          View
-        </span>
-      ),
-
-      className:
-        " cursor-default lg:min-w-[140px] lg:max-w-[140px] min-w-[80px] max-w-[120px]",
+      key: "status",
+      header: "Change Status",
+      className: "",
       render: (row: Blogs) => (
-        <div className="w-full flex items-center justify-center">
+        <div className="flex items-left justify-left">
+          <BlogStatusDialog
+            id={row.id}
+            currentStatus={row.status as "pending" | "approved" | "rejected"}
+          />
+        </div>
+      ),
+    },
+    {
+      key: "delete",
+      header: "Delete",
+      className: "cursor-default",
+      render: (row: Blogs) => (
+        <div className="w-full flex items-left justify-left">
+          <DeleteBlog blogId={row.id} />
+        </div>
+      ),
+    },
+    {
+      key: "view",
+      header: "View",
+      className: " cursor-default",
+      render: (row: Blogs) => (
+        <div className="w-full flex items-left justify-left">
           <BlogDetails
             blog={{
               id: row.id,
@@ -109,39 +124,6 @@ export default function BlogsTable() {
               relatedArticles: row.relatedArticles ?? [],
             }}
           />
-        </div>
-      ),
-    },
-    {
-      key: "status",
-      header: (
-        <span className="truncate  block w-full" title="Change Status">
-          Change Status
-        </span>
-      ),
-      className:
-        "cursor-default lg:min-w-[140px] lg:max-w-[140px] min-w-[80px] max-w-[120px] flex justify-center",
-      render: (row: Blogs) => (
-        <div className="flex w-full items-center justify-center">
-          <BlogStatusDialog
-            id={row.id}
-            currentStatus={row.status as "pending" | "approved" | "rejected"}
-          />
-        </div>
-      ),
-    },
-    {
-      key: "delete",
-      header: (
-        <span className="truncate  text-center  block w-full" title="Delete">
-          Delete
-        </span>
-      ),
-      className:
-        "cursor-default lg:min-w-[140px] lg:max-w-[140px] min-w-[80px] max-w-[120px] ",
-      render: (row: Blogs) => (
-        <div className="w-full flex items-center justify-center">
-          <DeleteBlog blogId={row.id} />
         </div>
       ),
     },

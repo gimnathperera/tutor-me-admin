@@ -16,21 +16,22 @@ import { getErrorInApiResult } from "@/utils/api";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface DeleteGradeProps {
+interface DeleteSubjectProps {
   gradeId: string;
 }
 
-export function DeleteGrade({ gradeId }: DeleteGradeProps) {
-  const [deleteGrade, { isLoading }] = useDeleteGradeMutation();
+export function DeleteGrade({ gradeId }: DeleteSubjectProps) {
+  const [deleteSubject, { isLoading }] = useDeleteGradeMutation();
+
   const handleDelete = async () => {
     try {
-      const result = await deleteGrade(gradeId);
+      const result = await deleteSubject(gradeId);
 
-      if (result.data) {
-        toast.success("Grade deleted successfully");
-      } else {
+      if (result.error) {
         const error = getErrorInApiResult({ error: result.error });
         toast.error(error);
+      } else {
+        toast.success("Grade deleted successfully");
       }
     } catch (error) {
       console.error("Unexpected error during grade deletion:", error);
@@ -43,7 +44,7 @@ export function DeleteGrade({ gradeId }: DeleteGradeProps) {
       <AlertDialogTrigger asChild>
         <Trash2 className="text-red-500 hover:text-red-600 cursor-pointer" />
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+      <AlertDialogContent className="bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
