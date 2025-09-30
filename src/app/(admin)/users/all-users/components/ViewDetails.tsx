@@ -10,6 +10,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Eye } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface SubjectDetailsProps {
@@ -227,7 +228,13 @@ export function UserDetails({
                 "overflow-auto scrollbar-thin",
               )}
             >
-              <img src={avatar} alt={"avatar Image"} />
+              <Image
+                src={avatar || "/images/user/user.png"}
+                alt="Avatar Image"
+                width={80}
+                height={80}
+                className="w-20 h-20 rounded-full object-cover"
+              />
             </div>
           </div>
         </div>
