@@ -40,8 +40,8 @@ const NavItems = [
   // },
   {
     icon: <NotebookText />,
-    name: "Blog",
-    path: "/blog",
+    name: "Blogs",
+    path: "/blogs",
   },
   {
     icon: <MessageSquareHeart />,
