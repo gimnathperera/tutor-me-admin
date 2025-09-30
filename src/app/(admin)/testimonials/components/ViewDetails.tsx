@@ -11,6 +11,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Eye, Star } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface TestimonialDetailsProps {
@@ -49,9 +50,11 @@ export function TestimonialDetails({
             <Label>Owner</Label>
             <div className="flex items-center gap-3">
               {owner?.avatar ? (
-                <img
-                  src={owner.avatar}
+                <Image
+                  src={owner.avatar || "/images/user/user.png"}
                   alt={owner.name || "Owner"}
+                  width={80}
+                  height={80}
                   className="w-20 h-20 rounded-full object-cover"
                 />
               ) : (
@@ -86,8 +89,8 @@ export function TestimonialDetails({
                   size={30}
                   className={
                     i < Number(rating)
-                      ? "fill-yellow-400 text-yellow-400" // filled stars
-                      : "text-gray-300" // empty stars
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-300"
                   }
                 />
               ))}
