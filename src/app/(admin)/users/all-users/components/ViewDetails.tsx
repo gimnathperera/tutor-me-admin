@@ -10,7 +10,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Eye } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
 
 interface SubjectDetailsProps {
@@ -79,7 +78,11 @@ export function UserDetails({
             <Label>Avatar</Label>
             <div className="w-full flex justify-center">
               <div className="w-35 h-35 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-                {displayValue(email)}
+                <img
+                  src={avatar || "/images/user/user.png"}
+                  alt={"avatar Image"}
+                  className="h-full w-full object-cover"
+                />
               </div>
             </div>
           </div>
@@ -293,13 +296,7 @@ export function UserDetails({
                 "overflow-auto",
               )}
             >
-              <Image
-                src={avatar || "/images/user/user.png"}
-                alt="Avatar Image"
-                width={80}
-                height={80}
-                className="w-20 h-20 rounded-full object-cover"
-              />
+              {displayValue(status)}
             </div>
           </div>
         </div>
