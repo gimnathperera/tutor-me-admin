@@ -58,7 +58,7 @@ export function TuitionRateDetails({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Eye className="cursor-pointer" />
+        <Eye className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[500px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">

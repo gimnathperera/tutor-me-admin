@@ -50,7 +50,7 @@ export function BlogStatusDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Edit cursor="pointer" />
+        <Edit cursor="pointer" className="text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[400px]">
