@@ -68,7 +68,7 @@ export function DeleteBlog({ blogId, onDeleted }: DeleteBlogProps) {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Trash2
-          className={`cursor-pointer ${
+          className={`cursor-pointer text-red-500 hover:text-red-600 ${
             blog?.status !== "rejected"
               ? "text-gray-400 cursor-not-allowed"
               : "text-red-500"

@@ -36,7 +36,10 @@ export function DeleteAssignment({ assignmentId }: DeleteAssignmentProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Trash2 color="#EF4444" className="cursor-pointer" />
+        <Trash2
+          color="#EF4444"
+          className="cursor-pointer text-red-500 hover:text-red-600"
+        />
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

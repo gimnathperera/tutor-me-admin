@@ -133,6 +133,21 @@ export default function FAQTable() {
       },
     },
     {
+      key: "view",
+      header: "View",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
+      render: (row: FAQ) => (
+        <div className="w-full flex justify-center items-center">
+          <FAQDetails
+            id={row.id}
+            question={getSafeValue(row.question, "No question provided")}
+            answer={getSafeValue(row.answer, "No answer provided")}
+            createdAt={row.createdAt}
+          />
+        </div>
+      ),
+    },
+    {
       key: "edit",
       header: "Edit",
       className: "min-w-[10px] max-w-[10px] cursor-default",
@@ -153,21 +168,6 @@ export default function FAQTable() {
       render: (row: FAQ) => (
         <div className="w-full flex justify-center items-center">
           <DeleteFAQ faqId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: "View",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: FAQ) => (
-        <div className="w-full flex justify-center items-center">
-          <FAQDetails
-            id={row.id}
-            question={getSafeValue(row.question, "No question provided")}
-            answer={getSafeValue(row.answer, "No answer provided")}
-            createdAt={row.createdAt}
-          />
         </div>
       ),
     },

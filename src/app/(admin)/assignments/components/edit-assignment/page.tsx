@@ -113,7 +113,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <SquarePen className="cursor-pointer" />
+          <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-[500px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">

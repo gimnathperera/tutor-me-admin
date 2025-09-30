@@ -10,6 +10,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Eye } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface SubjectDetailsProps {
