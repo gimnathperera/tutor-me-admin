@@ -53,16 +53,28 @@ export default function BlogsTable() {
       className: "truncate overflow-hidden cursor-default",
       render: (row: Blogs) => {
         const safeStatus = getSafeValue(row.status, "No status");
+        const formattedStatus =
+          safeStatus.charAt(0).toUpperCase() +
+          safeStatus.slice(1).toLowerCase();
+        const statusColors: Record<string, string> = {
+          approved: "text-green-600",
+          rejected: "text-red-600",
+          pending: "text-orange-500",
+        };
+
         return (
           <span
-            title={`Status: ${safeStatus}`}
-            className={`truncate block ${!row.status ? "text-gray-400 italic" : ""}`}
+            title={`Status: ${formattedStatus}`}
+            className={`truncate block ${
+              statusColors[safeStatus.toLowerCase()] ?? "text-gray-400 italic"
+            }`}
           >
-            {safeStatus}
+            {formattedStatus}
           </span>
         );
       },
     },
+
     {
       key: "status",
       header: "Change Status",
