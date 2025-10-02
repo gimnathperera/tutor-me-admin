@@ -1,5 +1,4 @@
 "use client";
-
 import MultiSelect from "@/components/form/MultiSelect";
 import { Button } from "@/components/ui/button/Button";
 import {
@@ -45,22 +44,42 @@ export function UpdateLevel({
   subjects = [],
 }: UpdateLevelProps) {
   const [open, setOpen] = useState(false);
+  const [dialogKey, setDialogKey] = useState(0);
 
   const updateLevelForm = useForm<UpdateLevelSchema>({
     resolver: zodResolver(updateLevelSchema),
-    defaultValues: { title, details, challanges, subjects },
+    defaultValues: {
+      title,
+      details,
+      challanges,
+      subjects,
+    },
     mode: "onChange",
   });
 
   useEffect(() => {
-    updateLevelForm.reset({ title, details, challanges, subjects });
+    updateLevelForm.reset({
+      title,
+      details,
+      challanges,
+      subjects,
+    });
   }, [title, details, challanges, subjects, updateLevelForm]);
 
   const { control, register, handleSubmit, setValue } = updateLevelForm;
-  const detailsArray = useFieldArray({ control, name: "details" });
-  const challangesArray = useFieldArray({ control, name: "challanges" });
+
+  const detailsArray = useFieldArray({
+    control,
+    name: "details",
+  });
+
+  const challangesArray = useFieldArray({
+    control,
+    name: "challanges",
+  });
 
   const [updateLevel, { isLoading }] = useUpdateLevelMutation();
+
   const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 100 });
 
   const subjectOptions =
@@ -70,21 +89,38 @@ export function UpdateLevel({
       selected: subjects.includes(s.id),
     })) || [];
 
+  // Handle dialog close - reset form to original values
+  const handleDialogClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      updateLevelForm.reset({
+        title,
+        details,
+        challanges,
+        subjects,
+      });
+    }
+  };
+
   const onSubmit = async (data: UpdateLevelSchema) => {
     try {
       const payload = {
         id,
         title: data.title,
-        description: "",
-        details: data.details,
-        challenges: data.challanges,
+
+        // Filter out empty strings to match backend validation
+        details: data.details.filter((d) => d.trim() !== ""),
+        challanges: data.challanges.filter((c) => c.trim() !== ""), // Fixed: backend expects 'challanges' not 'challenges'
         subjects: data.subjects ?? [],
       };
+
       const result = await updateLevel(payload);
       const error = getErrorInApiResult(result);
+
       if (error) {
         return toast.error(error);
       }
+
       if ("data" in result) {
         setOpen(false);
         updateLevelForm.reset();
@@ -97,12 +133,11 @@ export function UpdateLevel({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <form>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
-
         <DialogContent className="sm:max-w-[700px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Edit Level</DialogTitle>
@@ -172,6 +207,7 @@ export function UpdateLevel({
             <div>
               <Label className="mb-3">Subjects</Label>
               <MultiSelect
+                key={open ? "open" : "closed"} // Force re-render when dialog opens
                 label=""
                 options={subjectOptions}
                 defaultSelected={subjects}
