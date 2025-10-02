@@ -78,9 +78,9 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
         assignmentNumber: data.assignmentNumber || "",
         address: data.address || "",
         duration: data.duration || "",
-        assignmentPrice: data.assignmentPrice || "",
-        gradeId: data.gradeId || "",
-        tutorId: data.tutorId || "",
+        assignmentPrice: data.assignmentPrice?.toString() || "",
+        gradeId: data.gradeId?.id || data.gradeId || "", // 🔑 ensure ID, not object
+        tutorId: data.tutorId?.id || data.tutorId || "", // 🔑 same for tutor
       });
     }
   }, [data, reset]);
@@ -110,7 +110,39 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+
+        // ✅ reset when closing
+        if (!nextOpen) {
+          if (data) {
+            // for Edit form: reset to API values again
+            reset({
+              title: data.title || "",
+              assignmentNumber: data.assignmentNumber || "",
+              address: data.address || "",
+              duration: data.duration || "",
+              assignmentPrice: data.assignmentPrice || "",
+              gradeId: data.gradeId || "",
+              tutorId: data.tutorId || "",
+            });
+          } else {
+            // for Create form: reset to blank defaults
+            reset({
+              title: "",
+              assignmentNumber: "",
+              address: "",
+              duration: "",
+              assignmentPrice: "",
+              gradeId: "",
+              tutorId: "",
+            });
+          }
+        }
+      }}
+    >
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
@@ -192,7 +224,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                 onValueChange={(value) =>
                   setValue("gradeId", value, { shouldDirty: true })
                 }
-                value={watch("gradeId")}
+                value={watch("gradeId") || ""} // ✅ fallback to empty string
                 disabled={gradesLoading}
               >
                 <SelectTrigger className="w-full">
@@ -209,6 +241,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.gradeId && (
                 <p className="text-sm text-red-500">
                   {formState.errors.gradeId.message}
@@ -223,7 +256,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                 onValueChange={(value) =>
                   setValue("tutorId", value, { shouldDirty: true })
                 }
-                value={watch("tutorId")}
+                value={watch("tutorId") || ""} // ✅ fallback
                 disabled={tutorsLoading}
               >
                 <SelectTrigger className="w-full">
@@ -234,7 +267,6 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                     <SelectLabel>Tutors</SelectLabel>
                     {tutorsData?.results?.map((tutor) => (
                       <SelectItem key={tutor.id} value={tutor.id}>
-                        {/* change depending on API field */}
                         {tutor.fullName ||
                           `${tutor.firstName} ${tutor.lastName}`}
                       </SelectItem>
@@ -242,6 +274,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.tutorId && (
                 <p className="text-sm text-red-500">
                   {formState.errors.tutorId.message}
