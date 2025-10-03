@@ -44,8 +44,6 @@ export function UpdateLevel({
   subjects = [],
 }: UpdateLevelProps) {
   const [open, setOpen] = useState(false);
-  const [dialogKey, setDialogKey] = useState(0);
-
   const updateLevelForm = useForm<UpdateLevelSchema>({
     resolver: zodResolver(updateLevelSchema),
     defaultValues: {

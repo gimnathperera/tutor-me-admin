@@ -20,7 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useFetchUsersQuery, useUpdateUserMutation } from "@/store/api/splits/users";
+import {
+  useFetchUsersQuery,
+  useUpdateUserMutation,
+} from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
@@ -58,7 +61,7 @@ interface UpdateUserProps {
 export function UpdateUser(props: UpdateUserProps) {
   const [open, setOpen] = useState(false);
   const [updateUser, { isLoading }] = useUpdateUserMutation();
-   const { refetch } = useFetchUsersQuery({
+  const { refetch } = useFetchUsersQuery({
     page: 1,
     limit: 10,
     sortBy: "createdAt:desc",
@@ -134,7 +137,7 @@ export function UpdateUser(props: UpdateUserProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <SquarePen className="cursor-pointer" />
+          <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
