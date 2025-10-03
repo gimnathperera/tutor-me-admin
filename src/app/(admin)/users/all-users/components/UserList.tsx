@@ -139,10 +139,10 @@ export default function UsersTable() {
 
     {
       key: "view",
-      header: "View",
+      header: <div className="flex justify-center w-full">View</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-left items-center">
+        <div className="w-full flex justify-center ">
           <UserDetails
             id={row.id}
             email={row.email || ""}
@@ -171,10 +171,10 @@ export default function UsersTable() {
     },
     {
       key: "edit",
-      header: "Edit",
+      header: <div className="flex justify-center w-full">Edit</div>,
       className: "min-w-[80px] max-w-[80px]  cursor-default",
       render: (row: User) => (
-        <div className="w-full ">
+        <div className="flex justify-center items-center w-full ">
           <UpdateUser
             id={row.id}
             email={row.email || ""}
@@ -200,22 +200,29 @@ export default function UsersTable() {
       ),
     },
     {
-      key: "delete",
-      header: "Delete",
-      className: "min-w-[80px] max-w-[80px] flex justify-center cursor-default",
-      render: (row: User) => (
-        <div className="w-full ">
-          <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />
-        </div>
-      ),
-    },
-    {
       key: "resetPassword",
-      header: "Reset Password",
+      header: (
+        <span
+          className="truncate w-full text-center block max-w-[100px]"
+          title="Reset Password"
+        >
+          Reset Password
+        </span>
+      ),
       className: "min-w-[80px] max-w-[100px]  cursor-default",
       render: (row: User) => (
         <div className="w-full flex justify-center">
           <ResetPassword userId={row.id} />
+        </div>
+      ),
+    },
+    {
+      key: "delete",
+      header: <div className="text-center w-full">Delete</div>,
+      className: "min-w-[80px] max-w-[80px] flex justify-center cursor-default",
+      render: (row: User) => (
+        <div className="flex justify-center  w-full ">
+          <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />
         </div>
       ),
     },
