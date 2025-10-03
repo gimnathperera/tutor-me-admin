@@ -42,7 +42,7 @@ interface UpdateAssignmentProps {
 
 export function UpdateAssignment({ id }: UpdateAssignmentProps) {
   const [open, setOpen] = useState(false);
-  const [dialogKey, setDialogKey] = useState(0); // ✅ Add dialogKey state
+  const [dialogKey, setDialogKey] = useState(0); // Used to reset the dialog form by forcing re-render when dialog closes
 
   const { data, isLoading } = useFetchAssignmentByIdQuery(id);
 
