@@ -22,14 +22,39 @@ import toast from "react-hot-toast";
 
 interface DeleteBlogProps {
   blogId: string;
+  currentStatus?: "pending" | "approved" | "rejected" | "published" | "draft"; // ✅ Accept status as prop
   onDeleted?: () => void;
 }
 
-export function DeleteBlog({ blogId, onDeleted }: DeleteBlogProps) {
-  const { data: blog, isLoading: isFetching } = useFetchBlogByIdQuery(blogId);
-  const [deleteBlog, { isLoading }] = useDeleteBlogMutation();
+export function DeleteBlog({
+  blogId,
+  currentStatus,
+  onDeleted,
+}: DeleteBlogProps) {
+  // ✅ Force refetch on every render to get latest status
+  const {
+    data: blog,
+    isLoading: isFetching,
+    refetch,
+  } = useFetchBlogByIdQuery(blogId, {
+    refetchOnMountOrArgChange: true, // Always refetch when component mounts
+  });
 
+  const [deleteBlog, { isLoading }] = useDeleteBlogMutation();
   const [deleted, setDeleted] = useState(false);
+
+  // ✅ Use currentStatus prop if provided, otherwise fall back to fetched blog status
+  const effectiveStatus = currentStatus || blog?.status;
+  const canDelete = effectiveStatus === "rejected";
+
+  // ✅ Refetch blog data when dialog opens
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (dialogOpen) {
+      refetch(); // Refetch latest data when opening dialog
+    }
+  }, [dialogOpen, refetch]);
 
   const handleDelete = async () => {
     if (!blog) {
@@ -51,6 +76,7 @@ export function DeleteBlog({ blogId, onDeleted }: DeleteBlogProps) {
       } else {
         toast.success("Blog deleted successfully");
         setDeleted(true);
+        setDialogOpen(false);
         onDeleted?.();
       }
     } catch (error) {
@@ -58,6 +84,7 @@ export function DeleteBlog({ blogId, onDeleted }: DeleteBlogProps) {
       toast.error("An unexpected error occurred while deleting the blog");
     }
   };
+
   useEffect(() => {
     if (deleted) {
       console.log("Blog deleted, you can refresh the page or refetch list");
@@ -65,13 +92,13 @@ export function DeleteBlog({ blogId, onDeleted }: DeleteBlogProps) {
   }, [deleted]);
 
   return (
-    <AlertDialog>
+    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <AlertDialogTrigger asChild>
         <Trash2
-          className={`cursor-pointer text-red-500 hover:text-red-600 ${
-            blog?.status !== "rejected"
-              ? "text-gray-400 cursor-not-allowed"
-              : "text-red-500"
+          className={`cursor-pointer ${
+            canDelete
+              ? "text-red-500 hover:text-red-600"
+              : "text-gray-400 cursor-not-allowed"
           }`}
         />
       </AlertDialogTrigger>
@@ -81,14 +108,20 @@ export function DeleteBlog({ blogId, onDeleted }: DeleteBlogProps) {
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
             blog.
+            {!canDelete && (
+              <span className="block mt-2 text-red-500 font-normal">
+                Only blogs with status 'rejected' can be deleted. Current
+                status: {effectiveStatus}
+              </span>
+            )}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isLoading || isFetching || blog?.status !== "rejected"}
-            className="bg-red-500 text-white"
+            disabled={isLoading || isFetching || !canDelete}
+            className="bg-red-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             {isLoading ? "Deleting..." : "Continue"}
           </AlertDialogAction>

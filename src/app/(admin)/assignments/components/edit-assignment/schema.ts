@@ -5,7 +5,9 @@ export const updateAssignmentSchema = z.object({
   assignmentNumber: z.string().min(1, "Assignment Number is required"),
   address: z.string().min(1, "Address is required"),
   duration: z.string().min(1, "Duration is required"),
-  assignmentPrice: z.string().min(0, "Price must be positive"),
+  assignmentPrice: z.string().min(1, "Price is required"), // ✅ fix: `min(0)` doesn’t work on string
+  gradeId: z.string().min(1, "Grade is required"), // ✅ new
+  tutorId: z.string().min(1, "Tutor is required"), // ✅ new
 });
 
 export type UpdateAssignmentSchema = z.infer<typeof updateAssignmentSchema>;

@@ -18,7 +18,7 @@ import { useUpdateSubjectMutation } from "@/store/api/splits/subjects";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateSubjectSchema, updateSubjectSchema } from "./schema";
@@ -46,7 +46,23 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
     formState: { errors, isDirty },
   } = updateSubjectForm;
 
+  useEffect(() => {
+    reset({ title, description });
+  }, [title, description, reset]);
+
   const [updateSubject, { isLoading }] = useUpdateSubjectMutation();
+
+  const handleDialogClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      reset({ title, description });
+    }
+  };
+
+  const handleCancel = () => {
+    reset({ title, description });
+    setOpen(false);
+  };
 
   const onSubmit = async (data: UpdateSubjectSchema) => {
     try {
@@ -72,7 +88,7 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
@@ -106,7 +122,9 @@ export function UpdateSubject({ id, title, description }: UpdateSubjectProps) {
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               type="submit"
