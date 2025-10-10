@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import MultiSelect from "@/components/form/MultiSelect";
 import { useUpdateGradeMutation } from "@/store/api/splits/grades";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
@@ -50,7 +49,7 @@ export function UpdateGrade({
     mode: "onChange",
   });
 
-  const { control, register, handleSubmit, setValue, reset } = updateGradeForm;
+  const { register, handleSubmit, setValue, reset } = updateGradeForm;
   const [updateGrade, { isLoading }] = useUpdateGradeMutation();
   const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 50 });
 
