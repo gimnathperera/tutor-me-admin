@@ -21,7 +21,7 @@ import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateGradeSchema, updateGradeSchema } from "./schema";
 
@@ -36,36 +36,43 @@ export function UpdateGrade({
   id,
   title,
   description,
-  subjects,
+  subjects = [],
 }: UpdateGradeProps) {
   const [open, setOpen] = useState(false);
 
   const updateGradeForm = useForm<UpdateGradeSchema>({
     resolver: zodResolver(updateGradeSchema),
-    defaultValues: { title: "", description: "", subjects: [] },
+    defaultValues: {
+      title,
+      description,
+      subjects,
+    },
     mode: "onChange",
   });
 
-  const { reset, control, register, handleSubmit } = updateGradeForm;
-
+  const { control, register, handleSubmit, setValue, reset } = updateGradeForm;
   const [updateGrade, { isLoading }] = useUpdateGradeMutation();
   const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 50 });
+
+  useEffect(() => {
+    if (subjectsData) {
+      reset({ title, description, subjects });
+    }
+  }, [title, description, subjects, subjectsData, reset]);
 
   const subjectOptions =
     subjectsData?.results?.map((s) => ({
       text: s.title,
       value: s.id,
+      selected: subjects.includes(s.id),
     })) || [];
-  useEffect(() => {
-    if (open && subjectsData) {
-      const subjectIds = subjects;
-      const validSubjects = subjectIds.filter((id) =>
-        subjectsData.results.some((s) => s.id === id),
-      );
 
-      reset({ title, description, subjects: validSubjects });
+  const handleDialogClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      reset({ title, description, subjects });
     }
-  }, [open, title, description, subjects, subjectsData, reset]);
+  };
 
   const onSubmit = async (data: UpdateGradeSchema) => {
     try {
@@ -84,7 +91,7 @@ export function UpdateGrade({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
@@ -111,17 +118,12 @@ export function UpdateGrade({
             </div>
             <div className="grid gap-3">
               <Label htmlFor="subjects">Subjects</Label>
-              <Controller
-                control={control}
-                name="subjects"
-                render={({ field }) => (
-                  <MultiSelect
-                    label=""
-                    options={subjectOptions}
-                    defaultSelected={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
+              <MultiSelect
+                key={open ? "open" : "closed"}
+                label=""
+                options={subjectOptions}
+                defaultSelected={subjects}
+                onChange={(values: string[]) => setValue("subjects", values)}
               />
             </div>
           </div>
