@@ -19,28 +19,29 @@ import { getErrorInApiResult } from "@/utils/api";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-interface DeleteTutorProps {
+interface DeleteTutorRequestProps {
   tutorId: string;
 }
 
-export function DeleteTutor({ tutorId }: DeleteTutorProps) {
-  const [deleteTutor, { isLoading }] = useDeleteRequestForTutorMutation();
+export function DeleteTutorRequest({ tutorId }: DeleteTutorRequestProps) {
+  const [deleteTutorRequest, { isLoading }] =
+    useDeleteRequestForTutorMutation();
   const { refetch } = useFetchRequestForTutorsQuery({});
   const handleDelete = async () => {
     try {
-      const result = await deleteTutor(tutorId);
+      const result = await deleteTutorRequest(tutorId);
       refetch();
       if ("error" in result && result.error) {
         const error = getErrorInApiResult({ error: result.error });
         toast.error(error);
       } else {
-        toast.success("Tutor deleted successfully");
+        toast.success("Tutor request deleted successfully");
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
-        toast.error(err.message || "Failed to delete tutor");
+        toast.error(err.message || "Failed to delete tutor request");
       } else {
-        toast.error("Failed to delete tutor");
+        toast.error("Failed to delete tutor requests");
       }
     }
   };
@@ -54,7 +55,7 @@ export function DeleteTutor({ tutorId }: DeleteTutorProps) {
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action will permanently delete this tutor.
+            This action will permanently delete this tutor request.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

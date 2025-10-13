@@ -4,8 +4,8 @@ import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchRequestForTutorsQuery } from "@/store/api/splits/request-tutor";
 import { useMemo, useState } from "react";
-import { DeleteTutor } from "./DeleteTutor";
-import { ViewTutor } from "./ViewTutor";
+import { DeleteTutorRequest } from "./DeleteTutor";
+import { ViewTutorRequests } from "./ViewTutor";
 
 interface TutorRequest {
   id: string;
@@ -14,7 +14,7 @@ interface TutorRequest {
   email: string;
   phoneNumber: string;
   city: string;
-  state?: string; // optional to match API
+  state?: string;
   region?: string;
   zip?: string;
   grade?: { title: string }[];
@@ -34,7 +34,6 @@ export default function RequestForTutorsList() {
   const [page, setPage] = useState(TABLE_CONFIG.DEFAULT_PAGE);
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
-  // Fetch request tutor data with pagination
   const { data, isLoading, error } = useFetchRequestForTutorsQuery({});
 
   const tutors: TutorRequest[] = data?.results || [];
@@ -117,7 +116,7 @@ export default function RequestForTutorsList() {
         className: "min-w-[80px] max-w-[80px] cursor-default",
         render: (row: TutorRequest) => (
           <div className="flex justify-center items-center w-full">
-            <ViewTutor tutor={row} />
+            <ViewTutorRequests tutor={row} />
           </div>
         ),
       },
@@ -128,7 +127,7 @@ export default function RequestForTutorsList() {
         className: "min-w-[80px] max-w-[80px] cursor-default",
         render: (row: TutorRequest) => (
           <div className="flex justify-center items-center w-full">
-            <DeleteTutor tutorId={row.id} />
+            <DeleteTutorRequest tutorId={row.id} />
           </div>
         ),
       },

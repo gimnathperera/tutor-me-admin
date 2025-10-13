@@ -46,7 +46,7 @@ interface ViewTutorProps {
   tutor: TutorDetails;
 }
 
-export function ViewTutor({ tutor }: ViewTutorProps) {
+export function ViewTutorRequests({ tutor }: ViewTutorProps) {
   const [open, setOpen] = useState(false);
 
   const displayFieldClass =
@@ -70,7 +70,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
         </DialogHeader>
 
         <div className="grid gap-4">
-          {/* General Info */}
           <div className="grid gap-3">
             <Label>Full Name</Label>
             <div className={displayFieldClass}>
@@ -129,7 +128,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
             </div>
           </div>
 
-          {/* Grades */}
           <div className="grid gap-3">
             <Label>Grades</Label>
             <div className="flex flex-wrap gap-1">
@@ -141,7 +139,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
             </div>
           </div>
 
-          {/* Tutors & Subjects */}
           <div className="grid gap-3">
             <Label>Tutors</Label>
             <div className="flex flex-col gap-2">
