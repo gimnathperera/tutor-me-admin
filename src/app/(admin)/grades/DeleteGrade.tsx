@@ -22,15 +22,16 @@ interface DeleteGradeProps {
 
 export function DeleteGrade({ gradeId }: DeleteGradeProps) {
   const [deleteGrade, { isLoading }] = useDeleteGradeMutation();
+
   const handleDelete = async () => {
     try {
       const result = await deleteGrade(gradeId);
 
-      if (result.data) {
-        toast.success("Grade deleted successfully");
-      } else {
+      if (result.error) {
         const error = getErrorInApiResult({ error: result.error });
         toast.error(error);
+      } else {
+        toast.success("Grade deleted successfully");
       }
     } catch (error) {
       console.error("Unexpected error during grade deletion:", error);

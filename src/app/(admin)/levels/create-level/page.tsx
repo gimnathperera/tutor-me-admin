@@ -70,7 +70,15 @@ export function AddLevel() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          createLevelForm.reset();
+        }
+      }}
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
@@ -186,7 +194,14 @@ export function AddLevel() {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  reset();
+                }}
+              >
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               type="submit"
