@@ -276,8 +276,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                     <SelectLabel>Tutors</SelectLabel>
                     {tutorsData?.results?.map((tutor) => (
                       <SelectItem key={tutor.id} value={tutor.id}>
-                        {tutor.fullName ||
-                          `${tutor.firstName} ${tutor.lastName}`}
+                        {tutor.fullName}
                       </SelectItem>
                     ))}
                   </SelectGroup>

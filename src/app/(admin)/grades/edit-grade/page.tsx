@@ -58,12 +58,14 @@ export function UpdateGrade({
     })) || [];
   useEffect(() => {
     if (open && subjectsData) {
-      const subjectIds = subjects;
-      const validSubjects = subjectIds.filter((id) =>
-        subjectsData.results.some((s) => s.id === id),
-      );
+      const subjectIds = subjects
+        .map((title) => {
+          const found = subjectsData.results.find((s) => s.title === title);
+          return found ? found.id : null;
+        })
+        .filter(Boolean) as string[];
 
-      reset({ title, description, subjects: validSubjects });
+      reset({ title, description, subjects: subjectIds });
     }
   }, [open, title, description, subjects, subjectsData, reset]);
 
