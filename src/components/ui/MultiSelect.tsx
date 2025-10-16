@@ -11,7 +11,11 @@ interface MultiSelectProps {
   onChange: (values: string[]) => void;
 }
 
-export function MultiSelect({ options, selected, onChange }: MultiSelectProps) {
+export default function MultiSelect({
+  options,
+  selected,
+  onChange,
+}: MultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
   const toggleOption = (option: string) => {

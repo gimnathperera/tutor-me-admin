@@ -5,7 +5,7 @@ import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchUsersQuery } from "@/store/api/splits/users";
 import { useState } from "react";
 import { DeleteUser } from "./DeleteUser";
-import { UpdateUser } from "./edit-user/page";
+import { UpdateUser } from "./edit-user/EditUser";
 import { ResetPassword } from "./ResetPassword";
 import { UserDetails } from "./ViewDetails";
 

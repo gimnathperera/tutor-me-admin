@@ -4,10 +4,9 @@ import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTestimonialsQuery } from "@/store/api/splits/testimonials";
 import { Star } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
 import { DeleteTestimonial } from "./DeleteTestimonial";
-import { UpdateTestimonial } from "./edit-testimonial/page";
+import { UpdateTestimonial } from "./edit-testimonial/EditTestimonials";
 import { TestimonialDetails } from "./ViewDetails";
 
 interface Testimonial {

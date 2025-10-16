@@ -33,7 +33,7 @@ import {
 } from "./schema";
 import TimeZoneSelect from "./timezone";
 
-export default function AddUser() {
+export function AddUser() {
   const [open, setOpen] = useState(false);
   const [createUser, { isLoading }] = useCreateUserMutation();
 

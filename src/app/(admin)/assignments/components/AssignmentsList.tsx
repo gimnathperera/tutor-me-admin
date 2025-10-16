@@ -5,7 +5,7 @@ import { useFetchAssignmentsQuery } from "@/store/api/splits/tuition-assignments
 import { useState } from "react";
 import { DeleteAssignment } from "./DeleteAssignment";
 import ViewDetails from "./ViewDetails";
-import { UpdateAssignment } from "./edit-assignment/page";
+import { UpdateAssignment } from "./edit-assignment/UpdateAssignment";
 
 export default function AssignmentsList() {
   const [page, setPage] = useState(1);
@@ -63,10 +63,18 @@ export default function AssignmentsList() {
         assignmentNumber: string;
         address: string;
         duration: string;
-        assignmentPrice: number;
+        assignmentPrice: string;
       }) => (
         <div className="w-full flex justify-center items-center">
-          <ViewDetails assignment={row} />
+          <ViewDetails
+            assignment={{
+              title: row.title,
+              assignmentNumber: row.assignmentNumber,
+              address: row.address,
+              duration: row.duration,
+              assignmentPrice: row.assignmentPrice,
+            }}
+          />
         </div>
       ),
     },

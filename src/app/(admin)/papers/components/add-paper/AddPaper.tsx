@@ -126,7 +126,7 @@ export function AddPaper() {
                 onInput={(e) => {
                   const target = e.currentTarget;
                   target.style.height = "auto";
-                  target.style.height = target.scrollHeight + "px"; 
+                  target.style.height = target.scrollHeight + "px";
                 }}
                 className="resize-none overflow-hidden"
               />

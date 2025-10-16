@@ -26,7 +26,11 @@ import { UpdateArticleSchema, updateArticleSchema } from "./schema";
 interface UpdateBlogProps {
   id: string;
   title: string;
-  author: string;
+  author: {
+    name: string;
+    avatar: string;
+    role: string;
+  };
   image?: string;
   status?: "pending" | "approved" | "rejected";
 }

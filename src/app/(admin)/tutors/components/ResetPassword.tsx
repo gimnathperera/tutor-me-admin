@@ -21,7 +21,7 @@ interface ResetPasswordProps {
   userId: string;
 }
 
-export function ResetPassword({ userId }: ResetPasswordProps) {
+export default function ResetPassword({ userId }: ResetPasswordProps) {
   const [open, setOpen] = useState(false);
   const [resendPassword, { isLoading }] = useSendTempPasswordMutation();
 

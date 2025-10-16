@@ -1,5 +1,6 @@
 "use client";
 
+import TextArea from "@/components/form/input/TextArea";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -19,7 +20,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import TextArea from "@/components/form/input/TextArea";
 import {
   CreateInquirySchema,
   createInquirySchema,

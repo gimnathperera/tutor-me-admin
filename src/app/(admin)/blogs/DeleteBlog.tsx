@@ -22,7 +22,7 @@ import toast from "react-hot-toast";
 
 interface DeleteBlogProps {
   blogId: string;
-  currentStatus?: "pending" | "approved" | "rejected" | "published" | "draft"; // ✅ Accept status as prop
+  currentStatus?: "pending" | "approved" | "rejected" | "published" | "draft";
   onDeleted?: () => void;
 }
 
@@ -63,7 +63,7 @@ export function DeleteBlog({
     }
 
     if (blog.status !== "rejected") {
-      toast.error("Only blogs with status 'rejected' can be deleted");
+      toast.error(`Only blogs with status &apos;rejected&apos; can be deleted`);
       return;
     }
 
@@ -110,8 +110,8 @@ export function DeleteBlog({
             blog.
             {!canDelete && (
               <span className="block mt-2 text-red-500 font-normal">
-                Only blogs with status 'rejected' can be deleted. Current
-                status: {effectiveStatus}
+                Only blogs with status &apos;rejected&apos; can be deleted.
+                Current status: {effectiveStatus}
               </span>
             )}
           </AlertDialogDescription>

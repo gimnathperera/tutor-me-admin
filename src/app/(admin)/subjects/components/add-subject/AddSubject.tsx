@@ -1,5 +1,6 @@
 "use client";
 
+import TextArea from "@/components/form/input/TextArea";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -24,7 +25,6 @@ import {
   createSubjectSchema,
   initialFormValues,
 } from "./schema";
-import TextArea from "@/components/form/input/TextArea";
 
 export function AddSubject() {
   const [open, setOpen] = useState(false);

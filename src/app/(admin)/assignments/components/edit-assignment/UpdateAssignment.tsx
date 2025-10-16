@@ -243,11 +243,13 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                 <SelectContent className="w-full">
                   <SelectGroup>
                     <SelectLabel>Grades</SelectLabel>
-                    {gradesData?.results?.map((grade: any) => (
-                      <SelectItem key={grade.id} value={grade.id}>
-                        {grade.title}
-                      </SelectItem>
-                    ))}
+                    {gradesData?.results?.map(
+                      (grade: { id: string; title: string }) => (
+                        <SelectItem key={grade.id} value={grade.id}>
+                          {grade.title}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectGroup>
                 </SelectContent>
               </Select>

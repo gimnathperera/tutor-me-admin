@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { AddTuitionRate } from "./create-tuition-rate/page";
+import { AddTuitionRate } from "./create-tuition-rate/CreateTuitionRates";
 import TuitionRatesTable from "./RatesList";
 
 export const metadata: Metadata = {

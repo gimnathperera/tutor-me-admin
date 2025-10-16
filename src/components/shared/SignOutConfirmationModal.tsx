@@ -15,7 +15,7 @@ interface SignOutConfirmationModalProps {
   onConfirm: () => void;
 }
 
-export function SignOutConfirmationModal({
+export default function SignOutConfirmationModal({
   isOpen,
   onClose,
   onConfirm,

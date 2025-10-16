@@ -8,7 +8,11 @@ interface StarRatingProps {
   max?: number;
 }
 
-export function StarRating({ value, onChange, max = 5 }: StarRatingProps) {
+export default function StarRating({
+  value,
+  onChange,
+  max = 5,
+}: StarRatingProps) {
   const [hovered, setHovered] = useState(0);
 
   return (

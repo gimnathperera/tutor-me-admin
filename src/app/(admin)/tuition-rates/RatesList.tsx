@@ -5,7 +5,7 @@ import { useFetchTuitionRatesQuery } from "@/store/api/splits/tuition-rates";
 import { useState } from "react";
 import { DeleteTuitionRate } from "./DeleteTuitionRate";
 import { TuitionRateDetails } from "./ViewDetails";
-import { UpdateTuitionRate } from "./edit-tuition-rates/page";
+import { UpdateTuitionRate } from "./edit-tuition-rates/EditTuitionRates";
 
 interface RateDetail {
   id: string;

@@ -24,8 +24,10 @@ function InfoRow({ label, value }: InfoRowProps) {
 
 export default function UserInfoCard() {
   const { user: authUser } = useAuthContext();
-  const { data: user, isLoading } = useFetchUserByIdQuery(authUser?.id!, {
-    skip: !authUser?.id,
+  const userId = authUser?.id ?? "";
+
+  const { data: user, isLoading } = useFetchUserByIdQuery(userId, {
+    skip: !userId,
   });
 
   if (isLoading) return <Skeleton />;

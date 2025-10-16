@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { AddLevel } from "./create-level/page";
+import { AddLevel } from "./create-level/CreateLevel";
 import LevelsTable from "./LevelsList";
 
 export const metadata: Metadata = {
