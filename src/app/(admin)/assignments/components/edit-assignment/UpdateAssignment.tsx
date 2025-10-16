@@ -23,10 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
-import {
-  useFetchAssignmentByIdQuery,
-  useUpdateAssignmentMutation,
-} from "@/store/api/splits/tuition-assignments";
+import { useUpdateAssignmentMutation } from "@/store/api/splits/tuition-assignments";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isRejectedWithValue } from "@reduxjs/toolkit";
@@ -36,23 +33,32 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { updateAssignmentSchema, UpdateAssignmentSchema } from "./schema";
 
-interface UpdateAssignmentProps {
+// Define a type for the assignment object for clarity
+interface Assignment {
   id: string;
+  title: string;
+  assignmentNumber: string;
+  address: string;
+  duration: string;
+  assignmentPrice: number;
+  gradeId?: { id: string } | string;
+  tutorId?: { id: string } | string;
 }
 
-export function UpdateAssignment({ id }: UpdateAssignmentProps) {
-  const [open, setOpen] = useState(false);
-  const [dialogKey, setDialogKey] = useState(0); // Used to reset the dialog form by forcing re-render when dialog closes
+interface UpdateAssignmentProps {
+  assignment: Assignment; // Accept the whole object instead of just the ID
+}
 
-  const { data, isLoading } = useFetchAssignmentByIdQuery(id);
+export function UpdateAssignment({ assignment }: UpdateAssignmentProps) {
+  const [open, setOpen] = useState(false);
+  const [dialogKey, setDialogKey] = useState(0);
+
+  // 🔽 REMOVED: No need to fetch data again as it's passed via props
+  // const { data, isLoading } = useFetchAssignmentByIdQuery(id);
 
   // fetch dropdown data
-  const { data: gradesData, isLoading: gradesLoading } = useFetchGradesQuery(
-    {},
-  );
-  const { data: tutorsData, isLoading: tutorsLoading } = useFetchTutorsQuery(
-    {},
-  );
+  const { data: gradesData, isLoading: gradesLoading } = useFetchGradesQuery({});
+  const { data: tutorsData, isLoading: tutorsLoading } = useFetchTutorsQuery({});
 
   const form = useForm<UpdateAssignmentSchema>({
     resolver: zodResolver(updateAssignmentSchema),
@@ -74,33 +80,47 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
     useUpdateAssignmentMutation();
 
   useEffect(() => {
-    if (data) {
+    // Set form values from the passed 'assignment' prop
+    if (assignment) {
       reset({
-        title: data.title || "",
-        assignmentNumber: data.assignmentNumber || "",
-        address: data.address || "",
-        duration: data.duration || "",
-        assignmentPrice: data.assignmentPrice?.toString() || "",
-        gradeId: data.gradeId?.id || data.gradeId || "",
-        tutorId: data.tutorId?.id || data.tutorId || "",
+        title: assignment.title || "",
+        assignmentNumber: assignment.assignmentNumber || "",
+        address: assignment.address || "",
+        duration: assignment.duration || "",
+        assignmentPrice: assignment.assignmentPrice?.toString() || "",
+        // Handle cases where gradeId/tutorId might be an object or a string
+        gradeId:
+          (typeof assignment.gradeId === "object" && assignment.gradeId?.id) ||
+          (typeof assignment.gradeId === "string" && assignment.gradeId) ||
+          "",
+        tutorId:
+          (typeof assignment.tutorId === "object" && assignment.tutorId?.id) ||
+          (typeof assignment.tutorId === "string" && assignment.tutorId) ||
+          "",
       });
     }
-  }, [data, reset]);
+  }, [assignment, reset]);
 
-  // ✅ Handle dialog close - reset form to original values
+  // Handle dialog close - reset form to original values
   const handleDialogClose = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen) {
       // Reset to original data when closing
-      if (data) {
+      if (assignment) {
         reset({
-          title: data.title || "",
-          assignmentNumber: data.assignmentNumber || "",
-          address: data.address || "",
-          duration: data.duration || "",
-          assignmentPrice: data.assignmentPrice?.toString() || "",
-          gradeId: data.gradeId?.id || data.gradeId || "",
-          tutorId: data.tutorId?.id || data.tutorId || "",
+          title: assignment.title || "",
+          assignmentNumber: assignment.assignmentNumber || "",
+          address: assignment.address || "",
+          duration: assignment.duration || "",
+          assignmentPrice: assignment.assignmentPrice?.toString() || "",
+          gradeId:
+            (typeof assignment.gradeId === "object" && assignment.gradeId?.id) ||
+            (typeof assignment.gradeId === "string" && assignment.gradeId) ||
+            "",
+          tutorId:
+            (typeof assignment.tutorId === "object" && assignment.tutorId?.id) ||
+            (typeof assignment.tutorId === "string" && assignment.tutorId) ||
+            "",
         });
       }
     } else {
@@ -109,17 +129,23 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
     }
   };
 
-  // ✅ Handle cancel button click
+  // Handle cancel button click
   const handleCancel = () => {
-    if (data) {
+    if (assignment) {
       reset({
-        title: data.title || "",
-        assignmentNumber: data.assignmentNumber || "",
-        address: data.address || "",
-        duration: data.duration || "",
-        assignmentPrice: data.assignmentPrice?.toString() || "",
-        gradeId: data.gradeId?.id || data.gradeId || "",
-        tutorId: data.tutorId?.id || data.tutorId || "",
+        title: assignment.title || "",
+        assignmentNumber: assignment.assignmentNumber || "",
+        address: assignment.address || "",
+        duration: assignment.duration || "",
+        assignmentPrice: assignment.assignmentPrice?.toString() || "",
+        gradeId:
+          (typeof assignment.gradeId === "object" && assignment.gradeId?.id) ||
+          (typeof assignment.gradeId === "string" && assignment.gradeId) ||
+          "",
+        tutorId:
+          (typeof assignment.tutorId === "object" && assignment.tutorId?.id) ||
+          (typeof assignment.tutorId === "string" && assignment.tutorId) ||
+          "",
       });
     }
     setOpen(false);
@@ -128,7 +154,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
   const onSubmit = async (values: UpdateAssignmentSchema) => {
     try {
       await updateAssignment({
-        id,
+        id: assignment.id, // Use the ID from the prop
         ...values,
         assignmentPrice: String(values.assignmentPrice),
       }).unwrap();
@@ -148,7 +174,8 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
     }
   };
 
-  if (isLoading) return <p>Loading...</p>;
+  // 🔽 REMOVED: isLoading check is no longer needed here.
+  // if (isLoading) return <p>Loading...</p>;
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
@@ -276,7 +303,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                 <SelectContent className="w-full">
                   <SelectGroup>
                     <SelectLabel>Tutors</SelectLabel>
-                    {tutorsData?.results?.map((tutor) => (
+                    {tutorsData?.results?.map((tutor: any) => (
                       <SelectItem key={tutor.id} value={tutor.id}>
                         {tutor.fullName ||
                           `${tutor.firstName} ${tutor.lastName}`}

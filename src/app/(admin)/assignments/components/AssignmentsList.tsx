@@ -7,6 +7,18 @@ import { DeleteAssignment } from "./DeleteAssignment";
 import ViewDetails from "./ViewDetails";
 import { UpdateAssignment } from "./edit-assignment/UpdateAssignment";
 
+// Define a type for the assignment object to ensure type safety
+type Assignment = {
+  id: string;
+  title: string;
+  assignmentNumber: string;
+  address: string;
+  duration: string;
+  assignmentPrice: number;
+  createdAt: string;
+};
+
+
 export default function AssignmentsList() {
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -17,7 +29,7 @@ export default function AssignmentsList() {
     sortBy: "createdAt:desc",
   });
 
-  const assignments = data?.results || [];
+  const assignments: Assignment[] = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -58,13 +70,7 @@ export default function AssignmentsList() {
       key: "view",
       header: "View",
       className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: {
-        title: string;
-        assignmentNumber: string;
-        address: string;
-        duration: string;
-        assignmentPrice: string;
-      }) => (
+      render: (row: Assignment) => (
         <div className="w-full flex justify-center items-center">
           <ViewDetails
             assignment={{
@@ -72,7 +78,7 @@ export default function AssignmentsList() {
               assignmentNumber: row.assignmentNumber,
               address: row.address,
               duration: row.duration,
-              assignmentPrice: row.assignmentPrice,
+              assignmentPrice: String(row.assignmentPrice), // Ensure price is a string if ViewDetails expects it
             }}
           />
         </div>
@@ -82,23 +88,10 @@ export default function AssignmentsList() {
       key: "edit",
       header: "Edit",
       className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: {
-        id: string;
-        title: string;
-        assignmentNumber: string;
-        address: string;
-        duration: string;
-        assignmentPrice: number;
-      }) => (
+      // Pass the entire row object to the UpdateAssignment component
+      render: (row: Assignment) => (
         <div className="w-full flex justify-center items-center">
-          <UpdateAssignment
-            id={row.id}
-            title={row.title}
-            assignmentNumber={row.assignmentNumber}
-            address={row.address}
-            duration={row.duration}
-            assignmentPrice={row.assignmentPrice}
-          />
+          <UpdateAssignment assignment={row} />
         </div>
       ),
     },
