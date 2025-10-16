@@ -124,7 +124,13 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                 }}
                 className="w-5 h-5 text-gray-700 outline-hidden cursor-pointer focus:outline-hidden dark:text-gray-400"
               >
-                <ChevronDown className={isOpen ? "rotate-180 transition-transform" : "transition-transform"} />
+                <ChevronDown
+                  className={
+                    isOpen
+                      ? "rotate-180 transition-transform"
+                      : "transition-transform"
+                  }
+                />
               </button>
             </div>
           </div>
@@ -150,9 +156,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                     >
                       <div className="mx-2 leading-6 text-gray-800 dark:text-white/90 flex justify-between w-full">
                         <span>{option.text}</span>
-                        {selectedOptions.includes(option.value) && (
-                          <Check />
-                        )}
+                        {selectedOptions.includes(option.value) && <Check />}
                       </div>
                     </div>
                   </div>

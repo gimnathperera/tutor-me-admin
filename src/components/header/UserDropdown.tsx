@@ -28,9 +28,8 @@ export default function UserDropdown() {
     setIsImageError(false);
   }, [user?.avatar]);
 
-  const avatarSrc = isImageError || !user.avatar
-    ? "/images/user/user.png"
-    : user.avatar;
+  const avatarSrc =
+    isImageError || !user.avatar ? "/images/user/user.png" : user.avatar;
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();

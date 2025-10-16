@@ -36,7 +36,7 @@ export default function UpdateUser() {
     formState: { errors },
   } = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
-    mode: "onChange", 
+    mode: "onChange",
   });
 
   const genderValue = watch("gender") || "not specified";
@@ -86,7 +86,7 @@ export default function UpdateUser() {
       setHasImageError(false);
     }
   }, [avatarUrl]);
-  
+
   const [initialValues, setInitialValues] = useState<UpdateUserSchema | null>(
     null,
   );
@@ -119,7 +119,7 @@ export default function UpdateUser() {
       setHasImageError(false);
     }
   }, [user, isModalOpen, reset]);
-  
+
   const watchedValues = watch();
   const isFormChanged = initialValues
     ? Object.keys(initialValues).some(
@@ -189,12 +189,10 @@ export default function UpdateUser() {
               <Label htmlFor="email">Email *</Label>
               <Input id="email" type="email" {...register("email")} />
               <div className="mt-1">
-                  {errors.email && (
-                    <p className="text-sm text-red-500">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                )}
+              </div>
             </div>
 
             {/* Avatar */}
@@ -207,12 +205,12 @@ export default function UpdateUser() {
                 className={hasImageError ? "border-red-500" : ""}
               />
               <div className="mt-1">
-                  {errors.avatar && (
-                    <p className="text-sm text-red-500">
-                      {errors.avatar.message}
-                    </p>
-                  )}
-                </div>
+                {errors.avatar && (
+                  <p className="text-sm text-red-500">
+                    {errors.avatar.message}
+                  </p>
+                )}
+              </div>
               <div className="flex items-center gap-4 mt-2">
                 <img
                   src={imageSrc}
@@ -280,9 +278,11 @@ export default function UpdateUser() {
                 </Label>
                 <DatePicker
                   value={watch("birthday")}
-                  onChange={(date) => setValue("birthday", date, {
-                    shouldValidate: true, 
-                  })}
+                  onChange={(date) =>
+                    setValue("birthday", date, {
+                      shouldValidate: true,
+                    })
+                  }
                   error={errors.birthday?.message}
                   placeholder="DD/MM/YYYY"
                   label=""
