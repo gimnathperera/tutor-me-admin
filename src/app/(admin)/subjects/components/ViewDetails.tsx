@@ -27,7 +27,7 @@ export function SubjectDetails({ title, description }: SubjectDetailsProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Eye cursor="pointer" />
+        <Eye cursor="pointer" className="text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <DialogHeader>

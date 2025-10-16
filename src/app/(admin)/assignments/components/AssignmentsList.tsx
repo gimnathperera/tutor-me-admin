@@ -55,6 +55,22 @@ export default function AssignmentsList() {
       },
     },
     {
+      key: "view",
+      header: "View",
+      className: "min-w-[10px] max-w-[10px] cursor-default",
+      render: (row: {
+        title: string;
+        assignmentNumber: string;
+        address: string;
+        duration: string;
+        assignmentPrice: number;
+      }) => (
+        <div className="w-full flex justify-center items-center">
+          <ViewDetails assignment={row} />
+        </div>
+      ),
+    },
+    {
       key: "edit",
       header: "Edit",
       className: "min-w-[10px] max-w-[10px] cursor-default",
@@ -85,22 +101,6 @@ export default function AssignmentsList() {
       render: (row: { id: string }) => (
         <div className="w-full flex justify-center items-center">
           <DeleteAssignment assignmentId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: "View",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: {
-        title: string;
-        assignmentNumber: string;
-        address: string;
-        duration: string;
-        assignmentPrice: number;
-      }) => (
-        <div className="w-full flex justify-center items-center">
-          <ViewDetails assignment={row} />
         </div>
       ),
     },

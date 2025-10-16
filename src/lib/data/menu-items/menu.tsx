@@ -67,7 +67,7 @@ const NavItems = [
     path: "/users",
     subItems: [
       { name: "Tutors", path: "/tutors", pro: false },
-      { name: "Students", path: "/users/all-users", pro: false },
+      { name: "Users", path: "/users/all-users", pro: false },
     ],
   },
   // {

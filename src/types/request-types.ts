@@ -249,7 +249,29 @@ export type FetchTutorsRequest = {
   sortBy?: string;
   tutorId?: string;
 };
-
+export type FetchRequestForTutor = {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  requestTutorId?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  grade?: string[];
+  phoneNumber?: string;
+  city?: string;
+  state?: string;
+  region?: string;
+  zip?: string;
+  tutors?: string[];
+  subjects?: string[];
+  duration?: string;
+  frequency?: string;
+  preferredTutorType?: string;
+  studentSchool?: string;
+  genderPreference?: string;
+  bilingual?: string;
+};
 export type CreateTutorRequest = {
   fullName: string;
   contactNumber: string;
@@ -323,16 +345,16 @@ export type FindMyTutorRequest = {
   contactNumber: string;
   confirmContactNumber: string;
   email: string;
-  dateOfBirth: string; 
-  confirmDateOfBirth: string; 
+  dateOfBirth: string;
+  confirmDateOfBirth: string;
   gender: string;
   age: number;
   nationality: string;
   race: string;
   last4NRIC: string;
-  tutoringLevels: string[]; 
-  preferredLocations: string[]; 
-  tutorType: string; 
+  tutoringLevels: string[];
+  preferredLocations: string[];
+  tutorType: string;
   yearsExperience: number;
   highestEducation: string;
   academicDetails: string;

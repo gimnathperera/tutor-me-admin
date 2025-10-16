@@ -42,6 +42,8 @@ interface UpdateAssignmentProps {
 
 export function UpdateAssignment({ id }: UpdateAssignmentProps) {
   const [open, setOpen] = useState(false);
+  const [dialogKey, setDialogKey] = useState(0); // Used to reset the dialog form by forcing re-render when dialog closes
+
   const { data, isLoading } = useFetchAssignmentByIdQuery(id);
 
   // fetch dropdown data
@@ -78,12 +80,50 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
         assignmentNumber: data.assignmentNumber || "",
         address: data.address || "",
         duration: data.duration || "",
-        assignmentPrice: data.assignmentPrice || "",
-        gradeId: data.gradeId || "",
-        tutorId: data.tutorId || "",
+        assignmentPrice: data.assignmentPrice?.toString() || "",
+        gradeId: data.gradeId?.id || data.gradeId || "",
+        tutorId: data.tutorId?.id || data.tutorId || "",
       });
     }
   }, [data, reset]);
+
+  // ✅ Handle dialog close - reset form to original values
+  const handleDialogClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      // Reset to original data when closing
+      if (data) {
+        reset({
+          title: data.title || "",
+          assignmentNumber: data.assignmentNumber || "",
+          address: data.address || "",
+          duration: data.duration || "",
+          assignmentPrice: data.assignmentPrice?.toString() || "",
+          gradeId: data.gradeId?.id || data.gradeId || "",
+          tutorId: data.tutorId?.id || data.tutorId || "",
+        });
+      }
+    } else {
+      // When opening, increment key to force remount of Select components
+      setDialogKey((prev) => prev + 1);
+    }
+  };
+
+  // ✅ Handle cancel button click
+  const handleCancel = () => {
+    if (data) {
+      reset({
+        title: data.title || "",
+        assignmentNumber: data.assignmentNumber || "",
+        address: data.address || "",
+        duration: data.duration || "",
+        assignmentPrice: data.assignmentPrice?.toString() || "",
+        gradeId: data.gradeId?.id || data.gradeId || "",
+        tutorId: data.tutorId?.id || data.tutorId || "",
+      });
+    }
+    setOpen(false);
+  };
 
   const onSubmit = async (values: UpdateAssignmentSchema) => {
     try {
@@ -95,6 +135,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
 
       toast.success("Assignment updated successfully");
       setOpen(false);
+      reset(); // Reset form after successful save
     } catch (error) {
       if (isRejectedWithValue(error)) {
         const errorMessage =
@@ -110,10 +151,10 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <SquarePen className="cursor-pointer" />
+          <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-[500px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
@@ -122,7 +163,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
             <DialogDescription>Update the assignment details</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
+          <div className="grid gap-4">
             {/* Title */}
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
@@ -189,19 +230,20 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
             <div className="grid gap-3">
               <Label htmlFor="gradeId">Grade</Label>
               <Select
+                key={`grade-${dialogKey}`}
                 onValueChange={(value) =>
                   setValue("gradeId", value, { shouldDirty: true })
                 }
-                value={watch("gradeId")}
+                value={watch("gradeId") || ""}
                 disabled={gradesLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a grade" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-full">
                   <SelectGroup>
                     <SelectLabel>Grades</SelectLabel>
-                    {gradesData?.results?.map((grade) => (
+                    {gradesData?.results?.map((grade: any) => (
                       <SelectItem key={grade.id} value={grade.id}>
                         {grade.title}
                       </SelectItem>
@@ -209,6 +251,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.gradeId && (
                 <p className="text-sm text-red-500">
                   {formState.errors.gradeId.message}
@@ -220,28 +263,26 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
             <div className="grid gap-3">
               <Label htmlFor="tutorId">Tutor</Label>
               <Select
-                onValueChange={(value) =>
-                  setValue("tutorId", value, { shouldDirty: true })
-                }
+                key={`tutor-${dialogKey}`}
+                onValueChange={(value) => setValue("tutorId", value)}
                 value={watch("tutorId")}
                 disabled={tutorsLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a tutor" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-full">
                   <SelectGroup>
                     <SelectLabel>Tutors</SelectLabel>
                     {tutorsData?.results?.map((tutor) => (
                       <SelectItem key={tutor.id} value={tutor.id}>
-                        {/* change depending on API field */}
-                        {tutor.fullName ||
-                          `${tutor.firstName} ${tutor.lastName}`}
+                        {tutor.fullName}
                       </SelectItem>
                     ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.tutorId && (
                 <p className="text-sm text-red-500">
                   {formState.errors.tutorId.message}
@@ -252,7 +293,9 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               className="bg-blue-700 text-white hover:bg-blue-500"

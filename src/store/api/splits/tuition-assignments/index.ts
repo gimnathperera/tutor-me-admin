@@ -14,7 +14,7 @@ export type UpdateAssignmentPayload = {
 export const AssignmentsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     fetchAssignments: build.query<
-      TuitionAssignmentResponse, // Replaced any with the correct type
+      TuitionAssignmentResponse,
       { page: number; limit: number; sortBy: string }
     >({
       query: (params) => ({
@@ -26,7 +26,6 @@ export const AssignmentsApi = baseApi.injectEndpoints({
     }),
 
     fetchAssignmentById: build.query<TuitionAssignment, string>({
-      // Replaced any with the correct type
       query: (id) => ({
         url: `${Endpoints.TuitionAssignments}/${id}`,
         method: "GET",
@@ -38,7 +37,6 @@ export const AssignmentsApi = baseApi.injectEndpoints({
 
     createAssignment: build.mutation<TuitionAssignment, CreateAssignmentSchema>(
       {
-        // Replaced any with the correct type
         query: (payload) => ({
           url: Endpoints.TuitionAssignments,
           method: "POST",
@@ -61,7 +59,7 @@ export const AssignmentsApi = baseApi.injectEndpoints({
       invalidatesTags: [
         "TuitionAssignments",
         { type: "TuitionAssignments", id: "LIST" },
-      ], // Invalidate list and specific item
+      ],
     }),
 
     deleteAssignment: build.mutation<void, string>({

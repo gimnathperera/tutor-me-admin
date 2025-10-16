@@ -205,6 +205,30 @@ export default function PapersTable() {
       },
     },
     {
+      key: "view",
+      header: <div className="w-full text-center">View</div>,
+      className: "min-w-[80px] max-w-[80px] cursor-default",
+      render: (row: Paper) => (
+        <div className="w-full flex justify-center items-center">
+          <PaperDetails
+            title={getSafeValue(row.title, "No title provided")}
+            description={getSafeValue(
+              row.description,
+              "No description provided",
+            )}
+            grade={getSafeNestedValue(row.grade, "title", "No grade specified")}
+            subject={getSafeNestedValue(
+              row.subject,
+              "title",
+              "No subject specified",
+            )}
+            year={getSafeValue(row.year, "No year specified")}
+            url={getSafeValue(row.url, "")}
+          />
+        </div>
+      ),
+    },
+    {
       key: "edit",
       header: <div className="w-full text-center">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
@@ -229,30 +253,6 @@ export default function PapersTable() {
       render: (row: Paper) => (
         <div className="w-full flex justify-center items-center">
           <DeletePaper paperId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: <div className="w-full text-center">View</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default",
-      render: (row: Paper) => (
-        <div className="w-full flex justify-center items-center">
-          <PaperDetails
-            title={getSafeValue(row.title, "No title provided")}
-            description={getSafeValue(
-              row.description,
-              "No description provided",
-            )}
-            grade={getSafeNestedValue(row.grade, "title", "No grade specified")}
-            subject={getSafeNestedValue(
-              row.subject,
-              "title",
-              "No subject specified",
-            )}
-            year={getSafeValue(row.year, "No year specified")}
-            url={getSafeValue(row.url, "")}
-          />
         </div>
       ),
     },

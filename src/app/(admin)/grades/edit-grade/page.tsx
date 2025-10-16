@@ -56,14 +56,17 @@ export function UpdateGrade({
       text: s.title,
       value: s.id,
     })) || [];
+
   useEffect(() => {
     if (open && subjectsData) {
-      const subjectIds = subjects;
-      const validSubjects = subjectIds.filter((id) =>
-        subjectsData.results.some((s) => s.id === id),
-      );
+      const subjectIds = subjects
+        .map((title) => {
+          const found = subjectsData.results.find((s) => s.title === title);
+          return found ? found.id : null;
+        })
+        .filter(Boolean) as string[];
 
-      reset({ title, description, subjects: validSubjects });
+      reset({ title, description, subjects: subjectIds });
     }
   }, [open, title, description, subjects, subjectsData, reset]);
 
@@ -86,7 +89,7 @@ export function UpdateGrade({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <SquarePen className="cursor-pointer" />
+        <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
@@ -116,7 +119,7 @@ export function UpdateGrade({
                 name="subjects"
                 render={({ field }) => (
                   <MultiSelect
-                    label="Subjects"
+                    label=""
                     options={subjectOptions}
                     defaultSelected={field.value}
                     onChange={field.onChange}

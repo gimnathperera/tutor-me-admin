@@ -74,7 +74,15 @@ export function AddAssignment() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          reset(initialFormValues);
+        }
+      }}
+    >
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
@@ -90,7 +98,7 @@ export function AddAssignment() {
             <DialogTitle>Add Assignment</DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
+          <div className="grid gap-4">
             {/* Title */}
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
@@ -214,7 +222,14 @@ export function AddAssignment() {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  reset(initialFormValues);
+                }}
+              >
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               type="submit"

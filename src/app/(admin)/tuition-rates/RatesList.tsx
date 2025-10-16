@@ -69,34 +69,6 @@ export default function TuitionRatesTable() {
       render: (row: TuitionRateData) => row.subject?.title || "N/A",
     },
     {
-      key: "edit",
-      header: <div className="w-full text-center">Edit</div>,
-      className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: TuitionRateData) => (
-        <div className="w-full flex justify-center items-center">
-        <UpdateTuitionRate
-          id={row.id}
-          level={row.level?.id || ""}
-          subject={row.subject?.id || ""}
-          grade={row.grade?.id || ""}
-          fullTimeTuitionRate={row.fullTimeTuitionRate || []}
-          govTuitionRate={row.govTuitionRate || []}
-          partTimeTuitionRate={row.partTimeTuitionRate || []}
-        />
-        </div>
-      ),
-    },
-    {
-      key: "delete",
-      header: <div className="w-full text-center">Delete</div>,
-      className: "min-w-[10px] max-w-[10px] cursor-default",
-      render: (row: TuitionRateData) => (
-        <div className="w-full flex justify-center items-center">
-          <DeleteTuitionRate gradeId={row.id || ""} />
-        </div>  
-      ),
-    },
-    {
       key: "view",
       header: <div className="w-full text-center">View</div>,
       className: "min-w-[10px] max-w-[10px] cursor-default",
@@ -110,6 +82,34 @@ export default function TuitionRatesTable() {
             govTuitionRate={row.govTuitionRate || []}
             partTimeTuitionRate={row.partTimeTuitionRate || []}
           />
+        </div>
+      ),
+    },
+    {
+      key: "edit",
+      header: <div className="w-full text-center">Edit</div>,
+      className: "min-w-[10px] max-w-[10px] cursor-default",
+      render: (row: TuitionRateData) => (
+        <div className="w-full flex justify-center items-center">
+          <UpdateTuitionRate
+            id={row.id}
+            level={row.level?.id || ""}
+            subject={row.subject?.id || ""}
+            grade={row.grade?.id || ""}
+            fullTimeTuitionRate={row.fullTimeTuitionRate || []}
+            govTuitionRate={row.govTuitionRate || []}
+            partTimeTuitionRate={row.partTimeTuitionRate || []}
+          />
+        </div>
+      ),
+    },
+    {
+      key: "delete",
+      header: <div className="w-full text-center">Delete</div>,
+      className: "min-w-[10px] max-w-[10px] cursor-default",
+      render: (row: TuitionRateData) => (
+        <div className="w-full flex justify-center items-center">
+          <DeleteTuitionRate gradeId={row.id || ""} />
         </div>
       ),
     },

@@ -313,6 +313,45 @@ export type Tutor = BaseEntity & {
   agreeAssignmentInfo: boolean;
 };
 
+export type RequestTutors = BaseEntity & {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  city: string;
+  state: string;
+  region: string;
+  zip: string;
+  studentSchool: string;
+  preferredTutorType: string;
+  genderPreference: string;
+  bilingual: string;
+
+  grade: {
+    id: string;
+    title: string;
+    description: string;
+    subjects: string[];
+    createdAt: string;
+    updatedAt: string;
+  }[];
+
+  tutors: {
+    subjects: {
+      id: string;
+      title: string;
+      description: string;
+      createdAt: string;
+      updatedAt: string;
+    }[];
+    duration: string;
+    frequency: string;
+  }[];
+
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type FindMyTutorResponse = {
   status: string;
   personalInfo: PersonalInfo;

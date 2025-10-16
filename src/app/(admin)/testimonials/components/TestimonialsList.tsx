@@ -59,14 +59,13 @@ export default function TestimonialsTable() {
       render: (row: Testimonial) => (
         <div className="flex items-center gap-3">
           {row.owner?.avatar ? (
-            <Image
-              src={row.owner.avatar}
+            <img
+              src={row.owner.avatar || "/images/user/user.png"}
               alt={row.owner?.name || "Owner"}
-              width={40}
-              height={40}
               className="w-10 h-10 rounded-full object-cover"
               onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = "/images/user/user.png";
+                (e.currentTarget as HTMLImageElement).src =
+                  "/images/user/user.png";
               }}
             />
           ) : (
@@ -134,6 +133,20 @@ export default function TestimonialsTable() {
       },
     },
     {
+      key: "view",
+      header: <div className="text-center w-full">View</div>,
+      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
+      render: (row: Testimonial) => (
+        <div className="w-full flex justify-center items-center">
+          <TestimonialDetails
+            content={getSafeValue(row.content, "No content provided")}
+            rating={getSafeValue(row.rating, "No rating provided")}
+            owner={row.owner}
+          />
+        </div>
+      ),
+    },
+    {
       key: "edit",
       header: <div className="text-center w-full">Edit</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default text-center",
@@ -159,20 +172,6 @@ export default function TestimonialsTable() {
       render: (row: Testimonial) => (
         <div className="w-full flex justify-center items-center">
           <DeleteTestimonial testimonialId={row.id} />
-        </div>
-      ),
-    },
-    {
-      key: "view",
-      header: <div className="text-center w-full">View</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
-      render: (row: Testimonial) => (
-        <div className="w-full flex justify-center items-center">
-          <TestimonialDetails
-            content={getSafeValue(row.content, "No content provided")}
-            rating={getSafeValue(row.rating, "No rating provided")}
-            owner={row.owner}
-          />
         </div>
       ),
     },

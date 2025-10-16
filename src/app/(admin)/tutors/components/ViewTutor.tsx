@@ -63,7 +63,7 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Eye className="cursor-pointer text-blue-600 hover:text-blue-500" />
+        <Eye className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[625px] max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-800 dark:text-white/90 scrollbar-thin">

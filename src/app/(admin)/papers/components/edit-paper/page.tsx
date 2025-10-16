@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
 import { PaperSchema, paperSchema } from "@/schemas/paper.schema";
 import {
   useFetchGradeByIdQuery,
@@ -40,10 +41,15 @@ interface EditPaperProps {
   id: string;
   title: string;
   description: string;
-  grade: string;
-  subject: string;
+  grade: string | { id: string; title: string };
+  subject: string | { id: string; title: string };
   year: string;
   url: string;
+}
+
+interface Subject {
+  id: string;
+  title: string;
 }
 
 export function EditPaper({
@@ -56,11 +62,22 @@ export function EditPaper({
   url,
 }: EditPaperProps) {
   const [open, setOpen] = useState(false);
-  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(grade);
+  const gradeId = typeof grade === "string" ? grade : grade.id;
+  const subjectId = typeof subject === "string" ? subject : subject.id;
+  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
+    gradeId,
+  );
 
   const updatePaperForm = useForm<PaperSchema>({
     resolver: zodResolver(paperSchema),
-    defaultValues: { title, description, grade, subject, year, url },
+    defaultValues: {
+      title: "",
+      description: "",
+      grade: "",
+      subject: "",
+      year: "",
+      url: "",
+    },
     mode: "onChange",
   });
 
@@ -72,6 +89,53 @@ export function EditPaper({
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
+  const { formState, watch, setValue, register } = updatePaperForm;
+  const selectedGrade = watch("grade");
+
+  // Set selected grade ID when dialog opens
+  useEffect(() => {
+    if (open) {
+      setSelectedGradeId(gradeId);
+    }
+  }, [open, gradeId]);
+
+  // Reset form when dialog opens OR when gradeDetails loads
+  useEffect(() => {
+    if (open && gradeDetails) {
+      // Verify that the subject belongs to this grade
+      const subjectExists = gradeDetails.subjects?.some(
+        (s: Subject) => s.id === subjectId,
+      );
+
+      updatePaperForm.reset({
+        title,
+        description,
+        grade: gradeId,
+        subject: subjectExists ? subjectId : "",
+        year,
+        url,
+      });
+    }
+  }, [
+    open,
+    gradeDetails,
+    title,
+    description,
+    gradeId,
+    subjectId,
+    year,
+    url,
+    updatePaperForm,
+  ]);
+
+  // Handle grade change
+  useEffect(() => {
+    if (selectedGrade && selectedGrade !== gradeId) {
+      setValue("subject", "");
+      setSelectedGradeId(selectedGrade);
+    }
+  }, [selectedGrade, gradeId, setValue]);
+
   const onSubmit = async (data: PaperSchema) => {
     try {
       const result = await updatePaper({ id, ...data });
@@ -80,7 +144,9 @@ export function EditPaper({
         return toast.error(error);
       }
       if ("data" in result) {
-        onUpdateSuccess();
+        toast.success("Paper updated successfully");
+        setOpen(false);
+        updatePaperForm.reset();
       }
     } catch (error) {
       console.error("Unexpected error during paper update:", error);
@@ -88,28 +154,13 @@ export function EditPaper({
     }
   };
 
-  const { formState, watch, setValue } = updatePaperForm;
-  const selectedGrade = watch("grade");
-
-  useEffect(() => {
-    setValue("subject", "");
-    setSelectedGradeId(selectedGrade || null);
-  }, [selectedGrade, setValue]);
-
-  const onUpdateSuccess = () => {
-    const updatedValues = updatePaperForm.getValues();
-    setOpen(false);
-    updatePaperForm.reset(updatedValues);
-    toast.success("Paper updated successfully");
-  };
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={updatePaperForm.handleSubmit(onSubmit)}>
-        <DialogTrigger asChild>
-          <SquarePen className="cursor-pointer" />
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogTrigger asChild>
+        <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+        <form onSubmit={updatePaperForm.handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>Edit Paper</DialogTitle>
             <DialogDescription>Edit the paper details.</DialogDescription>
@@ -117,11 +168,7 @@ export function EditPaper({
           <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="Title"
-                {...updatePaperForm.register("title")}
-              />
+              <Input id="title" placeholder="Title" {...register("title")} />
               {formState.errors.title && (
                 <p className="text-sm text-red-500">
                   {formState.errors.title.message}
@@ -134,7 +181,7 @@ export function EditPaper({
               <Textarea
                 id="description"
                 placeholder="Description"
-                {...updatePaperForm.register("description")}
+                {...register("description")}
                 rows={1}
                 onInput={(e) => {
                   const target = e.currentTarget;
@@ -153,10 +200,8 @@ export function EditPaper({
             <div className="grid gap-3">
               <Label htmlFor="grade">Grade</Label>
               <Select
-                onValueChange={(value) =>
-                  updatePaperForm.setValue("grade", value)
-                }
-                value={updatePaperForm.watch("grade")}
+                onValueChange={(value) => setValue("grade", value)}
+                value={watch("grade")}
                 disabled={isGradesLoading}
               >
                 <SelectTrigger className="w-full">
@@ -193,7 +238,7 @@ export function EditPaper({
                 <SelectContent className="w-full">
                   <SelectGroup>
                     <SelectLabel>Subjects</SelectLabel>
-                    {gradeDetails?.subjects?.map((subject) => (
+                    {gradeDetails?.subjects?.map((subject: Subject) => (
                       <SelectItem key={subject.id} value={subject.id}>
                         {subject.title}
                       </SelectItem>
@@ -214,7 +259,7 @@ export function EditPaper({
                 id="year"
                 placeholder="Year"
                 type="text"
-                {...updatePaperForm.register("year")}
+                {...register("year")}
               />
               {formState.errors.year && (
                 <p className="text-sm text-red-500">
@@ -229,7 +274,7 @@ export function EditPaper({
                 id="url"
                 placeholder="URL"
                 type="text"
-                {...updatePaperForm.register("url")}
+                {...register("url")}
               />
               {formState.errors.url && (
                 <p className="text-sm text-red-500">
@@ -246,13 +291,12 @@ export function EditPaper({
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={updatePaperForm.handleSubmit(onSubmit)}
             >
               Save
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }

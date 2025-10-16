@@ -90,7 +90,7 @@ export default function UsersTable() {
       key: "role",
       header: "Role",
       className:
-        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+        "min-w-[70px] max-w-[70px] truncate overflow-hidden cursor-default",
       render: (row: User) => {
         const role = row.role
           ? row.role.charAt(0).toUpperCase() + row.role.slice(1)
@@ -139,10 +139,10 @@ export default function UsersTable() {
 
     {
       key: "view",
-      header: "View",
+      header: <div className="flex justify-center w-full">View</div>,
       className: "min-w-[80px] max-w-[80px] cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-left items-center">
+        <div className="w-full flex justify-center ">
           <UserDetails
             id={row.id}
             email={row.email || ""}
@@ -171,11 +171,10 @@ export default function UsersTable() {
     },
     {
       key: "edit",
-      header: "Edit",
-      className:
-        "min-w-[80px]  flex justify-center items-center max-w-[80px] cursor-default",
+      header: <div className="flex justify-center w-full">Edit</div>,
+      className: "min-w-[80px] max-w-[80px]  cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-left items-center">
+        <div className="flex justify-center items-center w-full ">
           <UpdateUser
             id={row.id}
             email={row.email || ""}
@@ -201,22 +200,29 @@ export default function UsersTable() {
       ),
     },
     {
-      key: "delete",
-      header: "Delete",
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      key: "resetPassword",
+      header: (
+        <span
+          className="truncate w-full text-center block max-w-[100px]"
+          title="Reset Password"
+        >
+          Reset Password
+        </span>
+      ),
+      className: "min-w-[80px] max-w-[100px]  cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-left items-center">
-          <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />
+        <div className="w-full flex justify-center">
+          <ResetPassword userId={row.id} />
         </div>
       ),
     },
     {
-      key: "resetPassword",
-      header: "Reset Password",
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      key: "delete",
+      header: <div className="text-center w-full">Delete</div>,
+      className: "min-w-[80px] max-w-[80px] flex justify-center cursor-default",
       render: (row: User) => (
-        <div className="w-full flex justify-left items-center">
-          <ResetPassword userId={row.id} />
+        <div className="flex justify-center  w-full ">
+          <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />
         </div>
       ),
     },

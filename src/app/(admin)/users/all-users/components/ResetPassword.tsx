@@ -27,13 +27,11 @@ export function ResetPassword({ userId }: ResetPasswordProps) {
 
   const handleResend = async () => {
     try {
-      // unwrap() throws error if mutation fails
       await resendPassword(userId).unwrap();
 
       toast.success("Temporary password sent successfully!");
-      setOpen(false); // close dialog on success
+      setOpen(false);
     } catch (error) {
-      // handle backend or network errors
       const message =
         getErrorInApiResult({ error }) || "Failed to send temporary password";
       toast.error(message);
@@ -43,7 +41,7 @@ export function ResetPassword({ userId }: ResetPasswordProps) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Send className="cursor-pointer text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white" />
+        <Send className="cursor-pointer text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-white" />
       </AlertDialogTrigger>
 
       <AlertDialogContent className="bg-white dark:bg-gray-800 dark:text-white/90 z-50">
