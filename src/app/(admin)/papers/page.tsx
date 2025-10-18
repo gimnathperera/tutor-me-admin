@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { AddPaper } from "./components/add-paper/page";
+import { AddPaper } from "./components/add-paper/AddPaper";
 import PapersTable from "./components/PapersList";
 
 export const metadata: Metadata = {
