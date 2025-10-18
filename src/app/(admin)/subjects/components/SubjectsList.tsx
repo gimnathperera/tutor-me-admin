@@ -5,7 +5,7 @@ import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { useState } from "react";
 import { DeleteSubject } from "./DeleteSubject";
-import { UpdateSubject } from "./edit-subject/page";
+import { UpdateSubject } from "./edit-subject/UpdateSubject";
 import { SubjectDetails } from "./ViewDetails";
 
 interface Subject {

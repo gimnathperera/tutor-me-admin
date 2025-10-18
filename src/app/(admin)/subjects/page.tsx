@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import SubjectsTable from "./components/SubjectsList";
-import { AddSubject } from "./components/add-subject/page";
+import { AddSubject } from "./components/add-subject/AddSubject";
 
 export const metadata: Metadata = {
   title: "Subjects | TutorMe",
