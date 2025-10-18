@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import TextArea from "../input/TextArea";
 import Label from "../Label";
@@ -34,7 +34,7 @@ export default function TextAreaInput() {
             value={messageTwo}
             error
             onChange={(e) => setMessageTwo(e.target.value)}
-            hint="Please enter a valid message."
+            // hint="Please enter a valid message."
           />
         </div>
       </div>

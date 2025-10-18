@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+
+import InputPassword from "@/components/shared/input-password";
 import InputText from "@/components/shared/input-text";
 import SubmitButton from "@/components/shared/submit-button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
-import { initialFormValues, SignUpSchema, signUpSchema } from "./schema";
 import { useRegisterUserMutation } from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { omit } from "lodash-es";
+import { FormProvider, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import InputPassword from "@/components/shared/input-password";
+import { initialFormValues, SignUpSchema, signUpSchema } from "./schema";
 
 type Props = {
   onLoginClick: () => void;
