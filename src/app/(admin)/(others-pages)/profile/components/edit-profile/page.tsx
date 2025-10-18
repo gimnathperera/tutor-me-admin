@@ -1,7 +1,9 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import Select from "@/components/form/Select";
 import { Button } from "@/components/ui/button/Button";
+import DatePicker from "@/components/ui/DatePicker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Modal } from "@/components/ui/modal";
@@ -11,17 +13,17 @@ import {
   useUpdateUserMutation,
 } from "@/store/api/splits/users";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { updateUserSchema, UpdateUserSchema } from "./schema";
-import { Pencil } from "lucide-react";
-import DatePicker from "@/components/ui/DatePicker";
 
 export default function UpdateUser() {
   const { user: authUser } = useAuthContext();
-  const { data: user, isLoading } = useFetchUserByIdQuery(authUser?.id!, {
-    skip: !authUser?.id,
+  const userId = authUser?.id;
+  const { data: user, isLoading } = useFetchUserByIdQuery(userId ?? "", {
+    skip: !userId,
   });
 
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
@@ -56,7 +58,7 @@ export default function UpdateUser() {
           if (!isNaN(date.getTime())) {
             formattedBirthday = date.toISOString().split("T")[0];
           }
-        } catch (error) {
+        } catch {
           console.warn("Invalid birthday format:", user.birthday);
         }
       }
@@ -122,8 +124,8 @@ export default function UpdateUser() {
 
   const watchedValues = watch();
   const isFormChanged = initialValues
-    ? Object.keys(initialValues).some(
-        (key) => (watchedValues as any)[key] !== (initialValues as any)[key],
+    ? (Object.keys(initialValues) as (keyof UpdateUserSchema)[]).some(
+        (key) => watchedValues[key] !== initialValues[key],
       )
     : false;
 
@@ -138,9 +140,10 @@ export default function UpdateUser() {
       await updateUser({ id: user.id, ...payload }).unwrap();
       toast.success("Profile updated successfully");
       setIsModalOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
-        err?.data?.message || "An unexpected error occurred.";
+        (err as { data?: { message?: string } })?.data?.message ||
+        "An unexpected error occurred.";
       toast.error(errorMessage);
     }
   };
