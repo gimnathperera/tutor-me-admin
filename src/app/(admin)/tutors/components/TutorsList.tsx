@@ -5,7 +5,7 @@ import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { useMemo, useState } from "react";
 import { DeleteTutor } from "./DeleteTutor";
-import { EditTutor } from "./edit-tutor/page";
+import { EditTutor } from "./edit-tutor/EditTutor";
 import { ResetPassword } from "./ResetPassword";
 import { ViewTutor } from "./ViewTutor";
 
@@ -38,7 +38,7 @@ export default function TutorsList() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
-  const { data, isLoading, error } = useFetchTutorsQuery({});
+  const { data, isLoading } = useFetchTutorsQuery({});
 
   const tutors = data?.results || [];
   const totalPages = data?.totalPages || 1;
