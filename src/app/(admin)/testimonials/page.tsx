@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { AddTestimonial } from "./components/add-testimonial/page";
+import { AddTestimonial } from "./components/add-testimonial/AddTestimonial";
 import TestimonialsTable from "./components/TestimonialsList";
 
 export const metadata: Metadata = {
