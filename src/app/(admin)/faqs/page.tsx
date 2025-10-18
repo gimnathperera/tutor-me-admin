@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import FAQTable from "./components/FAQTable";
-import { AddFAQ } from "./components/add-faq/page";
+import { AddFAQ } from "./components/add-faq/AddFAQ.";
 
 export const metadata: Metadata = {
   title: "FAQ | TutorMe",
