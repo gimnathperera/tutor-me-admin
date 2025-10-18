@@ -44,9 +44,11 @@ export function UpdateBlog({
     resolver: zodResolver(updateArticleSchema),
     defaultValues: {
       title: "",
-      author: "",
+      author: { name: "", avatar: "", role: "" },
       image: "",
       status: "pending",
+      content: [{ type: "paragraph", text: "" }],
+      relatedArticles: [""],
     },
     mode: "onChange",
   });
@@ -73,7 +75,22 @@ export function UpdateBlog({
 
   const onSubmit = async (data: UpdateArticleSchema) => {
     try {
-      const result = await updateBlog({ id, ...data });
+      const backendStatus = (data.status === "published"
+        ? "approved"
+        : data.status === "draft"
+        ? "pending"
+        : data.status) as "pending" | "approved" | "rejected" | undefined;
+
+      const result = await updateBlog({
+        id,
+        title: data.title,
+        name: data.author.name,
+        avatar: data.author.avatar,
+        role: data.author.role,
+        image: data.image,
+        relatedArticles: data.relatedArticles,
+        status: backendStatus,
+      });
       const error = getErrorInApiResult(result);
       if (error) return toast.error(error);
 
