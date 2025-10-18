@@ -5,6 +5,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -22,24 +23,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
-import { useCreateAssignmentMutation } from "@/store/api/splits/tuition-assignments";
-import { useFetchTutorsQuery } from "@/store/api/splits/tutors"; // 🔥 you need this
-import { getErrorInApiResult } from "@/utils/api";
+import {
+  useFetchAssignmentByIdQuery,
+  useUpdateAssignmentMutation,
+} from "@/store/api/splits/tuition-assignments";
+import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
+import { Grade } from "@/types/response-types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { isRejectedWithValue } from "@reduxjs/toolkit";
+import { SquarePen } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import {
-  assignmentSchema,
-  CreateAssignmentSchema,
-  initialFormValues,
-} from "./schema";
+import { updateAssignmentSchema, UpdateAssignmentSchema } from "./schema";
 
-export function AddAssignment() {
+interface UpdateAssignmentProps {
+  id: string;
+}
+
+export function UpdateAssignment({ id }: UpdateAssignmentProps) {
   const [open, setOpen] = useState(false);
-  const [createAssignment, { isLoading }] = useCreateAssignmentMutation();
+  const [dialogKey] = useState(0);
 
-  // Fetch grades and tutors
+  const { data, isLoading } = useFetchAssignmentByIdQuery(id);
+
   const { data: gradesData, isLoading: gradesLoading } = useFetchGradesQuery(
     {},
   );
@@ -47,55 +54,133 @@ export function AddAssignment() {
     {},
   );
 
-  const form = useForm<CreateAssignmentSchema>({
-    resolver: zodResolver(assignmentSchema),
-    defaultValues: initialFormValues,
+  const form = useForm<UpdateAssignmentSchema>({
+    resolver: zodResolver(updateAssignmentSchema),
+    defaultValues: {
+      title: "",
+      assignmentNumber: "",
+      address: "",
+      duration: "",
+      assignmentPrice: "",
+      gradeId: "",
+      tutorId: "",
+    },
     mode: "onChange",
   });
 
   const { formState, reset, setValue, watch } = form;
 
-  const onSubmit = async (data: CreateAssignmentSchema) => {
-    const result = await createAssignment({
-      ...data,
-      assignmentPrice: String(data.assignmentPrice),
-    });
+  const [updateAssignment, { isLoading: isUpdating }] =
+    useUpdateAssignmentMutation();
 
-    const error = getErrorInApiResult(result);
-    if (error) return toast.error(error);
+  useEffect(() => {
+    if (data) {
+      const gradeIdValue =
+        typeof data.gradeId === "string"
+          ? data.gradeId
+          : (data.gradeId as { id?: string })?.id ?? "";
+      const tutorIdValue =
+        typeof data.tutorId === "string"
+          ? data.tutorId
+          : (data.tutorId as { id?: string })?.id ?? "";
 
-    if ("data" in result) onSuccess();
+      reset({
+        title: data.title || "",
+        assignmentNumber: data.assignmentNumber || "",
+        address: data.address || "",
+        duration: data.duration || "",
+        assignmentPrice: data.assignmentPrice?.toString() || "",
+        gradeId: gradeIdValue,
+        tutorId: tutorIdValue,
+      });
+    }
+  }, [data, reset]);
+
+  const handleDialogClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen && data) {
+      const gradeIdValue =
+        typeof data.gradeId === "string"
+          ? data.gradeId
+          : (data.gradeId as { id?: string })?.id ?? "";
+      const tutorIdValue =
+        typeof data.tutorId === "string"
+          ? data.tutorId
+          : (data.tutorId as { id?: string })?.id ?? "";
+
+      reset({
+        title: data.title || "",
+        assignmentNumber: data.assignmentNumber || "",
+        address: data.address || "",
+        duration: data.duration || "",
+        assignmentPrice: data.assignmentPrice?.toString() || "",
+        gradeId: gradeIdValue,
+        tutorId: tutorIdValue,
+      });
+    }
   };
 
-  const onSuccess = () => {
-    reset(initialFormValues);
-    toast.success("Assignment added successfully");
+  const handleCancel = () => {
+    if (data) {
+      const gradeIdValue =
+        typeof data.gradeId === "string"
+          ? data.gradeId
+          : (data.gradeId as { id?: string })?.id ?? "";
+      const tutorIdValue =
+        typeof data.tutorId === "string"
+          ? data.tutorId
+          : (data.tutorId as { id?: string })?.id ?? "";
+
+      reset({
+        title: data.title || "",
+        assignmentNumber: data.assignmentNumber || "",
+        address: data.address || "",
+        duration: data.duration || "",
+        assignmentPrice: data.assignmentPrice?.toString() || "",
+        gradeId: gradeIdValue,
+        tutorId: tutorIdValue,
+      });
+    }
     setOpen(false);
   };
 
+  const onSubmit = async (values: UpdateAssignmentSchema) => {
+    try {
+      await updateAssignment({
+        id,
+        ...values,
+        assignmentPrice: String(values.assignmentPrice),
+      }).unwrap();
+
+      toast.success("Assignment updated successfully");
+      setOpen(false);
+      reset();
+    } catch (error) {
+      if (isRejectedWithValue(error)) {
+        type ErrorPayload = { data?: { message?: string }; payload?: { message?: string } };
+        const err = error as ErrorPayload;
+        const errorMessage =
+          err.data?.message ||
+          err.payload?.message ||
+          "Failed to update assignment";
+        toast.error(errorMessage);
+      }
+    }
+  };
+
+  if (isLoading) return <p>Loading...</p>;
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(isOpen) => {
-        setOpen(isOpen);
-        if (!isOpen) {
-          reset(initialFormValues);
-        }
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            className="bg-blue-700 text-white hover:bg-blue-500"
-          >
-            Add Assignment
-          </Button>
+          <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-[500px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
-            <DialogTitle>Add Assignment</DialogTitle>
+            <DialogTitle>Edit Assignment</DialogTitle>
+            <DialogDescription>Update the assignment details</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
@@ -165,8 +250,11 @@ export function AddAssignment() {
             <div className="grid gap-3">
               <Label htmlFor="gradeId">Grade</Label>
               <Select
-                onValueChange={(value) => setValue("gradeId", value)}
-                value={watch("gradeId")}
+                key={`grade-${dialogKey}`}
+                onValueChange={(value) =>
+                  setValue("gradeId", value, { shouldDirty: true })
+                }
+                value={watch("gradeId") || ""}
                 disabled={gradesLoading}
               >
                 <SelectTrigger className="w-full">
@@ -175,7 +263,7 @@ export function AddAssignment() {
                 <SelectContent className="w-full">
                   <SelectGroup>
                     <SelectLabel>Grades</SelectLabel>
-                    {gradesData?.results?.map((grade) => (
+                    {gradesData?.results?.map((grade: Grade) => (
                       <SelectItem key={grade.id} value={grade.id}>
                         {grade.title}
                       </SelectItem>
@@ -183,6 +271,7 @@ export function AddAssignment() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.gradeId && (
                 <p className="text-sm text-red-500">
                   {formState.errors.gradeId.message}
@@ -194,6 +283,7 @@ export function AddAssignment() {
             <div className="grid gap-3">
               <Label htmlFor="tutorId">Tutor</Label>
               <Select
+                key={`tutor-${dialogKey}`}
                 onValueChange={(value) => setValue("tutorId", value)}
                 value={watch("tutorId")}
                 disabled={tutorsLoading}
@@ -212,6 +302,7 @@ export function AddAssignment() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.tutorId && (
                 <p className="text-sm text-red-500">
                   {formState.errors.tutorId.message}
@@ -222,22 +313,17 @@ export function AddAssignment() {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  reset(initialFormValues);
-                }}
-              >
+              <Button variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
             </DialogClose>
             <Button
-              type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
-              isLoading={isLoading}
+              isLoading={isUpdating}
               onClick={form.handleSubmit(onSubmit)}
+              disabled={!formState.isDirty || isUpdating}
             >
-              Create
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>
