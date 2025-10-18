@@ -75,11 +75,13 @@ export function UpdateBlog({
 
   const onSubmit = async (data: UpdateArticleSchema) => {
     try {
-      const backendStatus = (data.status === "published"
-        ? "approved"
-        : data.status === "draft"
-        ? "pending"
-        : data.status) as "pending" | "approved" | "rejected" | undefined;
+      const backendStatus = (
+        data.status === "published"
+          ? "approved"
+          : data.status === "draft"
+            ? "pending"
+            : data.status
+      ) as "pending" | "approved" | "rejected" | undefined;
 
       const result = await updateBlog({
         id,

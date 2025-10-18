@@ -78,11 +78,11 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
       const gradeIdValue =
         typeof data.gradeId === "string"
           ? data.gradeId
-          : (data.gradeId as { id?: string })?.id ?? "";
+          : ((data.gradeId as { id?: string })?.id ?? "");
       const tutorIdValue =
         typeof data.tutorId === "string"
           ? data.tutorId
-          : (data.tutorId as { id?: string })?.id ?? "";
+          : ((data.tutorId as { id?: string })?.id ?? "");
 
       reset({
         title: data.title || "",
@@ -102,11 +102,11 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
       const gradeIdValue =
         typeof data.gradeId === "string"
           ? data.gradeId
-          : (data.gradeId as { id?: string })?.id ?? "";
+          : ((data.gradeId as { id?: string })?.id ?? "");
       const tutorIdValue =
         typeof data.tutorId === "string"
           ? data.tutorId
-          : (data.tutorId as { id?: string })?.id ?? "";
+          : ((data.tutorId as { id?: string })?.id ?? "");
 
       reset({
         title: data.title || "",
@@ -125,11 +125,11 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
       const gradeIdValue =
         typeof data.gradeId === "string"
           ? data.gradeId
-          : (data.gradeId as { id?: string })?.id ?? "";
+          : ((data.gradeId as { id?: string })?.id ?? "");
       const tutorIdValue =
         typeof data.tutorId === "string"
           ? data.tutorId
-          : (data.tutorId as { id?: string })?.id ?? "";
+          : ((data.tutorId as { id?: string })?.id ?? "");
 
       reset({
         title: data.title || "",
@@ -157,7 +157,10 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
       reset();
     } catch (error) {
       if (isRejectedWithValue(error)) {
-        type ErrorPayload = { data?: { message?: string }; payload?: { message?: string } };
+        type ErrorPayload = {
+          data?: { message?: string };
+          payload?: { message?: string };
+        };
         const err = error as ErrorPayload;
         const errorMessage =
           err.data?.message ||

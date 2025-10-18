@@ -70,9 +70,9 @@ export function UpdateLevel({
   const { control, register, handleSubmit, setValue } = updateLevelForm;
 
   // @ts-expect-error: useFieldArray generic typing workaround
-  const detailsArray = useFieldArray({control, name: "details"});
+  const detailsArray = useFieldArray({ control, name: "details" });
   // @ts-expect-error: useFieldArray generic typing workaround
-  const challengesArray = useFieldArray({control, name: "challanges"});
+  const challengesArray = useFieldArray({ control, name: "challanges" });
 
   const [updateLevel, { isLoading }] = useUpdateLevelMutation();
 
