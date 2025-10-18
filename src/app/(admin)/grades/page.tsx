@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { AddGrade } from "./create-grade/page";
+import { AddGrade } from "./create-grade/AddGrade";
 import GradesTable from "./GradesList";
 
 export const metadata: Metadata = {
