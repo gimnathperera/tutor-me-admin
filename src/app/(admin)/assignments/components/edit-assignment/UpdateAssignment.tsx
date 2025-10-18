@@ -28,6 +28,7 @@ import {
   useUpdateAssignmentMutation,
 } from "@/store/api/splits/tuition-assignments";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
+import { Grade } from "@/types/response-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isRejectedWithValue } from "@reduxjs/toolkit";
 import { SquarePen } from "lucide-react";
@@ -42,11 +43,10 @@ interface UpdateAssignmentProps {
 
 export function UpdateAssignment({ id }: UpdateAssignmentProps) {
   const [open, setOpen] = useState(false);
-  const [dialogKey, setDialogKey] = useState(0); // Used to reset the dialog form by forcing re-render when dialog closes
+  const [dialogKey] = useState(0);
 
   const { data, isLoading } = useFetchAssignmentByIdQuery(id);
 
-  // fetch dropdown data
   const { data: gradesData, isLoading: gradesLoading } = useFetchGradesQuery(
     {},
   );
@@ -75,51 +75,70 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
 
   useEffect(() => {
     if (data) {
+      const gradeIdValue =
+        typeof data.gradeId === "string"
+          ? data.gradeId
+          : ((data.gradeId as { id?: string })?.id ?? "");
+      const tutorIdValue =
+        typeof data.tutorId === "string"
+          ? data.tutorId
+          : ((data.tutorId as { id?: string })?.id ?? "");
+
       reset({
         title: data.title || "",
         assignmentNumber: data.assignmentNumber || "",
         address: data.address || "",
         duration: data.duration || "",
         assignmentPrice: data.assignmentPrice?.toString() || "",
-        gradeId: data.gradeId?.id || data.gradeId || "",
-        tutorId: data.tutorId?.id || data.tutorId || "",
+        gradeId: gradeIdValue,
+        tutorId: tutorIdValue,
       });
     }
   }, [data, reset]);
 
-  // ✅ Handle dialog close - reset form to original values
   const handleDialogClose = (isOpen: boolean) => {
     setOpen(isOpen);
-    if (!isOpen) {
-      // Reset to original data when closing
-      if (data) {
-        reset({
-          title: data.title || "",
-          assignmentNumber: data.assignmentNumber || "",
-          address: data.address || "",
-          duration: data.duration || "",
-          assignmentPrice: data.assignmentPrice?.toString() || "",
-          gradeId: data.gradeId?.id || data.gradeId || "",
-          tutorId: data.tutorId?.id || data.tutorId || "",
-        });
-      }
-    } else {
-      // When opening, increment key to force remount of Select components
-      setDialogKey((prev) => prev + 1);
-    }
-  };
+    if (!isOpen && data) {
+      const gradeIdValue =
+        typeof data.gradeId === "string"
+          ? data.gradeId
+          : ((data.gradeId as { id?: string })?.id ?? "");
+      const tutorIdValue =
+        typeof data.tutorId === "string"
+          ? data.tutorId
+          : ((data.tutorId as { id?: string })?.id ?? "");
 
-  // ✅ Handle cancel button click
-  const handleCancel = () => {
-    if (data) {
       reset({
         title: data.title || "",
         assignmentNumber: data.assignmentNumber || "",
         address: data.address || "",
         duration: data.duration || "",
         assignmentPrice: data.assignmentPrice?.toString() || "",
-        gradeId: data.gradeId?.id || data.gradeId || "",
-        tutorId: data.tutorId?.id || data.tutorId || "",
+        gradeId: gradeIdValue,
+        tutorId: tutorIdValue,
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    if (data) {
+      const gradeIdValue =
+        typeof data.gradeId === "string"
+          ? data.gradeId
+          : ((data.gradeId as { id?: string })?.id ?? "");
+      const tutorIdValue =
+        typeof data.tutorId === "string"
+          ? data.tutorId
+          : ((data.tutorId as { id?: string })?.id ?? "");
+
+      reset({
+        title: data.title || "",
+        assignmentNumber: data.assignmentNumber || "",
+        address: data.address || "",
+        duration: data.duration || "",
+        assignmentPrice: data.assignmentPrice?.toString() || "",
+        gradeId: gradeIdValue,
+        tutorId: tutorIdValue,
       });
     }
     setOpen(false);
@@ -135,15 +154,19 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
 
       toast.success("Assignment updated successfully");
       setOpen(false);
-      reset(); // Reset form after successful save
+      reset();
     } catch (error) {
       if (isRejectedWithValue(error)) {
+        type ErrorPayload = {
+          data?: { message?: string };
+          payload?: { message?: string };
+        };
+        const err = error as ErrorPayload;
         const errorMessage =
-          (error.data as { message: string })?.message ||
+          err.data?.message ||
+          err.payload?.message ||
           "Failed to update assignment";
         toast.error(errorMessage);
-      } else {
-        toast.error("An unexpected error occurred");
       }
     }
   };
@@ -243,7 +266,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
                 <SelectContent className="w-full">
                   <SelectGroup>
                     <SelectLabel>Grades</SelectLabel>
-                    {gradesData?.results?.map((grade: any) => (
+                    {gradesData?.results?.map((grade: Grade) => (
                       <SelectItem key={grade.id} value={grade.id}>
                         {grade.title}
                       </SelectItem>

@@ -6,7 +6,7 @@ import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import { useState } from "react";
 import { DeleteGrade } from "./DeleteGrade";
 import { GradeDetails } from "./ViewDetails";
-import { UpdateGrade } from "./edit-grade/page";
+import { UpdateGrade } from "./edit-grade/UpdateGrade";
 
 interface Subject {
   id: string;

@@ -4,8 +4,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Profile | TutorMe",
-  description:
-    "This is Next.js Profile page for TutorMe",
+  description: "This is Next.js Profile page for TutorMe",
 };
 
 export default function Profile() {

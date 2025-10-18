@@ -139,7 +139,6 @@ export function AddGrade() {
                     options={subjectOptions}
                     defaultSelected={field.value || []}
                     onChange={(values) => field.onChange(values)}
-                    value={[]}
                   />
                 )}
               />

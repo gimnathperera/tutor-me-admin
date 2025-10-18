@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { FetchRequestForTutor } from "@/types/request-types";
 import { PaginatedResponse, RequestTutors } from "@/types/response-types";
 import { baseApi } from "../..";

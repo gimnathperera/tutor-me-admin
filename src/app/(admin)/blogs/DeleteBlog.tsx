@@ -22,7 +22,7 @@ import toast from "react-hot-toast";
 
 interface DeleteBlogProps {
   blogId: string;
-  currentStatus?: "pending" | "approved" | "rejected" | "published" | "draft"; // ✅ Accept status as prop
+  currentStatus?: "pending" | "approved" | "rejected" | "published" | "draft";
   onDeleted?: () => void;
 }
 
@@ -31,32 +31,28 @@ export function DeleteBlog({
   currentStatus,
   onDeleted,
 }: DeleteBlogProps) {
-  // ✅ Force refetch on every render to get latest status
   const {
     data: blog,
     isLoading: isFetching,
     refetch,
   } = useFetchBlogByIdQuery(blogId, {
-    refetchOnMountOrArgChange: true, // Always refetch when component mounts
+    refetchOnMountOrArgChange: true,
   });
 
   const [deleteBlog, { isLoading }] = useDeleteBlogMutation();
   const [deleted, setDeleted] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  // ✅ Use currentStatus prop if provided, otherwise fall back to fetched blog status
   const effectiveStatus = currentStatus || blog?.status;
   const canDelete = effectiveStatus === "rejected";
 
-  // ✅ Refetch blog data when dialog opens
-  const [dialogOpen, setDialogOpen] = useState(false);
-
   useEffect(() => {
     if (dialogOpen) {
-      refetch(); // Refetch latest data when opening dialog
+      refetch();
     }
   }, [dialogOpen, refetch]);
 
-  const handleDelete = async () => {
+  const handleDelete = async (): Promise<void> => {
     if (!blog) {
       toast.error("Blog not found");
       return;
@@ -70,7 +66,7 @@ export function DeleteBlog({
     try {
       const result = await deleteBlog(blogId);
 
-      if (result.error) {
+      if ("error" in result && result.error) {
         const error = getErrorInApiResult({ error: result.error });
         toast.error(error);
       } else {
@@ -79,8 +75,8 @@ export function DeleteBlog({
         setDialogOpen(false);
         onDeleted?.();
       }
-    } catch (error) {
-      console.error("Unexpected error during deletion:", error);
+    } catch (err: unknown) {
+      console.error("Unexpected error during deletion:", err);
       toast.error("An unexpected error occurred while deleting the blog");
     }
   };
@@ -102,6 +98,7 @@ export function DeleteBlog({
           }`}
         />
       </AlertDialogTrigger>
+
       <AlertDialogContent className="bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
@@ -110,12 +107,13 @@ export function DeleteBlog({
             blog.
             {!canDelete && (
               <span className="block mt-2 text-red-500 font-normal">
-                Only blogs with status 'rejected' can be deleted. Current
-                status: {effectiveStatus}
+                Only blogs with status &#39;rejected&#39; can be deleted.
+                Current status: {effectiveStatus}
               </span>
             )}
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction

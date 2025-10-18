@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import InquiryTable from "./components/InquiryTable";
-import { AddInquiry } from "./components/add-inquiry/page";
+import { AddInquiry } from "./components/add-inquiry/AddInquiry";
 
 export const metadata: Metadata = {
   title: "Inquiries | TutorMe",

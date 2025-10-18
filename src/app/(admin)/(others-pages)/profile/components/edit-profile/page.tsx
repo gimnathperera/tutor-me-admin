@@ -1,7 +1,9 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
 import Select from "@/components/form/Select";
 import { Button } from "@/components/ui/button/Button";
+import DatePicker from "@/components/ui/DatePicker";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Modal } from "@/components/ui/modal";
@@ -11,17 +13,17 @@ import {
   useUpdateUserMutation,
 } from "@/store/api/splits/users";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { updateUserSchema, UpdateUserSchema } from "./schema";
-import { Pencil } from "lucide-react";
-import DatePicker from "@/components/ui/DatePicker";
 
 export default function UpdateUser() {
   const { user: authUser } = useAuthContext();
-  const { data: user, isLoading } = useFetchUserByIdQuery(authUser?.id!, {
-    skip: !authUser?.id,
+  const userId = authUser?.id;
+  const { data: user, isLoading } = useFetchUserByIdQuery(userId ?? "", {
+    skip: !userId,
   });
 
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
@@ -36,7 +38,7 @@ export default function UpdateUser() {
     formState: { errors },
   } = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
-    mode: "onChange", 
+    mode: "onChange",
   });
 
   const genderValue = watch("gender") || "not specified";
@@ -56,7 +58,7 @@ export default function UpdateUser() {
           if (!isNaN(date.getTime())) {
             formattedBirthday = date.toISOString().split("T")[0];
           }
-        } catch (error) {
+        } catch {
           console.warn("Invalid birthday format:", user.birthday);
         }
       }
@@ -86,7 +88,7 @@ export default function UpdateUser() {
       setHasImageError(false);
     }
   }, [avatarUrl]);
-  
+
   const [initialValues, setInitialValues] = useState<UpdateUserSchema | null>(
     null,
   );
@@ -119,11 +121,11 @@ export default function UpdateUser() {
       setHasImageError(false);
     }
   }, [user, isModalOpen, reset]);
-  
+
   const watchedValues = watch();
   const isFormChanged = initialValues
-    ? Object.keys(initialValues).some(
-        (key) => (watchedValues as any)[key] !== (initialValues as any)[key],
+    ? (Object.keys(initialValues) as (keyof UpdateUserSchema)[]).some(
+        (key) => watchedValues[key] !== initialValues[key],
       )
     : false;
 
@@ -138,9 +140,10 @@ export default function UpdateUser() {
       await updateUser({ id: user.id, ...payload }).unwrap();
       toast.success("Profile updated successfully");
       setIsModalOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
-        err?.data?.message || "An unexpected error occurred.";
+        (err as { data?: { message?: string } })?.data?.message ||
+        "An unexpected error occurred.";
       toast.error(errorMessage);
     }
   };
@@ -189,12 +192,10 @@ export default function UpdateUser() {
               <Label htmlFor="email">Email *</Label>
               <Input id="email" type="email" {...register("email")} />
               <div className="mt-1">
-                  {errors.email && (
-                    <p className="text-sm text-red-500">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                )}
+              </div>
             </div>
 
             {/* Avatar */}
@@ -207,12 +208,12 @@ export default function UpdateUser() {
                 className={hasImageError ? "border-red-500" : ""}
               />
               <div className="mt-1">
-                  {errors.avatar && (
-                    <p className="text-sm text-red-500">
-                      {errors.avatar.message}
-                    </p>
-                  )}
-                </div>
+                {errors.avatar && (
+                  <p className="text-sm text-red-500">
+                    {errors.avatar.message}
+                  </p>
+                )}
+              </div>
               <div className="flex items-center gap-4 mt-2">
                 <img
                   src={imageSrc}
@@ -280,9 +281,11 @@ export default function UpdateUser() {
                 </Label>
                 <DatePicker
                   value={watch("birthday")}
-                  onChange={(date) => setValue("birthday", date, {
-                    shouldValidate: true, 
-                  })}
+                  onChange={(date) =>
+                    setValue("birthday", date, {
+                      shouldValidate: true,
+                    })
+                  }
                   error={errors.birthday?.message}
                   placeholder="DD/MM/YYYY"
                   label=""

@@ -7,7 +7,7 @@ import { Copy } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { DeletePaper } from "./DeletePaper";
-import { EditPaper } from "./edit-paper/page";
+import { EditPaper } from "./edit-paper/EditPaper";
 import { PaperDetails } from "./ViewDetails";
 
 interface Grade {

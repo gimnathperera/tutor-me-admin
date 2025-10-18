@@ -7,6 +7,11 @@ export const updateArticleSchema = z.object({
     avatar: z.string().url("Avatar must be a valid URL"),
     role: z.string().min(1, "Author role is required"),
   }),
+  image: z
+    .string()
+    .url("Image must be a valid URL")
+    .optional()
+    .or(z.literal("")), // allow empty string
   content: z
     .array(
       z.union([
@@ -28,9 +33,9 @@ export const updateArticleSchema = z.object({
     )
     .nonempty("Content cannot be empty"),
   relatedArticles: z
-    .array(z.string().min(1, "Subject ID is required"))
-    .nonempty("At least one subject is required"),
-  status: z.enum(["pending", "published", "draft"]),
+    .array(z.string().min(1, "Related article ID is required"))
+    .nonempty("At least one related article is required"),
+  status: z.enum(["pending", "published", "draft", "rejected"]),
 });
 
 export type UpdateArticleSchema = z.infer<typeof updateArticleSchema>;
@@ -43,6 +48,7 @@ export const initialFormValues: UpdateArticleSchema = {
     avatar: "",
     role: "",
   },
+  image: "",
   content: [
     { type: "paragraph", text: "" },
     { type: "heading", text: "", level: 2 },

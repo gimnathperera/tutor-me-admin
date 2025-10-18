@@ -40,7 +40,7 @@ const NavItems = [
   // },
   {
     icon: <NotebookText />,
-    name: "Blog",
+    name: "Blogs",
     path: "/blogs",
   },
   {

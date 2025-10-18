@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import TutorsList from "./components/TutorsList";
-import { AddTutor } from "./components/add-tutor/page";
+import { AddTutor } from "./components/add-tutor/AddTutor";
 
 export const metadata: Metadata = {
   title: "Tutors | TutorMe - Admin Dashboard",

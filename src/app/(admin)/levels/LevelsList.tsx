@@ -6,7 +6,7 @@ import { useFetchLevelsQuery } from "@/store/api/splits/levels";
 import { useState } from "react";
 import { DeleteLevel } from "./DeleteLevel";
 import { LevelDetails } from "./ViewDetails";
-import { UpdateLevel } from "./edit-level/page";
+import { UpdateLevel } from "./edit-level/UpdateLevel";
 
 interface Subject {
   id: string;

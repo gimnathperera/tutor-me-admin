@@ -54,7 +54,7 @@ export function UpdateTuitionRate({
     control,
     register,
     handleSubmit,
-    formState: { errors , isDirty },
+    formState: { errors, isDirty },
   } = useForm<UpdateTuitionSchema>({
     resolver: zodResolver(updateTuitionSchema),
     defaultValues: {
@@ -187,7 +187,6 @@ export function UpdateTuitionRate({
                   value={field.value || undefined}
                   onChange={field.onChange}
                   placeholder="Select level"
-                  isDisabled={displayLoading}
                 />
               )}
             />
@@ -207,7 +206,6 @@ export function UpdateTuitionRate({
                   value={field.value || undefined}
                   onChange={field.onChange}
                   placeholder="Select grade"
-                  isDisabled={displayLoading}
                 />
               )}
             />
@@ -262,7 +260,7 @@ export function UpdateTuitionRate({
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              disabled={displayLoading|| !isDirty}
+              disabled={displayLoading || !isDirty}
             >
               Save
             </Button>
