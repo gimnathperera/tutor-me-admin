@@ -187,7 +187,6 @@ export function UpdateTuitionRate({
                   value={field.value || undefined}
                   onChange={field.onChange}
                   placeholder="Select level"
-                  isDisabled={displayLoading}
                 />
               )}
             />
@@ -207,7 +206,6 @@ export function UpdateTuitionRate({
                   value={field.value || undefined}
                   onChange={field.onChange}
                   placeholder="Select grade"
-                  isDisabled={displayLoading}
                 />
               )}
             />
