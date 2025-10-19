@@ -7,7 +7,7 @@ import { Copy } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { DeleteFAQ } from "./DeleteFAQ";
-import { UpdateFAQ } from "./edit-faq/page";
+import { UpdateFAQ } from "./edit-faq/UpdateFAQ";
 import { FAQDetails } from "./FAQDetails";
 
 interface FAQ {

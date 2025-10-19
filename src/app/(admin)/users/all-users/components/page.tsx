@@ -1,4 +1,4 @@
-import AddUser from "./add-user/page";
+import AddUser from "./add-user/AddUser";
 import SubjectsTable from "./UserList";
 
 export default function Profile() {

@@ -12,7 +12,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useSendTempPasswordMutation } from "@/store/api/splits/users";
-import { getErrorInApiResult } from "@/utils/api";
 import { Send } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -32,8 +31,8 @@ export function ResetPassword({ userId }: ResetPasswordProps) {
       toast.success("Temporary password sent successfully!");
       setOpen(false);
     } catch (error) {
-      const message =
-        getErrorInApiResult({ error }) || "Failed to send temporary password";
+      //const message = getErrorInApiResult({ error }) || "Failed to send temporary password";
+      const message = `Failed to send temporary password : ${error}`;
       toast.error(message);
     }
   };

@@ -1,11 +1,12 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useAuthContext } from "@/context";
-import { useFetchUserByIdQuery } from "@/store/api/splits/users";
-import { useState, useEffect } from "react";
-import UpdateUser from "./edit-profile/page";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAuthContext } from "@/context";
 import { cn } from "@/lib/utils";
+import { useFetchUserByIdQuery } from "@/store/api/splits/users";
+import { useEffect, useState } from "react";
+import UpdateUser from "./edit-profile/page";
 
 export default function UserMetaCard() {
   const { user: authUser } = useAuthContext();
@@ -29,7 +30,6 @@ export default function UserMetaCard() {
 
   const avatarSrc =
     isImageError || !user.avatar ? "/images/user/user.png" : user.avatar;
-
 
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">

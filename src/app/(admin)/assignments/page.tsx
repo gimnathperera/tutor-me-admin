@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import AssignmentsTable from "./components/AssignmentsList";
-import { AddAssignment } from "./components/add-assignment/page";
+import { AddAssignment } from "./components/add-assignment/AddAssignment";
 
 export const metadata: Metadata = {
   title: "Assignments | TutorMe - Admin Dashboard",

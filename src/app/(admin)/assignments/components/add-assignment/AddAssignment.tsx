@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import { useCreateAssignmentMutation } from "@/store/api/splits/tuition-assignments";
-import { useFetchTutorsQuery } from "@/store/api/splits/tutors"; // 🔥 you need this
+import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -39,7 +39,6 @@ export function AddAssignment() {
   const [open, setOpen] = useState(false);
   const [createAssignment, { isLoading }] = useCreateAssignmentMutation();
 
-  // Fetch grades and tutors
   const { data: gradesData, isLoading: gradesLoading } = useFetchGradesQuery(
     {},
   );

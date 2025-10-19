@@ -1,8 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useState, useEffect } from "react";
 import { useAuthContext } from "@/context";
 import { useFetchUserByIdQuery } from "@/store/api/splits/users";
+import React, { useEffect, useState } from "react";
 import { SignOutConfirmationModal } from "../shared/SignOutConfirmationModal";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
@@ -28,9 +29,8 @@ export default function UserDropdown() {
     setIsImageError(false);
   }, [user?.avatar]);
 
-  const avatarSrc = isImageError || !user.avatar
-    ? "/images/user/user.png"
-    : user.avatar;
+  const avatarSrc =
+    isImageError || !user.avatar ? "/images/user/user.png" : user.avatar;
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();

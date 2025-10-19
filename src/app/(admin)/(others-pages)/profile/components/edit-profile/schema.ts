@@ -51,10 +51,7 @@ export const updateUserSchema = z.object({
 
   gender: z.enum(["male", "female", "other"]).optional(),
 
-  avatar: z
-    .string()
-    .url("Invalid avatar URL")
-    .optional(),
+  avatar: z.string().url("Invalid avatar URL").optional(),
 });
 
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
