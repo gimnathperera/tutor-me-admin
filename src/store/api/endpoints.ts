@@ -9,6 +9,7 @@ export const Endpoints = {
   Inquiries: "/v1/inquiries",
   Grades: "/v1/grades",
   Subjects: "/v1/subjects",
+  Tags: "/v1/tags",
   Papers: "/v1/papers",
   Blogs: "/v1/blogs",
   Users: "/v1/users",
