@@ -120,6 +120,26 @@ export type FetchPapersRequest = {
   sortBy?: string;
 };
 
+export type CreateTagRequest = {
+  name: string;
+  description: string;
+};
+
+export type UpdateTagRequest = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type FetchTagsRequest = {
+  name?: string;
+  description?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  tagId?: string;
+};
+
 export type CreateSubjectRequest = {
   title: string;
   description: string;
