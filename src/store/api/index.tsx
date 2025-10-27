@@ -89,6 +89,7 @@ export const baseApi = createApi({
     "TuitionAssignments",
     "Levels",
     "Blogs",
+    "Tags",
     "Inquiries",
     "FindATutor",
   ],
