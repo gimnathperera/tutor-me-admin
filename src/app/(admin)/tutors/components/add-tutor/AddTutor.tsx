@@ -75,50 +75,65 @@ export function AddTutor() {
   };
 
   const preferredLocationOptions = [
-    "Admiralty",
-    "Ang Mo Kio",
-    "Bishan",
-    "Boon Lay",
-    "Bukit Batok",
-    "Bukit Panjang",
-    "Choa Chu Kang",
-    "Clementi",
-    "Jurong East",
-    "Jurong West",
-    "Kranji",
-    "Marsiling",
-    "Sembawang",
-    "Sengkang",
-    "Woodlands",
-    "Yew Tee",
-    "Yishun",
-    "Bedok",
-    "Changi",
-    "East Coast",
-    "Geylang",
-    "Hougang",
-    "Katong",
-    "Marine Parade",
-    "Pasir Ris",
-    "Punggol",
-    "Serangoon",
-    "Tampines",
-    "Ubi",
+    "Kollupitiya (Colombo 3)",
+    "Bambalapitiya (Colombo 4)",
+    "Havelock Town (Colombo 5)",
+    "Wellawatte (Colombo 6)",
+    "Cinnamon Gardens (Colombo 7)",
+    "Borella (Colombo 8)",
+    "Dehiwala",
+    "Mount Lavinia",
+    "Nugegoda",
+    "Rajagiriya",
+    "Kotte",
+    "Battaramulla",
+    "Malabe",
+    "Moratuwa",
+    "Gampaha",
+    "Negombo",
+    "Kadawatha",
+    "Kiribathgoda",
+    "Kelaniya",
+    "Wattala",
+    "Ja-Ela",
+    "Kalutara",
+    "Panadura",
+    "Horana",
+    "Wadduwa",
+    "Kandy",
+    "Matale",
+    "Nuwara Eliya",
+    "Galle",
+    "Matara",
+    "Hambantota",
+    "Kurunegala",
+    "Puttalam",
+    "Chilaw",
+    "Ratnapura",
+    "Kegalle",
+    "Badulla",
+    "Bandarawela",
+    "Anuradhapura",
+    "Polonnaruwa",
+    "Jaffna",
+    "Vavuniya",
+    "Trincomalee",
+    "Batticaloa",
     "No Preference",
   ].map((v) => ({ value: v, text: v }));
 
   const tutoringLevelOptions = [
-    "Pre-School",
-    "Primary School",
-    "Lower Secondary",
-    "Upper Secondary",
-    "Junior College",
-    "IB/IGCSE",
+    "Pre-School / Montessori",
+    "Primary School (Grades 1-5)",
+    "Ordinary Level (O/L) (Grades 6-11)",
+    "Advanced Level (A/L) (Grades 12-13)",
+    "International Syllabus (Cambridge, Edexcel, IB)",
+    "Undergraduate",
     "Diploma / Degree",
-    "Language",
-    "Computing",
+    "Language (e.g., English, French, Japanese)",
+    "Computing (e.g., Programming, Graphic Design)",
+    "Music & Arts",
     "Special Skills",
-    "Music",
   ].map((v) => ({ value: v, text: v }));
 
   const onSubmit = async (data: AddTutorFormValues) => {
@@ -155,7 +170,6 @@ export function AddTutor() {
           </DialogHeader>
 
           <div className="grid gap-4 p-3">
-            {/* Personal Info */}
             <div className="grid gap-3">
               <Label htmlFor="fullName">Full Name *</Label>
               <Input id="fullName" {...form.register("fullName")} />
@@ -262,7 +276,6 @@ export function AddTutor() {
                 )}
               </div>
 
-              {/* Nationality */}
               <div className="grid gap-3">
                 <Label htmlFor="nationality">Nationality *</Label>
                 <Select
@@ -278,8 +291,7 @@ export function AddTutor() {
                     <SelectValue placeholder="Select nationality" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Singaporean">Singaporean</SelectItem>
-                    <SelectItem value="Singapore PR">Singapore PR</SelectItem>
+                    <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
                     <SelectItem value="Others">Others</SelectItem>
                   </SelectContent>
                 </Select>
@@ -290,7 +302,6 @@ export function AddTutor() {
                 )}
               </div>
 
-              {/* Race */}
               <div className="grid gap-3">
                 <Label htmlFor="race">Race *</Label>
                 <Select
@@ -303,12 +314,10 @@ export function AddTutor() {
                     <SelectValue placeholder="Select race" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Chinese">Chinese</SelectItem>
-                    <SelectItem value="Malay">Malay</SelectItem>
-                    <SelectItem value="Indian">Indian</SelectItem>
-                    <SelectItem value="Eurasian">Eurasian</SelectItem>
-                    <SelectItem value="Caucasian">Caucasian</SelectItem>
-                    <SelectItem value="Punjabi">Punjabi</SelectItem>
+                    <SelectItem value="Sinhalese">Sinhalese</SelectItem>
+                    <SelectItem value="Tamil">Tamil</SelectItem>
+                    <SelectItem value="Muslim">Muslim</SelectItem>
+                    <SelectItem value="Burgher">Burgher</SelectItem>
                     <SelectItem value="Others">Others</SelectItem>
                   </SelectContent>
                 </Select>
@@ -320,7 +329,6 @@ export function AddTutor() {
               </div>
             </div>
 
-            {/* NRIC & Tutor Type */}
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
                 <Label htmlFor="last4NRIC">Last 4 digits of NRIC *</Label>
@@ -379,7 +387,6 @@ export function AddTutor() {
               </div>
             </div>
 
-            {/* Tutoring Preferences */}
             <div className="z-50">
               <MultiSelect
                 label="Tutoring Levels"
@@ -412,7 +419,6 @@ export function AddTutor() {
               }
             />
 
-            {/* Years & Education */}
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
                 <Label htmlFor="yearsExperience">Years of Experience *</Label>
@@ -488,7 +494,6 @@ export function AddTutor() {
               </div>
             </div>
 
-            {/* Academic Details */}
             <div className="grid gap-3">
               <Label htmlFor="academicDetails">Academic Details</Label>
               <Input
@@ -502,7 +507,6 @@ export function AddTutor() {
               )}
             </div>
 
-            {/* Tutor Profile */}
             <div className="grid gap-3">
               <Label htmlFor="teachingSummary">Teaching Summary *</Label>
               <Input
@@ -572,7 +576,6 @@ export function AddTutor() {
   );
 }
 
-// Strongly typed reusable Checkbox
 function CheckboxField<T extends FieldValues>({
   label,
   id,
