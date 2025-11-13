@@ -43,52 +43,55 @@ export function AddPaper() {
   const [open, setOpen] = useState(false);
   const [createPaper, { isLoading }] = useCreatePaperMutation();
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
-  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
-    {},
-  );
+  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery({});
 
-  const createPaperForm = useForm({
+  const createPaperForm = useForm<PaperSchema>({
     resolver: zodResolver(paperSchema),
-    defaultValues: initialFormValues as PaperSchema,
+    defaultValues: initialFormValues,
     mode: "onChange",
   });
 
-  const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
-    useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
+  const {
+    data: gradeDetails,
+    isLoading: isGradeDetailsLoading,
+  } = useFetchGradeByIdQuery(selectedGradeId ?? "", {
+    skip: !selectedGradeId,
+  });
 
   const onSubmit = async (data: PaperSchema) => {
     try {
       const result = await createPaper(data);
       const error = getErrorInApiResult(result);
       if (error) {
-        return toast.error(error);
+        toast.error(error);
+        return;
       }
       if ("data" in result) {
-        onRegisterSuccess();
+        toast.success("Paper created successfully");
+        reset();
+        setOpen(false);
       }
-    } catch (error) {
-      console.error("Unexpected error during paper creation:", error);
+    } catch (err) {
+      console.error("Unexpected error during paper creation:", err);
       toast.error("An unexpected error occurred while creating the paper");
     }
   };
 
-  const onRegisterSuccess = () => {
-    createPaperForm.reset();
-    toast.success("Paper created successfully");
-    setOpen(false);
-  };
-
-  const { formState, watch, setValue } = createPaperForm;
+  const { handleSubmit, register, watch, setValue, reset, formState } = createPaperForm;
   const selectedGrade = watch("grade");
 
   useEffect(() => {
+    if (selectedGrade) {
+      setSelectedGradeId(selectedGrade);
+    } else {
+      setSelectedGradeId(null);
+    }
     setValue("subject", "");
-    setSelectedGradeId(selectedGrade || null);
   }, [selectedGrade, setValue]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <form onSubmit={createPaperForm.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
@@ -108,7 +111,7 @@ export function AddPaper() {
               <Input
                 id="title"
                 placeholder="Title"
-                {...createPaperForm.register("title")}
+                {...register("title")}
               />
               {formState.errors.title && (
                 <p className="text-sm text-red-500">
@@ -121,7 +124,7 @@ export function AddPaper() {
               <Textarea
                 id="description"
                 placeholder="Description"
-                {...createPaperForm.register("description")}
+                {...register("description")}
                 rows={1}
                 onInput={(e) => {
                   const target = e.currentTarget;
@@ -145,7 +148,7 @@ export function AddPaper() {
                 value={createPaperForm.watch("grade")}
                 disabled={isGradesLoading}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full" disabled={isGradesLoading}>
                   <SelectValue placeholder="Select a grade" />
                 </SelectTrigger>
                 <SelectContent className="w-full">
@@ -172,7 +175,7 @@ export function AddPaper() {
                 value={watch("subject")}
                 disabled={!selectedGradeId || isGradeDetailsLoading}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full" isLoading={isGradeDetailsLoading}>
                   <SelectValue placeholder="Select a subject" />
                 </SelectTrigger>
                 <SelectContent className="w-full">
@@ -198,7 +201,7 @@ export function AddPaper() {
                 id="year"
                 placeholder="Year"
                 type="text"
-                {...createPaperForm.register("year")}
+                {...register("year")}
               />
               {formState.errors.year && (
                 <p className="text-sm text-red-500">
@@ -212,7 +215,7 @@ export function AddPaper() {
                 id="url"
                 placeholder="URL"
                 type="text"
-                {...createPaperForm.register("url")}
+                {...register("url")}
               />
               {formState.errors.url && (
                 <p className="text-sm text-red-500">
