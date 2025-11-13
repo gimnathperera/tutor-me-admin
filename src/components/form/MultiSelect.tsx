@@ -1,5 +1,6 @@
 import { Check, ChevronDown } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { Spinner } from "../ui/spinner";
 
 interface Option {
   value: string;
@@ -124,13 +125,15 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                 }}
                 className="w-5 h-5 text-gray-700 outline-hidden cursor-pointer focus:outline-hidden dark:text-gray-400"
               >
-                <ChevronDown
-                  className={
-                    isOpen
-                      ? "rotate-180 transition-transform"
-                      : "transition-transform"
-                  }
-                />
+                {disabled ? <Spinner /> : 
+                  <ChevronDown
+                    className={
+                      isOpen
+                        ? "rotate-180 transition-transform"
+                        : "transition-transform"
+                    }
+                  />
+                }
               </button>
             </div>
           </div>

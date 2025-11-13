@@ -5,6 +5,7 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { Spinner } from "./spinner";
 
 function Select({
   ...props
@@ -27,10 +28,12 @@ function SelectValue({
 function SelectTrigger({
   className,
   size = "default",
+  isLoading,
   children,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
   size?: "sm" | "default";
+  isLoading?: boolean;
 }) {
   return (
     <SelectPrimitive.Trigger
@@ -44,7 +47,10 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="size-4 opacity-50" />
+        {
+          isLoading ? <Spinner /> :
+          <ChevronDownIcon className="size-4 opacity-50" />
+        }
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );
