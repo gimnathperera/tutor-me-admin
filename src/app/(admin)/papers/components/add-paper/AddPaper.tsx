@@ -1,5 +1,6 @@
 "use client";
 
+import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -207,13 +208,22 @@ export function AddPaper() {
               )}
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="url">URL</Label>
-              <Input
-                id="url"
-                placeholder="URL"
-                type="text"
-                {...createPaperForm.register("url")}
+              <Label htmlFor="url">Paper File</Label>
+              <FileUploadDropzone
+                onUploaded={(url) => {
+                  createPaperForm.setValue("url", url);
+                }}
               />
+              {createPaperForm.watch("url") && (
+                <a
+                  href={createPaperForm.watch("url")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline mt-1 break-all"
+                >
+                  View Uploaded Paper
+                </a>
+              )}
               {formState.errors.url && (
                 <p className="text-sm text-red-500">
                   {formState.errors.url.message}

@@ -2,6 +2,7 @@
 // @ts-nocheck
 "use client";
 
+import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -68,6 +69,9 @@ export function UpdateUser(props: UpdateUserProps) {
     limit: 10,
     sortBy: "createdAt:desc",
   });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    props.avatar || null,
+  );
 
   const form = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
@@ -424,11 +428,21 @@ export function UpdateUser(props: UpdateUserProps) {
                 </p>
               )}
             </div>
-
-            {/* Avatar */}
             <div className="grid gap-3">
               <Label htmlFor="avatar">Avatar</Label>
-              <Input id="avatar" {...register("avatar")} />
+              <FileUploadDropzone
+                onUploaded={(url) => {
+                  setValue("avatar", url);
+                  setPreviewUrl(url);
+                }}
+              />
+              {previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Avatar Preview"
+                  className="mt-2 h-24 w-24 object-cover rounded-full mx-auto"
+                />
+              )}
               {formState.errors.avatar && (
                 <p className="text-sm text-red-500">
                   {formState.errors.avatar.message}
