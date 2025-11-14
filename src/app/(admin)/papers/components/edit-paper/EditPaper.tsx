@@ -1,5 +1,6 @@
 "use client";
 
+import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -67,6 +68,7 @@ export function EditPaper({
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
     gradeId,
   );
+  const [previewUrl, setPreviewUrl] = useState<string | null>(url || null);
 
   const updatePaperForm = useForm<PaperSchema>({
     resolver: zodResolver(paperSchema),
@@ -269,13 +271,23 @@ export function EditPaper({
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="url">URL</Label>
-              <Input
-                id="url"
-                placeholder="URL"
-                type="text"
-                {...register("url")}
+              <Label htmlFor="url">Paper File</Label>
+              <FileUploadDropzone
+                onUploaded={(uploadedUrl) => {
+                  setValue("url", uploadedUrl);
+                  setPreviewUrl(uploadedUrl);
+                }}
               />
+              {previewUrl && (
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 underline mt-2"
+                >
+                  View Uploaded File
+                </a>
+              )}
               {formState.errors.url && (
                 <p className="text-sm text-red-500">
                   {formState.errors.url.message}

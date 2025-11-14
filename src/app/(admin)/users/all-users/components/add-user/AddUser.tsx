@@ -3,6 +3,7 @@
 
 "use client";
 
+import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -443,15 +444,13 @@ export default function AddUser() {
                 </p>
               )}
             </div>
-            {/* avatar */}
+            {/* Avatar */}
             <div className="grid gap-3">
               <Label htmlFor="avatar">Avatar</Label>
-              <Input
-                id="avatar"
-                type="text"
-                placeholder="avatar"
-                {...createUserForm.register("avatar")}
+              <FileUploadDropzone
+                onUploaded={(url) => setValue("avatar", url)}
               />
+
               {formState.errors.avatar && (
                 <p className="text-sm text-red-500">
                   {formState.errors.avatar.message}
