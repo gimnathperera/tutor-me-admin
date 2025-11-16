@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const updateTuitionSchema = z.object({
-  level: z.string().min(1, "Level is required"),
   subject: z.string().min(1, "Subject is required"),
   grade: z.string().min(1, "Grade is required"),
 
@@ -34,7 +33,6 @@ export const updateTuitionSchema = z.object({
 export type UpdateTuitionSchema = z.infer<typeof updateTuitionSchema>;
 
 export const initialFormValues: UpdateTuitionSchema = {
-  level: "",
   subject: "",
   grade: "",
   fullTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],

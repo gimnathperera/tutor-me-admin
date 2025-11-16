@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
-import { useFetchLevelsQuery } from "@/store/api/splits/levels";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { useUpdateTuitionRateMutation } from "@/store/api/splits/tuition-rates";
 import { getErrorInApiResult } from "@/utils/api";
@@ -31,7 +30,6 @@ import { UpdateTuitionSchema, updateTuitionSchema } from "./schema";
 interface UpdateTuitionRateProps {
   id: string;
   subject: string;
-  level: string;
   grade: string;
   fullTimeTuitionRate: { minimumRate: string; maximumRate: string }[];
   govTuitionRate: { minimumRate: string; maximumRate: string }[];
@@ -41,7 +39,6 @@ interface UpdateTuitionRateProps {
 export function UpdateTuitionRate({
   id,
   subject,
-  level,
   grade,
   fullTimeTuitionRate,
   govTuitionRate,
@@ -59,7 +56,6 @@ export function UpdateTuitionRate({
     resolver: zodResolver(updateTuitionSchema),
     defaultValues: {
       subject: "",
-      level: "",
       grade: "",
       fullTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
       govTuitionRate: [{ minimumRate: "", maximumRate: "" }],
@@ -72,10 +68,6 @@ export function UpdateTuitionRate({
 
   const { data: subjectsData, isLoading: isSubjectsLoading } =
     useFetchSubjectsQuery({ page: 1, limit: 50 });
-  const { data: levelsData, isLoading: isLevelsLoading } = useFetchLevelsQuery({
-    page: 1,
-    limit: 50,
-  });
   const { data: gradesData, isLoading: isGradesLoading } = useFetchGradesQuery({
     page: 1,
     limit: 50,
@@ -83,19 +75,16 @@ export function UpdateTuitionRate({
 
   const subjectOptions =
     subjectsData?.results?.map((s) => ({ value: s.id, label: s.title })) || [];
-  const levelOptions =
-    levelsData?.results?.map((l) => ({ value: l.id, label: l.title })) || [];
   const gradeOptions =
     gradesData?.results?.map((g) => ({ value: g.id, label: g.title })) || [];
 
   const displayLoading =
-    isSubjectsLoading || isLevelsLoading || isGradesLoading;
+    isSubjectsLoading || isGradesLoading;
 
   useEffect(() => {
     if (open) {
       reset({
         subject: subject || "",
-        level: level || "",
         grade: grade || "",
         fullTimeTuitionRate: fullTimeTuitionRate.length
           ? fullTimeTuitionRate
@@ -111,7 +100,6 @@ export function UpdateTuitionRate({
   }, [
     open,
     subject,
-    level,
     grade,
     fullTimeTuitionRate,
     govTuitionRate,
@@ -123,7 +111,6 @@ export function UpdateTuitionRate({
     const payload = {
       id,
       subject: data.subject,
-      level: data.level,
       grade: data.grade,
       fullTimeTuitionRate: data.fullTimeTuitionRate,
       govTuitionRate: data.govTuitionRate,
@@ -156,6 +143,25 @@ export function UpdateTuitionRate({
 
         <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-1">
+            <Label>Grade</Label>
+            <Controller
+              name="grade"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  options={gradeOptions}
+                  value={field.value || undefined}
+                  onChange={field.onChange}
+                  placeholder="Select grade"
+                />
+              )}
+            />
+            {errors.grade && (
+              <p className="text-red-500 text-sm">{errors.grade.message}</p>
+            )}
+          </div>
+
+          <div className="grid gap-1">
             <Label>Subject</Label>
             <Controller
               name="subject"
@@ -173,44 +179,6 @@ export function UpdateTuitionRate({
 
             {errors.subject && (
               <p className="text-red-500 text-sm">{errors.subject.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-1">
-            <Label>Level</Label>
-            <Controller
-              name="level"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  options={levelOptions}
-                  value={field.value || undefined}
-                  onChange={field.onChange}
-                  placeholder="Select level"
-                />
-              )}
-            />
-            {errors.level && (
-              <p className="text-red-500 text-sm">{errors.level.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-1">
-            <Label>Grade</Label>
-            <Controller
-              name="grade"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  options={gradeOptions}
-                  value={field.value || undefined}
-                  onChange={field.onChange}
-                  placeholder="Select grade"
-                />
-              )}
-            />
-            {errors.grade && (
-              <p className="text-red-500 text-sm">{errors.grade.message}</p>
             )}
           </div>
 
