@@ -20,7 +20,6 @@ interface TuitionRateObject {
 
 interface TuitionRateData {
   id: string;
-  level: RateDetail;
   subject: RateDetail;
   grade: RateDetail | null;
   fullTimeTuitionRate: TuitionRateObject[];
@@ -48,13 +47,6 @@ export default function TuitionRatesTable() {
 
   const columns = [
     {
-      key: "level",
-      header: "Level",
-      className:
-        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
-      render: (row: TuitionRateData) => row.level?.title || "N/A",
-    },
-    {
       key: "grade",
       header: "Grade",
       className:
@@ -75,7 +67,6 @@ export default function TuitionRatesTable() {
       render: (row: TuitionRateData) => (
         <div className="w-full flex justify-center items-center">
           <TuitionRateDetails
-            level={row.level || { id: "", title: "N/A" }}
             grade={row.grade || { id: "", title: "N/A" }}
             subject={row.subject || { id: "", title: "N/A" }}
             fullTimeTuitionRate={row.fullTimeTuitionRate || []}
@@ -93,7 +84,6 @@ export default function TuitionRatesTable() {
         <div className="w-full flex justify-center items-center">
           <UpdateTuitionRate
             id={row.id}
-            level={row.level?.id || ""}
             subject={row.subject?.id || ""}
             grade={row.grade?.id || ""}
             fullTimeTuitionRate={row.fullTimeTuitionRate || []}

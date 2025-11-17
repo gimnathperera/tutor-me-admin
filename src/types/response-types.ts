@@ -132,7 +132,6 @@ export type TuitionRates = BaseEntity &
   WithTitleDescription & {
     subject: EntityRef;
     grade: EntityRef;
-    level: EntityRef;
     fullTimeTuitionRate: TuitionRate[];
     govTuitionRate: TuitionRate[];
     partTimeTuitionRate: TuitionRate[];

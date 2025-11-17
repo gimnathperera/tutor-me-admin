@@ -23,7 +23,6 @@ interface EntityRef {
 }
 
 interface TuitionRateDetailsProps {
-  level: EntityRef;
   grade: EntityRef;
   subject: EntityRef;
   fullTimeTuitionRate?: TuitionRate[];
@@ -32,7 +31,6 @@ interface TuitionRateDetailsProps {
 }
 
 export function TuitionRateDetails({
-  level,
   grade,
   subject,
   fullTimeTuitionRate = [],
@@ -65,15 +63,11 @@ export function TuitionRateDetails({
         <DialogHeader>
           <DialogTitle>Tuition Rate Details</DialogTitle>
           <DialogDescription>
-            View the level, grade, subject, and tuition rates.
+            View the grade, subject, and tuition rates.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4">
-          <div className="grid gap-3">
-            <Label>Level</Label>
-            <div className={displayFieldClass}>{level.title}</div>
-          </div>
           <div className="grid gap-3">
             <Label>Grade</Label>
             <div className={displayFieldClass}>{grade.title}</div>

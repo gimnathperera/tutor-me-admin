@@ -198,7 +198,6 @@ export type TuitionRate = {
 
 export type UpdateTuitionRateRequest = {
   id: string;
-  level: string;
   subject: string;
   grade: string;
   fullTimeTuitionRate?: TuitionRate[];
@@ -207,7 +206,6 @@ export type UpdateTuitionRateRequest = {
 };
 
 export type FetchTuitionRatesRequest = {
-  level?: string[];
   subject?: string[];
   grade?: string[];
   fullTimeTuitionRate?: TuitionRate[];

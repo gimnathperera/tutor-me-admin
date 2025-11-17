@@ -1,6 +1,5 @@
 "use client";
 
-import Select from "@/components/form/Select";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -14,14 +13,22 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useFetchGradesQuery } from "@/store/api/splits/grades";
-import { useFetchLevelsQuery } from "@/store/api/splits/levels";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { useFetchGradeByIdQuery, useFetchGradesQuery } from "@/store/api/splits/grades";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { useCreateTuitionRateMutation } from "@/store/api/splits/tuition-rates";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
   CreateTuitionSchema,
@@ -37,30 +44,15 @@ export function AddTuitionRate() {
     defaultValues: initialFormValues,
     mode: "onChange",
   });
-  const { formState } = createTuitionRateForm;
 
   const [createRate, { isLoading }] = useCreateTuitionRateMutation();
   const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 100 });
-  const { data: gradeData } = useFetchGradesQuery({ page: 1, limit: 100 });
-  const { data: levelData } = useFetchLevelsQuery({ page: 1, limit: 100 });
-
-  const subjectOptions =
-    subjectsData?.results.map((s) => ({
-      value: s.id,
-      label: s.title,
-    })) || [];
-
-  const gradeOptions =
-    gradeData?.results.map((g) => ({
-      value: g.id,
-      label: g.title,
-    })) || [];
-
-  const levelOptions =
-    levelData?.results.map((l) => ({
-      value: l.id,
-      label: l.title,
-    })) || [];
+  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
+    {},
+  );
+  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
+  const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
+    useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
   const onSubmit = async (data: CreateTuitionSchema) => {
     const result = await createRate(data);
@@ -72,6 +64,14 @@ export function AddTuitionRate() {
       setOpen(false);
     }
   };
+
+  const { formState, watch, setValue } = createTuitionRateForm;
+  const selectedGrade = watch("grade");
+
+  useEffect(() => {
+    setValue("subject", "");
+    setSelectedGradeId(selectedGrade || null);
+  }, [selectedGrade, setValue]);
 
   return (
     <Dialog
@@ -102,63 +102,58 @@ export function AddTuitionRate() {
 
           <div className="grid gap-4">
             <div className="grid gap-3">
-              <Label>Subjects</Label>
-              <Controller
-                name="subject"
-                control={createTuitionRateForm.control}
-                render={({ field }) => (
-                  <Select
-                    options={subjectOptions}
-                    value={field.value} // <-- correct usage
-                    onChange={field.onChange}
-                    placeholder="Select subject"
-                  />
-                )}
-              />
-              {formState.errors.subject && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.subject.message}
-                </p>
-              )}
-            </div>
-            <div className="grid gap-3">
-              <Label>Grades</Label>
-              <Controller
-                name="grade"
-                control={createTuitionRateForm.control}
-                render={({ field }) => (
-                  <Select
-                    options={gradeOptions}
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder="Select grade"
-                  />
-                )}
-              />
+              <Label htmlFor="grade">Grade</Label>
+              <Select
+                onValueChange={(value) =>
+                  createTuitionRateForm.setValue("grade", value)
+                }
+                value={createTuitionRateForm.watch("grade")}
+                disabled={isGradesLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a grade" />
+                </SelectTrigger>
+                <SelectContent className="w-full">
+                  <SelectGroup>
+                    <SelectLabel>Grades</SelectLabel>
+                    {gradeData?.results?.map((grade) => (
+                      <SelectItem key={grade.id} value={grade.id}>
+                        {grade.title}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               {formState.errors.grade && (
                 <p className="text-sm text-red-500">
                   {formState.errors.grade.message}
                 </p>
               )}
             </div>
-
             <div className="grid gap-3">
-              <Label>Levels</Label>
-              <Controller
-                name="level"
-                control={createTuitionRateForm.control}
-                render={({ field }) => (
-                  <Select
-                    options={levelOptions}
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder="Select level"
-                  />
-                )}
-              />
-              {formState.errors.level && (
+              <Label htmlFor="subject">Subject</Label>
+              <Select
+                onValueChange={(value) => setValue("subject", value)}
+                value={watch("subject")}
+                disabled={!selectedGradeId || isGradeDetailsLoading}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a subject" />
+                </SelectTrigger>
+                <SelectContent className="w-full">
+                  <SelectGroup>
+                    <SelectLabel>Subjects</SelectLabel>
+                    {gradeDetails?.subjects?.map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.title}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {formState.errors.subject && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.level.message}
+                  {formState.errors.subject.message}
                 </p>
               )}
             </div>
