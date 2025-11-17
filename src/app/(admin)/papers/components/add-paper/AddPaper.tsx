@@ -1,5 +1,6 @@
 "use client";
 
+import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -43,7 +44,9 @@ export function AddPaper() {
   const [open, setOpen] = useState(false);
   const [createPaper, { isLoading }] = useCreatePaperMutation();
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
-  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery({});
+  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
+    {},
+  );
 
   const createPaperForm = useForm<PaperSchema>({
     resolver: zodResolver(paperSchema),
@@ -51,12 +54,10 @@ export function AddPaper() {
     mode: "onChange",
   });
 
-  const {
-    data: gradeDetails,
-    isLoading: isGradeDetailsLoading,
-  } = useFetchGradeByIdQuery(selectedGradeId ?? "", {
-    skip: !selectedGradeId,
-  });
+  const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
+    useFetchGradeByIdQuery(selectedGradeId ?? "", {
+      skip: !selectedGradeId,
+    });
 
   const onSubmit = async (data: PaperSchema) => {
     try {
@@ -77,7 +78,8 @@ export function AddPaper() {
     }
   };
 
-  const { handleSubmit, register, watch, setValue, reset, formState } = createPaperForm;
+  const { handleSubmit, register, watch, setValue, reset, formState } =
+    createPaperForm;
   const selectedGrade = watch("grade");
 
   useEffect(() => {
@@ -108,11 +110,7 @@ export function AddPaper() {
           <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="Title"
-                {...register("title")}
-              />
+              <Input id="title" placeholder="Title" {...register("title")} />
               {formState.errors.title && (
                 <p className="text-sm text-red-500">
                   {formState.errors.title.message}
@@ -175,7 +173,10 @@ export function AddPaper() {
                 value={watch("subject")}
                 disabled={!selectedGradeId || isGradeDetailsLoading}
               >
-                <SelectTrigger className="w-full" isLoading={isGradeDetailsLoading}>
+                <SelectTrigger
+                  className="w-full"
+                  isLoading={isGradeDetailsLoading}
+                >
                   <SelectValue placeholder="Select a subject" />
                 </SelectTrigger>
                 <SelectContent className="w-full">
@@ -210,13 +211,22 @@ export function AddPaper() {
               )}
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="url">URL</Label>
-              <Input
-                id="url"
-                placeholder="URL"
-                type="text"
-                {...register("url")}
+              <Label htmlFor="url">Paper File</Label>
+              <FileUploadDropzone
+                onUploaded={(url) => {
+                  createPaperForm.setValue("url", url);
+                }}
               />
+              {createPaperForm.watch("url") && (
+                <a
+                  href={createPaperForm.watch("url")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline mt-1 break-all"
+                >
+                  View Uploaded Paper
+                </a>
+              )}
               {formState.errors.url && (
                 <p className="text-sm text-red-500">
                   {formState.errors.url.message}
