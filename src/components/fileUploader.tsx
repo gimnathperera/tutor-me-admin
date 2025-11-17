@@ -31,20 +31,41 @@ export default function FileUploadDropzone({
         setPreviewUrl(null);
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/upload", {
+      const signed = await fetch("/api/upload-url", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: `${Date.now()}-${file.name}`,
+          fileType: file.type,
+        }),
+      }).then((res) => res.json());
+
+      const uploadUrl = signed.uploadUrl;
+      if (!uploadUrl) {
+        setUploading(false);
+        alert("Failed to generate SAS URL");
+        return;
+      }
+
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "x-ms-blob-type": "BlockBlob",
+          "Content-Type": file.type,
+        },
+        body: file,
       });
 
-      const data = await res.json();
       setUploading(false);
 
-      if (data.url) {
-        onUploaded(data.url);
+      if (!uploadRes.ok) {
+        alert("Upload failed");
+        return;
       }
+
+      const publicUrl = uploadUrl.split("?")[0];
+
+      onUploaded(publicUrl);
     },
     [onUploaded],
   );
