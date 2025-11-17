@@ -1,0 +1,5 @@
+export const UPLOAD_CONFIG = {
+  ACCOUNT: process.env.AZURE_STORAGE_ACCOUNT_NAME!,
+  CONTAINER: process.env.AZURE_CONTAINER_NAME!,
+  SAS_TOKEN: process.env.AZURE_SAS_TOKEN!,
+};
