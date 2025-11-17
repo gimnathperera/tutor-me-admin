@@ -20,10 +20,12 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
-import { useFetchGradeByIdQuery, useFetchGradesQuery } from "@/store/api/splits/grades";
-import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
+import {
+  useFetchGradeByIdQuery,
+  useFetchGradesQuery,
+} from "@/store/api/splits/grades";
 import { useCreateTuitionRateMutation } from "@/store/api/splits/tuition-rates";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +48,7 @@ export function AddTuitionRate() {
   });
 
   const [createRate, { isLoading }] = useCreateTuitionRateMutation();
-  const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 100 });
+
   const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
     {},
   );
