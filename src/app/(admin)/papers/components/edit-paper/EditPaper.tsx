@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+import { useDebounce } from "@/hooks/useDebounce";
 import { PaperSchema, paperSchema } from "@/schemas/paper.schema";
 import {
   useFetchGradeByIdQuery,
@@ -63,12 +64,22 @@ export function EditPaper({
   url,
 }: EditPaperProps) {
   const [open, setOpen] = useState(false);
+
+  // Extract IDs
   const gradeId = typeof grade === "string" ? grade : grade.id;
   const subjectId = typeof subject === "string" ? subject : subject.id;
-  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
-    gradeId,
-  );
+  const [hydrated, setHydrated] = useState(false);
+
+
+  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(gradeId);
   const [previewUrl, setPreviewUrl] = useState<string | null>(url || null);
+
+  // 🔍 Grade search
+  const [gradeSearch, setGradeSearch] = useState("");
+  const debouncedGradeSearch = useDebounce(gradeSearch, 300);
+
+  // 🔍 Subject search (local)
+  const [subjectSearch, setSubjectSearch] = useState("");
 
   const updatePaperForm = useForm<PaperSchema>({
     resolver: zodResolver(paperSchema),
@@ -85,66 +96,58 @@ export function EditPaper({
 
   const [updatePaper, { isLoading }] = useUpdatePaperMutation();
 
-  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
-    {},
-  );
+  // Load grades with search
+  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery({
+    title: debouncedGradeSearch,
+  });
+
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
   const { formState, watch, setValue, register } = updatePaperForm;
   const selectedGrade = watch("grade");
 
-  // Set selected grade ID when dialog opens
-  useEffect(() => {
-    if (open) {
-      setSelectedGradeId(gradeId);
-    }
-  }, [open, gradeId]);
+useEffect(() => {
+  if (open && gradeDetails) {
+    const subjectExists = gradeDetails.subjects?.some(
+      (s: Subject) => s.id === subjectId,
+    );
 
-  // Reset form when dialog opens OR when gradeDetails loads
-  useEffect(() => {
-    if (open && gradeDetails) {
-      // Verify that the subject belongs to this grade
-      const subjectExists = gradeDetails.subjects?.some(
-        (s: Subject) => s.id === subjectId,
-      );
+    updatePaperForm.reset({
+      title,
+      description,
+      grade: gradeId,
+      subject: subjectExists ? subjectId : "",
+      year,
+      url,
+    });
 
-      updatePaperForm.reset({
-        title,
-        description,
-        grade: gradeId,
-        subject: subjectExists ? subjectId : "",
-        year,
-        url,
-      });
-    }
-  }, [
-    open,
-    gradeDetails,
-    title,
-    description,
-    gradeId,
-    subjectId,
-    year,
-    url,
-    updatePaperForm,
-  ]);
+    setSubjectSearch("");
+    setHydrated(true);
+  }
+}, [open, gradeDetails, title, description, gradeId, subjectId, year, url]);
 
-  // Handle grade change
+
   useEffect(() => {
     if (selectedGrade && selectedGrade !== gradeId) {
       setValue("subject", "");
       setSelectedGradeId(selectedGrade);
+      setSubjectSearch("");
     }
   }, [selectedGrade, gradeId, setValue]);
+
+  const filteredSubjects =
+    gradeDetails?.subjects?.filter((sub: Subject) =>
+      sub.title.toLowerCase().includes(subjectSearch.toLowerCase()),
+    ) ?? [];
 
   const onSubmit = async (data: PaperSchema) => {
     try {
       const result = await updatePaper({ id, ...data });
       const error = getErrorInApiResult(result);
-      if (error) {
-        return toast.error(error);
-      }
+
+      if (error) return toast.error(error);
+
       if ("data" in result) {
         toast.success("Paper updated successfully");
         setOpen(false);
@@ -161,16 +164,20 @@ export function EditPaper({
       <DialogTrigger asChild>
         <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
         <form onSubmit={updatePaperForm.handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>Edit Paper</DialogTitle>
             <DialogDescription>Edit the paper details.</DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
+
+            {/* TITLE */}
             <div className="grid gap-3">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" placeholder="Title" {...register("title")} />
+              <Label>Title</Label>
+              <Input {...register("title")} />
               {formState.errors.title && (
                 <p className="text-sm text-red-500">
                   {formState.errors.title.message}
@@ -178,17 +185,16 @@ export function EditPaper({
               )}
             </div>
 
+            {/* DESCRIPTION */}
             <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
+              <Label>Description</Label>
               <Textarea
-                id="description"
-                placeholder="Description"
                 {...register("description")}
                 rows={1}
                 onInput={(e) => {
-                  const target = e.currentTarget;
-                  target.style.height = "auto";
-                  target.style.height = target.scrollHeight + "px";
+                  const t = e.currentTarget;
+                  t.style.height = "auto";
+                  t.style.height = t.scrollHeight + "px";
                 }}
                 className="resize-none overflow-hidden"
               />
@@ -199,19 +205,38 @@ export function EditPaper({
               )}
             </div>
 
+            {/* GRADE DROPDOWN */}
             <div className="grid gap-3">
-              <Label htmlFor="grade">Grade</Label>
+              <Label>Grade</Label>
               <Select
                 onValueChange={(value) => setValue("grade", value)}
-                value={watch("grade")}
+                value={hydrated ? watch("grade") : undefined}
                 disabled={isGradesLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a grade" />
                 </SelectTrigger>
+
                 <SelectContent className="w-full">
+                  {/* 🔍 Grade search bar */}
+                  <div className="p-2 border-b">
+                    <Input
+                      placeholder="Search grade..."
+                      value={gradeSearch}
+                      onChange={(e) => setGradeSearch(e.target.value)}
+                      className="h-8"
+                    />
+                  </div>
+
                   <SelectGroup>
                     <SelectLabel>Grades</SelectLabel>
+
+                    {gradeData?.results?.length === 0 && (
+                      <div className="p-3 text-sm text-gray-500">
+                        No results found.
+                      </div>
+                    )}
+
                     {gradeData?.results?.map((grade) => (
                       <SelectItem key={grade.id} value={grade.id}>
                         {grade.title}
@@ -220,6 +245,7 @@ export function EditPaper({
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.grade && (
                 <p className="text-sm text-red-500">
                   {formState.errors.grade.message}
@@ -227,27 +253,47 @@ export function EditPaper({
               )}
             </div>
 
+            {/* SUBJECT DROPDOWN */}
             <div className="grid gap-3">
-              <Label htmlFor="subject">Subject</Label>
+              <Label>Subject</Label>
               <Select
                 onValueChange={(value) => setValue("subject", value)}
-                value={watch("subject")}
+                value={hydrated ? watch("subject") : undefined}
                 disabled={!selectedGradeId || isGradeDetailsLoading}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a subject" />
                 </SelectTrigger>
+
                 <SelectContent className="w-full">
+                  {/* 🔍 Subject search bar */}
+                  <div className="p-2 border-b">
+                    <Input
+                      placeholder="Search subject..."
+                      value={subjectSearch}
+                      onChange={(e) => setSubjectSearch(e.target.value)}
+                      className="h-8"
+                    />
+                  </div>
+
                   <SelectGroup>
                     <SelectLabel>Subjects</SelectLabel>
-                    {gradeDetails?.subjects?.map((subject: Subject) => (
-                      <SelectItem key={subject.id} value={subject.id}>
-                        {subject.title}
+
+                    {filteredSubjects.length === 0 && (
+                      <div className="p-3 text-sm text-gray-500">
+                        No results found.
+                      </div>
+                    )}
+
+                    {filteredSubjects.map((sub: Subject) => (
+                      <SelectItem key={sub.id} value={sub.id}>
+                        {sub.title}
                       </SelectItem>
                     ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.subject && (
                 <p className="text-sm text-red-500">
                   {formState.errors.subject.message}
@@ -255,14 +301,10 @@ export function EditPaper({
               )}
             </div>
 
+            {/* YEAR */}
             <div className="grid gap-3">
-              <Label htmlFor="year">Year</Label>
-              <Input
-                id="year"
-                placeholder="Year"
-                type="text"
-                {...register("year")}
-              />
+              <Label>Year</Label>
+              <Input type="text" {...register("year")} />
               {formState.errors.year && (
                 <p className="text-sm text-red-500">
                   {formState.errors.year.message}
@@ -270,8 +312,9 @@ export function EditPaper({
               )}
             </div>
 
+            {/* FILE UPLOAD */}
             <div className="grid gap-3">
-              <Label htmlFor="url">Paper File</Label>
+              <Label>Paper File</Label>
               <FileUploadDropzone
                 onUploaded={(uploadedUrl) => {
                   setValue("url", uploadedUrl);
@@ -295,10 +338,12 @@ export function EditPaper({
               )}
             </div>
           </div>
+
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
