@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   initialFormValues,
   PaperSchema,
@@ -44,9 +45,9 @@ export function AddPaper() {
   const [open, setOpen] = useState(false);
   const [createPaper, { isLoading }] = useCreatePaperMutation();
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
-  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
-    {},
-  );
+  const [gradeSearch, setGradeSearch] = useState("");
+  const [subjectSearch, setSubjectSearch] = useState("");
+  const debouncedGradeSearch = useDebounce(gradeSearch, 300);
 
   const createPaperForm = useForm<PaperSchema>({
     resolver: zodResolver(paperSchema),
@@ -81,6 +82,13 @@ export function AddPaper() {
   const { handleSubmit, register, watch, setValue, reset, formState } =
     createPaperForm;
   const selectedGrade = watch("grade");
+  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
+    { title: debouncedGradeSearch }
+  );
+
+  const filteredSubjects = gradeDetails?.subjects?.filter((subject) =>
+  subject.title.toLowerCase().includes(subjectSearch.toLowerCase())
+);
 
   useEffect(() => {
     if (selectedGrade) {
@@ -150,8 +158,25 @@ export function AddPaper() {
                   <SelectValue placeholder="Select a grade" />
                 </SelectTrigger>
                 <SelectContent className="w-full">
+                  {/* 🔍 Search bar inside dropdown */}
+                  <div className="p-2 border-b">
+                    <Input
+                      placeholder="Search grade..."
+                      value={gradeSearch}
+                      onChange={(e) => setGradeSearch(e.target.value)}
+                      className="h-8"
+                    />
+                  </div>
+
                   <SelectGroup>
                     <SelectLabel>Grades</SelectLabel>
+
+                    {gradeData?.results?.length === 0 && (
+                      <div className="p-3 text-sm text-gray-500">
+                        No results found.
+                      </div>
+                    )}
+
                     {gradeData?.results?.map((grade) => (
                       <SelectItem key={grade.id} value={grade.id}>
                         {grade.title}
@@ -160,6 +185,7 @@ export function AddPaper() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.grade && (
                 <p className="text-sm text-red-500">
                   {formState.errors.grade.message}
@@ -180,9 +206,23 @@ export function AddPaper() {
                   <SelectValue placeholder="Select a subject" />
                 </SelectTrigger>
                 <SelectContent className="w-full">
+                  <div className="p-2 border-b">
+                    <Input
+                      placeholder="Search subject..."
+                      value={subjectSearch}
+                      onChange={(e) => setSubjectSearch(e.target.value)}
+                      className="h-8"
+                    />
+                  </div>
+
                   <SelectGroup>
                     <SelectLabel>Subjects</SelectLabel>
-                    {gradeDetails?.subjects?.map((subject) => (
+
+                    {filteredSubjects?.length === 0 && (
+                      <div className="p-3 text-sm text-gray-500">No results found.</div>
+                    )}
+
+                    {filteredSubjects?.map((subject) => (
                       <SelectItem key={subject.id} value={subject.id}>
                         {subject.title}
                       </SelectItem>
