@@ -36,6 +36,10 @@ import {
 } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
+  preferredLocationOptions,
+  tutoringLevelOptions,
+} from "../../constants";
+import {
   AddTutorFormValues,
   addTutorSchema,
   initialTutorFormValues,
@@ -73,68 +77,6 @@ export function AddTutor() {
       shouldDirty: true,
     });
   };
-
-  const preferredLocationOptions = [
-    "Kollupitiya (Colombo 3)",
-    "Bambalapitiya (Colombo 4)",
-    "Havelock Town (Colombo 5)",
-    "Wellawatte (Colombo 6)",
-    "Cinnamon Gardens (Colombo 7)",
-    "Borella (Colombo 8)",
-    "Dehiwala",
-    "Mount Lavinia",
-    "Nugegoda",
-    "Rajagiriya",
-    "Kotte",
-    "Battaramulla",
-    "Malabe",
-    "Moratuwa",
-    "Gampaha",
-    "Negombo",
-    "Kadawatha",
-    "Kiribathgoda",
-    "Kelaniya",
-    "Wattala",
-    "Ja-Ela",
-    "Kalutara",
-    "Panadura",
-    "Horana",
-    "Wadduwa",
-    "Kandy",
-    "Matale",
-    "Nuwara Eliya",
-    "Galle",
-    "Matara",
-    "Hambantota",
-    "Kurunegala",
-    "Puttalam",
-    "Chilaw",
-    "Ratnapura",
-    "Kegalle",
-    "Badulla",
-    "Bandarawela",
-    "Anuradhapura",
-    "Polonnaruwa",
-    "Jaffna",
-    "Vavuniya",
-    "Trincomalee",
-    "Batticaloa",
-    "No Preference",
-  ].map((v) => ({ value: v, text: v }));
-
-  const tutoringLevelOptions = [
-    "Pre-School / Montessori",
-    "Primary School (Grades 1-5)",
-    "Ordinary Level (O/L) (Grades 6-11)",
-    "Advanced Level (A/L) (Grades 12-13)",
-    "International Syllabus (Cambridge, Edexcel, IB)",
-    "Undergraduate",
-    "Diploma / Degree",
-    "Language (e.g., English, French, Japanese)",
-    "Computing (e.g., Programming, Graphic Design)",
-    "Music & Arts",
-    "Special Skills",
-  ].map((v) => ({ value: v, text: v }));
 
   const onSubmit = async (data: AddTutorFormValues) => {
     const result = await createTutor({ ...data });
