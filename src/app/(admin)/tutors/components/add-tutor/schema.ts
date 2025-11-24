@@ -15,6 +15,12 @@ export const addTutorSchema = z.object({
 
   gender: z.enum(["Male", "Female"]),
   age: z.number().int().min(1),
+  tutorMediums: z
+    .array(z.string())
+    .min(1, "Please select at least one medium."),
+
+  grades: z.array(z.string()).min(1, "Select at least one grade"),
+  subjects: z.array(z.string()).min(1, "Select at least one subject"),
   nationality: z.enum(["Sri Lankan", "Others"]),
   race: z.enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"]),
   last4NRIC: z
@@ -143,6 +149,9 @@ export const initialTutorFormValues: AddTutorFormValues = {
 
   gender: "Male",
   age: 18,
+  tutorMediums: [],
+  grades: [],
+  subjects: [],
   nationality: "Sri Lankan",
   race: "Sinhalese",
   last4NRIC: "",

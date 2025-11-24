@@ -32,12 +32,15 @@ interface ViewTutorProps {
     teachingSummary?: string;
     studentResults?: string;
     sellingPoints?: string;
-    tutoringLevels?: string[];
-    preferredLocations?: string[];
+    tutoringLevels?: string[] | { id?: string; title?: string }[];
+    preferredLocations?: string[] | { id?: string; title?: string }[];
     agreeTerms?: boolean;
     agreeAssignmentInfo?: boolean;
     createdAt?: string;
     updatedAt?: string;
+    tutorMediums?: string[] | { id?: string; title?: string }[];
+    grades?: string[] | { id?: string; title?: string }[];
+    subjects?: string[] | { id?: string; title?: string }[];
   };
 }
 
@@ -60,6 +63,21 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
       ? fallback
       : value;
 
+  const normalizeArrayToStrings = (arr?: any[]) => {
+    if (!arr || !Array.isArray(arr)) return [];
+    return arr.map((it) => {
+      if (typeof it === "string") return it;
+      if (typeof it === "number") return String(it);
+      if (it == null) return "N/A";
+      // prefer title -> name -> id -> fallback to JSON
+      return it.title ?? it.name ?? it.id ?? JSON.stringify(it);
+    });
+  };
+  const mediumList = normalizeArrayToStrings(tutor.tutorMediums as any);
+  const gradeList = normalizeArrayToStrings(tutor.grades as any);
+  const subjectList = normalizeArrayToStrings(tutor.subjects as any);
+  const levels = normalizeArrayToStrings(tutor.tutoringLevels as any);
+  const locations = normalizeArrayToStrings(tutor.preferredLocations as any);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -186,26 +204,81 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
             </div>
           </div>
 
-          {/** Arrays */}
+          <div className="grid gap-3">
+            <Label>Tutor Mediums</Label>
+            <div className="flex flex-wrap">
+              {mediumList.length === 0 ? (
+                <span className={tagClass}>N/A</span>
+              ) : (
+                mediumList.map((m, i) => (
+                  <span key={i} className={tagClass}>
+                    {m}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/** NEW: Grades */}
+          <div className="grid gap-3">
+            <Label>Grades</Label>
+            <div className="flex flex-wrap">
+              {gradeList.length === 0 ? (
+                <span className={tagClass}>N/A</span>
+              ) : (
+                gradeList.map((g, i) => (
+                  <span key={i} className={tagClass}>
+                    {g}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/** NEW: Subjects */}
+          <div className="grid gap-3">
+            <Label>Subjects</Label>
+            <div className="flex flex-wrap">
+              {subjectList.length === 0 ? (
+                <span className={tagClass}>N/A</span>
+              ) : (
+                subjectList.map((s, i) => (
+                  <span key={i} className={tagClass}>
+                    {s}
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/** Arrays: tutoring levels & preferred locations */}
           <div className="grid gap-3">
             <Label>Tutoring Levels</Label>
             <div className="flex flex-wrap">
-              {(tutor.tutoringLevels || []).map((level, idx) => (
-                <span key={idx} className={tagClass}>
-                  {level}
-                </span>
-              ))}
+              {levels.length === 0 ? (
+                <span className={tagClass}>N/A</span>
+              ) : (
+                levels.map((level, idx) => (
+                  <span key={idx} className={tagClass}>
+                    {level}
+                  </span>
+                ))
+              )}
             </div>
           </div>
 
           <div className="grid gap-3">
             <Label>Preferred Locations</Label>
             <div className="flex flex-wrap">
-              {(tutor.preferredLocations || []).map((loc, idx) => (
-                <span key={idx} className={tagClass}>
-                  {loc}
-                </span>
-              ))}
+              {locations.length === 0 ? (
+                <span className={tagClass}>N/A</span>
+              ) : (
+                locations.map((loc, idx) => (
+                  <span key={idx} className={tagClass}>
+                    {loc}
+                  </span>
+                ))
+              )}
             </div>
           </div>
         </div>

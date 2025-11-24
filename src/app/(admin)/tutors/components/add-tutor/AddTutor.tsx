@@ -3,6 +3,12 @@
 import MultiSelect from "@/components/form/MultiSelect";
 import { Button } from "@/components/ui/button/Button";
 import DatePicker from "@/components/ui/DatePicker";
+import {
+  useFetchGradesQuery,
+  useLazyFetchGradeByIdQuery,
+} from "@/store/api/splits/grades";
+// add this with your other imports
+import { useRef } from "react";
 
 import {
   Dialog,
@@ -14,6 +20,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+// add this with your other imports
+import { useWatch } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -56,6 +64,101 @@ export function AddTutor() {
   });
 
   const { formState, reset, setValue, watch, control } = form;
+  // watch selected grades and current subject selections
+  const selectedGrades = useWatch({
+    control,
+    name: "grades",
+    defaultValue: [],
+  }) as string[];
+  const selectedSubjects = useWatch({
+    control,
+    name: "subjects",
+    defaultValue: [],
+  }) as string[];
+  const dob = useWatch({
+    control,
+    name: "dateOfBirth",
+    defaultValue: "",
+  }) as string;
+  // Grades / Subjects state & queries (match client logic)
+  const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
+  const [fetchGradeById] = useLazyFetchGradeByIdQuery();
+
+  // derive grade options for MultiSelect
+  const gradeOptions =
+    gradesData?.results?.map((g) => ({ value: g.id, text: g.title })) || [];
+
+  const [subjectOptions, setSubjectOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
+
+  // keep a ref to the previous uniqueSubjects JSON to avoid useless setState
+  const prevUniqueSubjectsRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    // selectedGrades may be [] or array of ids
+    if (!selectedGrades || selectedGrades.length === 0) {
+      // only clear if we actually have any subject options or form subjects non-empty
+      if (
+        subjectOptions.length > 0 ||
+        (selectedSubjects && selectedSubjects.length > 0)
+      ) {
+        setSubjectOptions([]);
+        // only clear form subjects if not already empty
+        if (selectedSubjects && selectedSubjects.length > 0) {
+          setValue("subjects", [], { shouldValidate: true });
+        }
+      }
+      prevUniqueSubjectsRef.current = null;
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadSubjects = async () => {
+      const allSubjects: { id: string; title: string }[] = [];
+
+      for (const gradeId of selectedGrades) {
+        const res = await fetchGradeById(gradeId);
+        if (res?.data?.subjects) {
+          allSubjects.push(...res.data.subjects);
+        }
+      }
+
+      const uniqueSubjects = Array.from(
+        new Map(allSubjects.map((s) => [s.id, s])).values(),
+      );
+
+      const uniqueJson = JSON.stringify(
+        uniqueSubjects.map((s) => ({ id: s.id, title: s.title })),
+      );
+
+      if (cancelled) return;
+
+      // only update subjectOptions if the list actually changed
+      if (prevUniqueSubjectsRef.current !== uniqueJson) {
+        setSubjectOptions(
+          uniqueSubjects.map((s) => ({ value: s.id, text: s.title })),
+        );
+        prevUniqueSubjectsRef.current = uniqueJson;
+      }
+
+      // remove selected subjects that are no longer present
+      const validSelected = (selectedSubjects || []).filter((sId: string) =>
+        uniqueSubjects.some((us) => us.id === sId),
+      );
+      // only update form subjects if something changed
+      if (validSelected.length !== (selectedSubjects || []).length) {
+        setValue("subjects", validSelected, { shouldValidate: true });
+      }
+    };
+
+    loadSubjects();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchGradeById, JSON.stringify(selectedGrades || []), setValue]);
 
   useEffect(() => {
     if (!open) {
@@ -69,6 +172,24 @@ export function AddTutor() {
       reset(initialTutorFormValues);
     }
   };
+
+  useEffect(() => {
+    if (!dob) return;
+
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return;
+
+    const today = new Date();
+    let age = today.getFullYear() - d.getFullYear();
+    const m = today.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) {
+      age--;
+    }
+
+    if (age < 0) age = 0;
+
+    setValue("age", age, { shouldValidate: true });
+  }, [dob]);
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
@@ -327,6 +448,76 @@ export function AddTutor() {
                   </p>
                 )}
               </div>
+            </div>
+
+            <div className="grid z-60 gap-3">
+              <MultiSelect
+                label="Tutor Mediums *"
+                options={[
+                  ...["English", "Sinhala", "Tamil"].map((m) => ({
+                    value: m,
+                    text: m,
+                  })),
+                ]}
+                defaultSelected={watch("tutorMediums")}
+                onChange={(selected) =>
+                  setValue(
+                    "tutorMediums",
+                    selected as AddTutorFormValues["tutorMediums"],
+                    {
+                      shouldValidate: true,
+                    },
+                  )
+                }
+              />
+              {formState.errors.tutorMediums && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.tutorMediums.message}
+                </p>
+              )}
+            </div>
+
+            {/* Grades (loaded from API) */}
+            <div className="grid z-58 gap-3">
+              <MultiSelect
+                label="Grades *"
+                options={gradeOptions}
+                defaultSelected={watch("grades")}
+                onChange={(selected) =>
+                  setValue("grades", selected as AddTutorFormValues["grades"], {
+                    shouldValidate: true,
+                  })
+                }
+              />
+              {formState.errors.grades && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.grades.message}
+                </p>
+              )}
+            </div>
+
+            {/* Subjects (depends on grades) */}
+            <div className="grid z-56 gap-3">
+              <MultiSelect
+                label="Subjects *"
+                options={subjectOptions}
+                defaultSelected={watch("subjects")}
+                onChange={(selected) =>
+                  setValue(
+                    "subjects",
+                    selected as AddTutorFormValues["subjects"],
+                    {
+                      shouldValidate: true,
+                    },
+                  )
+                }
+                disabled={!selectedGrades || selectedGrades.length === 0}
+              />
+              {formState.errors.subjects && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.subjects.message}
+                </p>
+              )}
             </div>
 
             <div className="z-50">

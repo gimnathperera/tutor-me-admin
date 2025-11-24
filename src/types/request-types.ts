@@ -339,7 +339,7 @@ export type UpdateTutorRequest = {
     sellingPoints?: string;
     agreeTerms?: boolean;
     agreeAssignmentInfo?: boolean;
-  } & Record<string, unknown>; // ensures object is not empty
+  } & Record<string, unknown>;
 };
 
 export type FetchTestimonialsRequest = {

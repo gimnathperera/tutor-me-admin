@@ -26,11 +26,16 @@ import {
   useFetchTutorByIdQuery,
   useUpdateTutorMutation,
 } from "@/store/api/splits/tutors";
+
+import {
+  useFetchGradesQuery,
+  useLazyFetchGradeByIdQuery,
+} from "@/store/api/splits/grades";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateTutorSchema, updateTutorSchema } from "./schema";
 
@@ -43,6 +48,18 @@ export function EditTutor({ id }: EditTutorProps) {
   const { data: tutorData, isLoading: isFetching } = useFetchTutorByIdQuery(id);
   const [updateTutor, { isLoading: isUpdating }] = useUpdateTutorMutation();
 
+  // Fetch grades for the "Grades" multiselect
+  const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
+  const [fetchGradeById] = useLazyFetchGradeByIdQuery();
+  const gradeOptions =
+    gradesData?.results?.map((g) => ({ value: g.id, text: g.title })) || [];
+
+  // subjectOptions depends on selected grades
+  const [subjectOptions, setSubjectOptions] = useState<
+    { value: string; text: string }[]
+  >([]);
+  const prevUniqueSubjectsRef = useRef<string | null>(null);
+
   const form = useForm<UpdateTutorSchema>({
     resolver: zodResolver(updateTutorSchema),
     defaultValues: {
@@ -52,8 +69,11 @@ export function EditTutor({ id }: EditTutorProps) {
       dateOfBirth: "",
       gender: "Male",
       age: 18,
-      nationality: "Singaporean",
-      race: "Chinese",
+      tutorMediums: [],
+      grades: [],
+      subjects: [],
+      nationality: "Sri Lankan",
+      race: "Sinhalese",
       last4NRIC: "",
       tutoringLevels: [],
       preferredLocations: [],
@@ -69,6 +89,22 @@ export function EditTutor({ id }: EditTutorProps) {
   });
 
   const { formState, reset, setValue, watch, control, handleSubmit } = form;
+
+  const selectedGrades = useWatch({
+    control,
+    name: "grades",
+    defaultValue: [] as string[],
+  }) as string[];
+  const selectedSubjects = useWatch({
+    control,
+    name: "subjects",
+    defaultValue: [] as string[],
+  }) as string[];
+  const dob = useWatch({
+    control,
+    name: "dateOfBirth",
+    defaultValue: "" as string,
+  }) as string;
 
   // Helper function to safely cast enum values
   const safeEnumValue = <T extends string>(
@@ -100,22 +136,82 @@ export function EditTutor({ id }: EditTutorProps) {
     return values.filter((value) => enumValues.includes(value as T)) as T[];
   };
 
+  useEffect(() => {
+    // if no grades selected, clear subjects
+    if (!selectedGrades || selectedGrades.length === 0) {
+      if (
+        subjectOptions.length > 0 ||
+        (selectedSubjects && selectedSubjects.length > 0)
+      ) {
+        setSubjectOptions([]);
+        if (selectedSubjects && selectedSubjects.length > 0) {
+          setValue("subjects", [], { shouldValidate: true });
+        }
+      }
+      prevUniqueSubjectsRef.current = null;
+      return;
+    }
+
+    let cancelled = false;
+    const loadSubjects = async () => {
+      const allSubjects: { id: string; title: string }[] = [];
+
+      for (const gradeId of selectedGrades) {
+        try {
+          const res = await fetchGradeById(gradeId);
+          if (res?.data?.subjects) {
+            allSubjects.push(...res.data.subjects);
+          }
+        } catch (err) {
+          // ignore single grade failure but log
+          // console.error("Failed to fetch grade subjects", err);
+        }
+      }
+
+      const uniqueSubjects = Array.from(
+        new Map(allSubjects.map((s) => [s.id, s])).values(),
+      );
+
+      const uniqueJson = JSON.stringify(
+        uniqueSubjects.map((s) => ({ id: s.id, title: s.title })),
+      );
+
+      if (cancelled) return;
+
+      if (prevUniqueSubjectsRef.current !== uniqueJson) {
+        setSubjectOptions(
+          uniqueSubjects.map((s) => ({ value: s.id, text: s.title })),
+        );
+        prevUniqueSubjectsRef.current = uniqueJson;
+      }
+
+      // filter selected subjects that are no longer valid
+      const validSelected = (selectedSubjects || []).filter((sId: string) =>
+        uniqueSubjects.some((us) => us.id === sId),
+      );
+      if (validSelected.length !== (selectedSubjects || []).length) {
+        setValue("subjects", validSelected, { shouldValidate: true });
+      }
+    };
+
+    loadSubjects();
+
+    return () => {
+      cancelled = true;
+    };
+    // we stringify selectedGrades to avoid referential changes causing re-renders
+  }, [fetchGradeById, JSON.stringify(selectedGrades || []), setValue]);
+
   // Pre-fill form when tutor data is loaded
   useEffect(() => {
     if (tutorData && open) {
       const genderOptions = ["Male", "Female"] as const;
-      const nationalityOptions = [
-        "Singaporean",
-        "Singapore PR",
-        "Others",
-      ] as const;
+      const nationalityOptions = ["Sri Lankan", "Others"] as const;
       const raceOptions = [
-        "Chinese",
-        "Malay",
-        "Indian",
-        "Eurasian",
-        "Caucasian",
-        "Punjabi",
+        "Sinhalese",
+        "Tamil",
+        "Muslim",
+        "Burgher",
         "Others",
       ] as const;
       const tutorTypeOptions = [
@@ -139,81 +235,63 @@ export function EditTutor({ id }: EditTutorProps) {
         "Others",
       ] as const;
       const tutoringLevelOptions = [
-        "Pre-School",
-        "Primary School",
-        "Lower Secondary",
-        "Upper Secondary",
-        "Junior College",
-        "IB/IGCSE",
+        "Pre-School / Montessori",
+        "Primary School (Grades 1-5)",
+        "Ordinary Level (O/L) (Grades 6-11)",
+        "Advanced Level (A/L) (Grades 12-13)",
+        "International Syllabus (Cambridge, Edexcel, IB)",
+        "Undergraduate",
         "Diploma / Degree",
-        "Language",
-        "Computing",
+        "Language (e.g., English, French, Japanese)",
+        "Computing (e.g., Programming, Graphic Design)",
+        "Music & Arts",
         "Special Skills",
-        "Music",
       ] as const;
       const locationOptions = [
-        "Admiralty",
-        "Ang Mo Kio",
-        "Bishan",
-        "Boon Lay",
-        "Bukit Batok",
-        "Bukit Panjang",
-        "Choa Chu Kang",
-        "Clementi",
-        "Jurong East",
-        "Jurong West",
-        "Kranji",
-        "Marsiling",
-        "Sembawang",
-        "Sengkang",
-        "Woodlands",
-        "Yew Tee",
-        "Yishun",
-        "Bedok",
-        "Changi",
-        "East Coast",
-        "Geylang",
-        "Hougang",
-        "Katong",
-        "Marine Parade",
-        "Pasir Ris",
-        "Punggol",
-        "Serangoon",
-        "Tampines",
-        "Ubi",
-        "Bukit Merah",
-        "Bukit Timah",
-        "Dover",
-        "Holland Village",
-        "Newton",
-        "Queenstown",
-        "Toa Payoh",
-        "West Coast",
-        "Boat Quay",
-        "Bugis",
-        "Chinatown",
-        "City Hall",
-        "Clarke Quay",
-        "Dhoby Ghaut",
-        "Marina Bay",
-        "Orchard",
-        "Raffles Place",
-        "Robertson Quay",
-        "Tanjong Pagar",
-        "Hillview",
-        "Keat Hong",
-        "Teck Whye",
-        "Balestier",
-        "Bras Basah",
-        "Farrer Park",
-        "Kallang",
-        "Lavender",
-        "Little India",
-        "MacPherson",
-        "Novena",
-        "Potong Pasir",
-        "Rochor",
-        "Thomson",
+        "Kollupitiya (Colombo 3)",
+        "Bambalapitiya (Colombo 4)",
+        "Havelock Town (Colombo 5)",
+        "Wellawatte (Colombo 6)",
+        "Cinnamon Gardens (Colombo 7)",
+        "Borella (Colombo 8)",
+        "Dehiwala",
+        "Mount Lavinia",
+        "Nugegoda",
+        "Rajagiriya",
+        "Kotte",
+        "Battaramulla",
+        "Malabe",
+        "Moratuwa",
+        "Gampaha",
+        "Negombo",
+        "Kadawatha",
+        "Kiribathgoda",
+        "Kelaniya",
+        "Wattala",
+        "Ja-Ela",
+        "Kalutara",
+        "Panadura",
+        "Horana",
+        "Wadduwa",
+        "Kandy",
+        "Matale",
+        "Nuwara Eliya",
+        "Galle",
+        "Matara",
+        "Hambantota",
+        "Kurunegala",
+        "Puttalam",
+        "Chilaw",
+        "Ratnapura",
+        "Kegalle",
+        "Badulla",
+        "Bandarawela",
+        "Anuradhapura",
+        "Polonnaruwa",
+        "Jaffna",
+        "Vavuniya",
+        "Trincomalee",
+        "Batticaloa",
         "No Preference",
       ] as const;
 
@@ -224,12 +302,16 @@ export function EditTutor({ id }: EditTutorProps) {
         dateOfBirth: formatDateForForm(tutorData.dateOfBirth),
         gender: safeEnumValue(tutorData.gender, genderOptions, "Male"),
         age: tutorData.age || 18,
+        tutorMediums: tutorData.tutorMediums || [],
+        grades: tutorData.grades || [],
+        subjects: tutorData.subjects || [],
+
         nationality: safeEnumValue(
           tutorData.nationality,
           nationalityOptions,
-          "Singaporean",
+          "Sri Lankan",
         ),
-        race: safeEnumValue(tutorData.race, raceOptions, "Chinese"),
+        race: safeEnumValue(tutorData.race, raceOptions, "Sinhalese"),
         last4NRIC: tutorData.last4NRIC || "",
         tutoringLevels: safeArrayEnumValue(
           tutorData.tutoringLevels,
@@ -254,6 +336,14 @@ export function EditTutor({ id }: EditTutorProps) {
         teachingSummary: tutorData.teachingSummary || "",
         studentResults: tutorData.studentResults || "",
         sellingPoints: tutorData.sellingPoints || "",
+        agreeTerms:
+          typeof tutorData.agreeTerms === "boolean"
+            ? tutorData.agreeTerms
+            : undefined,
+        agreeAssignmentInfo:
+          typeof tutorData.agreeAssignmentInfo === "boolean"
+            ? tutorData.agreeAssignmentInfo
+            : undefined,
       });
     }
   }, [tutorData, open, reset]);
@@ -264,18 +354,12 @@ export function EditTutor({ id }: EditTutorProps) {
     if (!isOpen && tutorData) {
       // Reset form to original values when closing
       const genderOptions = ["Male", "Female"] as const;
-      const nationalityOptions = [
-        "Singaporean",
-        "Singapore PR",
-        "Others",
-      ] as const;
+      const nationalityOptions = ["Sri Lankan", "Others"] as const;
       const raceOptions = [
-        "Chinese",
-        "Malay",
-        "Indian",
-        "Eurasian",
-        "Caucasian",
-        "Punjabi",
+        "Sinhalese",
+        "Tamil",
+        "Muslim",
+        "Burgher",
         "Others",
       ] as const;
       const tutorTypeOptions = [
@@ -299,124 +383,108 @@ export function EditTutor({ id }: EditTutorProps) {
         "Others",
       ] as const;
       const tutoringLevelOptions = [
-        "Pre-School",
-        "Primary School",
-        "Lower Secondary",
-        "Upper Secondary",
-        "Junior College",
-        "IB/IGCSE",
+        "Pre-School / Montessori",
+        "Primary School (Grades 1-5)",
+        "Ordinary Level (O/L) (Grades 6-11)",
+        "Advanced Level (A/L) (Grades 12-13)",
+        "International Syllabus (Cambridge, Edexcel, IB)",
+        "Undergraduate",
         "Diploma / Degree",
-        "Language",
-        "Computing",
+        "Language (e.g., English, French, Japanese)",
+        "Computing (e.g., Programming, Graphic Design)",
+        "Music & Arts",
         "Special Skills",
-        "Music",
       ] as const;
       const locationOptions = [
-        "Admiralty",
-        "Ang Mo Kio",
-        "Bishan",
-        "Boon Lay",
-        "Bukit Batok",
-        "Bukit Panjang",
-        "Choa Chu Kang",
-        "Clementi",
-        "Jurong East",
-        "Jurong West",
-        "Kranji",
-        "Marsiling",
-        "Sembawang",
-        "Sengkang",
-        "Woodlands",
-        "Yew Tee",
-        "Yishun",
-        "Bedok",
-        "Changi",
-        "East Coast",
-        "Geylang",
-        "Hougang",
-        "Katong",
-        "Marine Parade",
-        "Pasir Ris",
-        "Punggol",
-        "Serangoon",
-        "Tampines",
-        "Ubi",
-        "Bukit Merah",
-        "Bukit Timah",
-        "Dover",
-        "Holland Village",
-        "Newton",
-        "Queenstown",
-        "Toa Payoh",
-        "West Coast",
-        "Boat Quay",
-        "Bugis",
-        "Chinatown",
-        "City Hall",
-        "Clarke Quay",
-        "Dhoby Ghaut",
-        "Marina Bay",
-        "Orchard",
-        "Raffles Place",
-        "Robertson Quay",
-        "Tanjong Pagar",
-        "Hillview",
-        "Keat Hong",
-        "Teck Whye",
-        "Balestier",
-        "Bras Basah",
-        "Farrer Park",
-        "Kallang",
-        "Lavender",
-        "Little India",
-        "MacPherson",
-        "Novena",
-        "Potong Pasir",
-        "Rochor",
-        "Thomson",
+        "Kollupitiya (Colombo 3)",
+        "Bambalapitiya (Colombo 4)",
+        "Havelock Town (Colombo 5)",
+        "Wellawatte (Colombo 6)",
+        "Cinnamon Gardens (Colombo 7)",
+        "Borella (Colombo 8)",
+        "Dehiwala",
+        "Mount Lavinia",
+        "Nugegoda",
+        "Rajagiriya",
+        "Kotte",
+        "Battaramulla",
+        "Malabe",
+        "Moratuwa",
+        "Gampaha",
+        "Negombo",
+        "Kadawatha",
+        "Kiribathgoda",
+        "Kelaniya",
+        "Wattala",
+        "Ja-Ela",
+        "Kalutara",
+        "Panadura",
+        "Horana",
+        "Wadduwa",
+        "Kandy",
+        "Matale",
+        "Nuwara Eliya",
+        "Galle",
+        "Matara",
+        "Hambantota",
+        "Kurunegala",
+        "Puttalam",
+        "Chilaw",
+        "Ratnapura",
+        "Kegalle",
+        "Badulla",
+        "Bandarawela",
+        "Anuradhapura",
+        "Polonnaruwa",
+        "Jaffna",
+        "Vavuniya",
+        "Trincomalee",
+        "Batticaloa",
         "No Preference",
       ] as const;
+      console.log("Raw tutorData:", tutorData);
 
-      reset({
-        fullName: tutorData.fullName || "",
-        contactNumber: tutorData.contactNumber || "",
-        email: tutorData.email || "",
-        dateOfBirth: formatDateForForm(tutorData.dateOfBirth),
-        gender: safeEnumValue(tutorData.gender, genderOptions, "Male"),
-        age: tutorData.age || 18,
-        nationality: safeEnumValue(
-          tutorData.nationality,
-          nationalityOptions,
-          "Singaporean",
-        ),
-        race: safeEnumValue(tutorData.race, raceOptions, "Chinese"),
-        last4NRIC: tutorData.last4NRIC || "",
-        tutoringLevels: safeArrayEnumValue(
-          tutorData.tutoringLevels,
-          tutoringLevelOptions,
-        ),
-        preferredLocations: safeArrayEnumValue(
-          tutorData.preferredLocations,
-          locationOptions,
-        ),
-        tutorType: safeEnumValue(
-          tutorData.tutorType,
-          tutorTypeOptions,
-          "Full Time Student",
-        ),
-        yearsExperience: tutorData.yearsExperience || 0,
-        highestEducation: safeEnumValue(
-          tutorData.highestEducation,
-          educationOptions,
-          "Undergraduate",
-        ),
-        academicDetails: tutorData.academicDetails || "",
-        teachingSummary: tutorData.teachingSummary || "",
-        studentResults: tutorData.studentResults || "",
-        sellingPoints: tutorData.sellingPoints || "",
+      reset((current) => {
+        return {
+          fullName: tutorData.fullName || "",
+          contactNumber: tutorData.contactNumber || "",
+          email: tutorData.email || "",
+          dateOfBirth: formatDateForForm(tutorData.dateOfBirth),
+          gender: tutorData.gender || "Male",
+          age: tutorData.age || 18,
+          tutorMediums: tutorData.tutorMediums || [],
+          grades: tutorData.grades || [],
+          subjects: tutorData.subjects || [],
+          nationality: tutorData.nationality || "Sri Lankan",
+          race: tutorData.race || "Sinhalese",
+          last4NRIC: tutorData.last4NRIC || "",
+          tutoringLevels: tutorData.tutoringLevels || [],
+          preferredLocations: tutorData.preferredLocations || [],
+          tutorType: tutorData.tutorType || "Full Time Student",
+          yearsExperience: tutorData.yearsExperience || 0,
+          highestEducation: tutorData.highestEducation || "Undergraduate",
+          academicDetails: tutorData.academicDetails || "",
+          teachingSummary: tutorData.teachingSummary || "",
+          studentResults: tutorData.studentResults || "",
+          sellingPoints: tutorData.sellingPoints || "",
+          agreeTerms:
+            typeof tutorData.agreeTerms === "boolean"
+              ? tutorData.agreeTerms
+              : undefined,
+          agreeAssignmentInfo:
+            typeof tutorData.agreeAssignmentInfo === "boolean"
+              ? tutorData.agreeAssignmentInfo
+              : undefined,
+        } as any;
       });
     }
   };
+
+  useEffect(() => {
+    if (!open) return;
+    if (tutorData?.grades && tutorData.grades.length > 0) {
+    }
+  }, [open, tutorData]);
 
   // Helper for mapping years select value -> numeric
   const handleYearsSelect = (val: string) => {
@@ -428,83 +496,65 @@ export function EditTutor({ id }: EditTutorProps) {
   };
 
   const preferredLocationOptions = [
-    "Admiralty",
-    "Ang Mo Kio",
-    "Bishan",
-    "Boon Lay",
-    "Bukit Batok",
-    "Bukit Panjang",
-    "Choa Chu Kang",
-    "Clementi",
-    "Jurong East",
-    "Jurong West",
-    "Kranji",
-    "Marsiling",
-    "Sembawang",
-    "Sengkang",
-    "Woodlands",
-    "Yew Tee",
-    "Yishun",
-    "Bedok",
-    "Changi",
-    "East Coast",
-    "Geylang",
-    "Hougang",
-    "Katong",
-    "Marine Parade",
-    "Pasir Ris",
-    "Punggol",
-    "Serangoon",
-    "Tampines",
-    "Ubi",
-    "Bukit Merah",
-    "Bukit Timah",
-    "Dover",
-    "Holland Village",
-    "Newton",
-    "Queenstown",
-    "Toa Payoh",
-    "West Coast",
-    "Boat Quay",
-    "Bugis",
-    "Chinatown",
-    "City Hall",
-    "Clarke Quay",
-    "Dhoby Ghaut",
-    "Marina Bay",
-    "Orchard",
-    "Raffles Place",
-    "Robertson Quay",
-    "Tanjong Pagar",
-    "Hillview",
-    "Keat Hong",
-    "Teck Whye",
-    "Balestier",
-    "Bras Basah",
-    "Farrer Park",
-    "Kallang",
-    "Lavender",
-    "Little India",
-    "MacPherson",
-    "Novena",
-    "Potong Pasir",
-    "Rochor",
-    "Thomson",
+    "Kollupitiya (Colombo 3)",
+    "Bambalapitiya (Colombo 4)",
+    "Havelock Town (Colombo 5)",
+    "Wellawatte (Colombo 6)",
+    "Cinnamon Gardens (Colombo 7)",
+    "Borella (Colombo 8)",
+    "Dehiwala",
+    "Mount Lavinia",
+    "Nugegoda",
+    "Rajagiriya",
+    "Kotte",
+    "Battaramulla",
+    "Malabe",
+    "Moratuwa",
+    "Gampaha",
+    "Negombo",
+    "Kadawatha",
+    "Kiribathgoda",
+    "Kelaniya",
+    "Wattala",
+    "Ja-Ela",
+    "Kalutara",
+    "Panadura",
+    "Horana",
+    "Wadduwa",
+    "Kandy",
+    "Matale",
+    "Nuwara Eliya",
+    "Galle",
+    "Matara",
+    "Hambantota",
+    "Kurunegala",
+    "Puttalam",
+    "Chilaw",
+    "Ratnapura",
+    "Kegalle",
+    "Badulla",
+    "Bandarawela",
+    "Anuradhapura",
+    "Polonnaruwa",
+    "Jaffna",
+    "Vavuniya",
+    "Trincomalee",
+    "Batticaloa",
     "No Preference",
   ].map((v) => ({ value: v, text: v }));
 
   const tutoringLevelOptions = [
-    "Pre-School",
-    "Primary School",
-    "Lower Secondary",
-    "Upper Secondary",
-    "Junior College",
-    "IB/IGCSE",
+    "Pre-School / Montessori",
+    "Primary School (Grades 1-5)",
+    "Ordinary Level (O/L) (Grades 6-11)",
+    "Advanced Level (A/L) (Grades 12-13)",
+    "International Syllabus (Cambridge, Edexcel, IB)",
+    "Undergraduate",
     "Diploma / Degree",
-    "Language",
-    "Computing",
+    "Language (e.g., English, French, Japanese)",
+    "Computing (e.g., Programming, Graphic Design)",
+    "Music & Arts",
     "Special Skills",
-    "Music",
   ].map((v) => ({ value: v, text: v }));
 
   const onSubmit = async (data: UpdateTutorSchema) => {
@@ -675,8 +725,7 @@ export function EditTutor({ id }: EditTutorProps) {
                     <SelectValue placeholder="Select nationality" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Singaporean">Singaporean</SelectItem>
-                    <SelectItem value="Singapore PR">Singapore PR</SelectItem>
+                    <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
                     <SelectItem value="Others">Others</SelectItem>
                   </SelectContent>
                 </Select>
@@ -699,12 +748,10 @@ export function EditTutor({ id }: EditTutorProps) {
                     <SelectValue placeholder="Select race" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Chinese">Chinese</SelectItem>
-                    <SelectItem value="Malay">Malay</SelectItem>
-                    <SelectItem value="Indian">Indian</SelectItem>
-                    <SelectItem value="Eurasian">Eurasian</SelectItem>
-                    <SelectItem value="Caucasian">Caucasian</SelectItem>
-                    <SelectItem value="Punjabi">Punjabi</SelectItem>
+                    <SelectItem value="Sinhalese">Sinhalese</SelectItem>
+                    <SelectItem value="Tamil">Tamil</SelectItem>
+                    <SelectItem value="Muslim">Muslim</SelectItem>
+                    <SelectItem value="Burgher">Burgher</SelectItem>
                     <SelectItem value="Others">Others</SelectItem>
                   </SelectContent>
                 </Select>
@@ -770,6 +817,69 @@ export function EditTutor({ id }: EditTutorProps) {
                   </p>
                 )}
               </div>
+            </div>
+
+            {/* NEW: Tutor Mediums */}
+            <div className="grid z-60 gap-3">
+              <MultiSelect
+                label="Tutor Mediums *"
+                /* replacement for lines ~832-837 */
+                options={["English", "Sinhala", "Tamil"].map((m) => ({
+                  value: m,
+                  text: m,
+                }))}
+                defaultSelected={watch("tutorMediums")}
+                onChange={(selected) =>
+                  setValue("tutorMediums", selected as string[], {
+                    shouldValidate: true,
+                  })
+                }
+              />
+
+              {formState.errors.tutorMediums && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.tutorMediums.message as any}
+                </p>
+              )}
+            </div>
+
+            {/* NEW: Grades */}
+            <div className="grid z-58 gap-3">
+              <MultiSelect
+                label="Grades *"
+                options={gradeOptions}
+                defaultSelected={watch("grades")}
+                onChange={(selected) =>
+                  setValue("grades", selected as string[], {
+                    shouldValidate: true,
+                  })
+                }
+              />
+              {formState.errors.grades && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.grades.message as any}
+                </p>
+              )}
+            </div>
+
+            {/* NEW: Subjects (dependent on selected grades) */}
+            <div className="grid z-56 gap-3">
+              <MultiSelect
+                label="Subjects *"
+                options={subjectOptions}
+                defaultSelected={watch("subjects")}
+                onChange={(selected) =>
+                  setValue("subjects", selected as string[], {
+                    shouldValidate: true,
+                  })
+                }
+                disabled={!selectedGrades || selectedGrades.length === 0}
+              />
+              {formState.errors.subjects && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.subjects.message as any}
+                </p>
+              )}
             </div>
 
             {/* Tutoring Preferences */}
