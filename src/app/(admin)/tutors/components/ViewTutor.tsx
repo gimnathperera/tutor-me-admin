@@ -219,7 +219,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
             </div>
           </div>
 
-          {/** NEW: Grades */}
           <div className="grid gap-3">
             <Label>Grades</Label>
             <div className="flex flex-wrap">
@@ -235,7 +234,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
             </div>
           </div>
 
-          {/** NEW: Subjects */}
           <div className="grid gap-3">
             <Label>Subjects</Label>
             <div className="flex flex-wrap">
@@ -251,7 +249,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
             </div>
           </div>
 
-          {/** Arrays: tutoring levels & preferred locations */}
           <div className="grid gap-3">
             <Label>Tutoring Levels</Label>
             <div className="flex flex-wrap">

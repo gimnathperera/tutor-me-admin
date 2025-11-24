@@ -48,13 +48,11 @@ export function EditTutor({ id }: EditTutorProps) {
   const { data: tutorData, isLoading: isFetching } = useFetchTutorByIdQuery(id);
   const [updateTutor, { isLoading: isUpdating }] = useUpdateTutorMutation();
 
-  // Fetch grades for the "Grades" multiselect
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();
   const gradeOptions =
     gradesData?.results?.map((g) => ({ value: g.id, text: g.title })) || [];
 
-  // subjectOptions depends on selected grades
   const [subjectOptions, setSubjectOptions] = useState<
     { value: string; text: string }[]
   >([]);
@@ -106,7 +104,6 @@ export function EditTutor({ id }: EditTutorProps) {
     defaultValue: "" as string,
   }) as string;
 
-  // Helper function to safely cast enum values
   const safeEnumValue = <T extends string>(
     value: string | undefined,
     enumValues: readonly T[],
@@ -116,7 +113,6 @@ export function EditTutor({ id }: EditTutorProps) {
     return enumValues.includes(value as T) ? (value as T) : fallback;
   };
 
-  // Helper function to format date from ISO to YYYY-MM-DD
   const formatDateForForm = (isoDate: string | undefined): string => {
     if (!isoDate) return "";
     try {
@@ -127,7 +123,6 @@ export function EditTutor({ id }: EditTutorProps) {
     }
   };
 
-  // Helper function to safely cast array enum values
   const safeArrayEnumValue = <T extends string>(
     values: string[] | undefined,
     enumValues: readonly T[],
@@ -137,7 +132,6 @@ export function EditTutor({ id }: EditTutorProps) {
   };
 
   useEffect(() => {
-    // if no grades selected, clear subjects
     if (!selectedGrades || selectedGrades.length === 0) {
       if (
         subjectOptions.length > 0 ||
@@ -162,10 +156,7 @@ export function EditTutor({ id }: EditTutorProps) {
           if (res?.data?.subjects) {
             allSubjects.push(...res.data.subjects);
           }
-        } catch (err) {
-          // ignore single grade failure but log
-          // console.error("Failed to fetch grade subjects", err);
-        }
+        } catch (err) {}
       }
 
       const uniqueSubjects = Array.from(
@@ -185,7 +176,6 @@ export function EditTutor({ id }: EditTutorProps) {
         prevUniqueSubjectsRef.current = uniqueJson;
       }
 
-      // filter selected subjects that are no longer valid
       const validSelected = (selectedSubjects || []).filter((sId: string) =>
         uniqueSubjects.some((us) => us.id === sId),
       );
@@ -199,10 +189,8 @@ export function EditTutor({ id }: EditTutorProps) {
     return () => {
       cancelled = true;
     };
-    // we stringify selectedGrades to avoid referential changes causing re-renders
   }, [fetchGradeById, JSON.stringify(selectedGrades || []), setValue]);
 
-  // Pre-fill form when tutor data is loaded
   useEffect(() => {
     if (tutorData && open) {
       const genderOptions = ["Male", "Female"] as const;
@@ -819,11 +807,9 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
             </div>
 
-            {/* NEW: Tutor Mediums */}
             <div className="grid z-60 gap-3">
               <MultiSelect
                 label="Tutor Mediums *"
-                /* replacement for lines ~832-837 */
                 options={["English", "Sinhala", "Tamil"].map((m) => ({
                   value: m,
                   text: m,
@@ -843,7 +829,6 @@ export function EditTutor({ id }: EditTutorProps) {
               )}
             </div>
 
-            {/* NEW: Grades */}
             <div className="grid z-58 gap-3">
               <MultiSelect
                 label="Grades *"
@@ -862,7 +847,6 @@ export function EditTutor({ id }: EditTutorProps) {
               )}
             </div>
 
-            {/* NEW: Subjects (dependent on selected grades) */}
             <div className="grid z-56 gap-3">
               <MultiSelect
                 label="Subjects *"
