@@ -14,32 +14,26 @@ import { Label } from "@/components/ui/label";
 import { Eye } from "lucide-react";
 import { useState } from "react";
 
-interface Subject {
-  id?: string;
-  title: string;
-}
-
 interface TutorDetails {
   id: string;
-  firstName: string;
-  lastName: string;
+  name: string;
+  medium: string;
   email: string;
   phoneNumber: string;
   city: string;
-  state?: string;
-  region?: string;
-  zip?: string;
-  studentSchool?: string;
-  preferredTutorType?: string;
-  genderPreference?: string;
-  bilingual?: string;
-  createdAt?: string;
-  grade?: { title: string; description?: string; subjects?: Subject[] }[];
+  district?: string;
+  grade?: {
+    description: string | undefined;
+    title: string;
+  }[];
   tutors?: {
-    subjects?: Subject[];
+    subjects: { title: string }[];
+    assignedTutor: { fullName: string }[];
+    preferredTutorType?: string;
     duration: string;
     frequency: string;
   }[];
+  createdAt?: string;
 }
 
 interface ViewTutorProps {
@@ -72,9 +66,7 @@ export function ViewTutorRequests({ tutor }: ViewTutorProps) {
         <div className="grid gap-4">
           <div className="grid gap-3">
             <Label>Full Name</Label>
-            <div className={displayFieldClass}>
-              {getSafeValue(`${tutor.firstName} ${tutor.lastName}`)}
-            </div>
+            <div className={displayFieldClass}>{getSafeValue(tutor.name)}</div>
           </div>
 
           <div className="grid gap-3">
@@ -90,41 +82,18 @@ export function ViewTutorRequests({ tutor }: ViewTutorProps) {
           </div>
 
           <div className="grid gap-3">
-            <Label>City / Region / State / ZIP</Label>
+            <Label>Medium</Label>
+            <div className={displayFieldClass}>
+              {getSafeValue(tutor.medium)}
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            <Label>District / City</Label>
             <div className={displayFieldClass}>
               {getSafeValue(
-                `${tutor.city}, ${tutor.region || ""}, ${tutor.state || ""}, ${
-                  tutor.zip || ""
-                }`,
+                [tutor.district, tutor.city].filter(Boolean).join(", "),
               )}
-            </div>
-          </div>
-
-          <div className="grid gap-3">
-            <Label>Student School</Label>
-            <div className={displayFieldClass}>
-              {getSafeValue(tutor.studentSchool)}
-            </div>
-          </div>
-
-          <div className="grid gap-3">
-            <Label>Preferred Tutor Type</Label>
-            <div className={displayFieldClass}>
-              {getSafeValue(tutor.preferredTutorType)}
-            </div>
-          </div>
-
-          <div className="grid gap-3">
-            <Label>Gender Preference</Label>
-            <div className={displayFieldClass}>
-              {getSafeValue(tutor.genderPreference)}
-            </div>
-          </div>
-
-          <div className="grid gap-3">
-            <Label>Bilingual</Label>
-            <div className={displayFieldClass}>
-              {getSafeValue(tutor.bilingual)}
             </div>
           </div>
 
@@ -151,9 +120,27 @@ export function ViewTutorRequests({ tutor }: ViewTutorProps) {
                       </span>
                     ))}
                   </div>
+                  {t.assignedTutor?.length > 0 && (
+                    <div>
+                      Assigned Tutors:{" "}
+                      {t.assignedTutor.map((a, aidx) => (
+                        <span key={aidx} className={tagClass}>
+                          {a.fullName}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {t.preferredTutorType && (
+                    <div>
+                      Preferred Type: <strong>{t.preferredTutorType}</strong>
+                    </div>
+                  )}
                   <div>
-                    Duration: <strong>{t.duration}</strong>, Frequency:{" "}
-                    <strong>{t.frequency}</strong>
+                    Duration: <strong>{t.duration}</strong>
+                  </div>
+                  <div>
+                    Frequency: <strong>{t.frequency}</strong>
                   </div>
                 </div>
               ))}

@@ -35,6 +35,10 @@ export type UpdateBlogStatusRequest = {
   blogId: string;
   status?: "pending" | "approved" | "rejected";
 };
+export type UpdateTutorRequestsRequest = {
+  requestId: string;
+  status?: "Approved" | "Pending" | "Tutor Assigned";
+};
 
 export type UserLoginRequest = {
   email: string;
@@ -272,23 +276,22 @@ export type FetchRequestForTutor = {
   limit?: number;
   sortBy?: string;
   requestTutorId?: string;
-  firstName?: string;
-  lastName?: string;
+  name?: string;
+  medium?: string;
+  district?: string;
   email?: string;
   grade?: string[];
   phoneNumber?: string;
   city?: string;
   state?: string;
+  status?: string;
   region?: string;
   zip?: string;
   tutors?: string[];
   subjects?: string[];
   duration?: string;
   frequency?: string;
-  preferredTutorType?: string;
-  studentSchool?: string;
-  genderPreference?: string;
-  bilingual?: string;
+  assignedTutor?: { id: string; fullName: string }[];
 };
 export type CreateTutorRequest = {
   fullName: string;
