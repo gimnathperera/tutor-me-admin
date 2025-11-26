@@ -320,6 +320,7 @@ export type Tutor = BaseEntity & {
 };
 
 export type RequestTutors = BaseEntity & {
+  _id: string;
   name: string;
   medium: string;
   district: string;
@@ -342,6 +343,7 @@ export type RequestTutors = BaseEntity & {
     updatedAt: string;
   }[];
   tutors: {
+    createdAt: string;
     subjects: {
       id: string;
       title: string;
@@ -350,8 +352,12 @@ export type RequestTutors = BaseEntity & {
       updatedAt: string;
     }[];
     duration: string;
-    assignedTutor: { id: string; fullName: string }[];
-
+    assignedTutor: {
+      _id: string;
+      id: string;
+      fullName: string;
+    }[];
+    _id: string;
     preferredTutorType: string;
     frequency: string;
   }[];

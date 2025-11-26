@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button/Button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -11,37 +11,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { useFetchRequestForTutorsByIdQuery } from "@/store/api/splits/request-tutor";
 import { Eye } from "lucide-react";
 import { useState } from "react";
 
-interface TutorDetails {
-  id: string;
-  name: string;
-  medium: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  district?: string;
-  grade?: {
-    description: string | undefined;
-    title: string;
-  }[];
-  tutors?: {
-    subjects: { title: string }[];
-    assignedTutor: { fullName: string }[];
-    preferredTutorType?: string;
-    duration: string;
-    frequency: string;
-  }[];
-  createdAt?: string;
-}
-
 interface ViewTutorProps {
-  tutor: TutorDetails;
+  tutorId: string;
 }
 
-export function ViewTutorRequests({ tutor }: ViewTutorProps) {
+export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
   const [open, setOpen] = useState(false);
+
+  const { data: tutor, isLoading } = useFetchRequestForTutorsByIdQuery(tutorId);
 
   const displayFieldClass =
     "w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-700 dark:text-white/90 min-h-[2rem] overflow-auto scrollbar-thin";
@@ -49,8 +30,7 @@ export function ViewTutorRequests({ tutor }: ViewTutorProps) {
   const tagClass =
     "inline-block bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 text-xs font-medium mr-1 mb-1 px-2 py-1 rounded";
 
-  const getSafeValue = (value: string | undefined | null, fallback = "N/A") =>
-    value && value.trim() !== "" ? value : fallback;
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -66,61 +46,60 @@ export function ViewTutorRequests({ tutor }: ViewTutorProps) {
         <div className="grid gap-4">
           <div className="grid gap-3">
             <Label>Full Name</Label>
-            <div className={displayFieldClass}>{getSafeValue(tutor.name)}</div>
+            <div className={displayFieldClass}>{tutor?.name ?? "N/A"}</div>
           </div>
 
           <div className="grid gap-3">
             <Label>Email</Label>
-            <div className={displayFieldClass}>{getSafeValue(tutor.email)}</div>
+            <div className={displayFieldClass}>{tutor?.email ?? "N/A"}</div>
           </div>
 
           <div className="grid gap-3">
             <Label>Phone Number</Label>
             <div className={displayFieldClass}>
-              {getSafeValue(tutor.phoneNumber)}
+              {tutor?.phoneNumber ?? "N/A"}
             </div>
           </div>
 
           <div className="grid gap-3">
             <Label>Medium</Label>
-            <div className={displayFieldClass}>
-              {getSafeValue(tutor.medium)}
-            </div>
+            <div className={displayFieldClass}>{tutor?.medium ?? "N/A"}</div>
           </div>
 
           <div className="grid gap-3">
             <Label>District / City</Label>
             <div className={displayFieldClass}>
-              {getSafeValue(
-                [tutor.district, tutor.city].filter(Boolean).join(", "),
-              )}
+              {[tutor?.district, tutor?.city].filter(Boolean).join(", ") ||
+                "N/A"}
             </div>
           </div>
 
           <div className="grid gap-3">
             <Label>Grades</Label>
             <div className="flex flex-wrap gap-1">
-              {(tutor.grade || []).map((g, idx) => (
+              {tutor?.grade?.map((g, idx) => (
                 <span key={idx} className={tagClass} title={g.description}>
                   {g.title}
                 </span>
-              ))}
+              )) || <span className="text-gray-400 italic">No grades</span>}
             </div>
           </div>
 
           <div className="grid gap-3">
             <Label>Tutors</Label>
             <div className="flex flex-col gap-2">
-              {(tutor.tutors || []).map((t, idx) => (
-                <div key={idx} className="p-2 border rounded">
+              {tutor?.tutors?.map((t, idx) => (
+                <div key={t._id || idx} className="p-2 border rounded">
                   <div className="flex flex-wrap gap-1">
-                    {(t.subjects || []).map((s, sidx) => (
+                    Subjects:{" "}
+                    {t.subjects?.map((s, sidx) => (
                       <span key={sidx} className={tagClass}>
                         {s.title}
                       </span>
                     ))}
                   </div>
-                  {t.assignedTutor?.length > 0 && (
+
+                  {t.assignedTutor?.length ? (
                     <div>
                       Assigned Tutors:{" "}
                       {t.assignedTutor.map((a, aidx) => (
@@ -129,7 +108,7 @@ export function ViewTutorRequests({ tutor }: ViewTutorProps) {
                         </span>
                       ))}
                     </div>
-                  )}
+                  ) : null}
 
                   {t.preferredTutorType && (
                     <div>
@@ -143,14 +122,14 @@ export function ViewTutorRequests({ tutor }: ViewTutorProps) {
                     Frequency: <strong>{t.frequency}</strong>
                   </div>
                 </div>
-              ))}
+              )) || <span className="text-gray-400 italic">No tutors</span>}
             </div>
           </div>
 
           <div className="grid gap-3">
             <Label>Created At</Label>
             <div className={displayFieldClass}>
-              {tutor.createdAt
+              {tutor?.createdAt
                 ? new Date(tutor.createdAt).toLocaleString()
                 : "N/A"}
             </div>

@@ -16,92 +16,160 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
+import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
+import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-interface AssignedTutor {
-  id: string;
+export interface AssignedTutor {
+  _id: string; // use only _id to match your API
   fullName: string;
 }
 
-interface AssignTutorsDialogProps {
-  requestId: string;
-  currentAssigned: AssignedTutor[];
-  availableTutors: AssignedTutor[];
-  onAssignedChange?: () => void;
+export interface TutorRequestBlock {
+  _id: string; // tutorBlockId
+  subjects: { title: string }[];
+  assignedTutor?: AssignedTutor[];
+  preferredTutorType?: string;
+  duration: string;
+  frequency: string;
+  createdAt: string;
 }
 
-export function AssignTutorsDialog({
-  requestId,
-  currentAssigned,
-  availableTutors,
-  onAssignedChange,
-}: AssignTutorsDialogProps) {
+export interface AssignTutorRow {
+  id: string; // requestId
+  tutors?: TutorRequestBlock[];
+}
+
+interface Props {
+  row: AssignTutorRow;
+  onUpdated?: () => void;
+}
+
+export function AssignTutorDialog({ row, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
-  const [selectedTutorId, setSelectedTutorId] = useState<string>(
-    currentAssigned[0]?.id || "",
+  const [updateAssignedTutor] = useUpdateAssignedTutorMutation();
+  const [tutorBlocks, setTutorBlocks] = useState<TutorRequestBlock[]>([]);
+
+  const {
+    data: tutorsData,
+    isLoading,
+    isError,
+    refetch,
+  } = useFetchTutorsQuery({});
+
+  const tutors =
+    row.tutors?.map((t) => ({
+      ...t,
+      // make sure assignedTutor has _id
+      assignedTutor: t.assignedTutor?.map((a) => ({
+        _id: a._id,
+        fullName: a.fullName,
+      })),
+    })) || [];
+
+  const [selectedTutors, setSelectedTutors] = useState<string[]>(
+    tutors.map((t) => t.assignedTutor?.[0]?._id || ""),
   );
-  const [updateAssigned] = useUpdateAssignedTutorMutation();
 
   useEffect(() => {
-    setSelectedTutorId(currentAssigned[0]?.id || "");
-  }, [currentAssigned]);
+    setTutorBlocks(
+      row.tutors?.map((t) => ({
+        ...t,
+        assignedTutor: t.assignedTutor?.map((a) => ({
+          _id: a._id,
+          fullName: a.fullName,
+        })),
+      })) || [],
+    );
+  }, [row.tutors]);
+  const handleUpdate = async (index: number, tutorId: string) => {
+    if (!tutorId || tutorId === "placeholder") return;
 
-  const handleSave = async () => {
-    if (!selectedTutorId) {
-      toast.error("Please select a tutor");
+    const tutorBlockId = tutorBlocks[index]._id;
+    if (!tutorBlockId) {
+      toast.error("Tutor block ID not found");
       return;
     }
 
     try {
-      await updateAssigned({
-        requestId,
-        assignedTutor: [selectedTutorId],
+      const newTutorBlocks = [...tutorBlocks];
+      const selectedTutor = tutorsData?.results.find((t) => t.id === tutorId);
+      if (selectedTutor) {
+        newTutorBlocks[index].assignedTutor = [
+          { _id: selectedTutor.id, fullName: selectedTutor.fullName },
+        ];
+        setTutorBlocks(newTutorBlocks);
+      }
+
+      await updateAssignedTutor({
+        requestId: row.id,
+        tutorBlockId,
+        assignedTutor: [tutorId],
       }).unwrap();
 
-      toast.success("Tutor assigned successfully");
-      setOpen(false);
-      onAssignedChange?.();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to assign tutor");
+      toast.success("Tutor updated successfully");
+      onUpdated?.();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update tutor");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">Assign Tutor</Button>
+        <Button size="sm" variant="outline" className="flex items-center gap-2">
+          <Edit size={16} />
+          Assign Tutors
+        </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Assign Tutor</DialogTitle>
+          <DialogTitle>Assign Tutors</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 mt-4">
-          <Select
-            value={selectedTutorId}
-            onValueChange={(val) => setSelectedTutorId(val)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select tutor" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableTutors.map((tutor) => (
-                <SelectItem key={tutor.id} value={tutor.id}>
-                  {tutor.fullName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col gap-6 mt-4">
+          {tutors.map((tutorBlock, index) => (
+            <div
+              key={tutorBlock._id || index}
+              className="border border-gray-300 rounded-md p-4"
+            >
+              <p className="font-medium">Tutor Request #{index + 1}</p>
+              <div className="mt-3 flex flex-col gap-3">
+                <label className="text-sm">Assign Tutor</label>
 
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>Save</Button>
-          </div>
+                <Select
+                  value={selectedTutors[index] || "placeholder"}
+                  onValueChange={(val) => handleUpdate(index, val)}
+                  disabled={isLoading || isError}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a tutor" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="placeholder" disabled>
+                      {isLoading ? "Loading tutors..." : "Select a tutor"}
+                    </SelectItem>
+
+                    {tutorsData?.results.map((tutor) => (
+                      <SelectItem key={tutor.id} value={tutor.id}>
+                        {tutor.fullName}
+                      </SelectItem>
+                    ))}
+
+                    {!isLoading && tutorsData?.results.length === 0 && (
+                      <SelectItem value="none" disabled>
+                        No tutors available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ))}
         </div>
       </DialogContent>
     </Dialog>

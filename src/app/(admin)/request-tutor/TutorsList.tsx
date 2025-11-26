@@ -6,72 +6,12 @@ import {
   useDeleteRequestForTutorMutation,
   useFetchRequestForTutorsQuery,
 } from "@/store/api/splits/request-tutor";
-import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
+import { RequestTutors } from "@/types/response-types";
 import { useMemo, useState } from "react";
-import { AssignTutorsDialog } from "./assignTutor";
+import { AssignTutorDialog } from "./assignTutor";
 import { ChangeStatusDialog } from "./changeStatus";
 import { DeleteTutorRequest } from "./DeleteTutor";
 import { ViewTutorRequests } from "./ViewTutor";
-
-interface AssignedTutor {
-  id: string;
-  fullName: string;
-}
-
-interface RequestTutorGrade {
-  title: string;
-  description: string | undefined;
-}
-
-interface RequestTutorSubjects {
-  id: string;
-  title: string;
-  description?: string;
-}
-
-interface RequestTutorTutors {
-  subjects: RequestTutorSubjects[];
-  assignedTutor: { id: string; fullName: string }[];
-  preferredTutorType?: string;
-  duration: string;
-  frequency: string;
-}
-
-export interface RequestTutors {
-  id: string;
-  name: string;
-  email: string;
-  phoneNumber: string;
-  medium: string;
-  city: string;
-  district?: string;
-  grade?: RequestTutorGrade[];
-  tutors?: RequestTutorTutors[];
-  status: "Pending" | "Approved" | "Tutor Assigned";
-  createdAt?: string;
-}
-
-interface TutorDetails {
-  id: string;
-  name: string;
-  medium: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  district?: string;
-  grade?: {
-    description: string | undefined;
-    title: string;
-  }[];
-  tutors?: {
-    subjects: { title: string }[];
-    assignedTutor: { fullName: string }[];
-    preferredTutorType?: string;
-    duration: string;
-    frequency: string;
-  }[];
-  createdAt?: string;
-}
 
 export default function RequestForTutorsList() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
@@ -82,10 +22,6 @@ export default function RequestForTutorsList() {
     limit,
     sortBy: "createdAt:desc",
   });
-
-  const { data: allTutorsData } = useFetchTutorsQuery({ page: 1, limit: 100 });
-  const availableTutors: AssignedTutor[] =
-    allTutorsData?.results.map((t) => ({ id: t.id, fullName: t.name })) || [];
 
   const [deleteTutor] = useDeleteRequestForTutorMutation();
 
@@ -156,26 +92,7 @@ export default function RequestForTutorsList() {
         key: "view",
         header: "View",
         className: "min-w-[80px] max-w-[80px]",
-        render: (row: RequestTutors) => {
-          const transformedData: TutorDetails = {
-            ...row,
-            grade: row.grade?.map((g) => ({
-              title: g.title,
-              description: g.description ?? "N/A",
-            })),
-
-            tutors: row.tutors?.map((t) => ({
-              subjects: t.subjects?.map((s) => ({ title: s.title })) || [],
-              assignedTutor:
-                t.assignedTutor?.map((a) => ({ fullName: a.fullName })) || [],
-              preferredTutorType: t.preferredTutorType,
-              duration: t.duration,
-              frequency: t.frequency,
-            })),
-          };
-
-          return <ViewTutorRequests tutor={transformedData} />;
-        },
+        render: (row) => <ViewTutorRequests tutorId={row.id} />,
       },
       {
         key: "status",
@@ -189,26 +106,30 @@ export default function RequestForTutorsList() {
         ),
       },
       {
-        key: "assign",
+        key: "assignTutor",
         header: "Assign Tutor",
-        render: (row: RequestTutors) => {
-          const assigned =
-            row.tutors?.flatMap((t) =>
-              t.assignedTutor?.map((a) => ({
-                id: a.id,
-                fullName: a.fullName,
+        className: "min-w-[130px] max-w-[150px]",
+        render: (row: RequestTutors) => (
+          <AssignTutorDialog
+            row={{
+              id: row.id,
+              tutors: row.tutors?.map((t) => ({
+                _id: t._id, // tutor block ID
+                subjects: t.subjects,
+                assignedTutor: t.assignedTutor?.map((a) => ({
+                  _id: a.id, // map id to _id
+                  id: a.id,
+                  fullName: a.fullName,
+                })),
+                preferredTutorType: t.preferredTutorType,
+                duration: t.duration,
+                frequency: t.frequency,
+                createdAt: t.createdAt || "",
               })),
-            ) || [];
-
-          return (
-            <AssignTutorsDialog
-              requestId={row.id}
-              currentAssigned={assigned}
-              availableTutors={availableTutors}
-              onAssignedChange={() => refetch()}
-            />
-          );
-        },
+            }}
+            onUpdated={() => refetch()}
+          />
+        ),
       },
       {
         key: "delete",

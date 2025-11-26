@@ -66,7 +66,7 @@ export const UsersApi = baseApi.injectEndpoints({
       ],
     }),
 
-    sendTempPassword: build.mutation<void, string>({
+    sendUserTempPassword: build.mutation<void, string>({
       query: (id) => ({
         url: `${Endpoints.Users}/temp-password/${id}`,
         method: "POST",
@@ -84,5 +84,5 @@ export const {
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
-  useSendTempPasswordMutation,
+  useSendUserTempPasswordMutation,
 } = UsersApi;

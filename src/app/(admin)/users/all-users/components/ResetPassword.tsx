@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useSendTempPasswordMutation } from "@/store/api/splits/users";
+import { useSendUserTempPasswordMutation } from "@/store/api/splits/users";
 import { Send } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -22,7 +22,7 @@ interface ResetPasswordProps {
 
 export function ResetPassword({ userId }: ResetPasswordProps) {
   const [open, setOpen] = useState(false);
-  const [resendPassword, { isLoading }] = useSendTempPasswordMutation();
+  const [resendPassword, { isLoading }] = useSendUserTempPasswordMutation();
 
   const handleResend = async () => {
     try {
