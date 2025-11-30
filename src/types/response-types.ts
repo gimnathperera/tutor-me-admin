@@ -297,6 +297,7 @@ type TutorTypeInfo = {
 
 export type Tutor = BaseEntity & {
   fullName: string;
+  name: string;
   contactNumber: string;
   email: string;
   dateOfBirth: string;
@@ -319,8 +320,10 @@ export type Tutor = BaseEntity & {
 };
 
 export type RequestTutors = BaseEntity & {
-  firstName: string;
-  lastName: string;
+  _id: string;
+  name: string;
+  medium: string;
+  district: string;
   email: string;
   phoneNumber: string;
   city: string;
@@ -328,10 +331,9 @@ export type RequestTutors = BaseEntity & {
   region: string;
   zip: string;
   studentSchool: string;
-  preferredTutorType: string;
+  status: "Approved" | "Pending" | "Tutor Assigned";
   genderPreference: string;
   bilingual: string;
-
   grade: {
     id: string;
     title: string;
@@ -340,8 +342,8 @@ export type RequestTutors = BaseEntity & {
     createdAt: string;
     updatedAt: string;
   }[];
-
   tutors: {
+    createdAt: string;
     subjects: {
       id: string;
       title: string;
@@ -350,6 +352,13 @@ export type RequestTutors = BaseEntity & {
       updatedAt: string;
     }[];
     duration: string;
+    assignedTutor: {
+      _id: string;
+      id: string;
+      fullName: string;
+    }[];
+    _id: string;
+    preferredTutorType: string;
     frequency: string;
   }[];
 

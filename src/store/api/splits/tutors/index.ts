@@ -58,7 +58,7 @@ export const TutorsApi = baseApi.injectEndpoints({
       invalidatesTags: ["FindATutor"],
     }),
 
-    sendTempPassword: build.mutation<void, string>({
+    sendTempPasswordTutor: build.mutation<void, string>({
       query: (id) => ({
         url: `${Endpoints.FindATutor}/temp-password/${id}`,
         method: "POST",
@@ -76,5 +76,5 @@ export const {
   useCreateTutorMutation,
   useUpdateTutorMutation,
   useDeleteTutorMutation,
-  useSendTempPasswordMutation,
+  useSendTempPasswordTutorMutation,
 } = TutorsApi;

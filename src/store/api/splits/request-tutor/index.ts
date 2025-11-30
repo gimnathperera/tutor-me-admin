@@ -1,4 +1,7 @@
-import { FetchRequestForTutor } from "@/types/request-types";
+import {
+  FetchRequestForTutor,
+  UpdateTutorRequestsRequest,
+} from "@/types/request-types";
 import { PaginatedResponse, RequestTutors } from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
@@ -32,6 +35,27 @@ export const RequestTutorApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [{ type: "RequestTutor", id: "LIST" }],
     }),
+
+    updateStatus: build.mutation<RequestTutors, UpdateTutorRequestsRequest>({
+      query: ({ requestId, status }) => ({
+        url: `${Endpoints.RequestTutor}/status/${requestId}`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["RequestTutor"],
+    }),
+
+    updateAssignedTutor: build.mutation<
+      void,
+      { requestId: string; tutorBlockId: string; assignedTutor: string[] }
+    >({
+      query: ({ requestId, tutorBlockId, assignedTutor }) => ({
+        url: `${Endpoints.RequestTutor}/assigned-tutor/${requestId}`,
+        method: "PATCH",
+        body: { tutorBlockId, assignedTutor },
+      }),
+      invalidatesTags: [{ type: "RequestTutor", id: "LIST" }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -41,4 +65,6 @@ export const {
   useFetchRequestForTutorsByIdQuery,
   useLazyFetchRequestForTutorsByIdQuery,
   useDeleteRequestForTutorMutation,
+  useUpdateStatusMutation,
+  useUpdateAssignedTutorMutation,
 } = RequestTutorApi;

@@ -2,41 +2,30 @@
 
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
-import { useFetchRequestForTutorsQuery } from "@/store/api/splits/request-tutor";
+import {
+  useDeleteRequestForTutorMutation,
+  useFetchRequestForTutorsQuery,
+} from "@/store/api/splits/request-tutor";
+import { RequestTutors } from "@/types/response-types";
 import { useMemo, useState } from "react";
+import { AssignTutorDialog } from "./assignTutor";
+import { ChangeStatusDialog } from "./changeStatus";
 import { DeleteTutorRequest } from "./DeleteTutor";
 import { ViewTutorRequests } from "./ViewTutor";
 
-interface TutorRequest {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  state?: string;
-  region?: string;
-  zip?: string;
-  grade?: { title: string }[];
-  tutors?: {
-    subjects: { title: string }[];
-    duration: string;
-    frequency: string;
-  }[];
-  preferredTutorType?: string;
-  studentSchool?: string;
-  genderPreference?: string;
-  bilingual?: string;
-  createdAt?: string;
-}
-
 export default function RequestForTutorsList() {
-  const [page, setPage] = useState(TABLE_CONFIG.DEFAULT_PAGE);
+  const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
-  const { data, isLoading, error } = useFetchRequestForTutorsQuery({});
+  const { data, isLoading, refetch } = useFetchRequestForTutorsQuery({
+    page,
+    limit,
+    sortBy: "createdAt:desc",
+  });
 
-  const tutors: TutorRequest[] = data?.results || [];
+  const [deleteTutor] = useDeleteRequestForTutorMutation();
+
+  const tutors: RequestTutors[] = data?.results || [];
   const totalPages = data?.totalPages || 1;
   const totalResults = data?.totalResults || tutors.length;
 
@@ -48,60 +37,49 @@ export default function RequestForTutorsList() {
   const columns = useMemo(
     () => [
       {
-        key: "fullName",
+        key: "name",
         header: "Full Name",
-        className:
-          "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
-        render: (row: TutorRequest) => (
+        className: "min-w-[150px] max-w-[250px] truncate overflow-hidden",
+        render: (row: RequestTutors) => (
           <span
-            title={row.firstName || "No name provided"}
-            className={`truncate block ${
-              !row.firstName ? "text-gray-400 italic" : ""
-            }`}
+            title={row.name || "No name"}
+            className={`truncate block ${!row.name ? "text-gray-400 italic" : ""}`}
           >
-            {getSafeValue(
-              `${row.firstName} ${row.lastName}`,
-              "No name provided",
-            )}
+            {getSafeValue(row.name, "No name")}
           </span>
         ),
       },
       {
         key: "email",
         header: "Email",
-        className:
-          "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
-        render: (row: TutorRequest) => (
+        className: "min-w-[150px] max-w-[250px] truncate overflow-hidden",
+        render: (row: RequestTutors) => (
           <span
-            title={row.email || "No email provided"}
+            title={row.email || "No email"}
             className={`truncate block ${!row.email ? "text-gray-400 italic" : ""}`}
           >
-            {getSafeValue(row.email, "No email provided")}
+            {getSafeValue(row.email, "No email")}
           </span>
         ),
       },
       {
-        key: "contactNumber",
+        key: "phoneNumber",
         header: "Contact Number",
-        className:
-          "min-w-[140px] max-w-[200px] truncate overflow-hidden cursor-default",
-        render: (row: TutorRequest) => (
+        className: "min-w-[140px] max-w-[200px] truncate overflow-hidden",
+        render: (row: RequestTutors) => (
           <span
-            title={row.phoneNumber || "No contact provided"}
-            className={`truncate block ${
-              !row.phoneNumber ? "text-gray-400 italic" : ""
-            }`}
+            title={row.phoneNumber || "No contact"}
+            className={`truncate block ${!row.phoneNumber ? "text-gray-400 italic" : ""}`}
           >
-            {getSafeValue(row.phoneNumber, "No contact provided")}
+            {getSafeValue(row.phoneNumber, "No contact")}
           </span>
         ),
       },
       {
         key: "grades",
         header: "Grades",
-        className:
-          "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
-        render: (row: TutorRequest) =>
+        className: "min-w-[200px] max-w-[300px] truncate overflow-hidden",
+        render: (row: RequestTutors) =>
           row.grade && row.grade.length > 0 ? (
             <span title={row.grade.map((g) => g.title).join(", ")}>
               {row.grade.map((g) => g.title).join(", ")}
@@ -112,32 +90,60 @@ export default function RequestForTutorsList() {
       },
       {
         key: "view",
-        header: <div className="text-center w-full">View</div>,
-        className: "min-w-[80px] max-w-[80px] cursor-default",
-        render: (row: TutorRequest) => (
-          <div className="flex justify-center items-center w-full">
-            <ViewTutorRequests tutor={row} />
-          </div>
+        header: "View",
+        className: "min-w-[80px] max-w-[80px]",
+        render: (row) => <ViewTutorRequests tutorId={row.id} />,
+      },
+      {
+        key: "status",
+        header: "Change Status",
+        render: (row: RequestTutors) => (
+          <ChangeStatusDialog
+            requestId={row.id}
+            currentStatus={row.status}
+            onStatusChange={() => refetch()}
+          />
         ),
       },
-
+      {
+        key: "assignTutor",
+        header: "Assign Tutor",
+        className: "min-w-[130px] max-w-[150px]",
+        render: (row: RequestTutors) => (
+          <AssignTutorDialog
+            row={{
+              id: row.id,
+              tutors: row.tutors?.map((t) => ({
+                _id: t._id, // tutor block ID
+                subjects: t.subjects,
+                assignedTutor: t.assignedTutor?.map((a) => ({
+                  _id: a.id, // map id to _id
+                  id: a.id,
+                  fullName: a.fullName,
+                })),
+                preferredTutorType: t.preferredTutorType,
+                duration: t.duration,
+                frequency: t.frequency,
+                createdAt: t.createdAt || "",
+              })),
+            }}
+            onUpdated={() => refetch()}
+          />
+        ),
+      },
       {
         key: "delete",
-        header: <div className="text-center w-full">Delete</div>,
-        className: "min-w-[80px] max-w-[80px] cursor-default",
-        render: (row: TutorRequest) => (
-          <div className="flex justify-center items-center w-full">
+        header: "Delete",
+        className: "min-w-[80px] max-w-[80px]",
+        render: (row: RequestTutors) => (
+          <div className="w-full flex justify-center items-center">
             <DeleteTutorRequest tutorId={row.id} />
           </div>
         ),
       },
     ],
-    [],
+    [deleteTutor, refetch],
   );
-
-  if (error) {
-    console.error("Error fetching tutors:", error);
-  }
 
   return (
     <DataTable
