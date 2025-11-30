@@ -82,13 +82,13 @@ export function AddPaper() {
   const { handleSubmit, register, watch, setValue, reset, formState } =
     createPaperForm;
   const selectedGrade = watch("grade");
-  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
-    { title: debouncedGradeSearch }
-  );
+  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery({
+    title: debouncedGradeSearch,
+  });
 
   const filteredSubjects = gradeDetails?.subjects?.filter((subject) =>
-  subject.title.toLowerCase().includes(subjectSearch.toLowerCase())
-);
+    subject.title.toLowerCase().includes(subjectSearch.toLowerCase()),
+  );
 
   useEffect(() => {
     if (selectedGrade) {
@@ -100,7 +100,20 @@ export function AddPaper() {
   }, [selectedGrade, setValue]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+
+        if (!isOpen) {
+          reset(initialFormValues);
+
+          setSelectedGradeId(null);
+          setGradeSearch("");
+          setSubjectSearch("");
+        }
+      }}
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
@@ -219,7 +232,9 @@ export function AddPaper() {
                     <SelectLabel>Subjects</SelectLabel>
 
                     {filteredSubjects?.length === 0 && (
-                      <div className="p-3 text-sm text-gray-500">No results found.</div>
+                      <div className="p-3 text-sm text-gray-500">
+                        No results found.
+                      </div>
                     )}
 
                     {filteredSubjects?.map((subject) => (

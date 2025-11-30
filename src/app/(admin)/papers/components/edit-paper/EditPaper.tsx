@@ -64,14 +64,35 @@ export function EditPaper({
   url,
 }: EditPaperProps) {
   const [open, setOpen] = useState(false);
+  const handleDialogClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen && initialValues) {
+      // discard changes and restore original values
+      reset(initialValues);
+      setSubjectSearch("");
+      setSelectedGradeId(initialValues.grade || null);
+      setPreviewUrl(initialValues.url || null);
+    }
+  };
+
+  const handleCancel = () => {
+    if (initialValues) {
+      reset(initialValues);
+      setSubjectSearch("");
+      setSelectedGradeId(initialValues.grade || null);
+      setPreviewUrl(initialValues.url || null);
+    }
+    setOpen(false);
+  };
 
   // Extract IDs
   const gradeId = typeof grade === "string" ? grade : grade.id;
   const subjectId = typeof subject === "string" ? subject : subject.id;
   const [hydrated, setHydrated] = useState(false);
 
-
-  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(gradeId);
+  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
+    gradeId,
+  );
   const [previewUrl, setPreviewUrl] = useState<string | null>(url || null);
 
   // 🔍 Grade search
@@ -104,29 +125,66 @@ export function EditPaper({
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
-  const { formState, watch, setValue, register } = updatePaperForm;
+  const { formState, watch, setValue, register, reset, getValues } =
+    updatePaperForm;
+
+  const { isDirty } = formState;
+
   const selectedGrade = watch("grade");
+  const [initialValues, setInitialValues] = useState<PaperSchema | null>(null);
 
-useEffect(() => {
-  if (open && gradeDetails) {
-    const subjectExists = gradeDetails.subjects?.some(
-      (s: Subject) => s.id === subjectId,
-    );
+  useEffect(() => {
+    if (open && gradeDetails) {
+      const subjectExists = gradeDetails.subjects?.some(
+        (s: Subject) => s.id === subjectId,
+      );
 
-    updatePaperForm.reset({
-      title,
-      description,
-      grade: gradeId,
-      subject: subjectExists ? subjectId : "",
-      year,
-      url,
-    });
+      const values: PaperSchema = {
+        title,
+        description,
+        grade: gradeId,
+        subject: subjectExists ? subjectId : "",
+        year,
+        url,
+      };
 
-    setSubjectSearch("");
-    setHydrated(true);
-  }
-}, [open, gradeDetails, title, description, gradeId, subjectId, year, url]);
+      // reset form and save original snapshot
+      reset(values);
+      setInitialValues(values);
 
+      setSubjectSearch("");
+      setHydrated(true);
+    }
+  }, [
+    open,
+    gradeDetails,
+    title,
+    description,
+    gradeId,
+    subjectId,
+    year,
+    url,
+    reset,
+  ]);
+  useEffect(() => {
+    if (open && gradeDetails) {
+      const subjectExists = gradeDetails.subjects?.some(
+        (s: Subject) => s.id === subjectId,
+      );
+
+      updatePaperForm.reset({
+        title,
+        description,
+        grade: gradeId,
+        subject: subjectExists ? subjectId : "",
+        year,
+        url,
+      });
+
+      setSubjectSearch("");
+      setHydrated(true);
+    }
+  }, [open, gradeDetails, title, description, gradeId, subjectId, year, url]);
 
   useEffect(() => {
     if (selectedGrade && selectedGrade !== gradeId) {
@@ -150,8 +208,12 @@ useEffect(() => {
 
       if ("data" in result) {
         toast.success("Paper updated successfully");
+
+        const updatedValues = getValues();
+        setInitialValues(updatedValues);
+        reset(updatedValues);
+
         setOpen(false);
-        updatePaperForm.reset();
       }
     } catch (error) {
       console.error("Unexpected error during paper update:", error);
@@ -160,7 +222,7 @@ useEffect(() => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
@@ -173,7 +235,6 @@ useEffect(() => {
           </DialogHeader>
 
           <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
-
             {/* TITLE */}
             <div className="grid gap-3">
               <Label>Title</Label>
@@ -341,13 +402,17 @@ useEffect(() => {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
             </DialogClose>
 
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
+              disabled={!isDirty}
+              onClick={updatePaperForm.handleSubmit(onSubmit)}
             >
               Save
             </Button>
