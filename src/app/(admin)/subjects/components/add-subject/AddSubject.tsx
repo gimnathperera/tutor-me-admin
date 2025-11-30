@@ -1,5 +1,6 @@
 "use client";
 
+import TextArea from "@/components/form/input/TextArea";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -24,7 +25,6 @@ import {
   createSubjectSchema,
   initialFormValues,
 } from "./schema";
-import TextArea from "@/components/form/input/TextArea";
 
 export function AddSubject() {
   const [open, setOpen] = useState(false);
@@ -61,7 +61,15 @@ export function AddSubject() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        setOpen(isOpen);
+        if (!isOpen) {
+          createSubjectForm.reset();
+        }
+      }}
+    >
       <form onSubmit={createSubjectForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
