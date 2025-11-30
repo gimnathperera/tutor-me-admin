@@ -70,8 +70,9 @@ export function EditPaper({
   const subjectId = typeof subject === "string" ? subject : subject.id;
   const [hydrated, setHydrated] = useState(false);
 
-
-  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(gradeId);
+  const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
+    gradeId,
+  );
   const [previewUrl, setPreviewUrl] = useState<string | null>(url || null);
 
   // 🔍 Grade search
@@ -104,29 +105,38 @@ export function EditPaper({
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
-  const { formState, watch, setValue, register } = updatePaperForm;
+  const { formState, watch, setValue, register, reset } = updatePaperForm;
   const selectedGrade = watch("grade");
 
-useEffect(() => {
-  if (open && gradeDetails) {
-    const subjectExists = gradeDetails.subjects?.some(
-      (s: Subject) => s.id === subjectId,
-    );
+  useEffect(() => {
+    if (open && gradeDetails) {
+      const subjectExists = gradeDetails.subjects?.some(
+        (s: Subject) => s.id === subjectId,
+      );
 
-    updatePaperForm.reset({
-      title,
-      description,
-      grade: gradeId,
-      subject: subjectExists ? subjectId : "",
-      year,
-      url,
-    });
+      reset({
+        title,
+        description,
+        grade: gradeId,
+        subject: subjectExists ? subjectId : "",
+        year,
+        url,
+      });
 
-    setSubjectSearch("");
-    setHydrated(true);
-  }
-}, [open, gradeDetails, title, description, gradeId, subjectId, year, url]);
-
+      setSubjectSearch("");
+      setHydrated(true);
+    }
+  }, [
+    open,
+    gradeDetails,
+    title,
+    description,
+    gradeId,
+    subjectId,
+    year,
+    url,
+    reset,
+  ]);
 
   useEffect(() => {
     if (selectedGrade && selectedGrade !== gradeId) {
@@ -173,7 +183,6 @@ useEffect(() => {
           </DialogHeader>
 
           <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
-
             {/* TITLE */}
             <div className="grid gap-3">
               <Label>Title</Label>

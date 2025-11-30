@@ -14,6 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Eye } from "lucide-react";
 import { useState } from "react";
 
+type ArrayItem =
+  | string
+  | number
+  | null
+  | undefined
+  | { id?: string; title?: string; name?: string };
+
 interface ViewTutorProps {
   tutor: {
     fullName?: string;
@@ -63,21 +70,23 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
       ? fallback
       : value;
 
-  const normalizeArrayToStrings = (arr?: any[]) => {
+  const normalizeArrayToStrings = (arr?: ArrayItem[]) => {
     if (!arr || !Array.isArray(arr)) return [];
+
     return arr.map((it) => {
       if (typeof it === "string") return it;
       if (typeof it === "number") return String(it);
       if (it == null) return "N/A";
-      // prefer title -> name -> id -> fallback to JSON
+
       return it.title ?? it.name ?? it.id ?? JSON.stringify(it);
     });
   };
-  const mediumList = normalizeArrayToStrings(tutor.tutorMediums as any);
-  const gradeList = normalizeArrayToStrings(tutor.grades as any);
-  const subjectList = normalizeArrayToStrings(tutor.subjects as any);
-  const levels = normalizeArrayToStrings(tutor.tutoringLevels as any);
-  const locations = normalizeArrayToStrings(tutor.preferredLocations as any);
+
+  const mediumList = normalizeArrayToStrings(tutor.tutorMediums);
+  const gradeList = normalizeArrayToStrings(tutor.grades);
+  const subjectList = normalizeArrayToStrings(tutor.subjects);
+  const levels = normalizeArrayToStrings(tutor.tutoringLevels);
+  const locations = normalizeArrayToStrings(tutor.preferredLocations);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
