@@ -64,6 +64,26 @@ export function EditPaper({
   url,
 }: EditPaperProps) {
   const [open, setOpen] = useState(false);
+  const handleDialogClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen && initialValues) {
+      // discard changes and restore original values
+      reset(initialValues);
+      setSubjectSearch("");
+      setSelectedGradeId(initialValues.grade || null);
+      setPreviewUrl(initialValues.url || null);
+    }
+  };
+
+  const handleCancel = () => {
+    if (initialValues) {
+      reset(initialValues);
+      setSubjectSearch("");
+      setSelectedGradeId(initialValues.grade || null);
+      setPreviewUrl(initialValues.url || null);
+    }
+    setOpen(false);
+  };
 
   // Extract IDs
   const gradeId = typeof grade === "string" ? grade : grade.id;
@@ -105,8 +125,13 @@ export function EditPaper({
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
-  const { formState, watch, setValue, register, reset } = updatePaperForm;
+  const { formState, watch, setValue, register, reset, getValues } =
+    updatePaperForm;
+
+  const { isDirty } = formState;
+
   const selectedGrade = watch("grade");
+  const [initialValues, setInitialValues] = useState<PaperSchema | null>(null);
 
   useEffect(() => {
     if (open && gradeDetails) {
@@ -114,14 +139,18 @@ export function EditPaper({
         (s: Subject) => s.id === subjectId,
       );
 
-      reset({
+      const values: PaperSchema = {
         title,
         description,
         grade: gradeId,
         subject: subjectExists ? subjectId : "",
         year,
         url,
-      });
+      };
+
+      // reset form and save original snapshot
+      reset(values);
+      setInitialValues(values);
 
       setSubjectSearch("");
       setHydrated(true);
@@ -137,6 +166,25 @@ export function EditPaper({
     url,
     reset,
   ]);
+  useEffect(() => {
+    if (open && gradeDetails) {
+      const subjectExists = gradeDetails.subjects?.some(
+        (s: Subject) => s.id === subjectId,
+      );
+
+      updatePaperForm.reset({
+        title,
+        description,
+        grade: gradeId,
+        subject: subjectExists ? subjectId : "",
+        year,
+        url,
+      });
+
+      setSubjectSearch("");
+      setHydrated(true);
+    }
+  }, [open, gradeDetails, title, description, gradeId, subjectId, year, url]);
 
   useEffect(() => {
     if (selectedGrade && selectedGrade !== gradeId) {
@@ -160,8 +208,12 @@ export function EditPaper({
 
       if ("data" in result) {
         toast.success("Paper updated successfully");
+
+        const updatedValues = getValues();
+        setInitialValues(updatedValues);
+        reset(updatedValues);
+
         setOpen(false);
-        updatePaperForm.reset();
       }
     } catch (error) {
       console.error("Unexpected error during paper update:", error);
@@ -170,7 +222,7 @@ export function EditPaper({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogTrigger asChild>
         <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
@@ -350,13 +402,17 @@ export function EditPaper({
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" onClick={handleCancel}>
+                Cancel
+              </Button>
             </DialogClose>
 
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
+              disabled={!isDirty}
+              onClick={updatePaperForm.handleSubmit(onSubmit)}
             >
               Save
             </Button>

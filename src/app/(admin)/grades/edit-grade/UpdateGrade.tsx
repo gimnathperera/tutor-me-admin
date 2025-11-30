@@ -39,6 +39,9 @@ export function UpdateGrade({
   subjects,
 }: UpdateGradeProps) {
   const [open, setOpen] = useState(false);
+  const [initialValues, setInitialValues] = useState<UpdateGradeSchema | null>(
+    null,
+  );
 
   const updateGradeForm = useForm<UpdateGradeSchema>({
     resolver: zodResolver(updateGradeSchema),
@@ -48,6 +51,12 @@ export function UpdateGrade({
 
   const { reset, control, register, handleSubmit } = updateGradeForm;
 
+  const watched = updateGradeForm.watch();
+
+  const isFormChanged =
+    initialValues !== null
+      ? JSON.stringify(watched) !== JSON.stringify(initialValues)
+      : false;
   const [updateGrade, { isLoading }] = useUpdateGradeMutation();
   const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 50 });
 
@@ -66,7 +75,13 @@ export function UpdateGrade({
         })
         .filter(Boolean) as string[];
 
-      reset({ title, description, subjects: subjectIds });
+      const iv: UpdateGradeSchema = {
+        title,
+        description,
+        subjects: subjectIds,
+      };
+      reset(iv);
+      setInitialValues(iv);
     }
   }, [open, title, description, subjects, subjectsData, reset]);
 
@@ -137,6 +152,7 @@ export function UpdateGrade({
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
+              disabled={!isFormChanged || isLoading}
             >
               Save
             </Button>
