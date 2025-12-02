@@ -67,7 +67,7 @@ export default function ViewDetails({ assignment }: AssignmentDetailsProps) {
           <div className="grid gap-2">
             <Label>Price</Label>
             <div className={cn(displayFieldClass)}>
-              {assignment.assignmentPrice}
+              Rs. {assignment.assignmentPrice}
             </div>
           </div>
         </div>
