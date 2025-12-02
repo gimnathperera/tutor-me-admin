@@ -299,6 +299,9 @@ export type Tutor = BaseEntity & {
   fullName: string;
   name: string;
   contactNumber: string;
+  tutorMediums: string[];
+  grades: string[];
+  subjects: string[];
   email: string;
   dateOfBirth: string;
   gender: string;

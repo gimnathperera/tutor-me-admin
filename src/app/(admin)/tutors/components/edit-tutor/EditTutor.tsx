@@ -39,6 +39,14 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateTutorSchema, updateTutorSchema } from "./schema";
 
+export type StringLike =
+  | string
+  | number
+  | null
+  | undefined
+  | { id?: string; title?: string; name?: string };
+export type UnknownObject = Record<string, unknown>;
+
 interface EditTutorProps {
   id: string;
 }
@@ -98,11 +106,6 @@ export function EditTutor({ id }: EditTutorProps) {
     name: "subjects",
     defaultValue: [] as string[],
   }) as string[];
-  const dob = useWatch({
-    control,
-    name: "dateOfBirth",
-    defaultValue: "" as string,
-  }) as string;
 
   const safeEnumValue = <T extends string>(
     value: string | undefined,
@@ -156,7 +159,9 @@ export function EditTutor({ id }: EditTutorProps) {
           if (res?.data?.subjects) {
             allSubjects.push(...res.data.subjects);
           }
-        } catch (err) {}
+        } catch (err) {
+          console.error(err);
+        }
       }
 
       const uniqueSubjects = Array.from(
@@ -340,99 +345,7 @@ export function EditTutor({ id }: EditTutorProps) {
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen && tutorData) {
-      // Reset form to original values when closing
-      const genderOptions = ["Male", "Female"] as const;
-      const nationalityOptions = ["Sri Lankan", "Others"] as const;
-      const raceOptions = [
-        "Sinhalese",
-        "Tamil",
-        "Muslim",
-        "Burgher",
-        "Others",
-      ] as const;
-      const tutorTypeOptions = [
-        "Full Time Student",
-        "Undergraduate",
-        "Part Time Tutor",
-        "Full Time Tutor",
-        "Ex/Current MOE Teacher",
-        "Ex-MOE Teacher",
-        "Current MOE Teacher",
-      ] as const;
-      const educationOptions = [
-        "PhD",
-        "Diploma",
-        "Masters",
-        "Undergraduate",
-        "Bachelor Degree",
-        "Diploma and Professional",
-        "JC/A Levels",
-        "Poly",
-        "Others",
-      ] as const;
-      const tutoringLevelOptions = [
-        "Pre-School / Montessori",
-        "Primary School (Grades 1-5)",
-        "Ordinary Level (O/L) (Grades 6-11)",
-        "Advanced Level (A/L) (Grades 12-13)",
-        "International Syllabus (Cambridge, Edexcel, IB)",
-        "Undergraduate",
-        "Diploma / Degree",
-        "Language (e.g., English, French, Japanese)",
-        "Computing (e.g., Programming, Graphic Design)",
-        "Music & Arts",
-        "Special Skills",
-      ] as const;
-      const locationOptions = [
-        "Kollupitiya (Colombo 3)",
-        "Bambalapitiya (Colombo 4)",
-        "Havelock Town (Colombo 5)",
-        "Wellawatte (Colombo 6)",
-        "Cinnamon Gardens (Colombo 7)",
-        "Borella (Colombo 8)",
-        "Dehiwala",
-        "Mount Lavinia",
-        "Nugegoda",
-        "Rajagiriya",
-        "Kotte",
-        "Battaramulla",
-        "Malabe",
-        "Moratuwa",
-        "Gampaha",
-        "Negombo",
-        "Kadawatha",
-        "Kiribathgoda",
-        "Kelaniya",
-        "Wattala",
-        "Ja-Ela",
-        "Kalutara",
-        "Panadura",
-        "Horana",
-        "Wadduwa",
-        "Kandy",
-        "Matale",
-        "Nuwara Eliya",
-        "Galle",
-        "Matara",
-        "Hambantota",
-        "Kurunegala",
-        "Puttalam",
-        "Chilaw",
-        "Ratnapura",
-        "Kegalle",
-        "Badulla",
-        "Bandarawela",
-        "Anuradhapura",
-        "Polonnaruwa",
-        "Jaffna",
-        "Vavuniya",
-        "Trincomalee",
-        "Batticaloa",
-        "No Preference",
-      ] as const;
-      console.log("Raw tutorData:", tutorData);
-
-      reset((current) => {
+      reset(() => {
         return {
           fullName: tutorData.fullName || "",
           contactNumber: tutorData.contactNumber || "",
@@ -463,7 +376,7 @@ export function EditTutor({ id }: EditTutorProps) {
             typeof tutorData.agreeAssignmentInfo === "boolean"
               ? tutorData.agreeAssignmentInfo
               : undefined,
-        } as any;
+        } as UnknownObject;
       });
     }
   };
@@ -824,7 +737,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
               {formState.errors.tutorMediums && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.tutorMediums.message as any}
+                  {formState.errors.tutorMediums.message}
                 </p>
               )}
             </div>
@@ -842,7 +755,7 @@ export function EditTutor({ id }: EditTutorProps) {
               />
               {formState.errors.grades && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.grades.message as any}
+                  {formState.errors.grades.message}
                 </p>
               )}
             </div>
@@ -861,7 +774,7 @@ export function EditTutor({ id }: EditTutorProps) {
               />
               {formState.errors.subjects && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.subjects.message as any}
+                  {formState.errors.subjects.message}
                 </p>
               )}
             </div>

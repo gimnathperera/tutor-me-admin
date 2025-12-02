@@ -260,6 +260,9 @@ export type FetchUserRequest = {
 export type FetchTutorsRequest = {
   fullName?: string;
   contactNumber?: string;
+  tutorMediums?: string;
+  grades?: string;
+  subjects?: string;
   email?: string;
   gender?: string;
   nationality?: string;

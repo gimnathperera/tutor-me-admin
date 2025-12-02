@@ -22,12 +22,12 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export interface AssignedTutor {
-  _id: string; // use only _id to match your API
+  _id: string;
   fullName: string;
 }
 
 export interface TutorRequestBlock {
-  _id: string; // tutorBlockId
+  _id: string;
   subjects: { title: string }[];
   assignedTutor?: AssignedTutor[];
   preferredTutorType?: string;
@@ -37,7 +37,7 @@ export interface TutorRequestBlock {
 }
 
 export interface AssignTutorRow {
-  id: string; // requestId
+  id: string;
   tutors?: TutorRequestBlock[];
 }
 
@@ -51,12 +51,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
   const [updateAssignedTutor] = useUpdateAssignedTutorMutation();
   const [tutorBlocks, setTutorBlocks] = useState<TutorRequestBlock[]>([]);
 
-  const {
-    data: tutorsData,
-    isLoading,
-    isError,
-    refetch,
-  } = useFetchTutorsQuery({});
+  const { data: tutorsData, isLoading, isError } = useFetchTutorsQuery({});
 
   const tutors =
     row.tutors?.map((t) => ({
@@ -68,7 +63,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
       })),
     })) || [];
 
-  const [selectedTutors, setSelectedTutors] = useState<string[]>(
+  const [selectedTutors] = useState<string[]>(
     tutors.map((t) => t.assignedTutor?.[0]?._id || ""),
   );
 
