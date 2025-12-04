@@ -1,6 +1,7 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element */
+import FileUploadDropzone from "@/components/fileUploader";
 import Select from "@/components/form/Select";
 import { Button } from "@/components/ui/button/Button";
 import DatePicker from "@/components/ui/DatePicker";
@@ -196,32 +197,35 @@ export default function UpdateUser() {
               </div>
             </div>
 
-            {/* Avatar */}
             <div className="grid gap-3">
-              <Label htmlFor="avatar">Profile Image URL *</Label>
-              <Input
-                id="avatar"
-                placeholder="https://example.com/avatar.jpg"
-                {...register("avatar")}
-                className={hasImageError ? "border-red-500" : ""}
+              <Label className="font-semibold">Profile Image *</Label>
+
+              {/* File Upload Component */}
+              <FileUploadDropzone
+                onUploaded={(url) => {
+                  setValue("avatar", url, { shouldValidate: true });
+                  setImageSrc(url);
+                  setHasImageError(false);
+                }}
               />
-              <div className="mt-1">
-                {errors.avatar && (
-                  <p className="text-sm text-red-500">
-                    {errors.avatar.message}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-4 mt-2">
+
+              {/* Show validation errors */}
+              {errors.avatar && (
+                <p className="text-sm text-red-500">{errors.avatar.message}</p>
+              )}
+
+              {/* Preview Image */}
+              <div className="flex items-center gap-4 mt-3">
                 <img
                   src={imageSrc}
                   alt="avatar preview"
-                  className="w-30 h-30 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+                  className="w-28 h-28 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
                   onError={() => {
                     setImageSrc("/images/user/user.png");
                     setHasImageError(true);
                   }}
                 />
+
                 {hasImageError && (
                   <p className="text-sm text-red-500">
                     Failed to load image. Showing default avatar.
@@ -229,6 +233,7 @@ export default function UpdateUser() {
                 )}
               </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Gender */}
               <div className="flex flex-col">
