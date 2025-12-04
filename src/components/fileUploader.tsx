@@ -103,14 +103,24 @@ export default function FileUploadDropzone({
           </p>
 
           {fileName && (
-            <div className="mt-2 flex items-center justify-center space-x-2">
-              <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[70%] sm:max-w-xs">
+            <div className="mt-2 flex items-center justify-center gap-2 w-full px-2">
+              <p
+                className="
+      text-sm text-gray-500 dark:text-gray-400
+      w-auto
+      max-w-full
+      min-w-[120px]
+      truncate
+      break-all
+    "
+              >
                 {fileName}
               </p>
+
               <button
                 type="button"
                 onClick={removeFile}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 shrink-0"
               >
                 <X size={16} />
               </button>

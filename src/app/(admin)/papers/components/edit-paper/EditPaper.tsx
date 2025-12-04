@@ -117,10 +117,9 @@ export function EditPaper({
 
   const [updatePaper, { isLoading }] = useUpdatePaperMutation();
 
-  // Load grades with search
-  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery({
-    title: debouncedGradeSearch,
-  });
+  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
+    debouncedGradeSearch ? { title: debouncedGradeSearch } : {},
+  );
 
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
@@ -132,29 +131,26 @@ export function EditPaper({
 
   const selectedGrade = watch("grade");
   const [initialValues, setInitialValues] = useState<PaperSchema | null>(null);
-
   useEffect(() => {
-    if (open && gradeDetails) {
-      const subjectExists = gradeDetails.subjects?.some(
-        (s: Subject) => s.id === subjectId,
-      );
+    if (!open || !gradeDetails) return;
 
-      const values: PaperSchema = {
-        title,
-        description,
-        grade: gradeId,
-        subject: subjectExists ? subjectId : "",
-        year,
-        url,
-      };
+    const subjectExists = gradeDetails.subjects?.some(
+      (s: Subject) => s.id === subjectId,
+    );
 
-      // reset form and save original snapshot
-      reset(values);
-      setInitialValues(values);
+    const values: PaperSchema = {
+      title,
+      description,
+      grade: gradeId,
+      subject: subjectExists ? subjectId : "",
+      year,
+      url,
+    };
 
-      setSubjectSearch("");
-      setHydrated(true);
-    }
+    reset(values);
+    setInitialValues(values);
+    setSubjectSearch("");
+    setHydrated(true);
   }, [
     open,
     gradeDetails,
@@ -166,25 +162,6 @@ export function EditPaper({
     url,
     reset,
   ]);
-  useEffect(() => {
-    if (open && gradeDetails) {
-      const subjectExists = gradeDetails.subjects?.some(
-        (s: Subject) => s.id === subjectId,
-      );
-
-      updatePaperForm.reset({
-        title,
-        description,
-        grade: gradeId,
-        subject: subjectExists ? subjectId : "",
-        year,
-        url,
-      });
-
-      setSubjectSearch("");
-      setHydrated(true);
-    }
-  }, [open, gradeDetails, title, description, gradeId, subjectId, year, url]);
 
   useEffect(() => {
     if (selectedGrade && selectedGrade !== gradeId) {
@@ -271,7 +248,7 @@ export function EditPaper({
               <Label>Grade</Label>
               <Select
                 onValueChange={(value) => setValue("grade", value)}
-                value={hydrated ? watch("grade") : undefined}
+                value={watch("grade") ?? ""}
                 disabled={isGradesLoading}
               >
                 <SelectTrigger className="w-full">
@@ -376,6 +353,7 @@ export function EditPaper({
             {/* FILE UPLOAD */}
             <div className="grid gap-3">
               <Label>Paper File</Label>
+              <p>{previewUrl}</p>
               <FileUploadDropzone
                 onUploaded={(uploadedUrl) => {
                   setValue("url", uploadedUrl);

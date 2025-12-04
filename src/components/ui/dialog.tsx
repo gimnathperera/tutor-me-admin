@@ -65,7 +65,7 @@ function DialogContent({
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 " +
             "fixed top-[50%] left-[50%] z-50 flex w-full max-w-[calc(100%-2rem)] " +
             "translate-x-[-50%] translate-y-[-50%] flex-col rounded-lg border shadow-lg duration-200 " +
-            "sm:max-w-lg max-h-[80vh]",
+            "sm:w-auto sm:min-w-[450px] sm:max-w-[700px] max-h-[80vh]",
           className,
         )}
         {...props}
