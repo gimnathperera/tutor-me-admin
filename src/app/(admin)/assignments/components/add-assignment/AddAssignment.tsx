@@ -71,6 +71,7 @@ export function AddAssignment() {
     toast.success("Assignment added successfully");
     setOpen(false);
   };
+  const [currency, setCurrency] = useState<"Rs" | "$">("Rs");
 
   return (
     <Dialog
@@ -148,11 +149,32 @@ export function AddAssignment() {
             {/* Price */}
             <div className="grid gap-3">
               <Label htmlFor="assignmentPrice">Price</Label>
-              <Input
-                id="assignmentPrice"
-                type="number"
-                {...form.register("assignmentPrice")}
-              />
+
+              <div className="flex">
+                {/* Currency Selector */}
+                <Select
+                  value={currency}
+                  onValueChange={(val) => setCurrency(val as any)}
+                >
+                  <SelectTrigger className="w-[90px] rounded-r-none">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Rs">Rs</SelectItem>
+                    <SelectItem value="$">$</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Price Input */}
+                <Input
+                  id="assignmentPrice"
+                  type="number"
+                  {...form.register("assignmentPrice")}
+                  className="rounded-l-none"
+                  placeholder={`Enter amount in ${currency}`}
+                />
+              </div>
+
               {formState.errors.assignmentPrice && (
                 <p className="text-sm text-red-500">
                   {formState.errors.assignmentPrice.message}

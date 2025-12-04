@@ -170,6 +170,7 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
       }
     }
   };
+  const [currency, setCurrency] = useState<"Rs" | "$">("Rs");
 
   if (isLoading) return <p>Loading...</p>;
 
@@ -237,11 +238,35 @@ export function UpdateAssignment({ id }: UpdateAssignmentProps) {
             {/* Price */}
             <div className="grid gap-3">
               <Label htmlFor="assignmentPrice">Price</Label>
-              <Input
-                id="assignmentPrice"
-                type="number"
-                {...form.register("assignmentPrice")}
-              />
+
+              <div className="flex">
+                {/* Currency Selector */}
+                <Select
+                  value={currency}
+                  onValueChange={(val) => setCurrency(val as "Rs" | "$")}
+                >
+                  <SelectTrigger className="w-[90px] rounded-r-none">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Currency</SelectLabel>
+                      <SelectItem value="Rs">Rs</SelectItem>
+                      <SelectItem value="$">$</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+                {/* Price Input */}
+                <Input
+                  id="assignmentPrice"
+                  type="number"
+                  {...form.register("assignmentPrice")}
+                  className="rounded-l-none"
+                  placeholder={`Enter amount in ${currency}`}
+                />
+              </div>
+
               {formState.errors.assignmentPrice && (
                 <p className="text-sm text-red-500">
                   {formState.errors.assignmentPrice.message}
