@@ -11,8 +11,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import { Eye } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type ArrayItem =
   | string
@@ -72,21 +73,69 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
 
   const normalizeArrayToStrings = (arr?: ArrayItem[]) => {
     if (!arr || !Array.isArray(arr)) return [];
-
     return arr.map((it) => {
       if (typeof it === "string") return it;
       if (typeof it === "number") return String(it);
       if (it == null) return "N/A";
-
       return it.title ?? it.name ?? it.id ?? JSON.stringify(it);
     });
   };
 
   const mediumList = normalizeArrayToStrings(tutor.tutorMediums);
-  const gradeList = normalizeArrayToStrings(tutor.grades);
-  const subjectList = normalizeArrayToStrings(tutor.subjects);
   const levels = normalizeArrayToStrings(tutor.tutoringLevels);
   const locations = normalizeArrayToStrings(tutor.preferredLocations);
+  const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 200 });
+
+  const { gradeIdToTitle, subjectIdToTitle } = useMemo(() => {
+    const gradeMap = new Map<string, string>();
+    const subjectMap = new Map<string, string>();
+
+    const grades = gradesData?.results ?? [];
+    for (const g of grades) {
+      if (g?.id) gradeMap.set(g.id, g.title ?? String(g.id));
+      if (Array.isArray((g as any).subjects)) {
+        (g as any).subjects.forEach((s: any) => {
+          if (s?.id) subjectMap.set(s.id, s.title ?? s.id);
+        });
+      }
+    }
+    return {
+      gradeIdToTitle: gradeMap,
+      subjectIdToTitle: subjectMap,
+    };
+  }, [gradesData]);
+
+  const gradeList = useMemo(() => {
+    if (!tutor?.grades || !Array.isArray(tutor.grades)) return [];
+    return tutor.grades.map((g) => {
+      if (typeof g === "string") {
+        return gradeIdToTitle.get(g) ?? g;
+      }
+      if (typeof g === "object" && g != null) {
+        return (g as any).title ?? (g as any).id ?? String(g);
+      }
+      return String(g);
+    });
+  }, [tutor?.grades, gradeIdToTitle]);
+
+  const subjectList = useMemo(() => {
+    if (!tutor?.subjects || !Array.isArray(tutor.subjects)) return [];
+    return tutor.subjects.map((s) => {
+      if (typeof s === "string") {
+        const fromMap = subjectIdToTitle.get(s);
+        if (fromMap) return fromMap;
+        for (const g of gradesData?.results ?? []) {
+          const found = (g as any).subjects?.find((sub: any) => sub.id === s);
+          if (found) return found.title ?? found.id ?? String(s);
+        }
+        return s;
+      }
+      if (typeof s === "object" && s != null) {
+        return (s as any).title ?? (s as any).id ?? String(s);
+      }
+      return String(s);
+    });
+  }, [tutor?.subjects, subjectIdToTitle, gradesData]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
