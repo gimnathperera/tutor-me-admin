@@ -121,15 +121,18 @@ export default function BlogsTable() {
     {
       key: "delete",
       header: (
-        <span className="truncate  text-center  block w-full" title="Delete">
+        <span className="truncate text-center block w-full" title="Delete">
           Delete
         </span>
       ),
       className:
-        "cursor-default lg:min-w-[140px] lg:max-w-[140px] min-w-[80px] max-w-[120px] ",
+        "cursor-default lg:min-w-[140px] lg:max-w-[140px] min-w-[80px] max-w-[120px]",
       render: (row: Blogs) => (
         <div className="w-full flex items-center justify-center">
-          <DeleteBlog blogId={row.id} />
+          <DeleteBlog
+            blogId={row.id}
+            currentStatus={row.status as "pending" | "approved" | "rejected"}
+          />
         </div>
       ),
     },

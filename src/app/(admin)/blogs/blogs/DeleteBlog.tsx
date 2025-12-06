@@ -11,13 +11,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  useDeleteBlogMutation,
-  useFetchBlogByIdQuery,
-} from "@/store/api/splits/blogs";
-import { getErrorInApiResult } from "@/utils/api";
+import { useDeleteBlogMutation } from "@/store/api/splits/blogs";
 import { Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface DeleteBlogProps {
@@ -31,61 +27,28 @@ export function DeleteBlog({
   currentStatus,
   onDeleted,
 }: DeleteBlogProps) {
-  const {
-    data: blog,
-    isLoading: isFetching,
-    refetch,
-  } = useFetchBlogByIdQuery(blogId, {
-    refetchOnMountOrArgChange: true,
-  });
-
   const [deleteBlog, { isLoading }] = useDeleteBlogMutation();
-  const [deleted, setDeleted] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const effectiveStatus = currentStatus || blog?.status;
-  const canDelete = effectiveStatus === "rejected";
+  const canDelete = currentStatus === "rejected";
 
-  useEffect(() => {
-    if (dialogOpen) {
-      refetch();
-    }
-  }, [dialogOpen, refetch]);
-
-  const handleDelete = async (): Promise<void> => {
-    if (!blog) {
-      toast.error("Blog not found");
-      return;
-    }
-
-    if (blog.status !== "rejected") {
+  const handleDelete = async () => {
+    if (!canDelete) {
       toast.error("Only blogs with status 'rejected' can be deleted");
       return;
     }
 
-    try {
-      const result = await deleteBlog(blogId);
+    const result = await deleteBlog(blogId);
 
-      if ("error" in result && result.error) {
-        const error = getErrorInApiResult({ error: result.error });
-        toast.error(error);
-      } else {
-        toast.success("Blog deleted successfully");
-        setDeleted(true);
-        setDialogOpen(false);
-        onDeleted?.();
-      }
-    } catch (err: unknown) {
-      console.error("Unexpected error during deletion:", err);
-      toast.error("An unexpected error occurred while deleting the blog");
+    if ("error" in result) {
+      toast.error("Delete failed");
+      return;
     }
+
+    toast.success("Blog deleted");
+    setDialogOpen(false);
+    onDeleted?.();
   };
-
-  useEffect(() => {
-    if (deleted) {
-      console.log("Blog deleted, you can refresh the page or refetch list");
-    }
-  }, [deleted]);
 
   return (
     <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -99,16 +62,14 @@ export function DeleteBlog({
         />
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
+      <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this
-            blog.
+            This will permanently delete the blog.
             {!canDelete && (
-              <span className="block mt-2 text-red-500 font-normal">
-                Only blogs with status &#39;rejected&#39; can be deleted.
-                Current status: {effectiveStatus}
+              <span className="text-red-500 block mt-2">
+                Only blogs with status "rejected" can be deleted.
               </span>
             )}
           </AlertDialogDescription>
@@ -116,12 +77,13 @@ export function DeleteBlog({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
+
           <AlertDialogAction
+            disabled={!canDelete || isLoading}
             onClick={handleDelete}
-            disabled={isLoading || isFetching || !canDelete}
             className="bg-red-500 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Deleting..." : "Continue"}
+            {isLoading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

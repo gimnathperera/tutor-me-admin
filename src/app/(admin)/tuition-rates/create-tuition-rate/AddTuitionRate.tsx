@@ -22,11 +22,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import {
   useFetchGradeByIdQuery,
   useFetchGradesQuery,
 } from "@/store/api/splits/grades";
-import { useCreateTuitionRateMutation } from "@/store/api/splits/tuition-rates";
+
+import {
+  useCreateTuitionRateMutation,
+  useFetchTuitionRatesQuery,
+} from "@/store/api/splits/tuition-rates";
+
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -47,19 +53,48 @@ export function AddTuitionRate() {
     mode: "onChange",
   });
 
+  // ⬇️ FETCH ALL TUITION RATES (USED FOR DUPLICATE CHECK)
+  const { data: tuitionRates } = useFetchTuitionRatesQuery({});
+
   const [createRate, { isLoading }] = useCreateTuitionRateMutation();
 
+  // ⬇️ FETCH GRADES
   const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
     {},
   );
+
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
+
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
+  // ⬇️ SUBMIT HANDLER WITH DUPLICATE VALIDATION
   const onSubmit = async (data: CreateTuitionSchema) => {
+    const gradeId = String(data.grade);
+    const subjectId = String(data.subject);
+
+    // List of all existing rates or empty array
+    const existingRates = tuitionRates?.results ?? [];
+
+    // 🚫 DUPLICATE CHECK (String() normalizes number/string mismatches)
+    const isDuplicate = existingRates.some(
+      (rate) =>
+        String(rate.grade?.id) === gradeId &&
+        String(rate.subject?.id) === subjectId,
+    );
+
+    if (isDuplicate) {
+      return toast.error(
+        "A tuition rate for this grade and subject already exists.",
+      );
+    }
+
+    // ⬇️ CREATE NEW RATE IF NOT DUPLICATE
     const result = await createRate(data);
     const error = getErrorInApiResult(result);
+
     if (error) return toast.error(error);
+
     if ("data" in result) {
       createTuitionRateForm.reset();
       toast.success("Tuition Rate created successfully");
@@ -94,6 +129,7 @@ export function AddTuitionRate() {
             Add Tuition Rate
           </Button>
         </DialogTrigger>
+
         <DialogContent className="sm:max-w-[500px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add Tuition Rate</DialogTitle>
@@ -103,6 +139,7 @@ export function AddTuitionRate() {
           </DialogHeader>
 
           <div className="grid gap-4">
+            {/* GRADE SELECT */}
             <div className="grid gap-3">
               <Label htmlFor="grade">Grade</Label>
               <Select
@@ -126,12 +163,15 @@ export function AddTuitionRate() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.grade && (
                 <p className="text-sm text-red-500">
                   {formState.errors.grade.message}
                 </p>
               )}
             </div>
+
+            {/* SUBJECT SELECT */}
             <div className="grid gap-3">
               <Label htmlFor="subject">Subject</Label>
               <Select
@@ -153,6 +193,7 @@ export function AddTuitionRate() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.subject && (
                 <p className="text-sm text-red-500">
                   {formState.errors.subject.message}
@@ -160,6 +201,7 @@ export function AddTuitionRate() {
               )}
             </div>
 
+            {/* RATES */}
             {(
               [
                 "fullTimeTuitionRate",
@@ -207,6 +249,7 @@ export function AddTuitionRate() {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
