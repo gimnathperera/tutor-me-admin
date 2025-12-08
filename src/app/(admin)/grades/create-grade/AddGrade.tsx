@@ -164,7 +164,6 @@ export function AddGrade() {
             </div>
           </div>
 
-          {/* Footer */}
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>

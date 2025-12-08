@@ -53,12 +53,10 @@ export function AddTuitionRate() {
     mode: "onChange",
   });
 
-  // ⬇️ FETCH ALL TUITION RATES (USED FOR DUPLICATE CHECK)
   const { data: tuitionRates } = useFetchTuitionRatesQuery({});
 
   const [createRate, { isLoading }] = useCreateTuitionRateMutation();
 
-  // ⬇️ FETCH GRADES
   const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
     {},
   );
@@ -68,15 +66,11 @@ export function AddTuitionRate() {
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
-  // ⬇️ SUBMIT HANDLER WITH DUPLICATE VALIDATION
   const onSubmit = async (data: CreateTuitionSchema) => {
     const gradeId = String(data.grade);
     const subjectId = String(data.subject);
 
-    // List of all existing rates or empty array
     const existingRates = tuitionRates?.results ?? [];
-
-    // 🚫 DUPLICATE CHECK (String() normalizes number/string mismatches)
     const isDuplicate = existingRates.some(
       (rate) =>
         String(rate.grade?.id) === gradeId &&
@@ -89,7 +83,6 @@ export function AddTuitionRate() {
       );
     }
 
-    // ⬇️ CREATE NEW RATE IF NOT DUPLICATE
     const result = await createRate(data);
     const error = getErrorInApiResult(result);
 
@@ -139,7 +132,6 @@ export function AddTuitionRate() {
           </DialogHeader>
 
           <div className="grid gap-4">
-            {/* GRADE SELECT */}
             <div className="grid gap-3">
               <Label htmlFor="grade">Grade</Label>
               <Select
@@ -170,8 +162,6 @@ export function AddTuitionRate() {
                 </p>
               )}
             </div>
-
-            {/* SUBJECT SELECT */}
             <div className="grid gap-3">
               <Label htmlFor="subject">Subject</Label>
               <Select
