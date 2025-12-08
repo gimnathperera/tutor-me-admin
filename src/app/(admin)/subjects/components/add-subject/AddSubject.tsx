@@ -14,7 +14,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCreateSubjectMutation } from "@/store/api/splits/subjects";
+import {
+  useCreateSubjectMutation,
+  useFetchSubjectsQuery,
+} from "@/store/api/splits/subjects";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -29,6 +32,13 @@ import {
 export function AddSubject() {
   const [open, setOpen] = useState(false);
   const [createSubject, { isLoading }] = useCreateSubjectMutation();
+  const { data: subjectsData, isLoading: subjectsLoading } =
+    useFetchSubjectsQuery({
+      page: 1,
+      limit: 100,
+    });
+  const existingTitles =
+    subjectsData?.results.map((s) => s.title.toLowerCase()) || [];
 
   const createSubjectForm = useForm({
     resolver: zodResolver(createSubjectSchema),
@@ -92,7 +102,14 @@ export function AddSubject() {
               <Input
                 id="title"
                 placeholder="Title"
-                {...createSubjectForm.register("title")}
+                {...createSubjectForm.register("title", {
+                  validate: (value) => {
+                    if (existingTitles.includes(value.toLowerCase())) {
+                      return "This subject title already exists.";
+                    }
+                    return true;
+                  },
+                })}
               />
               {formState.errors.title && (
                 <p className="text-sm text-red-500">

@@ -14,7 +14,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCreateGradeMutation } from "@/store/api/splits/grades";
+import {
+  useCreateGradeMutation,
+  useFetchGradesQuery,
+} from "@/store/api/splits/grades";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,6 +32,9 @@ import {
 
 export function AddGrade() {
   const [open, setOpen] = useState(false);
+  const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
+  const existingTitles =
+    gradesData?.results.map((g) => g.title.toLowerCase()) || [];
 
   const createGradeForm = useForm({
     resolver: zodResolver(createGradeSchema),
@@ -105,7 +111,14 @@ export function AddGrade() {
               <Input
                 id="title"
                 placeholder="Title"
-                {...createGradeForm.register("title")}
+                {...createGradeForm.register("title", {
+                  validate: (value) => {
+                    if (existingTitles.includes(value.toLowerCase())) {
+                      return "This grade title already exists.";
+                    }
+                    return true;
+                  },
+                })}
               />
               {formState.errors.title && (
                 <p className="text-sm text-red-500">
@@ -151,7 +164,6 @@ export function AddGrade() {
             </div>
           </div>
 
-          {/* Footer */}
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>

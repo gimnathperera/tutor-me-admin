@@ -22,11 +22,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import {
   useFetchGradeByIdQuery,
   useFetchGradesQuery,
 } from "@/store/api/splits/grades";
-import { useCreateTuitionRateMutation } from "@/store/api/splits/tuition-rates";
+
+import {
+  useCreateTuitionRateMutation,
+  useFetchTuitionRatesQuery,
+} from "@/store/api/splits/tuition-rates";
+
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -47,19 +53,41 @@ export function AddTuitionRate() {
     mode: "onChange",
   });
 
+  const { data: tuitionRates } = useFetchTuitionRatesQuery({});
+
   const [createRate, { isLoading }] = useCreateTuitionRateMutation();
 
   const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
     {},
   );
+
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(null);
+
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId!, { skip: !selectedGradeId });
 
   const onSubmit = async (data: CreateTuitionSchema) => {
+    const gradeId = String(data.grade);
+    const subjectId = String(data.subject);
+
+    const existingRates = tuitionRates?.results ?? [];
+    const isDuplicate = existingRates.some(
+      (rate) =>
+        String(rate.grade?.id) === gradeId &&
+        String(rate.subject?.id) === subjectId,
+    );
+
+    if (isDuplicate) {
+      return toast.error(
+        "A tuition rate for this grade and subject already exists.",
+      );
+    }
+
     const result = await createRate(data);
     const error = getErrorInApiResult(result);
+
     if (error) return toast.error(error);
+
     if ("data" in result) {
       createTuitionRateForm.reset();
       toast.success("Tuition Rate created successfully");
@@ -94,6 +122,7 @@ export function AddTuitionRate() {
             Add Tuition Rate
           </Button>
         </DialogTrigger>
+
         <DialogContent className="sm:max-w-[500px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add Tuition Rate</DialogTitle>
@@ -126,6 +155,7 @@ export function AddTuitionRate() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.grade && (
                 <p className="text-sm text-red-500">
                   {formState.errors.grade.message}
@@ -153,6 +183,7 @@ export function AddTuitionRate() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.subject && (
                 <p className="text-sm text-red-500">
                   {formState.errors.subject.message}
@@ -160,6 +191,7 @@ export function AddTuitionRate() {
               )}
             </div>
 
+            {/* RATES */}
             {(
               [
                 "fullTimeTuitionRate",
@@ -207,6 +239,7 @@ export function AddTuitionRate() {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
