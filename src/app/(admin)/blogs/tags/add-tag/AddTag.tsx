@@ -26,13 +26,13 @@ export function AddTag() {
   const [open, setOpen] = useState(false);
   const [createTag, { isLoading }] = useCreateTagMutation();
 
-  const createTagForm = useForm({
+  const createTagForm = useForm<TagSchema>({
     resolver: zodResolver(tagSchema),
-    defaultValues: initialFormValues as TagSchema,
+    defaultValues: initialFormValues,
     mode: "onChange",
   });
 
-  const { formState } = createTagForm;
+  const { formState, reset } = createTagForm;
 
   const onSubmit = async (data: TagSchema) => {
     try {
@@ -51,13 +51,21 @@ export function AddTag() {
   };
 
   const onRegisterSuccess = () => {
-    createTagForm.reset();
+    reset(initialFormValues);
     toast.success("Tag created successfully");
     setOpen(false);
   };
 
+  const handleDialogOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+
+    if (!isOpen) {
+      reset(initialFormValues);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <form onSubmit={createTagForm.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
@@ -67,12 +75,15 @@ export function AddTag() {
             Add Tag
           </Button>
         </DialogTrigger>
+
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add Tag</DialogTitle>
             <DialogDescription>Add a new tag to the list.</DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4">
+            {/* Title */}
             <div className="grid gap-3">
               <Label htmlFor="name">Title</Label>
               <Input
@@ -86,6 +97,7 @@ export function AddTag() {
                 </p>
               )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
               <TextArea
@@ -100,9 +112,15 @@ export function AddTag() {
               )}
             </div>
           </div>
+
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button
+                variant="outline"
+                onClick={() => reset(initialFormValues)}
+              >
+                Cancel
+              </Button>
             </DialogClose>
             <Button
               type="submit"
