@@ -12,13 +12,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useDeleteBlogMutation } from "@/store/api/splits/blogs";
+import { BlogStatus } from "@/types/blogs-types";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 interface DeleteBlogProps {
   blogId: string;
-  currentStatus?: "pending" | "approved" | "rejected" | "published" | "draft";
+  currentStatus?: BlogStatus;
   onDeleted?: () => void;
 }
 

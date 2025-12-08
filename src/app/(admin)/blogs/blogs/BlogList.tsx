@@ -3,6 +3,7 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchBlogsQuery } from "@/store/api/splits/blogs";
+import { BlogStatus } from "@/types/blogs-types";
 import { Blogs } from "@/types/response-types";
 import { useState } from "react";
 import { DeleteBlog } from "./DeleteBlog";
@@ -131,7 +132,7 @@ export default function BlogsTable() {
         <div className="w-full flex items-center justify-center">
           <DeleteBlog
             blogId={row.id}
-            currentStatus={row.status as "pending" | "approved" | "rejected"}
+            currentStatus={row.status as BlogStatus}
           />
         </div>
       ),
