@@ -1,5 +1,6 @@
 "use client";
 
+import { formatYearsExperience } from "@/app/(admin)/tutors/constants";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -136,6 +137,7 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
       return String(s);
     });
   }, [tutor?.subjects, subjectIdToTitle, gradesData]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -222,7 +224,12 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
             <div className="grid gap-3">
               <Label>Years of Experience</Label>
               <div className={displayFieldClass}>
-                {getSafeValue(tutor.yearsExperience)}
+                {(() => {
+                  const formatted = formatYearsExperience(
+                    tutor.yearsExperience,
+                  );
+                  return formatted === "" ? "N/A" : formatted;
+                })()}
               </div>
             </div>
           </div>
