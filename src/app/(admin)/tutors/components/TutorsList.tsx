@@ -1,5 +1,6 @@
 "use client";
 
+import { formatYearsExperience } from "@/app/(admin)/tutors/constants";
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
@@ -137,10 +138,10 @@ export default function TutorsList() {
         render: (row: Tutor) => (
           <div className="flex justify-center w-full ">
             <span
-              title={row.yearsExperience?.toString() || "N/A"}
+              title={formatYearsExperience(row.yearsExperience) || "N/A"}
               className={`truncate block ${row.yearsExperience === undefined ? "text-gray-400 italic" : ""}`}
             >
-              {getSafeValue(row.yearsExperience, "N/A")}
+              {formatYearsExperience(row.yearsExperience) || "N/A"}
             </span>
           </div>
         ),
