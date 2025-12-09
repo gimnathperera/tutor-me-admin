@@ -1,13 +1,14 @@
 "use client";
 
+import { YEARS_EXPERIENCE_OPTIONS } from "@/app/(admin)/tutors/constants";
 import MultiSelect from "@/components/form/MultiSelect";
 import { Button } from "@/components/ui/button/Button";
 import DatePicker from "@/components/ui/DatePicker";
+
 import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
 } from "@/store/api/splits/grades";
-// add this with your other imports
 import { useRef } from "react";
 
 import {
@@ -20,7 +21,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-// add this with your other imports
 import { useWatch } from "react-hook-form";
 
 import { Label } from "@/components/ui/label";
@@ -563,21 +563,12 @@ export function AddTutor() {
                     <SelectValue placeholder="Select years" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[
-                      "0",
-                      "1",
-                      "2",
-                      "3",
-                      "4",
-                      "5",
-                      "6",
-                      "7",
-                      "8",
-                      "9",
-                      "10+",
-                    ].map((o) => (
-                      <SelectItem key={o} value={o}>
-                        {o}
+                    {YEARS_EXPERIENCE_OPTIONS.map((opt) => (
+                      <SelectItem
+                        key={String(opt.value)}
+                        value={String(opt.value)}
+                      >
+                        {opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>

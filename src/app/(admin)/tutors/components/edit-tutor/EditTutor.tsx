@@ -27,6 +27,7 @@ import {
   useUpdateTutorMutation,
 } from "@/store/api/splits/tutors";
 
+import { YEARS_EXPERIENCE_OPTIONS } from "@/app/(admin)/tutors/constants";
 import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
@@ -823,21 +824,12 @@ export function EditTutor({ id }: EditTutorProps) {
                     <SelectValue placeholder="Select years" />
                   </SelectTrigger>
                   <SelectContent>
-                    {[
-                      "0",
-                      "1",
-                      "2",
-                      "3",
-                      "4",
-                      "5",
-                      "6",
-                      "7",
-                      "8",
-                      "9",
-                      "10+",
-                    ].map((o) => (
-                      <SelectItem key={o} value={o}>
-                        {o}
+                    {YEARS_EXPERIENCE_OPTIONS.map((opt) => (
+                      <SelectItem
+                        key={String(opt.value)}
+                        value={String(opt.value)}
+                      >
+                        {opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
