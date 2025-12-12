@@ -1,0 +1,43 @@
+# Node modules
+node_modules
+.pnpm-store
+
+# Next.js build output
+.next
+out
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local env files (DO NOT COPY TO DOCKER)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# VSCode
+.vscode
+
+# Cache
+*.cache
+.cache
+
+# Build artifacts
+dist
+coverage
+
+# Misc
+*.swp
+*.swo
