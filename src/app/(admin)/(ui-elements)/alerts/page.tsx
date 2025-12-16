@@ -4,9 +4,9 @@ import Alert from "@/components/ui/alert/Alert";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Alerts | TutorMe - Next.js Dashboard Template",
+  title: "Next.js Alerts | TuitionLanka - Next.js Dashboard Template",
   description:
-    "This is Next.js Alerts page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Alerts page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
   // other metadata
 };
 

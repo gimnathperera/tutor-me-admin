@@ -3,7 +3,7 @@ import TutorsList from "./components/TutorsList";
 import { AddTutor } from "./components/add-tutor/AddTutor";
 
 export const metadata: Metadata = {
-  title: "Tutors | TutorMe - Admin Dashboard",
+  title: "Tutors | TuitionLanka - Admin Dashboard",
   description: "Manage tutors",
 };
 

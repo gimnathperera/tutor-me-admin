@@ -3,7 +3,7 @@ import AssignmentsTable from "./components/AssignmentsList";
 import { AddAssignment } from "./components/add-assignment/AddAssignment";
 
 export const metadata: Metadata = {
-  title: "Assignments | TutorMe - Admin Dashboard",
+  title: "Assignments | TuitionLanka - Admin Dashboard",
   description: "Manage tuition assignments",
 };
 

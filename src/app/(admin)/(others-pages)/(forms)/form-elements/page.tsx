@@ -12,9 +12,9 @@ import ToggleSwitch from "@/components/form/form-elements/ToggleSwitch";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Form Elements | TutorMe - Next.js Dashboard Template",
+  title: "Next.js Form Elements | TuitionLanka - Next.js Dashboard Template",
   description:
-    "This is Next.js Form Elements page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Form Elements page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function FormElements() {

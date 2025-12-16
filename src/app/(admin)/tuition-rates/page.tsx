@@ -3,8 +3,8 @@ import { AddTuitionRate } from "./create-tuition-rate/AddTuitionRate";
 import TuitionRatesTable from "./RatesList";
 
 export const metadata: Metadata = {
-  title: "Tuition Rates | TutorMe",
-  description: "This is the Tuition Rates management page for TutorMe",
+  title: "Tuition Rates | TuitionLanka",
+  description: "This is the Tuition Rates management page for TuitionLanka",
 };
 
 export default function Profile() {

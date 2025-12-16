@@ -3,8 +3,8 @@ import { AddLevel } from "./create-level/AddLevel";
 import LevelsTable from "./LevelsList";
 
 export const metadata: Metadata = {
-  title: "Levels | TutorMe",
-  description: "This is the Levels management page for TutorMe",
+  title: "Levels | TuitionLanka",
+  description: "This is the Levels management page for TuitionLanka",
 };
 
 export default function LevelsPage() {

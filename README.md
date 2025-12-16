@@ -1,6 +1,6 @@
-# TutorMe Admin Panel
+# TuitionLanka Admin Panel
 
-TutorMe Admin Panel is a modern, responsive admin dashboard built using **Next.js, Tailwind CSS, and TypeScript**. It is designed to manage and monitor the TutorMe platform efficiently, providing tools for user management, analytics, and content control.
+TuitionLanka Admin Panel is a modern, responsive admin dashboard built using **Next.js, Tailwind CSS, and TypeScript**. It is designed to manage and monitor the TuitionLanka platform efficiently, providing tools for user management, analytics, and content control.
 
 ## Features
 
@@ -26,7 +26,7 @@ All features are built with React and styled using Tailwind CSS for easy customi
 
 ## Prerequisites
 
-To get started with TutorMe, ensure you have the following prerequisites installed and set up:
+To get started with TuitionLanka, ensure you have the following prerequisites installed and set up:
 
 - Node.js 18.x or later (recommended to use Node.js 20.x or later)
 

@@ -3,9 +3,9 @@ import VideosExample from "@/components/ui/video/VideosExample";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Videos | TutorMe - Next.js Dashboard Template",
+  title: "Next.js Videos | TuitionLanka - Next.js Dashboard Template",
   description:
-    "This is Next.js Videos page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Videos page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function VideoPage() {

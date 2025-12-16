@@ -1,10 +1,10 @@
+import { Metadata } from "next";
 import UserInfoCard from "./components/UserInfoCard";
 import UserMetaCard from "./components/UserMetaCard";
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Profile | TutorMe",
-  description: "This is Next.js Profile page for TutorMe",
+  title: "Profile | TuitionLanka",
+  description: "This is Next.js Profile page for TuitionLanka",
 };
 
 export default function Profile() {
