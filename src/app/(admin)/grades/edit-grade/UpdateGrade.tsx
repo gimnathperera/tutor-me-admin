@@ -58,7 +58,7 @@ export function UpdateGrade({
       ? JSON.stringify(watched) !== JSON.stringify(initialValues)
       : false;
   const [updateGrade, { isLoading }] = useUpdateGradeMutation();
-  const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 50 });
+  const { data: subjectsData } = useFetchSubjectsQuery({ page: 1, limit: 1000 });
 
   const subjectOptions =
     subjectsData?.results?.map((s) => ({
