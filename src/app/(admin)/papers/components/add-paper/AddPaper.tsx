@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   initialFormValues,
@@ -139,22 +138,29 @@ export function AddPaper() {
               )}
             </div>
             <div className="grid gap-3">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Description"
-                {...register("description")}
-                rows={1}
-                onInput={(e) => {
-                  const target = e.currentTarget;
-                  target.style.height = "auto";
-                  target.style.height = target.scrollHeight + "px";
-                }}
-                className="resize-none overflow-hidden"
-              />
-              {formState.errors.description && (
+              <Label htmlFor="medium">Medium</Label>
+
+              <Select
+                onValueChange={(value) => setValue("medium", value as "Sinhala" | "English" | "Tamil")}
+                value={watch("medium")}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select medium" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Medium</SelectLabel>
+                    <SelectItem value="Sinhala">Sinhala</SelectItem>
+                    <SelectItem value="English">English</SelectItem>
+                    <SelectItem value="Tamil">Tamil</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              {formState.errors.medium && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.description.message}
+                  {formState.errors.medium.message}
                 </p>
               )}
             </div>
