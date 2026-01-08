@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
-import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
+import { useFetchMatchingTutorsQuery, useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -28,7 +28,7 @@ export interface AssignedTutor {
 
 export interface TutorRequestBlock {
   _id: string;
-  subjects: { title: string }[];
+  subjects: string[];
   assignedTutor?: AssignedTutor[];
   preferredTutorType?: string;
   duration: string;
@@ -126,19 +126,20 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
         </DialogHeader>
 
         <div className="flex flex-col gap-6 mt-4">
-          {tutors.map((tutorBlock, index) => (
-            <div
-              key={tutorBlock._id || index}
-              className="border border-gray-300 rounded-md p-4"
-            >
-              <p className="font-medium">Tutor Request #{index + 1}</p>
-              <div className="mt-3 flex flex-col gap-3">
-                <label className="text-sm">Assign Tutor</label>
+          {tutors.map((tutorBlock, index) => {
+            const { data, isLoading } = useFetchMatchingTutorsQuery({
+              subjects: tutorBlock.subjects,
+              tutorType: tutorBlock.preferredTutorType,
+            });
+
+            return (
+              <div key={tutorBlock._id} className="border rounded-md p-4">
+                <p className="font-medium">Tutor Request #{index + 1}</p>
 
                 <Select
-                  value={selectedTutors[index] || "placeholder"}
+                  value={tutorBlock.assignedTutor?.[0]?._id || "placeholder"}
                   onValueChange={(val) => handleUpdate(index, val)}
-                  disabled={isLoading || isError}
+                  disabled={isLoading}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a tutor" />
@@ -149,22 +150,22 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
                       {isLoading ? "Loading tutors..." : "Select a tutor"}
                     </SelectItem>
 
-                    {tutorsData?.results.map((tutor) => (
+                    {data?.tutors.map((tutor) => (
                       <SelectItem key={tutor.id} value={tutor.id}>
                         {tutor.fullName}
                       </SelectItem>
                     ))}
 
-                    {!isLoading && tutorsData?.results.length === 0 && (
+                    {!isLoading && data?.tutors.length === 0 && (
                       <SelectItem value="none" disabled>
-                        No tutors available
+                        No matching tutors
                       </SelectItem>
                     )}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </DialogContent>
     </Dialog>

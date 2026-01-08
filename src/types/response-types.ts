@@ -139,7 +139,9 @@ export type TuitionRates = BaseEntity &
 
 // Paper
 export type Paper = BaseEntity &
-  WithTitleDescription & {
+  {
+    title: string;
+    medium: string;
     file: string;
     grade: Grade;
     subject: Subject;
@@ -347,13 +349,7 @@ export type RequestTutors = BaseEntity & {
   }[];
   tutors: {
     createdAt: string;
-    subjects: {
-      id: string;
-      title: string;
-      description: string;
-      createdAt: string;
-      updatedAt: string;
-    }[];
+    subjects: string[];
     duration: string;
     assignedTutor: {
       _id: string;
