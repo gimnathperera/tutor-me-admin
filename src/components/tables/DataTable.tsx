@@ -38,6 +38,52 @@ interface DataTableProps<T> {
   isLoading?: boolean;
 }
 
+function getPaginationRange({
+  currentPage,
+  totalPages,
+  siblingCount = 1,
+}: {
+  currentPage: number;
+  totalPages: number;
+  siblingCount?: number;
+}) {
+  const totalPageNumbers = siblingCount * 2 + 5;
+
+  if (totalPageNumbers >= totalPages) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
+  const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
+
+  const showLeftDots = leftSiblingIndex > 2;
+  const showRightDots = rightSiblingIndex < totalPages - 1;
+
+  const pages: (number | "dots")[] = [];
+
+  if (!showLeftDots && showRightDots) {
+    const leftRange = Array.from(
+      { length: 3 + siblingCount * 2 },
+      (_, i) => i + 1
+    );
+    pages.push(...leftRange, "dots", totalPages);
+  } else if (showLeftDots && !showRightDots) {
+    const rightRange = Array.from(
+      { length: 3 + siblingCount * 2 },
+      (_, i) => totalPages - (3 + siblingCount * 2) + i + 1
+    );
+    pages.push(1, "dots", ...rightRange);
+  } else if (showLeftDots && showRightDots) {
+    const middleRange = Array.from(
+      { length: rightSiblingIndex - leftSiblingIndex + 1 },
+      (_, i) => leftSiblingIndex + i
+    );
+    pages.push(1, "dots", ...middleRange, "dots", totalPages);
+  }
+
+  return pages;
+}
+
 export default function DataTable<T extends { id: string | number }>({
   columns,
   data,
@@ -52,7 +98,11 @@ export default function DataTable<T extends { id: string | number }>({
   const isFirstPage = page === 1;
   const isLastPage = page === totalPages;
 
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const paginationRange = getPaginationRange({
+    currentPage: page,
+    totalPages,
+    siblingCount: 1,
+  });
 
   const rowsToRender = isLoading
     ? Array.from({ length: limit }).map((_, i) => ({ id: `skeleton-${i}` }))
@@ -60,7 +110,7 @@ export default function DataTable<T extends { id: string | number }>({
 
   if (!isLoading && (!data || data.length === 0)) {
     return (
-      <div className="flex justify-center items-center h-48 rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90">
+      <div className="flex justify-center items-center h-48 rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90">
         <p className="text-gray-500 dark:text-white/70">
           This is empty. Please create a new one.
         </p>
@@ -71,14 +121,14 @@ export default function DataTable<T extends { id: string | number }>({
   return (
     <div
       className={
-        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] dark:text-white/90 max-w-[73.5vw]"
+        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90 max-w-[73.5vw]"
       }
     >
       <div className="max-w-full overflow-x-auto">
         <div className="min-w-[600px]">
           <Table>
             {/* Table Header */}
-            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05] dark:text-white/90">
+            <TableHeader className="border-b border-gray-100 dark:border-white/5 dark:text-white/90">
               <TableRow>
                 {columns.map((col) => (
                   <TableCell
@@ -93,7 +143,7 @@ export default function DataTable<T extends { id: string | number }>({
             </TableHeader>
 
             {/* Table Body */}
-            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+            <TableBody className="divide-y divide-gray-100 dark:divide-white/5">
               {rowsToRender.map((row: any) => (
                 <TableRow key={row.id}>
                   {columns.map((col) => (
@@ -133,16 +183,26 @@ export default function DataTable<T extends { id: string | number }>({
                 }
               />
             </PaginationItem>
-            {pages.map((p) => (
-              <PaginationItem key={p}>
-                <PaginationLink
-                  onClick={() => onPageChange && onPageChange(p)}
-                  isActive={p === page}
-                >
-                  {p}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
+            {paginationRange.map((p, index) => {
+              if (p === "dots") {
+                return (
+                  <PaginationItem key={`dots-${index}`}>
+                    <span className="px-3 text-gray-400 select-none">…</span>
+                  </PaginationItem>
+                );
+              }
+
+              return (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    isActive={p === page}
+                    onClick={() => onPageChange && onPageChange(p)}
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
             <PaginationItem>
               <PaginationNext
                 disabled={isLastPage} // <-- Add this
