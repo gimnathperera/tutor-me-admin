@@ -50,7 +50,7 @@ function getPaginationRange({
   const totalPageNumbers = siblingCount * 2 + 5;
 
   if (totalPageNumbers >= totalPages) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
+    return Array.from({ length: totalPages }, (_, currentPage) => currentPage + 1);
   }
 
   const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
@@ -64,19 +64,19 @@ function getPaginationRange({
   if (!showLeftDots && showRightDots) {
     const leftRange = Array.from(
       { length: 3 + siblingCount * 2 },
-      (_, i) => i + 1
+      (_, currentPage) => currentPage + 1
     );
     pages.push(...leftRange, "dots", totalPages);
   } else if (showLeftDots && !showRightDots) {
     const rightRange = Array.from(
       { length: 3 + siblingCount * 2 },
-      (_, i) => totalPages - (3 + siblingCount * 2) + i + 1
+      (_, currentPage) => totalPages - (3 + siblingCount * 2) + currentPage + 1
     );
     pages.push(1, "dots", ...rightRange);
   } else if (showLeftDots && showRightDots) {
     const middleRange = Array.from(
       { length: rightSiblingIndex - leftSiblingIndex + 1 },
-      (_, i) => leftSiblingIndex + i
+      (_, currentPage) => leftSiblingIndex + currentPage
     );
     pages.push(1, "dots", ...middleRange, "dots", totalPages);
   }
@@ -105,7 +105,7 @@ export default function DataTable<T extends { id: string | number }>({
   });
 
   const rowsToRender = isLoading
-    ? Array.from({ length: limit }).map((_, i) => ({ id: `skeleton-${i}` }))
+    ? Array.from({ length: limit }).map((_, currentPage) => ({ id: `skeleton-${currentPage}` }))
     : data;
 
   if (!isLoading && (!data || data.length === 0)) {
@@ -183,8 +183,8 @@ export default function DataTable<T extends { id: string | number }>({
                 }
               />
             </PaginationItem>
-            {paginationRange.map((p, index) => {
-              if (p === "dots") {
+            {paginationRange.map((pageNumber, index) => {
+              if (pageNumber === "dots") {
                 return (
                   <PaginationItem key={`dots-${index}`}>
                     <span className="px-3 text-gray-400 select-none">…</span>
@@ -193,12 +193,12 @@ export default function DataTable<T extends { id: string | number }>({
               }
 
               return (
-                <PaginationItem key={p}>
+                <PaginationItem key={pageNumber}>
                   <PaginationLink
-                    isActive={p === page}
-                    onClick={() => onPageChange && onPageChange(p)}
+                    isActive={pageNumber === page}
+                    onClick={() => onPageChange && onPageChange(pageNumber)}
                   >
-                    {p}
+                    {pageNumber}
                   </PaginationLink>
                 </PaginationItem>
               );

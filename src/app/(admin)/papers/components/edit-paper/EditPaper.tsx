@@ -87,7 +87,11 @@ export function EditPaper({
   // Extract IDs
   const gradeId = typeof grade === "string" ? grade : grade.id;
   const subjectId = typeof subject === "string" ? subject : subject.id;
-  const [hydrated, setHydrated] = useState(false);
+  const MEDIUM_OPTIONS = [
+    { label: 'Sinhala', value: 'Sinhala' },
+    { label: 'English', value: 'English' },
+    { label: 'Tamil', value: 'Tamil' },
+  ];
 
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
     gradeId,
@@ -230,9 +234,12 @@ export function EditPaper({
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Medium</SelectLabel>
-                    <SelectItem value="Sinhala">Sinhala</SelectItem>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Tamil">Tamil</SelectItem>
+
+                    {MEDIUM_OPTIONS.map(({ label, value }) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
