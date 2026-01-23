@@ -88,9 +88,9 @@ export function EditPaper({
   const gradeId = typeof grade === "string" ? grade : grade.id;
   const subjectId = typeof subject === "string" ? subject : subject.id;
   const MEDIUM_OPTIONS = [
-    { label: 'Sinhala', value: 'Sinhala' },
-    { label: 'English', value: 'English' },
-    { label: 'Tamil', value: 'Tamil' },
+    { label: "Sinhala", value: "Sinhala" },
+    { label: "English", value: "English" },
+    { label: "Tamil", value: "Tamil" },
   ];
 
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
@@ -130,7 +130,7 @@ export function EditPaper({
     if (!open || !gradeDetails) return;
 
     const subjectExists = gradeDetails.subjects?.some(
-      (s: Subject) => s.id === subjectId
+      (s: Subject) => s.id === subjectId,
     );
 
     const defaults: PaperSchema = {
@@ -256,7 +256,9 @@ export function EditPaper({
               <Label>Grade</Label>
               <Select
                 value={watch("grade") || ""}
-                onValueChange={(value) => setValue("grade", value, { shouldDirty: true })}
+                onValueChange={(value) =>
+                  setValue("grade", value, { shouldDirty: true })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a grade" />
@@ -303,7 +305,9 @@ export function EditPaper({
               <Label>Subject</Label>
               <Select
                 value={watch("subject") || ""}
-                onValueChange={(value) => setValue("subject", value, { shouldDirty: true })}
+                onValueChange={(value) =>
+                  setValue("subject", value, { shouldDirty: true })
+                }
                 disabled={!selectedGradeId || isGradeDetailsLoading}
               >
                 <SelectTrigger className="w-full">

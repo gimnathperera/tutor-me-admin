@@ -31,7 +31,7 @@ const rateObject = z
     {
       message: "Minimum rate must be less than maximum rate",
       path: ["maximumRate"],
-    }
+    },
   );
 
 export const createTuitionSchema = z.object({

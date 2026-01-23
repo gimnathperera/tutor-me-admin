@@ -16,7 +16,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
-import { useFetchMatchingTutorsQuery, useFetchTutorsQuery } from "@/store/api/splits/tutors";
+import {
+  useFetchMatchingTutorsQuery,
+  useFetchTutorsQuery,
+} from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";

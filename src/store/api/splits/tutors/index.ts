@@ -88,5 +88,5 @@ export const {
   useUpdateTutorMutation,
   useDeleteTutorMutation,
   useSendTempPasswordTutorMutation,
-  useFetchMatchingTutorsQuery
+  useFetchMatchingTutorsQuery,
 } = TutorsApi;

@@ -50,7 +50,10 @@ function getPaginationRange({
   const totalPageNumbers = siblingCount * 2 + 5;
 
   if (totalPageNumbers >= totalPages) {
-    return Array.from({ length: totalPages }, (_, currentPage) => currentPage + 1);
+    return Array.from(
+      { length: totalPages },
+      (_, currentPage) => currentPage + 1,
+    );
   }
 
   const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
@@ -64,19 +67,19 @@ function getPaginationRange({
   if (!showLeftDots && showRightDots) {
     const leftRange = Array.from(
       { length: 3 + siblingCount * 2 },
-      (_, currentPage) => currentPage + 1
+      (_, currentPage) => currentPage + 1,
     );
     pages.push(...leftRange, "dots", totalPages);
   } else if (showLeftDots && !showRightDots) {
     const rightRange = Array.from(
       { length: 3 + siblingCount * 2 },
-      (_, currentPage) => totalPages - (3 + siblingCount * 2) + currentPage + 1
+      (_, currentPage) => totalPages - (3 + siblingCount * 2) + currentPage + 1,
     );
     pages.push(1, "dots", ...rightRange);
   } else if (showLeftDots && showRightDots) {
     const middleRange = Array.from(
       { length: rightSiblingIndex - leftSiblingIndex + 1 },
-      (_, currentPage) => leftSiblingIndex + currentPage
+      (_, currentPage) => leftSiblingIndex + currentPage,
     );
     pages.push(1, "dots", ...middleRange, "dots", totalPages);
   }
@@ -105,7 +108,9 @@ export default function DataTable<T extends { id: string | number }>({
   });
 
   const rowsToRender = isLoading
-    ? Array.from({ length: limit }).map((_, currentPage) => ({ id: `skeleton-${currentPage}` }))
+    ? Array.from({ length: limit }).map((_, currentPage) => ({
+        id: `skeleton-${currentPage}`,
+      }))
     : data;
 
   if (!isLoading && (!data || data.length === 0)) {

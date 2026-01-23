@@ -141,7 +141,9 @@ export function AddPaper() {
               <Label htmlFor="medium">Medium</Label>
 
               <Select
-                onValueChange={(value) => setValue("medium", value as "Sinhala" | "English" | "Tamil")}
+                onValueChange={(value) =>
+                  setValue("medium", value as "Sinhala" | "English" | "Tamil")
+                }
                 value={watch("medium")}
               >
                 <SelectTrigger className="w-full">

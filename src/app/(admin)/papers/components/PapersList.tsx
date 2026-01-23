@@ -212,10 +212,7 @@ export default function PapersTable() {
         <div className="w-full flex justify-center items-center">
           <PaperDetails
             title={getSafeValue(row.title, "No title provided")}
-            medium={getSafeValue(
-              row.medium,
-              "No medium provided",
-            )}
+            medium={getSafeValue(row.medium, "No medium provided")}
             grade={getSafeNestedValue(row.grade, "title", "No grade specified")}
             subject={getSafeNestedValue(
               row.subject,

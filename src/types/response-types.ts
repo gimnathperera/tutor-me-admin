@@ -138,16 +138,15 @@ export type TuitionRates = BaseEntity &
   };
 
 // Paper
-export type Paper = BaseEntity &
-  {
-    title: string;
-    medium: string;
-    file: string;
-    grade: Grade;
-    subject: Subject;
-    year: string;
-    url: string;
-  };
+export type Paper = BaseEntity & {
+  title: string;
+  medium: string;
+  file: string;
+  grade: Grade;
+  subject: Subject;
+  year: string;
+  url: string;
+};
 
 // Testimonial
 export type Testimonial = BaseEntity & {
