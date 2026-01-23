@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, X } from "lucide-react";
+import { default as NextImage } from "next/image";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -129,9 +130,11 @@ export default function FileUploadDropzone({
 
           {previewUrl && (
             <div className="mt-3 flex justify-center">
-              <img
+              <NextImage
                 src={previewUrl}
                 alt="Preview"
+                width={112}
+                height={112}
                 className="h-24 w-24 sm:h-28 sm:w-28 object-cover rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
               />
             </div>

@@ -135,8 +135,12 @@ export function EditTutor({ id }: EditTutorProps) {
     return values.filter((value) => enumValues.includes(value as T)) as T[];
   };
 
+  const selectedGradesJson = JSON.stringify(selectedGrades || []);
+
   useEffect(() => {
-    if (!selectedGrades || selectedGrades.length === 0) {
+    const grades = JSON.parse(selectedGradesJson || "[]") as string[];
+
+    if (grades.length === 0) {
       if (
         subjectOptions.length > 0 ||
         (selectedSubjects && selectedSubjects.length > 0)
@@ -154,7 +158,7 @@ export function EditTutor({ id }: EditTutorProps) {
     const loadSubjects = async () => {
       const allSubjects: { id: string; title: string }[] = [];
 
-      for (const gradeId of selectedGrades) {
+      for (const gradeId of grades) {
         try {
           const res = await fetchGradeById(gradeId);
           if (res?.data?.subjects) {
@@ -195,7 +199,13 @@ export function EditTutor({ id }: EditTutorProps) {
     return () => {
       cancelled = true;
     };
-  }, [fetchGradeById, JSON.stringify(selectedGrades || []), setValue]);
+  }, [
+    fetchGradeById,
+    selectedGradesJson,
+    setValue,
+    selectedSubjects,
+    subjectOptions.length,
+  ]);
 
   useEffect(() => {
     if (tutorData && open) {

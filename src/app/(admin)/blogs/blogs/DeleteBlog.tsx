@@ -55,11 +55,10 @@ export function DeleteBlog({
     <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <AlertDialogTrigger asChild>
         <Trash2
-          className={`cursor-pointer ${
-            canDelete
+          className={`cursor-pointer ${canDelete
               ? "text-red-500 hover:text-red-600"
               : "text-gray-400 cursor-not-allowed"
-          }`}
+            }`}
         />
       </AlertDialogTrigger>
 
@@ -70,7 +69,7 @@ export function DeleteBlog({
             This will permanently delete the blog.
             {!canDelete && (
               <span className="text-red-500 block mt-2">
-                Only blogs with status "rejected" can be deleted.
+                Only blogs with status &quot;rejected&quot; can be deleted.
               </span>
             )}
           </AlertDialogDescription>

@@ -112,7 +112,7 @@ export function EditPaper({
 
   const [updatePaper, { isLoading }] = useUpdatePaperMutation();
 
-  const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery(
+  const { data: gradeData } = useFetchGradesQuery(
     debouncedGradeSearch ? { title: debouncedGradeSearch } : {},
   );
 
@@ -122,7 +122,7 @@ export function EditPaper({
   const { formState, watch, setValue, register, reset, getValues } =
     updatePaperForm;
 
-  const { isDirty } = formState;
+
 
   const selectedGrade = watch("grade");
   const [initialValues, setInitialValues] = useState<PaperSchema | null>(null);
@@ -151,7 +151,7 @@ export function EditPaper({
     setSelectedGradeId(gradeId);
     setPreviewUrl(url);
     setSubjectSearch("");
-  }, [open, gradeDetails]);
+  }, [open, gradeDetails, gradeId, medium, reset, subjectId, title, url, year]);
 
   useEffect(() => {
     if (!selectedGrade) return;
@@ -161,7 +161,7 @@ export function EditPaper({
       setSelectedGradeId(selectedGrade);
       setSubjectSearch("");
     }
-  }, [selectedGrade]);
+  }, [selectedGrade, selectedGradeId, setValue]);
 
   const filteredSubjects =
     gradeDetails?.subjects?.filter((sub: Subject) =>

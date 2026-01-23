@@ -49,12 +49,61 @@ interface Props {
   onUpdated?: () => void;
 }
 
+function TutorBlockItem({
+  tutorBlock,
+  index,
+  handleUpdate,
+}: {
+  tutorBlock: TutorRequestBlock;
+  index: number;
+  handleUpdate: (index: number, tutorId: string) => void;
+}) {
+  const { data, isLoading } = useFetchMatchingTutorsQuery({
+    subjects: tutorBlock.subjects,
+    tutorType: tutorBlock.preferredTutorType,
+  });
+
+  return (
+    <div key={tutorBlock._id} className="border rounded-md p-4">
+      <p className="font-medium">Tutor Request #{index + 1}</p>
+
+      <Select
+        value={tutorBlock.assignedTutor?.[0]?._id || "placeholder"}
+        onValueChange={(val) => handleUpdate(index, val)}
+        disabled={isLoading}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select a tutor" />
+        </SelectTrigger>
+
+        <SelectContent>
+          <SelectItem value="placeholder" disabled>
+            {isLoading ? "Loading tutors..." : "Select a tutor"}
+          </SelectItem>
+
+          {data?.tutors.map((tutor) => (
+            <SelectItem key={tutor.id} value={tutor.id}>
+              {tutor.fullName}
+            </SelectItem>
+          ))}
+
+          {!isLoading && data?.tutors.length === 0 && (
+            <SelectItem value="none" disabled>
+              No matching tutors
+            </SelectItem>
+          )}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
 export function AssignTutorDialog({ row, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
   const [updateAssignedTutor] = useUpdateAssignedTutorMutation();
   const [tutorBlocks, setTutorBlocks] = useState<TutorRequestBlock[]>([]);
 
-  const { data: tutorsData, isLoading, isError } = useFetchTutorsQuery({});
+  const { data: tutorsData } = useFetchTutorsQuery({});
 
   const tutors =
     row.tutors?.map((t) => ({
@@ -65,10 +114,6 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
         fullName: a.fullName,
       })),
     })) || [];
-
-  const [selectedTutors] = useState<string[]>(
-    tutors.map((t) => t.assignedTutor?.[0]?._id || ""),
-  );
 
   useEffect(() => {
     setTutorBlocks(
@@ -81,6 +126,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
       })) || [],
     );
   }, [row.tutors]);
+
   const handleUpdate = async (index: number, tutorId: string) => {
     if (!tutorId || tutorId === "placeholder") return;
 
@@ -129,46 +175,14 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
         </DialogHeader>
 
         <div className="flex flex-col gap-6 mt-4">
-          {tutors.map((tutorBlock, index) => {
-            const { data, isLoading } = useFetchMatchingTutorsQuery({
-              subjects: tutorBlock.subjects,
-              tutorType: tutorBlock.preferredTutorType,
-            });
-
-            return (
-              <div key={tutorBlock._id} className="border rounded-md p-4">
-                <p className="font-medium">Tutor Request #{index + 1}</p>
-
-                <Select
-                  value={tutorBlock.assignedTutor?.[0]?._id || "placeholder"}
-                  onValueChange={(val) => handleUpdate(index, val)}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a tutor" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    <SelectItem value="placeholder" disabled>
-                      {isLoading ? "Loading tutors..." : "Select a tutor"}
-                    </SelectItem>
-
-                    {data?.tutors.map((tutor) => (
-                      <SelectItem key={tutor.id} value={tutor.id}>
-                        {tutor.fullName}
-                      </SelectItem>
-                    ))}
-
-                    {!isLoading && data?.tutors.length === 0 && (
-                      <SelectItem value="none" disabled>
-                        No matching tutors
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            );
-          })}
+          {tutors.map((tutorBlock, index) => (
+            <TutorBlockItem
+              key={tutorBlock._id}
+              tutorBlock={tutorBlock}
+              index={index}
+              handleUpdate={handleUpdate}
+            />
+          ))}
         </div>
       </DialogContent>
     </Dialog>
