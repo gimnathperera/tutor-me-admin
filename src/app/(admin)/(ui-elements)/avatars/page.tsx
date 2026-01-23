@@ -4,9 +4,9 @@ import Avatar from "@/components/ui/avatar/Avatar";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Avatars | TutorMe - Next.js Dashboard Template",
+  title: "Next.js Avatars | TuitionLanka - Next.js Dashboard Template",
   description:
-    "This is Next.js Avatars page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Avatars page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function AvatarPage() {

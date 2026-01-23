@@ -3,8 +3,8 @@ import InquiryTable from "./components/InquiryTable";
 import { AddInquiry } from "./components/add-inquiry/AddInquiry";
 
 export const metadata: Metadata = {
-  title: "Inquiries | TutorMe",
-  description: "This is the Inquiries management page for TutorMe",
+  title: "Inquiries | TuitionLanka",
+  description: "This is the Inquiries management page for TuitionLanka",
 };
 
 export default function ContactUsInquiryPage() {

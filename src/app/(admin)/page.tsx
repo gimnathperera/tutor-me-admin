@@ -4,7 +4,7 @@ import MonthlyTarget from "@/components/ecommerce/MonthlyTarget";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "TutorMe Admin Panel | Softvil Technologies",
+  title: "TuitionLanka Admin Panel | Softvil Technologies",
   description:
     "Admin dashboard for managing tutors, students, and sessions efficiently.",
 };

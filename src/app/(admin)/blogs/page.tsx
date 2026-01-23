@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import { BlogsTabs } from "./components";
 
 export const metadata: Metadata = {
-  title: "Grades | TutorMe",
-  description: "This is the Grades management page for TutorMe",
+  title: "Grades | TuitionLanka",
+  description: "This is the Grades management page for TuitionLanka",
 };
 
 export default function page() {

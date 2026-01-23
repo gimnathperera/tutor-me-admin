@@ -23,7 +23,7 @@ interface Subject {
 interface Paper {
   id: string;
   title?: string;
-  description?: string;
+  medium?: string;
   grade?: Grade;
   subject?: Subject;
   year?: string;
@@ -212,10 +212,7 @@ export default function PapersTable() {
         <div className="w-full flex justify-center items-center">
           <PaperDetails
             title={getSafeValue(row.title, "No title provided")}
-            description={getSafeValue(
-              row.description,
-              "No description provided",
-            )}
+            medium={getSafeValue(row.medium, "No medium provided")}
             grade={getSafeNestedValue(row.grade, "title", "No grade specified")}
             subject={getSafeNestedValue(
               row.subject,
@@ -237,7 +234,7 @@ export default function PapersTable() {
           <EditPaper
             id={row.id}
             title={getSafeValue(row.title, "")}
-            description={getSafeValue(row.description, "")}
+            medium={getSafeValue(row.medium, "")}
             grade={getSafeNestedValue(row.grade, "id", "")}
             subject={getSafeNestedValue(row.subject, "id", "")}
             year={getSafeValue(row.year, "")}

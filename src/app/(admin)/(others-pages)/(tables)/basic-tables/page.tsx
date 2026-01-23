@@ -4,9 +4,9 @@ import BasicTableOne from "@/components/tables/BasicTableOne";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Basic Table | TutorMe - Next.js Dashboard Template",
+  title: "Next.js Basic Table | TuitionLanka - Next.js Dashboard Template",
   description:
-    "This is Next.js Basic Table  page for TutorMe  Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Basic Table  page for TuitionLanka  Tailwind CSS Admin Dashboard Template",
   // other metadata
 };
 

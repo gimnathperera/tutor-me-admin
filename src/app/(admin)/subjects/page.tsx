@@ -3,8 +3,8 @@ import SubjectsTable from "./components/SubjectsList";
 import { AddSubject } from "./components/add-subject/AddSubject";
 
 export const metadata: Metadata = {
-  title: "Subjects | TutorMe",
-  description: "This is the Subjects management page for TutorMe",
+  title: "Subjects | TuitionLanka",
+  description: "This is the Subjects management page for TuitionLanka",
 };
 
 export default function Profile() {

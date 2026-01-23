@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import RequestForTutorsList from "./TutorsList";
 
 export const metadata: Metadata = {
-  title: "Requests For Tutors | TutorMe - Admin Dashboard",
+  title: "Requests For Tutors | TuitionLanka - Admin Dashboard",
   description: "Manage tutors",
 };
 

@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 
 import { useDebounce } from "@/hooks/useDebounce";
 import { PaperSchema, paperSchema } from "@/schemas/paper.schema";
@@ -42,7 +41,7 @@ import toast from "react-hot-toast";
 interface EditPaperProps {
   id: string;
   title: string;
-  description: string;
+  medium: string;
   grade: string | { id: string; title: string };
   subject: string | { id: string; title: string };
   year: string;
@@ -57,7 +56,7 @@ interface Subject {
 export function EditPaper({
   id,
   title,
-  description,
+  medium,
   grade,
   subject,
   year,
@@ -78,9 +77,9 @@ export function EditPaper({
   const handleCancel = () => {
     if (initialValues) {
       reset(initialValues);
+      setSelectedGradeId(initialValues.grade);
+      setPreviewUrl(initialValues.url);
       setSubjectSearch("");
-      setSelectedGradeId(initialValues.grade || null);
-      setPreviewUrl(initialValues.url || null);
     }
     setOpen(false);
   };
@@ -88,7 +87,11 @@ export function EditPaper({
   // Extract IDs
   const gradeId = typeof grade === "string" ? grade : grade.id;
   const subjectId = typeof subject === "string" ? subject : subject.id;
-  const [hydrated, setHydrated] = useState(false);
+  const MEDIUM_OPTIONS = [
+    { label: "Sinhala", value: "Sinhala" },
+    { label: "English", value: "English" },
+    { label: "Tamil", value: "Tamil" },
+  ];
 
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
     gradeId,
@@ -104,14 +107,6 @@ export function EditPaper({
 
   const updatePaperForm = useForm<PaperSchema>({
     resolver: zodResolver(paperSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      grade: "",
-      subject: "",
-      year: "",
-      url: "",
-    },
     mode: "onChange",
   });
 
@@ -138,38 +133,35 @@ export function EditPaper({
       (s: Subject) => s.id === subjectId,
     );
 
-    const values: PaperSchema = {
+    const defaults: PaperSchema = {
       title,
-      description,
+      medium: medium as "Sinhala" | "English" | "Tamil",
       grade: gradeId,
       subject: subjectExists ? subjectId : "",
       year,
       url,
     };
 
-    reset(values);
-    setInitialValues(values);
+    reset(defaults, {
+      keepDirty: false,
+      keepTouched: false,
+    });
+
+    setInitialValues(defaults);
+    setSelectedGradeId(gradeId);
+    setPreviewUrl(url);
     setSubjectSearch("");
-    setHydrated(true);
-  }, [
-    open,
-    gradeDetails,
-    title,
-    description,
-    gradeId,
-    subjectId,
-    year,
-    url,
-    reset,
-  ]);
+  }, [open, gradeDetails]);
 
   useEffect(() => {
-    if (selectedGrade && selectedGrade !== gradeId) {
-      setValue("subject", "");
+    if (!selectedGrade) return;
+
+    if (selectedGrade !== selectedGradeId) {
+      setValue("subject", "", { shouldDirty: true });
       setSelectedGradeId(selectedGrade);
       setSubjectSearch("");
     }
-  }, [selectedGrade, gradeId, setValue]);
+  }, [selectedGrade]);
 
   const filteredSubjects =
     gradeDetails?.subjects?.filter((sub: Subject) =>
@@ -223,22 +215,38 @@ export function EditPaper({
               )}
             </div>
 
-            {/* DESCRIPTION */}
+            {/* MEDIUM */}
             <div className="grid gap-3">
-              <Label>Description</Label>
-              <Textarea
-                {...register("description")}
-                rows={1}
-                onInput={(e) => {
-                  const t = e.currentTarget;
-                  t.style.height = "auto";
-                  t.style.height = t.scrollHeight + "px";
-                }}
-                className="resize-none overflow-hidden"
-              />
-              {formState.errors.description && (
+              <Label>Medium</Label>
+
+              <Select
+                value={watch("medium")}
+                onValueChange={(value) =>
+                  setValue("medium", value as "Sinhala" | "English" | "Tamil", {
+                    shouldDirty: true,
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select medium" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Medium</SelectLabel>
+
+                    {MEDIUM_OPTIONS.map(({ label, value }) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              {formState.errors.medium && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.description.message}
+                  {formState.errors.medium.message}
                 </p>
               )}
             </div>
@@ -247,9 +255,10 @@ export function EditPaper({
             <div className="grid gap-3">
               <Label>Grade</Label>
               <Select
-                onValueChange={(value) => setValue("grade", value)}
-                value={watch("grade") ?? ""}
-                disabled={isGradesLoading}
+                value={watch("grade") || ""}
+                onValueChange={(value) =>
+                  setValue("grade", value, { shouldDirty: true })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a grade" />
@@ -295,8 +304,10 @@ export function EditPaper({
             <div className="grid gap-3">
               <Label>Subject</Label>
               <Select
-                onValueChange={(value) => setValue("subject", value)}
-                value={hydrated ? watch("subject") : undefined}
+                value={watch("subject") || ""}
+                onValueChange={(value) =>
+                  setValue("subject", value, { shouldDirty: true })
+                }
                 disabled={!selectedGradeId || isGradeDetailsLoading}
               >
                 <SelectTrigger className="w-full">
@@ -389,7 +400,7 @@ export function EditPaper({
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              disabled={!isDirty}
+              disabled={!formState.isDirty}
               onClick={updatePaperForm.handleSubmit(onSubmit)}
             >
               Save

@@ -119,8 +119,11 @@ export type FetchLevelRequest = {
 export type FetchPapersRequest = {
   page: number;
   limit: number;
+  title?: string;
   grade?: string;
   subject?: string;
+  year?: string;
+  medium?: string;
   sortBy?: string;
 };
 

@@ -15,7 +15,7 @@ import { useState } from "react";
 
 interface PaperDetailsProps {
   title: string;
-  description: string;
+  medium: string;
   subject: string;
   grade: string;
   year: string;
@@ -24,7 +24,7 @@ interface PaperDetailsProps {
 
 export function PaperDetails({
   title,
-  description,
+  medium,
   subject,
   grade,
   year,
@@ -55,11 +55,9 @@ export function PaperDetails({
           </div>
 
           <div className="grid gap-3">
-            <Label>Description</Label>
-            <div
-              className={cn(displayFieldClass, "min-h-[5rem]", "overflow-auto")}
-            >
-              {description}
+            <Label>Medium</Label>
+            <div className={cn(displayFieldClass, "min-h-20", "overflow-auto")}>
+              {medium}
             </div>
           </div>
 

@@ -6,9 +6,9 @@ import TwoColumnImageGrid from "@/components/ui/images/TwoColumnImageGrid";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Images | TutorMe - Next.js Dashboard Template",
+  title: "Next.js Images | TuitionLanka - Next.js Dashboard Template",
   description:
-    "This is Next.js Images page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Images page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
   // other metadata
 };
 

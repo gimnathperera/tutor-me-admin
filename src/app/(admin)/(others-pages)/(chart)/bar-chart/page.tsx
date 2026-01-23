@@ -4,9 +4,9 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Bar Chart | TutorMe - Next.js Dashboard Template",
+  title: "Next.js Bar Chart | TuitionLanka - Next.js Dashboard Template",
   description:
-    "This is Next.js Bar Chart page for TutorMe - Next.js Tailwind CSS Admin Dashboard Template",
+    "This is Next.js Bar Chart page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
 export default function page() {

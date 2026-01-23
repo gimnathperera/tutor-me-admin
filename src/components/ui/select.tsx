@@ -47,10 +47,11 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        {
-          isLoading ? <Spinner /> :
+        {isLoading ? (
+          <Spinner />
+        ) : (
           <ChevronDownIcon className="size-4 opacity-50" />
-        }
+        )}
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );
@@ -187,6 +188,5 @@ export {
   SelectScrollUpButton,
   SelectSeparator,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 };
-

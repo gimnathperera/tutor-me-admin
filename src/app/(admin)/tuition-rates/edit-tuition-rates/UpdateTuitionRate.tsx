@@ -78,8 +78,7 @@ export function UpdateTuitionRate({
   const gradeOptions =
     gradesData?.results?.map((g) => ({ value: g.id, label: g.title })) || [];
 
-  const displayLoading =
-    isSubjectsLoading || isGradesLoading;
+  const displayLoading = isSubjectsLoading || isGradesLoading;
 
   useEffect(() => {
     if (open) {

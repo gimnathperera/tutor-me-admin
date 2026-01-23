@@ -65,6 +65,17 @@ export const TutorsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["FindATutor"],
     }),
+
+    fetchMatchingTutors: build.query<
+      { count: number; tutors: Tutor[] },
+      { subjects: string[]; tutorType?: string }
+    >({
+      query: (body) => ({
+        url: `${Endpoints.FindATutor}/match-by-subjects`,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -77,4 +88,5 @@ export const {
   useUpdateTutorMutation,
   useDeleteTutorMutation,
   useSendTempPasswordTutorMutation,
+  useFetchMatchingTutorsQuery,
 } = TutorsApi;

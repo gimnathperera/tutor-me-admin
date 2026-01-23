@@ -2,8 +2,8 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Blank Page | TutorMe - Next.js Dashboard Template",
-  description: "This is Next.js Blank Page TutorMe Dashboard Template",
+  title: "Next.js Blank Page | TuitionLanka - Next.js Dashboard Template",
+  description: "This is Next.js Blank Page TuitionLanka Dashboard Template",
 };
 
 export default function BlankPage() {

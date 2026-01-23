@@ -17,10 +17,22 @@ const numericString = z
     },
   );
 
-const rateObject = z.object({
-  minimumRate: numericString,
-  maximumRate: numericString,
-});
+const rateObject = z
+  .object({
+    minimumRate: numericString,
+    maximumRate: numericString,
+  })
+  .refine(
+    (data) => {
+      const min = Number(data.minimumRate.replace(/,/g, ""));
+      const max = Number(data.maximumRate.replace(/,/g, ""));
+      return min < max;
+    },
+    {
+      message: "Minimum rate must be less than maximum rate",
+      path: ["maximumRate"],
+    },
+  );
 
 export const createTuitionSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
