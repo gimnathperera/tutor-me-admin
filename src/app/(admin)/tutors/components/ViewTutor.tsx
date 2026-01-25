@@ -23,6 +23,12 @@ type ArrayItem =
   | undefined
   | { id?: string; title?: string; name?: string };
 
+interface Grade {
+  id: string;
+  title: string;
+  subjects?: { id: string; title: string }[];
+}
+
 interface ViewTutorProps {
   tutor: {
     fullName?: string;
@@ -67,8 +73,8 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
     fallback = "N/A",
   ) =>
     value === undefined ||
-    value === null ||
-    (typeof value === "string" && value.trim() === "")
+      value === null ||
+      (typeof value === "string" && value.trim() === "")
       ? fallback
       : value;
 
@@ -91,11 +97,11 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
     const gradeMap = new Map<string, string>();
     const subjectMap = new Map<string, string>();
 
-    const grades = gradesData?.results ?? [];
+    const grades = (gradesData?.results as unknown as Grade[]) ?? [];
     for (const g of grades) {
       if (g?.id) gradeMap.set(g.id, g.title ?? String(g.id));
-      if (Array.isArray((g as any).subjects)) {
-        (g as any).subjects.forEach((s: any) => {
+      if (Array.isArray(g.subjects)) {
+        g.subjects.forEach((s) => {
           if (s?.id) subjectMap.set(s.id, s.title ?? s.id);
         });
       }
@@ -113,7 +119,9 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
         return gradeIdToTitle.get(g) ?? g;
       }
       if (typeof g === "object" && g != null) {
-        return (g as any).title ?? (g as any).id ?? String(g);
+        if ("title" in g) return (g as Grade).title ?? (g as Grade).id ?? String(g);
+        if ("id" in g) return (g as Grade).id ?? String(g);
+        return String(g);
       }
       return String(g);
     });
@@ -125,14 +133,15 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
       if (typeof s === "string") {
         const fromMap = subjectIdToTitle.get(s);
         if (fromMap) return fromMap;
-        for (const g of gradesData?.results ?? []) {
-          const found = (g as any).subjects?.find((sub: any) => sub.id === s);
+        for (const g of (gradesData?.results as unknown as Grade[]) ?? []) {
+          const found = g.subjects?.find((sub) => sub.id === s);
           if (found) return found.title ?? found.id ?? String(s);
         }
         return s;
       }
       if (typeof s === "object" && s != null) {
-        return (s as any).title ?? (s as any).id ?? String(s);
+        const sObj = s as { id?: string; title?: string };
+        return sObj.title ?? sObj.id ?? String(s);
       }
       return String(s);
     });
@@ -173,8 +182,8 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
               <div className={displayFieldClass}>
                 {tutor.dateOfBirth
                   ? new Date(tutor.dateOfBirth)
-                      .toLocaleDateString("en-CA")
-                      .replace(/-/g, "/")
+                    .toLocaleDateString("en-CA")
+                    .replace(/-/g, "/")
                   : "N/A"}
               </div>
             </div>

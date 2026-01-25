@@ -95,9 +95,13 @@ export function AddTutor() {
   // keep a ref to the previous uniqueSubjects JSON to avoid useless setState
   const prevUniqueSubjectsRef = useRef<string | null>(null);
 
+  const selectedGradesJson = JSON.stringify(selectedGrades || []);
+
   useEffect(() => {
     // selectedGrades may be [] or array of ids
-    if (!selectedGrades || selectedGrades.length === 0) {
+    const grades = JSON.parse(selectedGradesJson || "[]") as string[];
+
+    if (grades.length === 0) {
       // only clear if we actually have any subject options or form subjects non-empty
       if (
         subjectOptions.length > 0 ||
@@ -118,7 +122,7 @@ export function AddTutor() {
     const loadSubjects = async () => {
       const allSubjects: { id: string; title: string }[] = [];
 
-      for (const gradeId of selectedGrades) {
+      for (const gradeId of grades) {
         const res = await fetchGradeById(gradeId);
         if (res?.data?.subjects) {
           allSubjects.push(...res.data.subjects);
@@ -158,7 +162,13 @@ export function AddTutor() {
     return () => {
       cancelled = true;
     };
-  }, [fetchGradeById, JSON.stringify(selectedGrades || []), setValue]);
+  }, [
+    fetchGradeById,
+    selectedGradesJson,
+    setValue,
+    selectedSubjects,
+    subjectOptions.length,
+  ]);
 
   useEffect(() => {
     if (!open) {
@@ -189,7 +199,7 @@ export function AddTutor() {
     if (age < 0) age = 0;
 
     setValue("age", age, { shouldValidate: true });
-  }, [dob]);
+  }, [dob, setValue]);
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);

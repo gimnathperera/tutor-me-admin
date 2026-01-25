@@ -30,6 +30,7 @@ import {
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
+import NextImage from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -437,9 +438,11 @@ export function UpdateUser(props: UpdateUserProps) {
                 }}
               />
               {previewUrl && (
-                <img
+                <NextImage
                   src={previewUrl}
                   alt="Avatar Preview"
+                  width={96}
+                  height={96}
                   className="mt-2 h-24 w-24 object-cover rounded-full mx-auto"
                 />
               )}

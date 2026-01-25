@@ -3,7 +3,6 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import {
-  useDeleteRequestForTutorMutation,
   useFetchRequestForTutorsQuery,
 } from "@/store/api/splits/request-tutor";
 import { RequestTutors } from "@/types/response-types";
@@ -23,7 +22,7 @@ export default function RequestForTutorsList() {
     sortBy: "createdAt:desc",
   });
 
-  const [deleteTutor] = useDeleteRequestForTutorMutation();
+
 
   const tutors: RequestTutors[] = data?.results || [];
   const totalPages = data?.totalPages || 1;
@@ -142,7 +141,7 @@ export default function RequestForTutorsList() {
         ),
       },
     ],
-    [deleteTutor, refetch],
+    [refetch],
   );
 
   return (

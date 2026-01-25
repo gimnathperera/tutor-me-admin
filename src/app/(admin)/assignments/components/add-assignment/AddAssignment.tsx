@@ -154,7 +154,7 @@ export function AddAssignment() {
                 {/* Currency Selector */}
                 <Select
                   value={currency}
-                  onValueChange={(val) => setCurrency(val as any)}
+                  onValueChange={(val) => setCurrency(val as "Rs" | "$")}
                 >
                   <SelectTrigger className="w-[90px] rounded-r-none">
                     <SelectValue />

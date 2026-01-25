@@ -94,7 +94,7 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
                     Subjects:{" "}
                     {t.subjects?.map((s, sidx) => (
                       <span key={sidx} className={tagClass}>
-                        {s.title}
+                        {s}
                       </span>
                     ))}
                   </div>

@@ -32,7 +32,7 @@ import {
 export function AddSubject() {
   const [open, setOpen] = useState(false);
   const [createSubject, { isLoading }] = useCreateSubjectMutation();
-  const { data: subjectsData, isLoading: subjectsLoading } =
+  const { data: subjectsData } =
     useFetchSubjectsQuery({
       page: 1,
       limit: 100,
