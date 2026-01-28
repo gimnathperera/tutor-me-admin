@@ -50,13 +50,20 @@ export default function PapersTable() {
   };
 
   const getSafeValue = (
-    value: string | undefined | null,
+    value: unknown,
     fallback = "N/A",
   ): string => {
-    if (value === undefined || value === null || value.trim() === "") {
+    if (value === undefined || value === null) {
       return fallback;
     }
-    return value;
+
+    const stringValue = String(value);
+
+    if (stringValue.trim() === "") {
+      return fallback;
+    }
+
+    return stringValue;
   };
 
   const getSafeNestedValue = (
