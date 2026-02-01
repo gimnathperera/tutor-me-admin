@@ -29,7 +29,6 @@ const NavItems = [
     icon: <LibraryBig />,
     subItems: [
       { name: "Tuition Rates", path: "/tuition-rates", pro: false },
-      { name: "Tuition Assignments", path: "/assignments", pro: false },
       { name: "Request for Tutors", path: "/request-tutor", pro: false },
     ],
   },
