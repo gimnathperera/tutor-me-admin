@@ -39,16 +39,14 @@ export default function TutorsList() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
-  const { data, isLoading } = useFetchTutorsQuery({});
+  const { data, isLoading } = useFetchTutorsQuery({
+    page,
+    limit,
+  });
 
   const tutors = data?.results || [];
   const totalPages = data?.totalPages || 1;
   const totalResults = data?.totalResults || tutors.length;
-
-  console.log("Raw API data:", data);
-  console.log("Tutors array:", tutors);
-  console.log("Tutors array length:", tutors.length);
-  console.log("Is loading:", isLoading);
 
   const handlePageChange = (newPage: number) => setPage(newPage);
 
