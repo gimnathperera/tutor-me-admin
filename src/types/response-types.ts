@@ -348,7 +348,7 @@ export type RequestTutors = BaseEntity & {
   }[];
   tutors: {
     createdAt: string;
-    subjects: string[];
+    subjects: { title: string }[] | string[];
     duration: string;
     assignedTutor: {
       _id: string;

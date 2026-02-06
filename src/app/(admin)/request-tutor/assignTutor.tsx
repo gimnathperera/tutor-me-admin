@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
 import {
-  useFetchMatchingTutorsQuery,
-  useFetchTutorsQuery,
+  useFetchTutorsQuery
 } from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -31,7 +30,7 @@ export interface AssignedTutor {
 
 export interface TutorRequestBlock {
   _id: string;
-  subjects: string[];
+  subjects: { title: string }[] | string[];
   assignedTutor?: AssignedTutor[];
   preferredTutorType?: string;
   duration: string;
@@ -49,6 +48,9 @@ interface Props {
   onUpdated?: () => void;
 }
 
+const page = 1;
+const limit = 10000;
+
 function TutorBlockItem({
   tutorBlock,
   index,
@@ -58,9 +60,9 @@ function TutorBlockItem({
   index: number;
   handleUpdate: (index: number, tutorId: string) => void;
 }) {
-  const { data, isLoading } = useFetchMatchingTutorsQuery({
-    subjects: tutorBlock.subjects,
-    tutorType: tutorBlock.preferredTutorType,
+  const { data, isLoading } = useFetchTutorsQuery({
+    page,
+    limit,
   });
 
   return (
@@ -81,13 +83,13 @@ function TutorBlockItem({
             {isLoading ? "Loading tutors..." : "Select a tutor"}
           </SelectItem>
 
-          {data?.tutors.map((tutor) => (
+          {data?.results.map((tutor) => (
             <SelectItem key={tutor.id} value={tutor.id}>
               {tutor.fullName}
             </SelectItem>
           ))}
 
-          {!isLoading && data?.tutors.length === 0 && (
+          {!isLoading && data?.results.length === 0 && (
             <SelectItem value="none" disabled>
               No matching tutors
             </SelectItem>
