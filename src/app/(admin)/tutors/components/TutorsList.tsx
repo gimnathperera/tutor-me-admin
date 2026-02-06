@@ -20,10 +20,10 @@ interface Tutor {
   age: number;
   nationality: string;
   race: string;
-  last4NRIC: string;
+
   tutoringLevels: string[];
   preferredLocations: string[];
-  tutorType: string;
+  tutorType: string[];
   yearsExperience: number;
   highestEducation: string;
   academicDetails?: string;
@@ -114,10 +114,10 @@ export default function TutorsList() {
           "min-w-[120px] max-w-[180px] truncate overflow-hidden cursor-default",
         render: (row: Tutor) => (
           <span
-            title={row.tutorType || "No type provided"}
-            className={`truncate block ${!row.tutorType ? "text-gray-400 italic" : ""}`}
+            title={Array.isArray(row.tutorType) ? row.tutorType.join(", ") : row.tutorType || "No type provided"}
+            className={`truncate block ${!row.tutorType || row.tutorType.length === 0 ? "text-gray-400 italic" : ""}`}
           >
-            {getSafeValue(row.tutorType, "No type provided")}
+            {Array.isArray(row.tutorType) ? row.tutorType.join(", ") : getSafeValue(row.tutorType, "No type provided")}
           </span>
         ),
       },

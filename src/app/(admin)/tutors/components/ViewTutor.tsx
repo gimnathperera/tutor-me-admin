@@ -39,8 +39,8 @@ interface ViewTutorProps {
     age?: number;
     nationality?: string;
     race?: string;
-    last4NRIC?: string;
-    tutorType?: string;
+
+    tutorType?: string[];
     yearsExperience?: number;
     highestEducation?: string;
     academicDetails?: string;
@@ -283,19 +283,16 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
                   {getSafeValue(tutor.race)}
                 </div>
               </div>
-              <div className="grid gap-3">
-                <Label>Last 4 NRIC</Label>
-                <div className={displayFieldClass}>
-                  {getSafeValue(tutor.last4NRIC)}
-                </div>
-              </div>
+
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
                 <Label>Tutor Type</Label>
                 <div className={displayFieldClass}>
-                  {getSafeValue(tutor.tutorType)}
+                  {Array.isArray(tutor.tutorType)
+                    ? tutor.tutorType.join(", ")
+                    : getSafeValue(tutor.tutorType)}
                 </div>
               </div>
               <div className="grid gap-3">
