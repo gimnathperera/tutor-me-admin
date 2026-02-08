@@ -309,8 +309,8 @@ export type Tutor = BaseEntity & {
   age: number;
   nationality: string;
   race: string;
-  last4NRIC: string;
-  tutorType: string;
+
+  tutorType: string[];
   yearsExperience: number;
   highestEducation: string;
   academicDetails?: string;
@@ -321,6 +321,7 @@ export type Tutor = BaseEntity & {
   preferredLocations: string[];
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
+  certificatesAndQualifications: string[];
 };
 
 export type RequestTutors = BaseEntity & {
@@ -348,7 +349,7 @@ export type RequestTutors = BaseEntity & {
   }[];
   tutors: {
     createdAt: string;
-    subjects: string[];
+    subjects: { title: string }[] | string[];
     duration: string;
     assignedTutor: {
       _id: string;

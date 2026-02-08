@@ -23,11 +23,7 @@ export const updateTutorSchema = z.object({
   race: z
     .enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"])
     .optional(),
-  last4NRIC: z
-    .string()
-    .length(4, "Last 4 digits of NRIC must be exactly 4 digits")
-    .regex(/^\d{4}$/, "Last 4 digits of NRIC must be numbers")
-    .optional(),
+
 
   // Tutoring preferences
   tutoringLevels: z
@@ -104,15 +100,16 @@ export const updateTutorSchema = z.object({
 
   // Academic qualifications
   tutorType: z
-    .enum([
-      "Full Time Student",
-      "Undergraduate",
-      "Part Time Tutor",
-      "Full Time Tutor",
-      "Ex/Current MOE Teacher",
-      "Ex-MOE Teacher",
-      "Current MOE Teacher",
-    ])
+    .array(
+      z.enum([
+        "Full-Time",
+        "Part-Time",
+        "Online",
+        "School Teacher Tutors",
+        "Group Tutors",
+        "Exam Coaches",
+      ]),
+    )
     .optional(),
 
   yearsExperience: z.number().int().min(0).max(50).optional(),
@@ -139,6 +136,9 @@ export const updateTutorSchema = z.object({
 
   agreeTerms: z.boolean().optional(),
   agreeAssignmentInfo: z.boolean().optional(),
+  certificatesAndQualifications: z
+    .array(z.string())
+    .min(1, "At least one certificate or qualification is required"),
 });
 
 export type UpdateTutorSchema = z.infer<typeof updateTutorSchema>;

@@ -60,7 +60,7 @@ export function UpdateGrade({
   const [updateGrade, { isLoading }] = useUpdateGradeMutation();
   const { data: subjectsData } = useFetchSubjectsQuery({
     page: 1,
-    limit: 2000,
+    limit: 100000,
   });
 
   const subjectOptions =

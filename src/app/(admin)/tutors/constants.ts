@@ -85,3 +85,12 @@ export function formatYearsExperience(value?: number | string | null): string {
   }
   return String(value);
 }
+
+export const tutorTypeOptions = [
+  "Full-Time",
+  "Part-Time",
+  "Online",
+  "School Teacher Tutors",
+  "Group Tutors",
+  "Exam Coaches",
+].map((v) => ({ value: v, text: v }));

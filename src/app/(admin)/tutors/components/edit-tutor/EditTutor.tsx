@@ -27,7 +27,11 @@ import {
   useUpdateTutorMutation,
 } from "@/store/api/splits/tutors";
 
-import { YEARS_EXPERIENCE_OPTIONS } from "@/app/(admin)/tutors/constants";
+import {
+  tutorTypeOptions,
+  YEARS_EXPERIENCE_OPTIONS,
+} from "@/app/(admin)/tutors/constants";
+import MultiFileUploader from "@/components/MultiFileUploader";
 import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
@@ -52,10 +56,98 @@ interface EditTutorProps {
   id: string;
 }
 
+const genderOptions = ["Male", "Female"] as const;
+const nationalityOptions = ["Sri Lankan", "Others"] as const;
+const raceOptions = [
+  "Sinhalese",
+  "Tamil",
+  "Muslim",
+  "Burgher",
+  "Others",
+] as const;
+
+const educationOptions = [
+  "PhD",
+  "Diploma",
+  "Masters",
+  "Undergraduate",
+  "Bachelor Degree",
+  "Diploma and Professional",
+  "JC/A Levels",
+  "Poly",
+  "Others",
+] as const;
+
+const tutoringLevelsList = [
+  "Pre-School / Montessori",
+  "Primary School (Grades 1-5)",
+  "Ordinary Level (O/L) (Grades 6-11)",
+  "Advanced Level (A/L) (Grades 12-13)",
+  "International Syllabus (Cambridge, Edexcel, IB)",
+  "Undergraduate",
+  "Diploma / Degree",
+  "Language (e.g., English, French, Japanese)",
+  "Computing (e.g., Programming, Graphic Design)",
+  "Music & Arts",
+  "Special Skills",
+] as const;
+
+const locationOptions = [
+  "Kollupitiya (Colombo 3)",
+  "Bambalapitiya (Colombo 4)",
+  "Havelock Town (Colombo 5)",
+  "Wellawatte (Colombo 6)",
+  "Cinnamon Gardens (Colombo 7)",
+  "Borella (Colombo 8)",
+  "Dehiwala",
+  "Mount Lavinia",
+  "Nugegoda",
+  "Rajagiriya",
+  "Kotte",
+  "Battaramulla",
+  "Malabe",
+  "Moratuwa",
+  "Gampaha",
+  "Negombo",
+  "Kadawatha",
+  "Kiribathgoda",
+  "Kelaniya",
+  "Wattala",
+  "Ja-Ela",
+  "Kalutara",
+  "Panadura",
+  "Horana",
+  "Wadduwa",
+  "Kandy",
+  "Matale",
+  "Nuwara Eliya",
+  "Galle",
+  "Matara",
+  "Hambantota",
+  "Kurunegala",
+  "Puttalam",
+  "Chilaw",
+  "Ratnapura",
+  "Kegalle",
+  "Badulla",
+  "Bandarawela",
+  "Anuradhapura",
+  "Polonnaruwa",
+  "Jaffna",
+  "Vavuniya",
+  "Trincomalee",
+  "Batticaloa",
+  "No Preference",
+] as const;
+
 export function EditTutor({ id }: EditTutorProps) {
   const [open, setOpen] = useState(false);
   const { data: tutorData, isLoading: isFetching } = useFetchTutorByIdQuery(id);
   const [updateTutor, { isLoading: isUpdating }] = useUpdateTutorMutation();
+
+  // tutorTypeOptions imported from constants
+
+
 
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();
@@ -81,16 +173,17 @@ export function EditTutor({ id }: EditTutorProps) {
       subjects: [],
       nationality: "Sri Lankan",
       race: "Sinhalese",
-      last4NRIC: "",
+
       tutoringLevels: [],
       preferredLocations: [],
-      tutorType: "Full Time Student",
+      tutorType: [],
       yearsExperience: 0,
       highestEducation: "Undergraduate",
       academicDetails: "",
       teachingSummary: "",
       studentResults: "",
       sellingPoints: "",
+      certificatesAndQualifications: [],
     },
     mode: "onChange",
   });
@@ -107,6 +200,8 @@ export function EditTutor({ id }: EditTutorProps) {
     name: "subjects",
     defaultValue: [] as string[],
   }) as string[];
+
+
 
   const safeEnumValue = <T extends string>(
     value: string | undefined,
@@ -209,96 +304,6 @@ export function EditTutor({ id }: EditTutorProps) {
 
   useEffect(() => {
     if (tutorData && open) {
-      const genderOptions = ["Male", "Female"] as const;
-      const nationalityOptions = ["Sri Lankan", "Others"] as const;
-      const raceOptions = [
-        "Sinhalese",
-        "Tamil",
-        "Muslim",
-        "Burgher",
-        "Others",
-      ] as const;
-      const tutorTypeOptions = [
-        "Full Time Student",
-        "Undergraduate",
-        "Part Time Tutor",
-        "Full Time Tutor",
-        "Ex/Current MOE Teacher",
-        "Ex-MOE Teacher",
-        "Current MOE Teacher",
-      ] as const;
-      const educationOptions = [
-        "PhD",
-        "Diploma",
-        "Masters",
-        "Undergraduate",
-        "Bachelor Degree",
-        "Diploma and Professional",
-        "JC/A Levels",
-        "Poly",
-        "Others",
-      ] as const;
-      const tutoringLevelOptions = [
-        "Pre-School / Montessori",
-        "Primary School (Grades 1-5)",
-        "Ordinary Level (O/L) (Grades 6-11)",
-        "Advanced Level (A/L) (Grades 12-13)",
-        "International Syllabus (Cambridge, Edexcel, IB)",
-        "Undergraduate",
-        "Diploma / Degree",
-        "Language (e.g., English, French, Japanese)",
-        "Computing (e.g., Programming, Graphic Design)",
-        "Music & Arts",
-        "Special Skills",
-      ] as const;
-      const locationOptions = [
-        "Kollupitiya (Colombo 3)",
-        "Bambalapitiya (Colombo 4)",
-        "Havelock Town (Colombo 5)",
-        "Wellawatte (Colombo 6)",
-        "Cinnamon Gardens (Colombo 7)",
-        "Borella (Colombo 8)",
-        "Dehiwala",
-        "Mount Lavinia",
-        "Nugegoda",
-        "Rajagiriya",
-        "Kotte",
-        "Battaramulla",
-        "Malabe",
-        "Moratuwa",
-        "Gampaha",
-        "Negombo",
-        "Kadawatha",
-        "Kiribathgoda",
-        "Kelaniya",
-        "Wattala",
-        "Ja-Ela",
-        "Kalutara",
-        "Panadura",
-        "Horana",
-        "Wadduwa",
-        "Kandy",
-        "Matale",
-        "Nuwara Eliya",
-        "Galle",
-        "Matara",
-        "Hambantota",
-        "Kurunegala",
-        "Puttalam",
-        "Chilaw",
-        "Ratnapura",
-        "Kegalle",
-        "Badulla",
-        "Bandarawela",
-        "Anuradhapura",
-        "Polonnaruwa",
-        "Jaffna",
-        "Vavuniya",
-        "Trincomalee",
-        "Batticaloa",
-        "No Preference",
-      ] as const;
-
       reset({
         fullName: tutorData.fullName || "",
         contactNumber: tutorData.contactNumber || "",
@@ -316,20 +321,19 @@ export function EditTutor({ id }: EditTutorProps) {
           "Sri Lankan",
         ),
         race: safeEnumValue(tutorData.race, raceOptions, "Sinhalese"),
-        last4NRIC: tutorData.last4NRIC || "",
+
         tutoringLevels: safeArrayEnumValue(
           tutorData.tutoringLevels,
-          tutoringLevelOptions,
+          tutoringLevelsList,
         ),
         preferredLocations: safeArrayEnumValue(
           tutorData.preferredLocations,
           locationOptions,
         ),
-        tutorType: safeEnumValue(
+        tutorType: safeArrayEnumValue(
           tutorData.tutorType,
-          tutorTypeOptions,
-          "Full Time Student",
-        ),
+          tutorTypeOptions.map((o) => o.value),
+        ) as UpdateTutorSchema["tutorType"],
         yearsExperience: tutorData.yearsExperience || 0,
         highestEducation: safeEnumValue(
           tutorData.highestEducation,
@@ -348,6 +352,7 @@ export function EditTutor({ id }: EditTutorProps) {
           typeof tutorData.agreeAssignmentInfo === "boolean"
             ? tutorData.agreeAssignmentInfo
             : undefined,
+        certificatesAndQualifications: tutorData.certificatesAndQualifications || [],
       });
     }
   }, [tutorData, open, reset]);
@@ -356,38 +361,55 @@ export function EditTutor({ id }: EditTutorProps) {
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
     if (!isOpen && tutorData) {
-      reset(() => {
-        return {
-          fullName: tutorData.fullName || "",
-          contactNumber: tutorData.contactNumber || "",
-          email: tutorData.email || "",
-          dateOfBirth: formatDateForForm(tutorData.dateOfBirth),
-          gender: tutorData.gender || "Male",
-          age: tutorData.age || 18,
-          tutorMediums: tutorData.tutorMediums || [],
-          grades: tutorData.grades || [],
-          subjects: tutorData.subjects || [],
-          nationality: tutorData.nationality || "Sri Lankan",
-          race: tutorData.race || "Sinhalese",
-          last4NRIC: tutorData.last4NRIC || "",
-          tutoringLevels: tutorData.tutoringLevels || [],
-          preferredLocations: tutorData.preferredLocations || [],
-          tutorType: tutorData.tutorType || "Full Time Student",
-          yearsExperience: tutorData.yearsExperience || 0,
-          highestEducation: tutorData.highestEducation || "Undergraduate",
-          academicDetails: tutorData.academicDetails || "",
-          teachingSummary: tutorData.teachingSummary || "",
-          studentResults: tutorData.studentResults || "",
-          sellingPoints: tutorData.sellingPoints || "",
-          agreeTerms:
-            typeof tutorData.agreeTerms === "boolean"
-              ? tutorData.agreeTerms
-              : undefined,
-          agreeAssignmentInfo:
-            typeof tutorData.agreeAssignmentInfo === "boolean"
-              ? tutorData.agreeAssignmentInfo
-              : undefined,
-        } as UnknownObject;
+      reset({
+        fullName: tutorData.fullName || "",
+        contactNumber: tutorData.contactNumber || "",
+        email: tutorData.email || "",
+        dateOfBirth: formatDateForForm(tutorData.dateOfBirth),
+        gender: safeEnumValue(tutorData.gender, genderOptions, "Male"),
+        age: tutorData.age || 18,
+        tutorMediums: tutorData.tutorMediums || [],
+        grades: tutorData.grades || [],
+        subjects: tutorData.subjects || [],
+
+        nationality: safeEnumValue(
+          tutorData.nationality,
+          nationalityOptions,
+          "Sri Lankan",
+        ),
+        race: safeEnumValue(tutorData.race, raceOptions, "Sinhalese"),
+
+        tutoringLevels: safeArrayEnumValue(
+          tutorData.tutoringLevels,
+          tutoringLevelsList,
+        ),
+        preferredLocations: safeArrayEnumValue(
+          tutorData.preferredLocations,
+          locationOptions,
+        ),
+        tutorType: safeArrayEnumValue(
+          tutorData.tutorType,
+          tutorTypeOptions.map((o) => o.value),
+        ) as UpdateTutorSchema["tutorType"],
+        yearsExperience: tutorData.yearsExperience || 0,
+        highestEducation: safeEnumValue(
+          tutorData.highestEducation,
+          educationOptions,
+          "Undergraduate",
+        ),
+        academicDetails: tutorData.academicDetails || "",
+        teachingSummary: tutorData.teachingSummary || "",
+        studentResults: tutorData.studentResults || "",
+        sellingPoints: tutorData.sellingPoints || "",
+        agreeTerms:
+          typeof tutorData.agreeTerms === "boolean"
+            ? tutorData.agreeTerms
+            : undefined,
+        agreeAssignmentInfo:
+          typeof tutorData.agreeAssignmentInfo === "boolean"
+            ? tutorData.agreeAssignmentInfo
+            : undefined,
+        certificatesAndQualifications: tutorData.certificatesAndQualifications || [],
       });
     }
   };
@@ -677,52 +699,20 @@ export function EditTutor({ id }: EditTutorProps) {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
-                <Label htmlFor="last4NRIC">Last 4 digits of NRIC</Label>
-                <Input
-                  id="last4NRIC"
-                  maxLength={4}
-                  placeholder="1234"
-                  {...form.register("last4NRIC")}
-                />
-                {formState.errors.last4NRIC && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.last4NRIC.message}
-                  </p>
-                )}
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="tutorType">Tutor Type</Label>
-                <Select
-                  onValueChange={(val) =>
-                    setValue("tutorType", val as UpdateTutorSchema["tutorType"])
+                <MultiSelect
+                  label="Tutor Type *"
+                  options={tutorTypeOptions}
+                  defaultSelected={watch("tutorType")}
+                  onChange={(selected) =>
+                    setValue(
+                      "tutorType",
+                      selected as UpdateTutorSchema["tutorType"],
+                      {
+                        shouldValidate: true,
+                      },
+                    )
                   }
-                  value={watch("tutorType")}
-                >
-                  <SelectTrigger id="tutorType">
-                    <SelectValue placeholder="Select tutor type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Full Time Student">
-                      Full Time Student
-                    </SelectItem>
-                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                    <SelectItem value="Part Time Tutor">
-                      Part Time Tutor
-                    </SelectItem>
-                    <SelectItem value="Full Time Tutor">
-                      Full Time Tutor
-                    </SelectItem>
-                    <SelectItem value="Ex/Current MOE Teacher">
-                      Ex/Current MOE Teacher
-                    </SelectItem>
-                    <SelectItem value="Ex-MOE Teacher">
-                      Ex-MOE Teacher
-                    </SelectItem>
-                    <SelectItem value="Current MOE Teacher">
-                      Current MOE Teacher
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                />
                 {formState.errors.tutorType && (
                   <p className="text-sm text-red-500">
                     {formState.errors.tutorType.message}
@@ -788,6 +778,19 @@ export function EditTutor({ id }: EditTutorProps) {
                   {formState.errors.subjects.message}
                 </p>
               )}
+            </div>
+
+            <div className="grid gap-3 border p-4 rounded-md">
+              <Label>Certificates & Qualifications</Label>
+              <MultiFileUploader
+                defaultFiles={tutorData?.certificatesAndQualifications || []}
+                onUploaded={(urls) =>
+                  setValue("certificatesAndQualifications" as never, urls as never, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              />
             </div>
 
             {/* Tutoring Preferences */}

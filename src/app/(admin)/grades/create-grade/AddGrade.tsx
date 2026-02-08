@@ -45,7 +45,7 @@ export function AddGrade() {
 
   const [createGrade, { isLoading }] = useCreateGradeMutation();
   const { data: subjectsData, isLoading: subjectsLoading } =
-    useFetchSubjectsQuery({ page: 1, limit: 1000 });
+    useFetchSubjectsQuery({ page: 1, limit: 100000 });
 
   const subjectOptions =
     subjectsData?.results.map((s) => ({

@@ -73,7 +73,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   }, []);
 
   return (
-    <div className="w-full" ref={dropdownRef}>
+    <div className="w-full bg-white z-100" ref={dropdownRef}>
       <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
         {label}
       </label>
@@ -142,7 +142,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 
           {isOpen && (
             <div
-              className="absolute left-0 z-40 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-sm top-full dark:bg-gray-900 scrollbar-thin"
+              className="absolute left-0 z-50 w-full max-h-60 overflow-y-auto bg-white rounded-lg shadow-lg top-full dark:bg-gray-800 border border-gray-200 dark:border-gray-700 scrollbar-thin"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex flex-col">
@@ -153,11 +153,10 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                     onClick={() => handleSelect(option.value)}
                   >
                     <div
-                      className={`relative flex w-full items-center p-2 pl-2 ${
-                        selectedOptions.includes(option.value)
-                          ? "bg-primary/10"
-                          : ""
-                      }`}
+                      className={`relative flex w-full items-center p-2 pl-2 ${selectedOptions.includes(option.value)
+                        ? "bg-primary/10"
+                        : ""
+                        }`}
                     >
                       <div className="mx-2 leading-6 text-gray-800 dark:text-white/90 flex justify-between w-full">
                         <span>{option.text}</span>
