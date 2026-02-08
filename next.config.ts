@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.yourcdn.com",
       },
+      {
+        protocol: "https",
+        hostname: "tutormeuploads.blob.core.windows.net",
+      },
     ],
   },
 };

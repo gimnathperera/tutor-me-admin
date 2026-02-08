@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Loader2, Plus, X } from "lucide-react";
@@ -113,7 +114,7 @@ export default function MultiFileUploadDropzone({
                 }
             }
         },
-        [existingUrls /* deps */] // need to be careful with closure
+        [] // deps removed
     );
 
     // Helper to sync parent
