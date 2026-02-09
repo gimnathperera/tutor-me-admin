@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
 import {
-  useFetchMatchingTutorsQuery,
-  useFetchTutorsQuery,
+  useFetchTutorsQuery
 } from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -31,7 +30,7 @@ export interface AssignedTutor {
 
 export interface TutorRequestBlock {
   _id: string;
-  subjects: string[];
+  subjects: { title: string }[] | string[];
   assignedTutor?: AssignedTutor[];
   preferredTutorType?: string;
   duration: string;
@@ -49,6 +48,9 @@ interface Props {
   onUpdated?: () => void;
 }
 
+const page = 1;
+const limit = 10000;
+
 function TutorBlockItem({
   tutorBlock,
   index,
@@ -58,9 +60,9 @@ function TutorBlockItem({
   index: number;
   handleUpdate: (index: number, tutorId: string) => void;
 }) {
-  const { data, isLoading } = useFetchMatchingTutorsQuery({
-    subjects: tutorBlock.subjects,
-    tutorType: tutorBlock.preferredTutorType,
+  const { data, isLoading } = useFetchTutorsQuery({
+    page,
+    limit,
   });
 
   return (
@@ -81,13 +83,13 @@ function TutorBlockItem({
             {isLoading ? "Loading tutors..." : "Select a tutor"}
           </SelectItem>
 
-          {data?.tutors.map((tutor) => (
+          {data?.results.map((tutor) => (
             <SelectItem key={tutor.id} value={tutor.id}>
               {tutor.fullName}
             </SelectItem>
           ))}
 
-          {!isLoading && data?.tutors.length === 0 && (
+          {!isLoading && data?.results.length === 0 && (
             <SelectItem value="none" disabled>
               No matching tutors
             </SelectItem>
@@ -160,31 +162,55 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
     }
   };
 
+  const isAssigned = row.tutors?.some(
+    (t) => t.assignedTutor && t.assignedTutor.length > 0,
+  );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="flex items-center gap-2">
-          <Edit size={16} />
-          Assign Tutors
+    <div className="flex items-center gap-2">
+      {isAssigned && (
+        <Button
+          size="sm"
+          className="bg-green-600 hover:bg-green-700 text-white cursor-default"
+        >
+          Assigned
         </Button>
-      </DialogTrigger>
+      )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          {isAssigned ? (
+            <Button size="icon" variant="ghost" className="h-8 w-8">
+              <Edit size={16} />
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Edit size={16} />
+              Assign Tutors
+            </Button>
+          )}
+        </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[550px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Assign Tutors</DialogTitle>
-        </DialogHeader>
+        <DialogContent className="sm:max-w-[550px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Assign Tutors</DialogTitle>
+          </DialogHeader>
 
-        <div className="flex flex-col gap-6 mt-4">
-          {tutors.map((tutorBlock, index) => (
-            <TutorBlockItem
-              key={tutorBlock._id}
-              tutorBlock={tutorBlock}
-              index={index}
-              handleUpdate={handleUpdate}
-            />
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+          <div className="flex flex-col gap-6 mt-4">
+            {tutors.map((tutorBlock, index) => (
+              <TutorBlockItem
+                key={tutorBlock._id}
+                tutorBlock={tutorBlock}
+                index={index}
+                handleUpdate={handleUpdate}
+              />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

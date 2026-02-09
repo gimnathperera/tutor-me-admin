@@ -2,7 +2,10 @@ import { z } from "zod";
 
 // Full form schema
 export const addTutorSchema = z.object({
-  fullName: z.string().nonempty("Full Name is required"),
+  fullName: z
+    .string()
+    .min(1, "Full Name is required")
+    .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
   contactNumber: z
     .string()
     .regex(/^[0-9]+$/, "Contact number must contain only numbers")
@@ -23,9 +26,7 @@ export const addTutorSchema = z.object({
   subjects: z.array(z.string()).min(1, "Select at least one subject"),
   nationality: z.enum(["Sri Lankan", "Others"]),
   race: z.enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"]),
-  last4NRIC: z
-    .string()
-    .length(4, "Last 4 digits of NRIC must be exactly 4 digits"),
+
 
   // Tutoring preferences
   tutoringLevels: z
@@ -99,15 +100,22 @@ export const addTutorSchema = z.object({
     .min(1, "Select at least one preferred location"),
 
   // Academic qualifications
-  tutorType: z.enum([
-    "Full Time Student",
-    "Undergraduate",
-    "Part Time Tutor",
-    "Full Time Tutor",
-    "Ex/Current MOE Teacher",
-    "Ex-MOE Teacher",
-    "Current MOE Teacher",
-  ]),
+  tutorType: z
+    .array(
+      z.string().refine(
+        (v) =>
+          [
+            "Full-Time",
+            "Part-Time",
+            "Online",
+            "School Teacher Tutors",
+            "Group Tutors",
+            "Exam Coaches",
+          ].includes(v),
+        { message: "Invalid tutor type" },
+      ),
+    )
+    .min(1, "Select at least one tutor type"),
   yearsExperience: z.number().int().min(0).max(50),
 
   highestEducation: z.enum([
@@ -127,6 +135,9 @@ export const addTutorSchema = z.object({
   teachingSummary: z.string().max(750),
   studentResults: z.string().max(750),
   sellingPoints: z.string().max(750),
+  certificatesAndQualifications: z
+    .array(z.string())
+    .min(1, "At least one certificate or qualification is required"),
 
   // Agreement
   agreeTerms: z
@@ -154,16 +165,17 @@ export const initialTutorFormValues: AddTutorFormValues = {
   subjects: [],
   nationality: "Sri Lankan",
   race: "Sinhalese",
-  last4NRIC: "",
+
   tutoringLevels: [],
   preferredLocations: [],
-  tutorType: "Full Time Student",
+  tutorType: [],
   yearsExperience: 0,
   highestEducation: "Undergraduate",
   academicDetails: "",
   teachingSummary: "",
   studentResults: "",
   sellingPoints: "",
+  certificatesAndQualifications: [],
   agreeTerms: false,
   agreeAssignmentInfo: false,
 };

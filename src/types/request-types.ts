@@ -310,10 +310,10 @@ export type CreateTutorRequest = {
   age: number;
   nationality: string;
   race: string;
-  last4NRIC: string;
+
   tutoringLevels: string[];
   preferredLocations: string[];
-  tutorType: string;
+  tutorType: string[];
   yearsExperience: number;
   highestEducation: string;
   academicDetails: string;
@@ -322,6 +322,7 @@ export type CreateTutorRequest = {
   sellingPoints: string;
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
+  certificatesAndQualifications?: string[];
   captchaToken: string;
 };
 
@@ -336,10 +337,10 @@ export type UpdateTutorRequest = {
     age?: number;
     nationality?: string;
     race?: string;
-    last4NRIC?: string;
+
     tutoringLevels?: string[];
     preferredLocations?: string[];
-    tutorType?: string;
+    tutorType?: string[];
     yearsExperience?: number;
     highestEducation?: string;
     academicDetails?: string;
@@ -348,6 +349,7 @@ export type UpdateTutorRequest = {
     sellingPoints?: string;
     agreeTerms?: boolean;
     agreeAssignmentInfo?: boolean;
+    certificatesAndQualifications?: string[];
   } & Record<string, unknown>;
 };
 
@@ -378,10 +380,10 @@ export type FindMyTutorRequest = {
   age: number;
   nationality: string;
   race: string;
-  last4NRIC: string;
+
   tutoringLevels: string[];
   preferredLocations: string[];
-  tutorType: string;
+  tutorType: string[];
   yearsExperience: number;
   highestEducation: string;
   academicDetails: string;
@@ -390,6 +392,7 @@ export type FindMyTutorRequest = {
   sellingPoints: string;
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
+  certificatesAndQualifications?: string[];
 };
 
 export type FetchLevelsRequest = {

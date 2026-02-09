@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useWatch } from "react-hook-form";
 
+import MultiFileUploader from "@/components/MultiFileUploader";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -46,6 +47,7 @@ import toast from "react-hot-toast";
 import {
   preferredLocationOptions,
   tutoringLevelOptions,
+  tutorTypeOptions,
 } from "../../constants";
 import {
   AddTutorFormValues,
@@ -80,6 +82,10 @@ export function AddTutor() {
     name: "dateOfBirth",
     defaultValue: "",
   }) as string;
+
+
+
+
   // Grades / Subjects state & queries (match client logic)
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();
@@ -404,54 +410,20 @@ export function AddTutor() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-3">
-                <Label htmlFor="last4NRIC">Last 4 digits of NRIC *</Label>
-                <Input
-                  id="last4NRIC"
-                  maxLength={4}
-                  {...form.register("last4NRIC")}
-                />
-                {formState.errors.last4NRIC && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.last4NRIC.message}
-                  </p>
-                )}
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="tutorType">Tutor Type *</Label>
-                <Select
-                  onValueChange={(val) =>
+                <MultiSelect
+                  label="Tutor Type *"
+                  options={tutorTypeOptions}
+                  defaultSelected={watch("tutorType")}
+                  onChange={(selected) =>
                     setValue(
                       "tutorType",
-                      val as AddTutorFormValues["tutorType"],
+                      selected as AddTutorFormValues["tutorType"],
+                      {
+                        shouldValidate: true,
+                      },
                     )
                   }
-                  value={watch("tutorType")}
-                >
-                  <SelectTrigger id="tutorType">
-                    <SelectValue placeholder="Select tutor type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Full Time Student">
-                      Full Time Student
-                    </SelectItem>
-                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                    <SelectItem value="Part Time Tutor">
-                      Part Time Tutor
-                    </SelectItem>
-                    <SelectItem value="Full Time Tutor">
-                      Full Time Tutor
-                    </SelectItem>
-                    <SelectItem value="Ex/Current MOE Teacher">
-                      Ex/Current MOE Teacher
-                    </SelectItem>
-                    <SelectItem value="Ex-MOE Teacher">
-                      Ex-MOE Teacher
-                    </SelectItem>
-                    <SelectItem value="Current MOE Teacher">
-                      Current MOE Teacher
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                />
                 {formState.errors.tutorType && (
                   <p className="text-sm text-red-500">
                     {formState.errors.tutorType.message}
@@ -672,6 +644,18 @@ export function AddTutor() {
                   {formState.errors.sellingPoints.message}
                 </p>
               )}
+            </div>
+
+            <div className="grid gap-3 border p-4 rounded-md">
+              <Label>Certificates & Qualifications</Label>
+              <MultiFileUploader
+                onUploaded={(urls) =>
+                  setValue("certificatesAndQualifications", urls, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              />
             </div>
 
             {/* Agreements */}
