@@ -153,10 +153,11 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                     onClick={() => handleSelect(option.value)}
                   >
                     <div
-                      className={`relative flex w-full items-center p-2 pl-2 ${selectedOptions.includes(option.value)
-                        ? "bg-primary/10"
-                        : ""
-                        }`}
+                      className={`relative flex w-full items-center p-2 pl-2 ${
+                        selectedOptions.includes(option.value)
+                          ? "bg-primary/10"
+                          : ""
+                      }`}
                     >
                       <div className="mx-2 leading-6 text-gray-800 dark:text-white/90 flex justify-between w-full">
                         <span>{option.text}</span>

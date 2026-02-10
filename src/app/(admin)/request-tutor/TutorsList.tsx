@@ -2,9 +2,7 @@
 
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
-import {
-  useFetchRequestForTutorsQuery,
-} from "@/store/api/splits/request-tutor";
+import { useFetchRequestForTutorsQuery } from "@/store/api/splits/request-tutor";
 import { RequestTutors } from "@/types/response-types";
 import { useMemo, useState } from "react";
 import { AssignTutorDialog } from "./assignTutor";
@@ -21,8 +19,6 @@ export default function RequestForTutorsList() {
     limit,
     sortBy: "createdAt:desc",
   });
-
-
 
   const tutors: RequestTutors[] = data?.results || [];
   const totalPages = data?.totalPages || 1;

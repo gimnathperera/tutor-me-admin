@@ -24,7 +24,6 @@ export const updateTutorSchema = z.object({
     .enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"])
     .optional(),
 
-
   // Tutoring preferences
   tutoringLevels: z
     .array(

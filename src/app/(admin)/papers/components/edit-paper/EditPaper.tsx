@@ -122,8 +122,6 @@ export function EditPaper({
   const { formState, watch, setValue, register, reset, getValues } =
     updatePaperForm;
 
-
-
   const selectedGrade = watch("grade");
   const [initialValues, setInitialValues] = useState<PaperSchema | null>(null);
   useEffect(() => {

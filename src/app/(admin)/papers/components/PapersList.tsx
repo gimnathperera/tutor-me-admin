@@ -49,10 +49,7 @@ export default function PapersTable() {
     setPage(newPage);
   };
 
-  const getSafeValue = (
-    value: unknown,
-    fallback = "N/A",
-  ): string => {
+  const getSafeValue = (value: unknown, fallback = "N/A"): string => {
     if (value === undefined || value === null) {
       return fallback;
     }

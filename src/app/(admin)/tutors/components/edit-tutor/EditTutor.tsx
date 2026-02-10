@@ -147,8 +147,6 @@ export function EditTutor({ id }: EditTutorProps) {
 
   // tutorTypeOptions imported from constants
 
-
-
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();
   const gradeOptions =
@@ -200,8 +198,6 @@ export function EditTutor({ id }: EditTutorProps) {
     name: "subjects",
     defaultValue: [] as string[],
   }) as string[];
-
-
 
   const safeEnumValue = <T extends string>(
     value: string | undefined,
@@ -352,7 +348,8 @@ export function EditTutor({ id }: EditTutorProps) {
           typeof tutorData.agreeAssignmentInfo === "boolean"
             ? tutorData.agreeAssignmentInfo
             : undefined,
-        certificatesAndQualifications: tutorData.certificatesAndQualifications || [],
+        certificatesAndQualifications:
+          tutorData.certificatesAndQualifications || [],
       });
     }
   }, [tutorData, open, reset]);
@@ -409,7 +406,8 @@ export function EditTutor({ id }: EditTutorProps) {
           typeof tutorData.agreeAssignmentInfo === "boolean"
             ? tutorData.agreeAssignmentInfo
             : undefined,
-        certificatesAndQualifications: tutorData.certificatesAndQualifications || [],
+        certificatesAndQualifications:
+          tutorData.certificatesAndQualifications || [],
       });
     }
   };
@@ -785,10 +783,14 @@ export function EditTutor({ id }: EditTutorProps) {
               <MultiFileUploader
                 defaultFiles={tutorData?.certificatesAndQualifications || []}
                 onUploaded={(urls) =>
-                  setValue("certificatesAndQualifications" as never, urls as never, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
+                  setValue(
+                    "certificatesAndQualifications" as never,
+                    urls as never,
+                    {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    },
+                  )
                 }
               />
             </div>

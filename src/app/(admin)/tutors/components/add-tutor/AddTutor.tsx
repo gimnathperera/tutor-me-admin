@@ -83,9 +83,6 @@ export function AddTutor() {
     defaultValue: "",
   }) as string;
 
-
-
-
   // Grades / Subjects state & queries (match client logic)
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();

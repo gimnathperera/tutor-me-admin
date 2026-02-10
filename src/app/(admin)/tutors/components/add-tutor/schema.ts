@@ -27,7 +27,6 @@ export const addTutorSchema = z.object({
   nationality: z.enum(["Sri Lankan", "Others"]),
   race: z.enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"]),
 
-
   // Tutoring preferences
   tutoringLevels: z
     .array(
@@ -102,18 +101,20 @@ export const addTutorSchema = z.object({
   // Academic qualifications
   tutorType: z
     .array(
-      z.string().refine(
-        (v) =>
-          [
-            "Full-Time",
-            "Part-Time",
-            "Online",
-            "School Teacher Tutors",
-            "Group Tutors",
-            "Exam Coaches",
-          ].includes(v),
-        { message: "Invalid tutor type" },
-      ),
+      z
+        .string()
+        .refine(
+          (v) =>
+            [
+              "Full-Time",
+              "Part-Time",
+              "Online",
+              "School Teacher Tutors",
+              "Group Tutors",
+              "Exam Coaches",
+            ].includes(v),
+          { message: "Invalid tutor type" },
+        ),
     )
     .min(1, "Select at least one tutor type"),
   yearsExperience: z.number().int().min(0).max(50),
