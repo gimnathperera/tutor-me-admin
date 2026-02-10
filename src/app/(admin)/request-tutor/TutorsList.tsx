@@ -38,11 +38,12 @@ export default function RequestForTutorsList() {
       {
         key: "name",
         header: "Full Name",
-        className: "min-w-[150px] max-w-[250px] truncate overflow-hidden",
+        className: "min-w-[150px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <span
             title={row.name || "No name"}
             className={`truncate block ${!row.name ? "text-gray-400 italic" : ""}`}
+            style={{ width: "inherit" }}
           >
             {getSafeValue(row.name, "No name")}
           </span>
@@ -90,12 +91,13 @@ export default function RequestForTutorsList() {
       {
         key: "view",
         header: "View",
-        className: "min-w-[80px] max-w-[80px]",
+        className: "min-w-[80px] max-w-[80px] sticky right-[390px] z-20 bg-white dark:bg-gray-900",
         render: (row) => <ViewTutorRequests tutorId={row.id} />,
       },
       {
         key: "status",
         header: "Change Status",
+        className: "min-w-[140px] max-w-[140px] sticky right-[250px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <ChangeStatusDialog
             requestId={row.id}
@@ -107,7 +109,7 @@ export default function RequestForTutorsList() {
       {
         key: "assignTutor",
         header: "Assign Tutor",
-        className: "min-w-[130px] max-w-[150px]",
+        className: "min-w-[170px] max-w-[170px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <AssignTutorDialog
             row={{
@@ -133,7 +135,7 @@ export default function RequestForTutorsList() {
       {
         key: "delete",
         header: "Delete",
-        className: "min-w-[80px] max-w-[80px]",
+        className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <div className="w-full flex justify-center items-center">
             <DeleteTutorRequest tutorId={row.id} />

@@ -55,9 +55,9 @@ export default function TestimonialsTable() {
     {
       key: "owner",
       header: "Owner",
-      className: "min-w-[200px] max-w-[250px] truncate overflow-hidden",
+      className: "min-w-[200px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Testimonial) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" style={{ width: "inherit" }}>
           {row.owner?.avatar ? (
             <img
               src={row.owner.avatar || "/images/user/user.png"}
@@ -93,9 +93,8 @@ export default function TestimonialsTable() {
         const safeContent = getSafeValue(row.content, "No content provided");
         return (
           <span
-            className={`truncate block ${
-              !row.content ? "text-gray-400 italic" : ""
-            }`}
+            className={`truncate block ${!row.content ? "text-gray-400 italic" : ""
+              }`}
           >
             {safeContent}
           </span>
@@ -135,7 +134,7 @@ export default function TestimonialsTable() {
     {
       key: "view",
       header: <div className="text-center w-full">View</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
+      className: "min-w-[80px] max-w-[80px] text-center sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: Testimonial) => (
         <div className="w-full flex justify-center items-center">
           <TestimonialDetails
@@ -149,7 +148,7 @@ export default function TestimonialsTable() {
     {
       key: "edit",
       header: <div className="text-center w-full">Edit</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
+      className: "min-w-[80px] max-w-[80px] text-center sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: Testimonial) => (
         <div className="w-full flex justify-center items-center">
           <UpdateTestimonial
@@ -168,7 +167,7 @@ export default function TestimonialsTable() {
     {
       key: "delete",
       header: <div className="text-center w-full">Delete</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default text-center",
+      className: "min-w-[80px] max-w-[80px] text-center sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Testimonial) => (
         <div className="w-full flex justify-center items-center">
           <DeleteTestimonial testimonialId={row.id} />
