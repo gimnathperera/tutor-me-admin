@@ -18,13 +18,14 @@ import {
   TableRow,
 } from "../ui/table";
 
-interface Column<T> {
+export interface Column<T> {
   key: string;
   header: ReactNode;
   render?: (row: T) => ReactNode;
   className?: string;
   headClassName?: string;
   bodyClassName?: string;
+  align?: "start" | "center" | "end";
 }
 
 interface DataTableProps<T> {
@@ -109,8 +110,8 @@ export default function DataTable<T extends { id: string | number }>({
 
   const rowsToRender = isLoading
     ? Array.from({ length: limit }).map((_, currentPage) => ({
-        id: `skeleton-${currentPage}`,
-      }))
+      id: `skeleton-${currentPage}`,
+    }))
     : data;
 
   if (!isLoading && (!data || data.length === 0)) {
@@ -139,7 +140,7 @@ export default function DataTable<T extends { id: string | number }>({
                   <TableCell
                     key={col.key}
                     isHeader
-                    className={`px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white/90 ${col.className ?? ""} ${col.headClassName ?? ""}`}
+                    className={`px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-white/90 ${col.align ? `text-${col.align}` : "text-start"} ${col.className ?? ""} ${col.headClassName ?? ""}`}
                   >
                     {col.header}
                   </TableCell>
@@ -154,12 +155,14 @@ export default function DataTable<T extends { id: string | number }>({
                   {columns.map((col) => (
                     <TableCell
                       key={col.key}
-                      className={`px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 max-w-[15.5vw] ${col.className ?? ""} ${col.bodyClassName ?? ""}`}
+                      className={`px-4 py-3 text-gray-500 text-theme-sm dark:text-white/90 max-w-[15.5vw] ${col.align ? `text-${col.align}` : "text-start"} ${col.className ?? ""} ${col.bodyClassName ?? ""}`}
                     >
                       {isLoading ? (
                         <Skeleton className="h-4 w-[120px]" />
                       ) : col.render ? (
-                        <div className="flex justify-start items-center">
+                        <div
+                          className={`flex items-center ${col.align ? `justify-${col.align}` : "justify-start"}`}
+                        >
                           {col.render(row)}
                         </div>
                       ) : (

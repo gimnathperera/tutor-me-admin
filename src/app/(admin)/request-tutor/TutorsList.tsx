@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable from "@/components/tables/DataTable";
+import DataTable, { Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import {
   useFetchRequestForTutorsQuery,
@@ -33,7 +33,7 @@ export default function RequestForTutorsList() {
   const getSafeValue = (value: string | undefined | null, fallback = "N/A") =>
     value && value.trim() !== "" ? value : fallback;
 
-  const columns = useMemo(
+  const columns = useMemo<Column<RequestTutors>[]>(
     () => [
       {
         key: "name",
@@ -91,12 +91,14 @@ export default function RequestForTutorsList() {
       {
         key: "view",
         header: "View",
+        align: "center",
         className: "min-w-[80px] max-w-[80px] sticky right-[390px] z-20 bg-white dark:bg-gray-900",
-        render: (row) => <ViewTutorRequests tutorId={row.id} />,
+        render: (row: RequestTutors) => <ViewTutorRequests tutorId={row.id} />,
       },
       {
         key: "status",
         header: "Change Status",
+        align: "center",
         className: "min-w-[140px] max-w-[140px] sticky right-[250px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <ChangeStatusDialog
@@ -109,6 +111,7 @@ export default function RequestForTutorsList() {
       {
         key: "assignTutor",
         header: "Assign Tutor",
+        align: "center",
         className: "min-w-[170px] max-w-[170px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <AssignTutorDialog
@@ -135,12 +138,9 @@ export default function RequestForTutorsList() {
       {
         key: "delete",
         header: "Delete",
+        align: "center",
         className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
-        render: (row: RequestTutors) => (
-          <div className="w-full flex justify-center items-center">
-            <DeleteTutorRequest tutorId={row.id} />
-          </div>
-        ),
+        render: (row: RequestTutors) => <DeleteTutorRequest tutorId={row.id} />,
       },
     ],
     [refetch],
