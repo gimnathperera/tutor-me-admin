@@ -151,6 +151,10 @@ export default function MultiFileUploadDropzone({
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         multiple: true,
+        accept: {
+            "image/*": [],
+            "application/pdf": [],
+        },
     });
 
     return (
@@ -176,11 +180,11 @@ export default function MultiFileUploadDropzone({
                     </div>
                     <div className="space-y-1">
                         <p className="text-sm font-medium text-gray-700">
-                            {isDragActive ? "Drop files here" : "Click or drag to upload"}
+                            {isDragActive
+                                ? "Drop files here"
+                                : "Click or drag to upload"}
                         </p>
-                        <p className="text-xs text-gray-500">
-                            PDF, Images, etc.
-                        </p>
+                        <p className="text-xs text-gray-500">PDF, Images</p>
                     </div>
                 </div>
             </div>
