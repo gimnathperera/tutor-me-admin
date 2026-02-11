@@ -69,11 +69,12 @@ export default function TutorsList() {
         key: "fullName",
         header: "Full Name",
         className:
-          "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+          "min-w-[150px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
         render: (row: Tutor) => (
           <span
             title={row.fullName || "No name provided"}
             className={`truncate block ${!row.fullName ? "text-gray-400 italic" : ""}`}
+            style={{ width: "inherit" }}
           >
             {getSafeValue(row.fullName, "No name provided")}
           </span>
@@ -149,7 +150,7 @@ export default function TutorsList() {
       {
         key: "view",
         header: <div className="text-center w-full">View</div>,
-        className: "min-w-[80px] max-w-[80px] cursor-default",
+        className: "min-w-[80px] max-w-[80px] sticky right-[240px] z-20 bg-white dark:bg-gray-900",
         render: (row: Tutor) => (
           <div className="flex justify-center items-center w-full">
             <ViewTutor tutor={row} />
@@ -161,7 +162,7 @@ export default function TutorsList() {
       {
         key: "edit",
         header: <div className="text-center w-full">Edit</div>,
-        className: "min-w-[80px] max-w-[80px] cursor-default",
+        className: "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
         render: (row: Tutor) => (
           <div className="flex justify-center items-center w-full">
             <EditTutor id={row.id} />
@@ -180,7 +181,7 @@ export default function TutorsList() {
             Reset Password
           </span>
         ),
-        className: "min-w-[80px] max-w-[80px] cursor-default",
+        className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
         render: (row: Tutor) => (
           <div className="flex justify-center items-center w-full">
             <ResetPassword userId={row.id} />
@@ -192,7 +193,7 @@ export default function TutorsList() {
       {
         key: "delete",
         header: <div className="text-center w-full">Delete</div>,
-        className: "min-w-[80px] max-w-[80px] cursor-default",
+        className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
         render: (row: Tutor) => (
           <div className="flex justify-center items-center w-full">
             <DeleteTutor tutorId={row.id} />

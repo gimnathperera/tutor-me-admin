@@ -57,8 +57,16 @@ export default function MultiFileUploadDropzone({
 
     const [existingUrls, setExistingUrls] = useState<string[]>(defaultFiles);
 
+    const [error, setError] = useState<string | null>(null);
+
     const onDrop = useCallback(
-        async (acceptedFiles: File[]) => {
+        async (acceptedFiles: File[], fileRejections: unknown[]) => {
+            if (fileRejections.length > 0) {
+                setError("Only images and PDF files are accepted");
+            } else {
+                setError(null);
+            }
+
             const newFiles: FileItem[] = acceptedFiles.map((file) => ({ file }));
             setFiles((prev) => [...prev, ...newFiles]);
 
@@ -151,6 +159,10 @@ export default function MultiFileUploadDropzone({
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         multiple: true,
+        accept: {
+            "image/*": [],
+            "application/pdf": [],
+        },
     });
 
     return (
@@ -176,14 +188,15 @@ export default function MultiFileUploadDropzone({
                     </div>
                     <div className="space-y-1">
                         <p className="text-sm font-medium text-gray-700">
-                            {isDragActive ? "Drop files here" : "Click or drag to upload"}
+                            {isDragActive
+                                ? "Drop files here"
+                                : "Click or drag to upload"}
                         </p>
-                        <p className="text-xs text-gray-500">
-                            PDF, Images, etc.
-                        </p>
+                        <p className="text-xs text-gray-500">PDF, Images</p>
                     </div>
                 </div>
             </div>
+            {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
             {(files.length > 0 || existingUrls.length > 0) && (
                 <div className="grid gap-2">
