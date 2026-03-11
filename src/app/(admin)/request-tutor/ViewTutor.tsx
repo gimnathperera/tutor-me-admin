@@ -75,54 +75,53 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
           </div>
 
           <div className="grid gap-3">
-            <Label>Grades</Label>
-            <div className="flex flex-wrap gap-1">
-              {tutor?.grade?.map((g, idx) => (
-                <span key={idx} className={tagClass} title={g.description}>
-                  {g.title}
-                </span>
-              )) || <span className="text-gray-400 italic">No grades</span>}
+            <Label>Grade</Label>
+            <div className={displayFieldClass}>
+              {tutor?.grade ? tutor.grade : <span className="text-gray-400 italic">No grade</span>}
             </div>
+          </div>
+
+          <div className="grid gap-3">
+            <Label>Status</Label>
+            <div className={displayFieldClass}>{tutor?.status ?? "N/A"}</div>
           </div>
 
           <div className="grid gap-3">
             <Label>Tutors</Label>
             <div className="flex flex-col gap-2">
-              {tutor?.tutors?.map((t, idx) => (
-                <div key={t._id || idx} className="p-2 border rounded">
-                  <div className="flex flex-wrap gap-1">
-                    Subjects:{" "}
-                    {t.subjects?.map((s, sidx) => (
-                      <span key={sidx} className={tagClass}>
-                        {typeof s === "string" ? s : s.title}
-                      </span>
-                    ))}
-                  </div>
-
-                  {t.assignedTutor?.length ? (
+              {tutor?.tutors?.length ? (
+                tutor.tutors.map((t, idx) => (
+                  <div key={t._id || idx} className="p-3 border rounded space-y-1 bg-gray-50 dark:bg-gray-700">
                     <div>
-                      Assigned Tutors:{" "}
-                      {t.assignedTutor.map((a, aidx) => (
-                        <span key={aidx} className={tagClass}>
-                          {a.fullName}
+                      Subject:{" "}
+                      <span className={tagClass}>{t.subject || "N/A"}</span>
+                    </div>
+
+                    {t.assignedTutor && t.assignedTutor !== "" && (
+                      <div>
+                        Assigned Tutor:{" "}
+                        <span className={`${tagClass} bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200`}>
+                          {t.assignedTutor}
                         </span>
-                      ))}
-                    </div>
-                  ) : null}
+                      </div>
+                    )}
 
-                  {t.preferredTutorType && (
+                    {t.preferredTutorType && (
+                      <div>
+                        Preferred Type: <strong>{t.preferredTutorType}</strong>
+                      </div>
+                    )}
                     <div>
-                      Preferred Type: <strong>{t.preferredTutorType}</strong>
+                      Duration: <strong>{t.duration}</strong>
                     </div>
-                  )}
-                  <div>
-                    Duration: <strong>{t.duration}</strong>
+                    <div>
+                      Frequency: <strong>{t.frequency}</strong>
+                    </div>
                   </div>
-                  <div>
-                    Frequency: <strong>{t.frequency}</strong>
-                  </div>
-                </div>
-              )) || <span className="text-gray-400 italic">No tutors</span>}
+                ))
+              ) : (
+                <span className="text-gray-400 italic">No tutors</span>
+              )}
             </div>
           </div>
 

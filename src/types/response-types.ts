@@ -11,10 +11,9 @@ export type WithTitleDescription = {
 
 // Reusable response wrapper
 export type PaginatedResponse<T> = {
-  count: number;
-  next: string | null;
-  previous: string | null;
   results: T[];
+  page: number;
+  limit: number;
   totalResults: number;
   totalPages: number;
 };
@@ -324,43 +323,25 @@ export type Tutor = BaseEntity & {
   certificatesAndQualifications: string[];
 };
 
-export type RequestTutors = BaseEntity & {
+export type RequestTutorTutor = {
   _id: string;
-  name: string;
-  medium: string;
-  district: string;
-  email: string;
-  phoneNumber: string;
-  city: string;
-  state: string;
-  region: string;
-  zip: string;
-  studentSchool: string;
-  status: "Approved" | "Pending" | "Tutor Assigned";
-  genderPreference: string;
-  bilingual: string;
-  grade: {
-    id: string;
-    title: string;
-    description: string;
-    subjects: string[];
-    createdAt: string;
-    updatedAt: string;
-  }[];
-  tutors: {
-    createdAt: string;
-    subjects: { title: string }[] | string[];
-    duration: string;
-    assignedTutor: {
-      _id: string;
-      id: string;
-      fullName: string;
-    }[];
-    _id: string;
-    preferredTutorType: string;
-    frequency: string;
-  }[];
+  subject: string;
+  preferredTutorType: string;
+  duration: string;
+  frequency: string;
+  assignedTutor: string | null;
+};
 
+export type RequestTutors = BaseEntity & {
+  name: string;
+  email: string;
+  city: string;
+  district: string;
+  phoneNumber: string;
+  medium: string;
+  status: "Approved" | "Pending" | "Tutor Assigned";
+  grade: string;
+  tutors: RequestTutorTutor[];
   createdAt: string;
   updatedAt: string;
 };

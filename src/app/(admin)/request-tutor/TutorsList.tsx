@@ -22,8 +22,6 @@ export default function RequestForTutorsList() {
     sortBy: "createdAt:desc",
   });
 
-
-
   const tutors: RequestTutors[] = data?.results || [];
   const totalPages = data?.totalPages || 1;
   const totalResults = data?.totalResults || tutors.length;
@@ -76,16 +74,14 @@ export default function RequestForTutorsList() {
         ),
       },
       {
-        key: "grades",
-        header: "Grades",
-        className: "min-w-[200px] max-w-[300px] truncate overflow-hidden",
+        key: "grade",
+        header: "Grade",
+        className: "min-w-[120px] max-w-[200px] truncate overflow-hidden",
         render: (row: RequestTutors) =>
-          row.grade && row.grade.length > 0 ? (
-            <span title={row.grade.map((g) => g.title).join(", ")}>
-              {row.grade.map((g) => g.title).join(", ")}
-            </span>
+          row.grade ? (
+            <span title={row.grade}>{row.grade}</span>
           ) : (
-            <span className="text-gray-400 italic">No grades</span>
+            <span className="text-gray-400 italic">No grade</span>
           ),
       },
       {
@@ -118,17 +114,12 @@ export default function RequestForTutorsList() {
             row={{
               id: row.id,
               tutors: row.tutors?.map((t) => ({
-                _id: t._id, // tutor block ID
-                subjects: t.subjects,
-                assignedTutor: t.assignedTutor?.map((a) => ({
-                  _id: a.id, // map id to _id
-                  id: a.id,
-                  fullName: a.fullName,
-                })),
+                _id: t._id,
+                subject: t.subject,
+                assignedTutor: t.assignedTutor,
                 preferredTutorType: t.preferredTutorType,
                 duration: t.duration,
                 frequency: t.frequency,
-                createdAt: t.createdAt || "",
               })),
             }}
             onUpdated={() => refetch()}
