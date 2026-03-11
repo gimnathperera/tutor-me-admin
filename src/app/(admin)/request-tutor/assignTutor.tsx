@@ -16,9 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
-import {
-  useFetchTutorsQuery
-} from "@/store/api/splits/tutors";
+import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -34,6 +32,7 @@ export interface TutorRequestBlock {
 
 export interface AssignTutorRow {
   id: string;
+  grade?: string;
   tutors?: TutorRequestBlock[];
 }
 
@@ -42,30 +41,37 @@ interface Props {
   onUpdated?: () => void;
 }
 
-const page = 1;
-const limit = 10000;
+const LARGE_LIMIT = 10000;
 
 function TutorBlockItem({
   tutorBlock,
+  gradeId,
   index,
   selectedTutorId,
   onSelect,
 }: {
   tutorBlock: TutorRequestBlock;
+  gradeId?: string;
   index: number;
   selectedTutorId: string;
   onSelect: (index: number, tutorId: string) => void;
 }) {
+  // Fetch only tutors that match the request's grade AND this block's subject
   const { data, isLoading } = useFetchTutorsQuery({
-    page,
-    limit,
+    page: 1,
+    limit: LARGE_LIMIT,
+    gradeId: gradeId || undefined,
+    subjectId: tutorBlock.subject || undefined,
   });
+
+  const tutors = data?.results ?? [];
+  const noResults = !isLoading && tutors.length === 0;
 
   const currentValue =
     selectedTutorId && selectedTutorId !== "" ? selectedTutorId : "placeholder";
 
   // Display name for the currently selected tutor
-  const selectedTutorName = data?.results.find(
+  const selectedTutorName = tutors.find(
     (t) => t.id === selectedTutorId
   )?.fullName;
 
@@ -107,33 +113,33 @@ function TutorBlockItem({
         </p>
       )}
 
-      <Select
-        value={currentValue}
-        onValueChange={(val) => onSelect(index, val)}
-        disabled={isLoading}
-      >
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select a tutor" />
-        </SelectTrigger>
+      {noResults ? (
+        <p className="text-sm text-red-500 font-medium py-2">
+          Cannot find matched tutors
+        </p>
+      ) : (
+        <Select
+          value={currentValue}
+          onValueChange={(val) => onSelect(index, val)}
+          disabled={isLoading}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a tutor" />
+          </SelectTrigger>
 
-        <SelectContent>
-          <SelectItem value="placeholder" disabled>
-            {isLoading ? "Loading tutors..." : "Select a tutor"}
-          </SelectItem>
-
-          {data?.results.map((tutor) => (
-            <SelectItem key={tutor.id} value={tutor.id}>
-              {tutor.fullName}
+          <SelectContent>
+            <SelectItem value="placeholder" disabled>
+              {isLoading ? "Loading tutors..." : "Select a tutor"}
             </SelectItem>
-          ))}
 
-          {!isLoading && data?.results.length === 0 && (
-            <SelectItem value="none" disabled>
-              No matching tutors
-            </SelectItem>
-          )}
-        </SelectContent>
-      </Select>
+            {tutors.map((tutor) => (
+              <SelectItem key={tutor.id} value={tutor.id}>
+                {tutor.fullName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 }
@@ -240,6 +246,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
               <TutorBlockItem
                 key={tutorBlock._id}
                 tutorBlock={tutorBlock}
+                gradeId={row.grade}
                 index={index}
                 selectedTutorId={selections[index] ?? ""}
                 onSelect={handleSelect}

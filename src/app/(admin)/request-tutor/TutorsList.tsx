@@ -113,6 +113,7 @@ export default function RequestForTutorsList() {
           <AssignTutorDialog
             row={{
               id: row.id,
+              grade: row.grade,
               tutors: row.tutors?.map((t) => ({
                 _id: t._id,
                 subject: t.subject,
