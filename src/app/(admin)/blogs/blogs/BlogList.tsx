@@ -36,13 +36,14 @@ export default function BlogsTable() {
       key: "title",
       header: "Title",
       className:
-        "truncate overflow-hidden lg:min-w-[300px] min-w-[150px] max-w-[250px] cursor-default",
+        "truncate overflow-hidden lg:min-w-[300px] min-w-[150px] max-w-[250px] sticky left-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Blogs) => {
         const safeTitle = getSafeValue(row.title, "No title provided");
         return (
           <span
             title={`Title: ${safeTitle}`}
             className={`truncate block ${!row.title ? "text-gray-400 italic" : ""}`}
+            style={{ width: "inherit" }}
           >
             {safeTitle}
           </span>
@@ -75,7 +76,7 @@ export default function BlogsTable() {
       ),
 
       className:
-        " cursor-default lg:min-w-[140px] lg:max-w-[140px] min-w-[80px] max-w-[120px]",
+        "lg:min-w-[80px] lg:max-w-[80px] min-w-[80px] max-w-[80px] sticky right-[220px] z-20 bg-white dark:bg-gray-900",
       render: (row: Blogs) => (
         <div className="w-full flex items-center justify-center">
           <BlogDetails
@@ -109,7 +110,7 @@ export default function BlogsTable() {
         </span>
       ),
       className:
-        "cursor-default lg:min-w-[140px] lg:max-w-[140px] min-w-[80px] max-w-[120px] flex justify-center",
+        "lg:min-w-[140px] lg:max-w-[140px] min-w-[140px] max-w-[140px] flex justify-center sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: Blogs) => (
         <div className="flex w-full items-center justify-center">
           <BlogStatusDialog
@@ -127,7 +128,7 @@ export default function BlogsTable() {
         </span>
       ),
       className:
-        "cursor-default lg:min-w-[140px] lg:max-w-[140px] min-w-[80px] max-w-[120px]",
+        "lg:min-w-[80px] lg:max-w-[80px] min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Blogs) => (
         <div className="w-full flex items-center justify-center">
           <DeleteBlog

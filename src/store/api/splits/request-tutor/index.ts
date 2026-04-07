@@ -47,12 +47,12 @@ export const RequestTutorApi = baseApi.injectEndpoints({
 
     updateAssignedTutor: build.mutation<
       void,
-      { requestId: string; tutorBlockId: string; assignedTutor: string[] }
+      { requestId: string; tutorBlockId?: string; assignedTutor: string[] }
     >({
       query: ({ requestId, tutorBlockId, assignedTutor }) => ({
         url: `${Endpoints.RequestTutor}/assigned-tutor/${requestId}`,
         method: "PATCH",
-        body: { tutorBlockId, assignedTutor },
+        body: { ...(tutorBlockId ? { tutorBlockId } : {}), assignedTutor },
       }),
       invalidatesTags: [{ type: "RequestTutor", id: "LIST" }],
     }),

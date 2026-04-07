@@ -276,6 +276,8 @@ export type FetchTutorsRequest = {
   limit?: number;
   sortBy?: string;
   tutorId?: string;
+  gradeId?: string;
+  subjectId?: string;
 };
 export type FetchRequestForTutor = {
   page?: number;

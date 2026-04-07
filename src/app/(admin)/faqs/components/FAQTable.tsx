@@ -59,13 +59,14 @@ export default function FAQTable() {
     {
       key: "id",
       header: "ID",
-      className: "min-w-[210px] max-w-[210px] cursor-default",
+      className: "min-w-[210px] max-w-[210px] sticky left-0 z-20 bg-white dark:bg-gray-900",
       bodyClassName: "text-[0.75rem] font-mono",
       render: (row: FAQ) => (
         <span
           onClick={() => copyToClipboard(row.id)}
           title={"Click to copy"}
           className="cursor-pointer relative group truncate max-w-full flex items-center gap-1 hover:underline hover:text-blue-700 dark:hover:text-blue-400"
+          style={{ width: "inherit" }}
         >
           {row.id}
           <Copy className="w-4 opacity-0 group-hover:opacity-100 transition-opacity text:text-blue-700 dark:text-blue-400 flex-shrink-0" />
@@ -135,7 +136,7 @@ export default function FAQTable() {
     {
       key: "view",
       header: "View",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: FAQ) => (
         <div className="w-full flex justify-center items-center">
           <FAQDetails
@@ -150,7 +151,7 @@ export default function FAQTable() {
     {
       key: "edit",
       header: "Edit",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: FAQ) => (
         <div className="w-full flex justify-center items-center">
           <UpdateFAQ
@@ -164,7 +165,7 @@ export default function FAQTable() {
     {
       key: "delete",
       header: "Delete",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: FAQ) => (
         <div className="w-full flex justify-center items-center">
           <DeleteFAQ faqId={row.id} />

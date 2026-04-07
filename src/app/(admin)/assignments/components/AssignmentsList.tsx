@@ -26,7 +26,20 @@ export default function AssignmentsList() {
   };
 
   const columns = [
-    { key: "title", header: "Title" },
+    {
+      key: "title",
+      header: "Title",
+      className: "min-w-[150px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
+      render: (row: { title: string }) => (
+        <span
+          title={row.title}
+          className="truncate block"
+          style={{ width: "inherit" }}
+        >
+          {row.title}
+        </span>
+      ),
+    },
     { key: "assignmentNumber", header: "Assignment Number" },
     { key: "address", header: "Address" },
     { key: "duration", header: "Duration" },
@@ -57,7 +70,7 @@ export default function AssignmentsList() {
     {
       key: "view",
       header: "View",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: {
         title: string;
         assignmentNumber: string;
@@ -73,7 +86,7 @@ export default function AssignmentsList() {
     {
       key: "edit",
       header: "Edit",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: {
         id: string;
         title: string;
@@ -90,7 +103,7 @@ export default function AssignmentsList() {
     {
       key: "delete",
       header: "Delete",
-      className: "min-w-[10px] max-w-[10px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: { id: string }) => (
         <div className="w-full flex justify-center items-center">
           <DeleteAssignment assignmentId={row.id} />

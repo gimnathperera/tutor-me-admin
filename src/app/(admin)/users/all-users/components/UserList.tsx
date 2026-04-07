@@ -64,11 +64,12 @@ export default function UsersTable() {
       key: "name",
       header: "Name",
       className:
-        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <span
           title={row.name || "No name provided"}
           className={`truncate block ${!row.name ? "text-gray-400 italic" : ""}`}
+          style={{ width: "inherit" }}
         >
           {getSafeValue(row.name, "No name provided")}
         </span>
@@ -142,7 +143,7 @@ export default function UsersTable() {
     {
       key: "view",
       header: <div className="flex justify-center w-full">View</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[260px] z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="w-full flex justify-center ">
           <UserDetails
@@ -174,7 +175,7 @@ export default function UsersTable() {
     {
       key: "edit",
       header: <div className="flex justify-center w-full">Edit</div>,
-      className: "min-w-[80px] max-w-[80px]  cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[180px] z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="flex justify-center items-center w-full ">
           <UpdateUser
@@ -211,7 +212,7 @@ export default function UsersTable() {
           Reset Password
         </span>
       ),
-      className: "min-w-[80px] max-w-[100px]  cursor-default",
+      className: "min-w-[80px] max-w-[100px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="w-full flex justify-center">
           <ResetPassword userId={row.id} />
@@ -221,7 +222,7 @@ export default function UsersTable() {
     {
       key: "delete",
       header: <div className="text-center w-full">Delete</div>,
-      className: "min-w-[80px] max-w-[80px] flex justify-center cursor-default",
+      className: "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="flex justify-center  w-full ">
           <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />

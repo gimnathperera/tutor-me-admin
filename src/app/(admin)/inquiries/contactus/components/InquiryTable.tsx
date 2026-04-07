@@ -55,13 +55,14 @@ export default function InquiryTable() {
     {
       key: "id",
       header: "ID",
-      className: "min-w-[210px] max-w-[210px] cursor-default",
+      className: "min-w-[210px] max-w-[210px] sticky left-0 z-20 bg-white dark:bg-gray-900",
       bodyClassName: "text-[0.75rem] font-mono",
       render: (row: { id: string }) => (
         <span
           onClick={() => copyToClipboard(row.id)}
           title={"Click to copy"}
           className="cursor-pointer relative group truncate max-w-full flex items-center gap-1 hover:underline hover:text-blue-700 dark:hover:text-blue-400"
+          style={{ width: "inherit" }}
         >
           {row.id}
           <Copy className="w-4 opacity-0 group-hover:opacity-100 transition-opacity text:text-blue-700 dark:text-blue-400 flex-shrink-0" />
@@ -127,7 +128,7 @@ export default function InquiryTable() {
     {
       key: "delete",
       header: <div className="text-center w-full">Delete</div>,
-      className: "min-w-[10px] max-w-[10px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: { id: string }) => (
         <div className="w-full flex justify-center items-center">
           <DeleteInquiry inquiryId={row.id} />
@@ -137,7 +138,7 @@ export default function InquiryTable() {
     {
       key: "view",
       header: <div className="text-center w-full">View</div>,
-      className: "min-w-[10px] max-w-[10px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: {
         id: string;
         createdAt: string;

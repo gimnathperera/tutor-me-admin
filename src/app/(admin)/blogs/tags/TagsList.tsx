@@ -48,13 +48,14 @@ export default function TagsList() {
       key: "name",
       header: "Title",
       className:
-        "min-w-[150px] max-w-[250px] truncate overflow-hidden cursor-default",
+        "min-w-[150px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Tag) => {
         const safeTitle = getSafeValue(row.name, "No name provided");
         return (
           <span
             title={`Title: ${safeTitle}`}
             className={`truncate block ${!row.name ? "text-gray-400 italic" : ""}`}
+            style={{ width: "inherit" }}
           >
             {safeTitle}
           </span>
@@ -84,7 +85,7 @@ export default function TagsList() {
     {
       key: "view",
       header: <div className="w-full text-center">View</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: Tag) => (
         <div className="w-full flex justify-center items-center">
           <TagDetails
@@ -100,7 +101,7 @@ export default function TagsList() {
     {
       key: "edit",
       header: <div className="w-full text-center">Edit</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: Tag) => (
         <div className="w-full flex justify-center items-center">
           <UpdateTag
@@ -114,7 +115,7 @@ export default function TagsList() {
     {
       key: "delete",
       header: <div className="w-full text-center">Delete</div>,
-      className: "min-w-[80px] max-w-[80px] cursor-default",
+      className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Tag) => (
         <div className="w-full flex justify-center items-center">
           <DeleteTag tagId={row.id} />

@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable from "@/components/tables/DataTable";
+import DataTable, { Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import {
   useFetchRequestForTutorsQuery,
@@ -22,8 +22,6 @@ export default function RequestForTutorsList() {
     sortBy: "createdAt:desc",
   });
 
-
-
   const tutors: RequestTutors[] = data?.results || [];
   const totalPages = data?.totalPages || 1;
   const totalResults = data?.totalResults || tutors.length;
@@ -33,16 +31,17 @@ export default function RequestForTutorsList() {
   const getSafeValue = (value: string | undefined | null, fallback = "N/A") =>
     value && value.trim() !== "" ? value : fallback;
 
-  const columns = useMemo(
+  const columns = useMemo<Column<RequestTutors>[]>(
     () => [
       {
         key: "name",
         header: "Full Name",
-        className: "min-w-[150px] max-w-[250px] truncate overflow-hidden",
+        className: "min-w-[150px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <span
             title={row.name || "No name"}
             className={`truncate block ${!row.name ? "text-gray-400 italic" : ""}`}
+            style={{ width: "inherit" }}
           >
             {getSafeValue(row.name, "No name")}
           </span>
@@ -75,27 +74,28 @@ export default function RequestForTutorsList() {
         ),
       },
       {
-        key: "grades",
-        header: "Grades",
-        className: "min-w-[200px] max-w-[300px] truncate overflow-hidden",
+        key: "grade",
+        header: "Grade",
+        className: "min-w-[120px] max-w-[200px] truncate overflow-hidden",
         render: (row: RequestTutors) =>
-          row.grade && row.grade.length > 0 ? (
-            <span title={row.grade.map((g) => g.title).join(", ")}>
-              {row.grade.map((g) => g.title).join(", ")}
-            </span>
+          row.grade ? (
+            <span title={row.grade}>{row.grade}</span>
           ) : (
-            <span className="text-gray-400 italic">No grades</span>
+            <span className="text-gray-400 italic">No grade</span>
           ),
       },
       {
         key: "view",
         header: "View",
-        className: "min-w-[80px] max-w-[80px]",
-        render: (row) => <ViewTutorRequests tutorId={row.id} />,
+        align: "center",
+        className: "min-w-[80px] max-w-[80px] sticky right-[390px] z-20 bg-white dark:bg-gray-900",
+        render: (row: RequestTutors) => <ViewTutorRequests tutorId={row.id} />,
       },
       {
         key: "status",
         header: "Change Status",
+        align: "center",
+        className: "min-w-[140px] max-w-[140px] sticky right-[250px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <ChangeStatusDialog
             requestId={row.id}
@@ -107,23 +107,20 @@ export default function RequestForTutorsList() {
       {
         key: "assignTutor",
         header: "Assign Tutor",
-        className: "min-w-[130px] max-w-[150px]",
+        align: "center",
+        className: "min-w-[170px] max-w-[170px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <AssignTutorDialog
             row={{
               id: row.id,
+              grade: row.grade,
               tutors: row.tutors?.map((t) => ({
-                _id: t._id, // tutor block ID
-                subjects: t.subjects,
-                assignedTutor: t.assignedTutor?.map((a) => ({
-                  _id: a.id, // map id to _id
-                  id: a.id,
-                  fullName: a.fullName,
-                })),
+                _id: t._id,
+                subject: t.subject,
+                assignedTutor: t.assignedTutor,
                 preferredTutorType: t.preferredTutorType,
                 duration: t.duration,
                 frequency: t.frequency,
-                createdAt: t.createdAt || "",
               })),
             }}
             onUpdated={() => refetch()}
@@ -133,12 +130,9 @@ export default function RequestForTutorsList() {
       {
         key: "delete",
         header: "Delete",
-        className: "min-w-[80px] max-w-[80px]",
-        render: (row: RequestTutors) => (
-          <div className="w-full flex justify-center items-center">
-            <DeleteTutorRequest tutorId={row.id} />
-          </div>
-        ),
+        align: "center",
+        className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
+        render: (row: RequestTutors) => <DeleteTutorRequest tutorId={row.id} />,
       },
     ],
     [refetch],
