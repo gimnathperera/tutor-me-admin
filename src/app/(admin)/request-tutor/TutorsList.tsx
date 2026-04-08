@@ -28,8 +28,17 @@ export default function RequestForTutorsList() {
 
   const handlePageChange = (newPage: number) => setPage(newPage);
 
-  const getSafeValue = (value: string | undefined | null, fallback = "N/A") =>
-    value && value.trim() !== "" ? value : fallback;
+  const getSafeValue = (value: unknown, fallback = "N/A") => {
+    if (value === undefined || value === null) {
+      return fallback;
+    }
+
+    const stringValue = String(value).trim();
+    return stringValue === "" ? fallback : stringValue;
+  };
+
+  const getSafeTutorBlocks = (value: RequestTutors["tutors"]) =>
+    Array.isArray(value) ? value : [];
 
   const columns = useMemo<Column<RequestTutors>[]>(
     () => [
@@ -77,12 +86,15 @@ export default function RequestForTutorsList() {
         key: "grade",
         header: "Grade",
         className: "min-w-[120px] max-w-[200px] truncate overflow-hidden",
-        render: (row: RequestTutors) =>
-          row.grade ? (
-            <span title={row.grade}>{row.grade}</span>
+        render: (row: RequestTutors) => {
+          const safeGrade = getSafeValue(row.grade, "");
+
+          return safeGrade ? (
+            <span title={safeGrade}>{safeGrade}</span>
           ) : (
             <span className="text-gray-400 italic">No grade</span>
-          ),
+          );
+        },
       },
       {
         key: "view",
@@ -113,8 +125,8 @@ export default function RequestForTutorsList() {
           <AssignTutorDialog
             row={{
               id: row.id,
-              grade: row.grade,
-              tutors: row.tutors?.map((t) => ({
+              grade: getSafeValue(row.grade, ""),
+              tutors: getSafeTutorBlocks(row.tutors).map((t) => ({
                 _id: t._id,
                 subject: t.subject,
                 assignedTutor: t.assignedTutor,

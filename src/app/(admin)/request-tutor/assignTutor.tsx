@@ -24,7 +24,11 @@ import toast from "react-hot-toast";
 export interface TutorRequestBlock {
   _id: string;
   subject: string;
-  assignedTutor?: string | null;
+  assignedTutor?:
+    | string
+    | null
+    | { id?: string; fullName?: string }
+    | Array<{ id?: string; fullName?: string }>;
   preferredTutorType?: string;
   duration: string;
   frequency: string;
@@ -42,6 +46,22 @@ interface Props {
 }
 
 const LARGE_LIMIT = 10000;
+
+const getAssignedTutorId = (assignedTutor: TutorRequestBlock["assignedTutor"]) => {
+  if (!assignedTutor) {
+    return "";
+  }
+
+  if (typeof assignedTutor === "string") {
+    return assignedTutor;
+  }
+
+  if (Array.isArray(assignedTutor)) {
+    return assignedTutor[0]?.id ?? "";
+  }
+
+  return assignedTutor.id ?? "";
+};
 
 function TutorBlockItem({
   tutorBlock,
@@ -157,8 +177,9 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
     if (open && row.tutors) {
       const initial: Record<number, string> = {};
       row.tutors.forEach((block, i) => {
-        if (block.assignedTutor && block.assignedTutor !== "") {
-          initial[i] = block.assignedTutor;
+        const assignedTutorId = getAssignedTutorId(block.assignedTutor);
+        if (assignedTutorId) {
+          initial[i] = assignedTutorId;
         }
       });
       setSelections(initial);
@@ -205,7 +226,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
   };
 
   const isAssigned = row.tutors?.some(
-    (t) => t.assignedTutor && t.assignedTutor !== ""
+    (t) => Boolean(getAssignedTutorId(t.assignedTutor))
   );
 
   return (
