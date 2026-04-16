@@ -19,4 +19,5 @@ export const Endpoints = {
   Levels: "/v1/levels",
   TuitionAssignments: "/v1/tuition-assignments",
   RequestTutor: "/v1/requestTutor",
+  DashboardSummary: "/v1/dashboard/summary",
 };
