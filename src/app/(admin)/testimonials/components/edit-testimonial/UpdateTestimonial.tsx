@@ -1,5 +1,6 @@
 "use client";
 
+import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -57,6 +58,11 @@ export function UpdateTestimonial({
 
   const [updateTestimonial, { isLoading }] = useUpdateTestimonialMutation();
 
+  const { formState, watch, setValue, handleSubmit, reset, register } =
+    updateTestimonialForm;
+
+  const avatarUrl = watch("owner.avatar");
+
   const onSubmit = async (data: TestimonialSchema) => {
     try {
       const payload = {
@@ -67,9 +73,11 @@ export function UpdateTestimonial({
 
       const result = await updateTestimonial(payload);
       const error = getErrorInApiResult(result);
+
       if (error) {
         return toast.error(error);
       }
+
       if ("data" in result) {
         onUpdateSuccess();
       }
@@ -81,12 +89,10 @@ export function UpdateTestimonial({
     }
   };
 
-  const { formState } = updateTestimonialForm;
-
   const onUpdateSuccess = () => {
     const updatedValues = updateTestimonialForm.getValues();
     setOpen(false);
-    updateTestimonialForm.reset(updatedValues);
+    reset(updatedValues);
     toast.success("Testimonial updated successfully");
   };
 
@@ -96,15 +102,16 @@ export function UpdateTestimonial({
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) {
-          updateTestimonialForm.reset({ content, rating, owner });
+          reset({ content, rating, owner });
         }
       }}
     >
-      <form onSubmit={updateTestimonialForm.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+
+        <DialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90 sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Edit Testimonial</DialogTitle>
             <DialogDescription>Edit the testimonial details.</DialogDescription>
@@ -117,7 +124,7 @@ export function UpdateTestimonial({
               <Input
                 id="content"
                 placeholder="Content"
-                {...updateTestimonialForm.register("content")}
+                {...register("content")}
               />
               {formState.errors.content && (
                 <p className="text-sm text-red-500">
@@ -131,13 +138,11 @@ export function UpdateTestimonial({
               <Label htmlFor="rating">Rating</Label>
               <div className="flex items-center space-x-2">
                 <StarRating
-                  value={updateTestimonialForm.watch("rating")}
-                  onChange={(val) =>
-                    updateTestimonialForm.setValue("rating", val)
-                  }
+                  value={watch("rating")}
+                  onChange={(val) => setValue("rating", val)}
                 />
-                <span className="text-gray-700 dark:text-gray-200 font-medium">
-                  {updateTestimonialForm.watch("rating")}/5
+                <span className="font-medium text-gray-700 dark:text-gray-200">
+                  {watch("rating")}/5
                 </span>
               </div>
               {formState.errors.rating && (
@@ -153,7 +158,7 @@ export function UpdateTestimonial({
               <Input
                 id="owner.name"
                 placeholder="Owner name"
-                {...updateTestimonialForm.register("owner.name")}
+                {...register("owner.name")}
               />
               {formState.errors.owner?.name && (
                 <p className="text-sm text-red-500">
@@ -168,7 +173,7 @@ export function UpdateTestimonial({
               <Input
                 id="owner.role"
                 placeholder="Owner role"
-                {...updateTestimonialForm.register("owner.role")}
+                {...register("owner.role")}
               />
               {formState.errors.owner?.role && (
                 <p className="text-sm text-red-500">
@@ -177,14 +182,35 @@ export function UpdateTestimonial({
               )}
             </div>
 
-            {/* Owner Avatar */}
+            {/* Owner Avatar (UPDATED) */}
             <div className="grid gap-3">
-              <Label htmlFor="owner.avatar">Owner Avatar (URL)</Label>
-              <Input
-                id="owner.avatar"
-                placeholder="https://example.com/avatar.jpg"
-                {...updateTestimonialForm.register("owner.avatar")}
+              <Label>Owner Avatar</Label>
+
+              {/* Existing avatar preview */}
+              {avatarUrl && (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar preview"
+                  className="h-16 w-16 rounded-full object-cover border"
+                />
+              )}
+
+              <FileUploadDropzone
+                onUploaded={(url) => {
+                  setValue("owner.avatar", url, {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
+                }}
               />
+
+              {avatarUrl && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 break-all">
+                  Uploaded URL: {avatarUrl}
+                </p>
+              )}
+
               {formState.errors.owner?.avatar && (
                 <p className="text-sm text-red-500">
                   {formState.errors.owner.avatar.message}
@@ -197,11 +223,12 @@ export function UpdateTestimonial({
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={updateTestimonialForm.handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmit)}
             >
               Save
             </Button>

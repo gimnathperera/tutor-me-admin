@@ -1,5 +1,6 @@
 "use client";
 
+import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -36,7 +37,10 @@ export function AddTestimonial() {
     mode: "onChange",
   });
 
-  const { formState } = createTestimonialForm;
+  const { formState, watch, setValue, handleSubmit, reset, register } =
+    createTestimonialForm;
+
+  const avatarUrl = watch("owner.avatar");
 
   const onSubmit = async (data: TestimonialSchema) => {
     try {
@@ -47,9 +51,11 @@ export function AddTestimonial() {
 
       const result = await createTestimonial(payload);
       const error = getErrorInApiResult(result);
+
       if (error) {
         return toast.error(error);
       }
+
       if ("data" in result) {
         onRegisterSuccess();
       }
@@ -62,7 +68,7 @@ export function AddTestimonial() {
   };
 
   const onRegisterSuccess = () => {
-    createTestimonialForm.reset();
+    reset();
     toast.success("Testimonial created successfully");
     setOpen(false);
   };
@@ -73,11 +79,11 @@ export function AddTestimonial() {
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) {
-          createTestimonialForm.reset();
+          reset();
         }
       }}
     >
-      <form onSubmit={createTestimonialForm.handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
@@ -86,7 +92,8 @@ export function AddTestimonial() {
             Add Testimonial
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+
+        <DialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90 sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add Testimonial</DialogTitle>
             <DialogDescription>
@@ -95,13 +102,12 @@ export function AddTestimonial() {
           </DialogHeader>
 
           <div className="grid gap-4">
-            {/* Content */}
             <div className="grid gap-3">
               <Label htmlFor="content">Content</Label>
               <Input
                 id="content"
                 placeholder="Content"
-                {...createTestimonialForm.register("content")}
+                {...register("content")}
               />
               {formState.errors.content && (
                 <p className="text-sm text-red-500">
@@ -110,18 +116,15 @@ export function AddTestimonial() {
               )}
             </div>
 
-            {/* Rating */}
             <div className="grid gap-3">
               <Label htmlFor="rating">Rating</Label>
               <div className="flex items-center space-x-2">
                 <StarRating
-                  value={createTestimonialForm.watch("rating")}
-                  onChange={(val) =>
-                    createTestimonialForm.setValue("rating", val)
-                  }
+                  value={watch("rating")}
+                  onChange={(val) => setValue("rating", val)}
                 />
-                <span className="text-gray-700 dark:text-gray-200 font-medium">
-                  {createTestimonialForm.watch("rating")}/5
+                <span className="font-medium text-gray-700 dark:text-gray-200">
+                  {watch("rating")}/5
                 </span>
               </div>
               {formState.errors.rating && (
@@ -131,13 +134,12 @@ export function AddTestimonial() {
               )}
             </div>
 
-            {/* Owner name */}
             <div className="grid gap-3">
               <Label htmlFor="owner.name">Owner Name</Label>
               <Input
                 id="owner.name"
                 placeholder="Owner name"
-                {...createTestimonialForm.register("owner.name")}
+                {...register("owner.name")}
               />
               {formState.errors.owner?.name && (
                 <p className="text-sm text-red-500">
@@ -146,13 +148,12 @@ export function AddTestimonial() {
               )}
             </div>
 
-            {/* Owner role */}
             <div className="grid gap-3">
               <Label htmlFor="owner.role">Owner Role</Label>
               <Input
                 id="owner.role"
                 placeholder="Owner role"
-                {...createTestimonialForm.register("owner.role")}
+                {...register("owner.role")}
               />
               {formState.errors.owner?.role && (
                 <p className="text-sm text-red-500">
@@ -161,14 +162,25 @@ export function AddTestimonial() {
               )}
             </div>
 
-            {/* Owner avatar */}
             <div className="grid gap-3">
-              <Label htmlFor="owner.avatar">Owner Avatar (URL)</Label>
-              <Input
-                id="owner.avatar"
-                placeholder="https://example.com/avatar.jpg"
-                {...createTestimonialForm.register("owner.avatar")}
+              <Label>Owner Avatar</Label>
+
+              <FileUploadDropzone
+                onUploaded={(url) => {
+                  setValue("owner.avatar", url, {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  });
+                }}
               />
+
+              {avatarUrl ? (
+                <p className="break-all text-xs text-gray-500 dark:text-gray-400">
+                  Uploaded URL: {avatarUrl}
+                </p>
+              ) : null}
+
               {formState.errors.owner?.avatar && (
                 <p className="text-sm text-red-500">
                   {formState.errors.owner.avatar.message}
@@ -181,11 +193,12 @@ export function AddTestimonial() {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={createTestimonialForm.handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmit)}
             >
               Create
             </Button>
