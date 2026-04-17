@@ -4,9 +4,7 @@ export const updateUserSchema = z.object({
   email: z.string().email("Invalid email address").max(100, "Email too long"),
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
   role: z.enum(["admin", "user", "tutor"]).optional(),
-  phoneNumber: z
-    .string()
-    .regex(/^\+?[0-9]{1,10}$/, "Invalid phone number (use 0712345678)"),
+  phoneNumber: z.string().regex(/^\+?[0-9]{1,10}$/, "Phone number is required"),
   birthday: z
     .string()
     .optional()
@@ -33,7 +31,7 @@ export const updateUserSchema = z.object({
   language: z.string().max(50, "Language too long").optional(),
   avatar: z
     .string()
-    .url("Invalid avatar URL")
+    .url("Profile image is required")
     .max(255, "Avatar URL too long")
     .optional(),
 });

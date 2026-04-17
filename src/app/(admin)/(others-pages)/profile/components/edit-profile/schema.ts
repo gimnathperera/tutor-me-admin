@@ -1,72 +1,86 @@
 import { z } from "zod";
 
-export const updateUserSchema = z.object({
-  email: z.string().email("Invalid email address").max(100, "Email too long"),
+const singleSpaceTextRegex = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+const digitsOnlyRegex = /^\d{10}$/;
+const zipRegex = /^\d{5}(-\d{4})?$/;
 
-  name: z.string().min(1, "Name is required").max(100, "Name too long"),
+export const updateUserSchema = z.object({
+  avatar: z.string().min(1, "Profile image is required"),
+
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .regex(
+      singleSpaceTextRegex,
+      "Name should contain only letters with a single space between words",
+    ),
+
+  email: z.string().trim().min(1, "Email is required").email("Invalid email"),
 
   phoneNumber: z
     .string()
-    .regex(
-      /^(\+94|0)?[0-9]{9}$/,
-      "Invalid phone number (use 0712345678 or +94712345678)",
-    )
-    .optional(),
-
-  birthday: z
-    .string()
-    .refine((val) => !val || !isNaN(Date.parse(val)), {
-      message: "Invalid date",
+    .min(1, "Contact Number is required")
+    .refine((value) => !/\s/.test(value), {
+      message: "Contact Number must contain numeric values only",
     })
-    .refine(
-      (val) => {
-        if (!val) return true;
-        const birthdayDate = new Date(val);
-        const today = new Date();
-        return birthdayDate <= today;
-      },
-      {
-        message: "Birthday cannot be in the future",
-      },
-    )
-    .transform((val) =>
-      val ? new Date(val).toISOString().split("T")[0] : undefined,
-    )
-    .optional(),
+    .refine((value) => digitsOnlyRegex.test(value), {
+      message: "Contact Number should be exactly 10 digits.",
+    }),
 
-  country: z.string().min(1, "Country is required").max(56, "Country too long"),
+  birthday: z.string().min(1, "Birthday is required"),
 
-  city: z.string().min(1, "City is required").max(85, "City too long"),
-
-  state: z.string().max(85, "State too long").optional(),
-
-  region: z.string().max(85, "Region too long").optional(),
-
-  zip: z.string().min(1, "ZIP code is required").max(20, "ZIP code too long"),
-
-  address: z
+  country: z
     .string()
-    .min(1, "Address is required")
-    .max(200, "Address too long"),
+    .trim()
+    .min(1, "Country is required")
+    .regex(
+      singleSpaceTextRegex,
+      "Country should contain only letters with a single space between words",
+    ),
 
-  gender: z.enum(["male", "female", "other"]).optional(),
+  city: z
+    .string()
+    .trim()
+    .min(1, "City is required")
+    .regex(
+      singleSpaceTextRegex,
+      "City should contain only letters with a single space between words",
+    ),
 
-  avatar: z.string().url("Invalid avatar URL").optional(),
+  state: z
+    .string()
+    .trim()
+    .min(1, "State is required")
+    .regex(
+      singleSpaceTextRegex,
+      "State should contain only letters with a single space between words",
+    ),
+
+  region: z
+    .string()
+    .trim()
+    .min(1, "Region is required")
+    .regex(
+      singleSpaceTextRegex,
+      "Region should contain only letters with a single space between words",
+    ),
+
+  zip: z
+    .string()
+    .min(1, "Zip / Postal Code is required")
+    .refine((value) => !/\s/.test(value), {
+      message: "Zip /Postal code must contain numeric values only",
+    })
+    .refine((value) => zipRegex.test(value), {
+      message: "Zip/Postal code should be exactly 5 digits",
+    }),
+
+  address: z.string().trim().min(1, "Address is required"),
+
+  gender: z.enum(["male", "female", "other"], {
+    message: "Gender is required",
+  }),
 });
 
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
-
-export const initialFormValues: UpdateUserSchema = {
-  email: "",
-  name: "",
-  phoneNumber: undefined,
-  birthday: undefined,
-  country: "",
-  city: "",
-  state: undefined,
-  region: undefined,
-  zip: "",
-  address: "",
-  gender: undefined,
-  avatar: undefined,
-};
