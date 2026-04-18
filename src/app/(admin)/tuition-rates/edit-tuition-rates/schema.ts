@@ -7,7 +7,6 @@ const numericString = z
     (s) => {
       const cleaned = s.replace(/,/g, "").trim();
       if (cleaned === "") return false;
-
       if (!/^\d+(\.\d+)?$/.test(cleaned)) return false;
       const n = Number(cleaned);
       return !Number.isNaN(n) && n >= 0;
@@ -18,7 +17,7 @@ const numericString = z
     },
   );
 
-const rateObject = z
+const tuitionRateObject = z
   .object({
     minimumRate: numericString,
     maximumRate: numericString,
@@ -35,19 +34,24 @@ const rateObject = z
     },
   );
 
+const tuitionRateArray = (message: string) =>
+  z.array(tuitionRateObject).nonempty(message);
+
 export const updateTuitionSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   grade: z.string().min(1, "Grade is required"),
-
-  fullTimeTuitionRate: z
-    .array(rateObject)
-    .nonempty("Full-time tuition rate is required"),
-  govTuitionRate: z
-    .array(rateObject)
-    .nonempty("Government tuition rate is required"),
-  partTimeTuitionRate: z
-    .array(rateObject)
-    .nonempty("Part-time tuition rate is required"),
+  onlineIndividualTuitionRate: tuitionRateArray(
+    "Online individual tuition rate is required",
+  ),
+  onlineGroupTuitionRate: tuitionRateArray(
+    "Online group tuition rate is required",
+  ),
+  physicalIndividualTuitionRate: tuitionRateArray(
+    "Physical individual tuition rate is required",
+  ),
+  physicalGroupTuitionRate: tuitionRateArray(
+    "Physical group tuition rate is required",
+  ),
 });
 
 export type UpdateTuitionSchema = z.infer<typeof updateTuitionSchema>;
@@ -55,7 +59,8 @@ export type UpdateTuitionSchema = z.infer<typeof updateTuitionSchema>;
 export const initialFormValues: UpdateTuitionSchema = {
   subject: "",
   grade: "",
-  fullTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
-  govTuitionRate: [{ minimumRate: "", maximumRate: "" }],
-  partTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+  onlineIndividualTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+  onlineGroupTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+  physicalIndividualTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+  physicalGroupTuitionRate: [{ minimumRate: "", maximumRate: "" }],
 };

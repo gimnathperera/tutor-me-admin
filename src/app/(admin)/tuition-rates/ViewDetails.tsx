@@ -25,17 +25,19 @@ interface EntityRef {
 interface TuitionRateDetailsProps {
   grade: EntityRef;
   subject: EntityRef;
-  fullTimeTuitionRate?: TuitionRate[];
-  govTuitionRate?: TuitionRate[];
-  partTimeTuitionRate?: TuitionRate[];
+  onlineIndividualTuitionRate?: TuitionRate[];
+  onlineGroupTuitionRate?: TuitionRate[];
+  physicalIndividualTuitionRate?: TuitionRate[];
+  physicalGroupTuitionRate?: TuitionRate[];
 }
 
 export function TuitionRateDetails({
   grade,
   subject,
-  fullTimeTuitionRate = [],
-  govTuitionRate = [],
-  partTimeTuitionRate = [],
+  onlineIndividualTuitionRate = [],
+  onlineGroupTuitionRate = [],
+  physicalIndividualTuitionRate = [],
+  physicalGroupTuitionRate = [],
 }: TuitionRateDetailsProps) {
   const [open, setOpen] = useState(false);
 
@@ -77,21 +79,27 @@ export function TuitionRateDetails({
             <div className={displayFieldClass}>{subject.title}</div>
           </div>
           <div className="grid gap-3">
-            <Label>Full-Time Tuition Rate</Label>
+            <Label>Online Individual Tuition Rate</Label>
             <div className="flex flex-col gap-2">
-              {renderRateList(fullTimeTuitionRate)}
+              {renderRateList(onlineIndividualTuitionRate)}
             </div>
           </div>
           <div className="grid gap-3">
-            <Label>Government Tuition Rate</Label>
+            <Label>Online Group Tuition Rate</Label>
             <div className="flex flex-col gap-2">
-              {renderRateList(govTuitionRate)}
+              {renderRateList(onlineGroupTuitionRate)}
             </div>
           </div>
           <div className="grid gap-3">
-            <Label>Part-Time Tuition Rate</Label>
+            <Label>Physical Individual Tuition Rate</Label>
             <div className="flex flex-col gap-2">
-              {renderRateList(partTimeTuitionRate)}
+              {renderRateList(physicalIndividualTuitionRate)}
+            </div>
+          </div>
+          <div className="grid gap-3">
+            <Label>Physical Group Tuition Rate</Label>
+            <div className="flex flex-col gap-2">
+              {renderRateList(physicalGroupTuitionRate)}
             </div>
           </div>
         </div>

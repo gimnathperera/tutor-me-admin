@@ -14,12 +14,10 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { useUpdateTuitionRateMutation } from "@/store/api/splits/tuition-rates";
 import { getErrorInApiResult } from "@/utils/api";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -27,22 +25,37 @@ import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateTuitionSchema, updateTuitionSchema } from "./schema";
 
+const rateFields = [
+  {
+    key: "onlineIndividualTuitionRate",
+    label: "Online Individual Tuition Rate",
+  },
+  { key: "onlineGroupTuitionRate", label: "Online Group Tuition Rate" },
+  {
+    key: "physicalIndividualTuitionRate",
+    label: "Physical Individual Tuition Rate",
+  },
+  { key: "physicalGroupTuitionRate", label: "Physical Group Tuition Rate" },
+] as const;
+
 interface UpdateTuitionRateProps {
   id: string;
   subject: string;
   grade: string;
-  fullTimeTuitionRate: { minimumRate: string; maximumRate: string }[];
-  govTuitionRate: { minimumRate: string; maximumRate: string }[];
-  partTimeTuitionRate: { minimumRate: string; maximumRate: string }[];
+  onlineIndividualTuitionRate: { minimumRate: string; maximumRate: string }[];
+  onlineGroupTuitionRate: { minimumRate: string; maximumRate: string }[];
+  physicalIndividualTuitionRate: { minimumRate: string; maximumRate: string }[];
+  physicalGroupTuitionRate: { minimumRate: string; maximumRate: string }[];
 }
 
 export function UpdateTuitionRate({
   id,
   subject,
   grade,
-  fullTimeTuitionRate,
-  govTuitionRate,
-  partTimeTuitionRate,
+  onlineIndividualTuitionRate,
+  onlineGroupTuitionRate,
+  physicalIndividualTuitionRate,
+  physicalGroupTuitionRate,
 }: UpdateTuitionRateProps) {
   const [open, setOpen] = useState(false);
 
@@ -57,9 +70,10 @@ export function UpdateTuitionRate({
     defaultValues: {
       subject: "",
       grade: "",
-      fullTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
-      govTuitionRate: [{ minimumRate: "", maximumRate: "" }],
-      partTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+      onlineIndividualTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+      onlineGroupTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+      physicalIndividualTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+      physicalGroupTuitionRate: [{ minimumRate: "", maximumRate: "" }],
     },
     mode: "onChange",
   });
@@ -85,14 +99,17 @@ export function UpdateTuitionRate({
       reset({
         subject: subject || "",
         grade: grade || "",
-        fullTimeTuitionRate: fullTimeTuitionRate.length
-          ? fullTimeTuitionRate
+        onlineIndividualTuitionRate: onlineIndividualTuitionRate.length
+          ? onlineIndividualTuitionRate
           : [{ minimumRate: "", maximumRate: "" }],
-        govTuitionRate: govTuitionRate.length
-          ? govTuitionRate
+        onlineGroupTuitionRate: onlineGroupTuitionRate.length
+          ? onlineGroupTuitionRate
           : [{ minimumRate: "", maximumRate: "" }],
-        partTimeTuitionRate: partTimeTuitionRate.length
-          ? partTimeTuitionRate
+        physicalIndividualTuitionRate: physicalIndividualTuitionRate.length
+          ? physicalIndividualTuitionRate
+          : [{ minimumRate: "", maximumRate: "" }],
+        physicalGroupTuitionRate: physicalGroupTuitionRate.length
+          ? physicalGroupTuitionRate
           : [{ minimumRate: "", maximumRate: "" }],
       });
     }
@@ -100,9 +117,10 @@ export function UpdateTuitionRate({
     open,
     subject,
     grade,
-    fullTimeTuitionRate,
-    govTuitionRate,
-    partTimeTuitionRate,
+    onlineIndividualTuitionRate,
+    onlineGroupTuitionRate,
+    physicalIndividualTuitionRate,
+    physicalGroupTuitionRate,
     reset,
   ]);
 
@@ -111,9 +129,10 @@ export function UpdateTuitionRate({
       id,
       subject: data.subject,
       grade: data.grade,
-      fullTimeTuitionRate: data.fullTimeTuitionRate,
-      govTuitionRate: data.govTuitionRate,
-      partTimeTuitionRate: data.partTimeTuitionRate,
+      onlineIndividualTuitionRate: data.onlineIndividualTuitionRate,
+      onlineGroupTuitionRate: data.onlineGroupTuitionRate,
+      physicalIndividualTuitionRate: data.physicalIndividualTuitionRate,
+      physicalGroupTuitionRate: data.physicalGroupTuitionRate,
     };
 
     const result = await updateTuition(payload);
@@ -181,21 +200,9 @@ export function UpdateTuitionRate({
             )}
           </div>
 
-          {(
-            [
-              "fullTimeTuitionRate",
-              "govTuitionRate",
-              "partTimeTuitionRate",
-            ] as const
-          ).map((key) => (
+          {rateFields.map(({ key, label }) => (
             <div key={key} className="grid gap-2">
-              <Label>
-                {key === "fullTimeTuitionRate"
-                  ? "Full-Time Tuition Rate"
-                  : key === "govTuitionRate"
-                    ? "Government Tuition Rate"
-                    : "Part-Time Tuition Rate"}
-              </Label>
+              <Label>{label}</Label>
 
               <Input
                 placeholder="Minimum Rate"

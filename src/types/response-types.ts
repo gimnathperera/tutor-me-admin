@@ -116,25 +116,24 @@ export type Grade = BaseEntity &
     subjects: Subject[];
   };
 
-//tuition rates
-export type TuitionRate = {
-  minimumRate: string;
-  maximumRate: string;
-};
-
 export type EntityRef = {
   id: string;
   title: string;
 };
 
-export type TuitionRates = BaseEntity &
-  WithTitleDescription & {
-    subject: EntityRef;
-    grade: EntityRef;
-    fullTimeTuitionRate: TuitionRate[];
-    govTuitionRate: TuitionRate[];
-    partTimeTuitionRate: TuitionRate[];
-  };
+export type TuitionRate = {
+  minimumRate: string;
+  maximumRate: string;
+};
+
+export type TuitionRates = BaseEntity & {
+  subject: EntityRef;
+  grade: EntityRef;
+  onlineIndividualTuitionRate: TuitionRate[];
+  onlineGroupTuitionRate: TuitionRate[];
+  physicalIndividualTuitionRate: TuitionRate[];
+  physicalGroupTuitionRate: TuitionRate[];
+};
 
 // Paper
 export type Paper = BaseEntity & {

@@ -22,17 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import {
   useFetchGradeByIdQuery,
   useFetchGradesQuery,
 } from "@/store/api/splits/grades";
-
 import {
   useCreateTuitionRateMutation,
   useFetchTuitionRatesQuery,
 } from "@/store/api/splits/tuition-rates";
-
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -43,6 +40,19 @@ import {
   createTuitionSchema,
   initialFormValues,
 } from "./schema";
+
+const rateFields = [
+  {
+    key: "onlineIndividualTuitionRate",
+    label: "Online Individual Tuition Rate",
+  },
+  { key: "onlineGroupTuitionRate", label: "Online Group Tuition Rate" },
+  {
+    key: "physicalIndividualTuitionRate",
+    label: "Physical Individual Tuition Rate",
+  },
+  { key: "physicalGroupTuitionRate", label: "Physical Group Tuition Rate" },
+] as const;
 
 export function AddTuitionRate() {
   const [open, setOpen] = useState(false);
@@ -162,6 +172,7 @@ export function AddTuitionRate() {
                 </p>
               )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="subject">Subject</Label>
               <Select
@@ -191,22 +202,9 @@ export function AddTuitionRate() {
               )}
             </div>
 
-            {/* RATES */}
-            {(
-              [
-                "fullTimeTuitionRate",
-                "govTuitionRate",
-                "partTimeTuitionRate",
-              ] as const
-            ).map((key) => (
+            {rateFields.map(({ key, label }) => (
               <div key={key} className="grid gap-2">
-                <Label>
-                  {key === "fullTimeTuitionRate"
-                    ? "Full-Time Tuition Rate"
-                    : key === "govTuitionRate"
-                      ? "Government Tuition Rate"
-                      : "Part-Time Tuition Rate"}
-                </Label>
+                <Label>{label}</Label>
 
                 <Input
                   placeholder="Minimum Rate"
