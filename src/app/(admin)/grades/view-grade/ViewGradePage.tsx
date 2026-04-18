@@ -24,7 +24,6 @@ export default function SubjectsTable() {
     sortBy: "createdAt:desc",
   });
 
-  const grades = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -51,13 +50,14 @@ export default function SubjectsTable() {
 
   const filteredGrades = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
+    const grades = data?.results || [];
 
     if (!query) return grades;
 
     return grades.filter((grade: Grade) =>
       getSafeValue(grade.title, "").toLowerCase().includes(query),
     );
-  }, [grades, searchTerm]);
+  }, [data, searchTerm]);
 
   const columns = [
     {

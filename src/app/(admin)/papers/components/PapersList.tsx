@@ -64,7 +64,6 @@ export default function PapersTable() {
     sortBy: "createdAt:desc",
   });
 
-  const papers = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -125,13 +124,14 @@ export default function PapersTable() {
 
   const filteredPapers = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
+    const papers = data?.results || [];
 
     if (!query) return papers;
 
     return papers.filter((paper: Paper) =>
       getSafeValue(paper.title, "").toLowerCase().includes(query),
     );
-  }, [papers, searchTerm]);
+  }, [data, searchTerm]);
 
   const columns = [
     {
