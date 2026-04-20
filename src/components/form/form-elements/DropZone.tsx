@@ -1,12 +1,11 @@
 "use client";
 import React from "react";
-import ComponentCard from "../../common/ComponentCard";
 import { useDropzone } from "react-dropzone";
+import ComponentCard from "../../common/ComponentCard";
 
 const DropzoneComponent: React.FC = () => {
   const onDrop = (acceptedFiles: File[]) => {
     console.log("Files dropped:", acceptedFiles);
-    // Handle file uploads here
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -18,27 +17,27 @@ const DropzoneComponent: React.FC = () => {
       "image/svg+xml": [],
     },
   });
+
   return (
     <ComponentCard title="Dropzone">
-      <div className="transition border border-gray-300 border-dashed cursor-pointer dark:hover:border-brand-500 dark:border-gray-700 rounded-xl hover:border-brand-500">
+      <div
+        className={`rounded-xl border-2 border-dashed transition-colors cursor-pointer
+          ${
+            isDragActive
+              ? "border-brand-300 bg-brand-50/40 dark:border-brand-500 dark:bg-gray-800/80"
+              : "border-gray-300 bg-white hover:border-brand-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-500 dark:hover:bg-gray-800/80"
+          }`}
+      >
         <form
           {...getRootProps()}
-          className={`dropzone rounded-xl   border-dashed border-gray-300 p-7 lg:p-10
-        ${
-          isDragActive
-            ? "border-brand-500 bg-gray-100 dark:bg-gray-800"
-            : "border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900"
-        }
-      `}
+          className="rounded-xl p-7 lg:p-10"
           id="demo-upload"
         >
-          {/* Hidden Input */}
           <input {...getInputProps()} />
 
-          <div className="dz-message flex flex-col items-center m-0!">
-            {/* Icon Container */}
+          <div className="dz-message m-0! flex flex-col items-center">
             <div className="mb-[22px] flex justify-center">
-              <div className="flex h-[68px] w-[68px]  items-center justify-center rounded-full bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
+              <div className="flex h-[68px] w-[68px] items-center justify-center rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
                 <svg
                   className="fill-current"
                   width="29"
@@ -55,16 +54,15 @@ const DropzoneComponent: React.FC = () => {
               </div>
             </div>
 
-            {/* Text Content */}
-            <h4 className="mb-3 font-semibold text-gray-800 text-theme-xl dark:text-white/90">
+            <h4 className="mb-3 text-theme-xl font-semibold text-gray-800 dark:text-white/90">
               {isDragActive ? "Drop Files Here" : "Drag & Drop Files Here"}
             </h4>
 
-            <span className=" text-center mb-5 block w-full max-w-[290px] text-sm text-gray-700 dark:text-gray-400">
+            <span className="mb-5 block w-full max-w-[290px] text-center text-sm text-gray-500 dark:text-gray-400">
               Drag and drop your PNG, JPG, WebP, SVG images here or browse
             </span>
 
-            <span className="font-medium underline text-theme-sm text-brand-500">
+            <span className="text-theme-sm font-medium text-brand-500 underline">
               Browse File
             </span>
           </div>

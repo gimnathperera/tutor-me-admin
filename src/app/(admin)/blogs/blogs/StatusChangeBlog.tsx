@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -17,13 +18,13 @@ import {
 } from "@/components/ui/select";
 import { useUpdateBlogStatusMutation } from "@/store/api/splits/blogs";
 import { Edit } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 interface BlogStatusDialogProps {
   id: string;
   currentStatus: "pending" | "approved" | "rejected";
-  onStatusChange?: () => void; // parent callback
+  onStatusChange?: () => void;
 }
 
 export function BlogStatusDialog({
@@ -35,12 +36,18 @@ export function BlogStatusDialog({
   const [status, setStatus] = useState(currentStatus);
   const [updateStatus, { isLoading }] = useUpdateBlogStatusMutation();
 
+  useEffect(() => {
+    if (open) {
+      setStatus(currentStatus);
+    }
+  }, [open, currentStatus]);
+
   const handleSave = async () => {
     try {
       await updateStatus({ blogId: id, status }).unwrap();
       toast.success("Status updated successfully");
       setOpen(false);
-      onStatusChange?.(); // trigger parent refresh/list update
+      onStatusChange?.();
     } catch (error) {
       console.error(error);
       toast.error("Failed to update status");
@@ -50,42 +57,45 @@ export function BlogStatusDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Edit cursor="pointer" className="text-blue-500 hover:text-blue-700" />
+        <Edit className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle>Edit Blog Status</DialogTitle>
+      <DialogContent className="sm:max-w-[420px] overflow-hidden bg-white p-0 dark:bg-gray-800 dark:text-white/90">
+        <DialogHeader className="">
+          <DialogTitle className=" font-semibold">Edit Blog Status</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 mt-4">
-          <label className="font-medium">Status</label>
-          <Select
-            value={status}
-            onValueChange={(val) =>
-              setStatus(val as "pending" | "approved" | "rejected")
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
+        <div className="grid gap-4 py-5">
+          <div className="grid gap-2">
+            <label className="text-sm font-medium">Status</label>
 
-            <SelectContent>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="approved">Approve</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select
+              value={status}
+              onValueChange={(val) =>
+                setStatus(val as "pending" | "approved" | "rejected")
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
 
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} isLoading={isLoading}>
-              Save
-            </Button>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
+
+        <DialogFooter className=" dark:border-gray-700">
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} isLoading={isLoading}>
+            Save
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

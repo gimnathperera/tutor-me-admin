@@ -82,8 +82,8 @@ export function AddPaper() {
 
     setValue("subject", "", {
       shouldDirty: true,
-      shouldValidate: true,
-      shouldTouch: true,
+      shouldValidate: false,
+      shouldTouch: false,
     });
   }, [selectedGrade, setValue]);
 
