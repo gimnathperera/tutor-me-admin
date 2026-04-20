@@ -20,6 +20,30 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { updateUserSchema, UpdateUserSchema } from "./schema";
 
+const normalizeTextField = (value: string) =>
+  value
+    .replace(/[^A-Za-z ]/g, "") // allow only letters and spaces
+    .replace(/\s+/g, " ") // collapse multiple spaces into one
+    .trim(); // remove leading/trailing spaces
+
+const normalizePhoneNumber = (value: string) =>
+  value.replace(/\D/g, "").slice(0, 10);
+
+const normalizeZipCode = (value: string) => {
+  const cleaned = value.replace(/\s/g, "").replace(/[^\d-]/g, "");
+
+  if (cleaned.includes("-")) {
+    const [first = "", second = ""] = cleaned.split("-");
+    return `${first.slice(0, 5)}-${second.slice(0, 4)}`;
+  }
+
+  if (cleaned.length > 5) {
+    return `${cleaned.slice(0, 5)}-${cleaned.slice(5, 9)}`;
+  }
+
+  return cleaned.slice(0, 5);
+};
+
 export default function UpdateUser() {
   const { user: authUser } = useAuthContext();
   const userId = authUser?.id;
@@ -63,18 +87,19 @@ export default function UpdateUser() {
           console.warn("Invalid birthday format:", user.birthday);
         }
       }
+
       reset({
         avatar: user.avatar || "",
-        name: user.name,
+        name: normalizeTextField(user.name || ""),
         email: user.email,
-        phoneNumber: user.phoneNumber || "",
+        phoneNumber: normalizePhoneNumber(user.phoneNumber || ""),
         birthday: formattedBirthday,
-        country: user.country || "",
-        city: user.city || "",
-        state: user.state || "",
-        region: user.region || "",
-        zip: user.zip || "",
-        address: user.address || "",
+        country: normalizeTextField(user.country || ""),
+        city: normalizeTextField(user.city || ""),
+        state: normalizeTextField(user.state || ""),
+        region: normalizeTextField(user.region || ""),
+        zip: normalizeZipCode(user.zip || ""),
+        address: user.address?.trim() || "",
         gender: (user.gender as "male" | "female" | "other") ?? "other",
       });
 
@@ -102,16 +127,16 @@ export default function UpdateUser() {
 
       const defaultValues: UpdateUserSchema = {
         avatar: user.avatar || "",
-        name: user.name,
+        name: normalizeTextField(user.name || ""),
         email: user.email,
-        phoneNumber: user.phoneNumber || "",
+        phoneNumber: normalizePhoneNumber(user.phoneNumber || ""),
         birthday: formattedBirthday,
-        country: user.country || "",
-        city: user.city || "",
-        state: user.state || "",
-        region: user.region || "",
-        zip: user.zip || "",
-        address: user.address || "",
+        country: normalizeTextField(user.country || ""),
+        city: normalizeTextField(user.city || ""),
+        state: normalizeTextField(user.state || ""),
+        region: normalizeTextField(user.region || ""),
+        zip: normalizeZipCode(user.zip || ""),
+        address: user.address?.trim() || "",
         gender: (user.gender as "male" | "female" | "other") ?? "other",
       };
 
@@ -133,8 +158,16 @@ export default function UpdateUser() {
   const onSubmit = async (data: UpdateUserSchema) => {
     if (!user) return;
 
-    const payload = {
+    const payload: UpdateUserSchema = {
       ...data,
+      name: normalizeTextField(data.name),
+      phoneNumber: normalizePhoneNumber(data.phoneNumber),
+      country: normalizeTextField(data.country),
+      city: normalizeTextField(data.city),
+      state: normalizeTextField(data.state),
+      region: normalizeTextField(data.region),
+      zip: normalizeZipCode(data.zip),
+      address: data.address.trim(),
     };
 
     try {
@@ -175,20 +208,26 @@ export default function UpdateUser() {
             <h2 className="text-xl font-semibold">Edit Profile</h2>
             <p className="text-sm text-gray-600 italic">* Required</p>
           </div>
+
           <div className="max-h-[75vh] overflow-y-auto scrollbar-thin space-y-4 px-4 ">
             <Label className="text-md font-semibold">
               Personal Information
             </Label>
-            {/* Name */}
+
             <div className="grid gap-3">
               <Label htmlFor="name">Name *</Label>
-              <Input id="name" {...register("name")} />
+              <Input
+                id="name"
+                {...register("name", {
+                  onChange: (e) => {
+                    e.target.value = normalizeTextField(e.target.value);
+                  },
+                })}
+              />
               {errors.name && (
                 <p className="text-sm text-red-500">{errors.name.message}</p>
               )}
             </div>
-
-            {/* Email */}
 
             <div className="grid gap-3">
               <Label htmlFor="email">Email *</Label>
@@ -200,7 +239,6 @@ export default function UpdateUser() {
             <div className="grid gap-3">
               <Label className="font-semibold">Profile Image *</Label>
 
-              {/* File Upload Component */}
               <FileUploadDropzone
                 onUploaded={(url) => {
                   setValue("avatar", url, { shouldValidate: true });
@@ -209,12 +247,10 @@ export default function UpdateUser() {
                 }}
               />
 
-              {/* Show validation errors */}
               {errors.avatar && (
                 <p className="text-sm text-red-500">{errors.avatar.message}</p>
               )}
 
-              {/* Preview Image */}
               <div className="flex items-center gap-4 mt-3">
                 <img
                   src={imageSrc}
@@ -235,7 +271,6 @@ export default function UpdateUser() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Gender */}
               <div className="flex flex-col">
                 <Label htmlFor="gender" className="mb-3">
                   Gender *
@@ -262,12 +297,20 @@ export default function UpdateUser() {
                 </div>
               </div>
 
-              {/* Phone Number */}
               <div className="flex flex-col">
                 <Label htmlFor="phoneNumber" className="mb-3">
                   Phone Number *
                 </Label>
-                <Input id="phoneNumber" {...register("phoneNumber")} />
+                <Input
+                  id="phoneNumber"
+                  inputMode="numeric"
+                  maxLength={10}
+                  {...register("phoneNumber", {
+                    onChange: (e) => {
+                      e.target.value = normalizePhoneNumber(e.target.value);
+                    },
+                  })}
+                />
                 <div className="mt-1">
                   {errors.phoneNumber && (
                     <p className="text-sm text-red-500">
@@ -277,7 +320,6 @@ export default function UpdateUser() {
                 </div>
               </div>
 
-              {/* Birthday */}
               <div className="flex flex-col">
                 <Label htmlFor="birthday" className="mb-3">
                   Birthday *
@@ -307,10 +349,19 @@ export default function UpdateUser() {
             <Label className="text-md font-semibold">
               Location Information
             </Label>
-            {/* Address */}
+
             <div className="grid gap-3">
               <Label htmlFor="address">Address *</Label>
-              <Input id="address" {...register("address")} />
+              <Input
+                id="address"
+                {...register("address", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value
+                      .replace(/\s+/g, " ")
+                      .trimStart();
+                  },
+                })}
+              />
               <div className="mt-1">
                 {errors.address && (
                   <p className="text-sm text-red-500">
@@ -319,13 +370,20 @@ export default function UpdateUser() {
                 )}
               </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* City */}
               <div className="flex flex-col">
                 <Label htmlFor="city" className="mb-3">
                   City *
                 </Label>
-                <Input id="city" {...register("city")} />
+                <Input
+                  id="city"
+                  {...register("city", {
+                    onChange: (e) => {
+                      e.target.value = normalizeTextField(e.target.value);
+                    },
+                  })}
+                />
                 <div className="mt-1">
                   {errors.city && (
                     <p className="text-sm text-red-500">
@@ -335,12 +393,18 @@ export default function UpdateUser() {
                 </div>
               </div>
 
-              {/* Country */}
               <div className="flex flex-col">
                 <Label htmlFor="country" className="mb-3">
                   Country *
                 </Label>
-                <Input id="country" {...register("country")} />
+                <Input
+                  id="country"
+                  {...register("country", {
+                    onChange: (e) => {
+                      e.target.value = normalizeTextField(e.target.value);
+                    },
+                  })}
+                />
                 <div className="mt-1">
                   {errors.country && (
                     <p className="text-sm text-red-500">
@@ -350,12 +414,20 @@ export default function UpdateUser() {
                 </div>
               </div>
 
-              {/* Zip */}
               <div className="flex flex-col">
                 <Label htmlFor="zip" className="mb-3">
                   Zip / Postal Code *
                 </Label>
-                <Input id="zip" {...register("zip")} />
+                <Input
+                  id="zip"
+                  inputMode="numeric"
+                  maxLength={10}
+                  {...register("zip", {
+                    onChange: (e) => {
+                      e.target.value = normalizeZipCode(e.target.value);
+                    },
+                  })}
+                />
                 <div className="mt-1">
                   {errors.zip && (
                     <p className="text-sm text-red-500">{errors.zip.message}</p>
@@ -363,12 +435,18 @@ export default function UpdateUser() {
                 </div>
               </div>
 
-              {/* State */}
               <div className="flex flex-col">
                 <Label htmlFor="state" className="mb-3">
-                  State
+                  State *
                 </Label>
-                <Input id="state" {...register("state")} />
+                <Input
+                  id="state"
+                  {...register("state", {
+                    onChange: (e) => {
+                      e.target.value = normalizeTextField(e.target.value);
+                    },
+                  })}
+                />
                 <div className="mt-1">
                   {errors.state && (
                     <p className="text-sm text-red-500">
@@ -378,12 +456,18 @@ export default function UpdateUser() {
                 </div>
               </div>
 
-              {/* Region */}
               <div className="flex flex-col md:col-span-2">
                 <Label htmlFor="region" className="mb-3">
-                  Region
+                  Region *
                 </Label>
-                <Input id="region" {...register("region")} />
+                <Input
+                  id="region"
+                  {...register("region", {
+                    onChange: (e) => {
+                      e.target.value = normalizeTextField(e.target.value);
+                    },
+                  })}
+                />
                 <div className="mt-1">
                   {errors.region && (
                     <p className="text-sm text-red-500">
@@ -394,7 +478,6 @@ export default function UpdateUser() {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex justify-end gap-2 mt-4 py-6">
               <Button
                 type="button"

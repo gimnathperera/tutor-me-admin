@@ -54,33 +54,17 @@ export function AddPaper() {
     mode: "onChange",
   });
 
+  const { handleSubmit, register, watch, setValue, reset, formState } =
+    createPaperForm;
+
+  const selectedGrade = watch("grade");
+  const watchedUrl = watch("url");
+
   const { data: gradeDetails, isLoading: isGradeDetailsLoading } =
     useFetchGradeByIdQuery(selectedGradeId ?? "", {
       skip: !selectedGradeId,
     });
 
-  const onSubmit = async (data: PaperSchema) => {
-    try {
-      const result = await createPaper(data);
-      const error = getErrorInApiResult(result);
-      if (error) {
-        toast.error(error);
-        return;
-      }
-      if ("data" in result) {
-        toast.success("Paper created successfully");
-        reset();
-        setOpen(false);
-      }
-    } catch (err) {
-      console.error("Unexpected error during paper creation:", err);
-      toast.error("An unexpected error occurred while creating the paper");
-    }
-  };
-
-  const { handleSubmit, register, watch, setValue, reset, formState } =
-    createPaperForm;
-  const selectedGrade = watch("grade");
   const { data: gradeData, isLoading: isGradesLoading } = useFetchGradesQuery({
     title: debouncedGradeSearch,
   });
@@ -95,8 +79,37 @@ export function AddPaper() {
     } else {
       setSelectedGradeId(null);
     }
-    setValue("subject", "");
+
+    setValue("subject", "", {
+      shouldDirty: true,
+      shouldValidate: true,
+      shouldTouch: true,
+    });
   }, [selectedGrade, setValue]);
+
+  const onSubmit = async (data: PaperSchema) => {
+    try {
+      const result = await createPaper(data);
+      const error = getErrorInApiResult(result);
+
+      if (error) {
+        toast.error(error);
+        return;
+      }
+
+      if ("data" in result) {
+        toast.success("Paper created successfully");
+        reset(initialFormValues);
+        setSelectedGradeId(null);
+        setGradeSearch("");
+        setSubjectSearch("");
+        setOpen(false);
+      }
+    } catch (err) {
+      console.error("Unexpected error during paper creation:", err);
+      toast.error("An unexpected error occurred while creating the paper");
+    }
+  };
 
   return (
     <Dialog
@@ -106,7 +119,6 @@ export function AddPaper() {
 
         if (!isOpen) {
           reset(initialFormValues);
-
           setSelectedGradeId(null);
           setGradeSearch("");
           setSubjectSearch("");
@@ -122,11 +134,13 @@ export function AddPaper() {
             Add Paper
           </Button>
         </DialogTrigger>
+
         <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Add Paper</DialogTitle>
             <DialogDescription>Add a new paper to the list.</DialogDescription>
           </DialogHeader>
+
           <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
@@ -137,14 +151,19 @@ export function AddPaper() {
                 </p>
               )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="medium">Medium</Label>
 
               <Select
-                onValueChange={(value) =>
-                  setValue("medium", value as "Sinhala" | "English" | "Tamil")
-                }
                 value={watch("medium")}
+                onValueChange={(value) =>
+                  setValue("medium", value as "Sinhala" | "English" | "Tamil", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                    shouldTouch: true,
+                  })
+                }
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select medium" />
@@ -166,21 +185,27 @@ export function AddPaper() {
                 </p>
               )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="grade">Grade</Label>
+
               <Select
-                onValueChange={(value) =>
-                  createPaperForm.setValue("grade", value)
-                }
-                value={createPaperForm.watch("grade")}
+                value={watch("grade")}
                 disabled={isGradesLoading}
+                onValueChange={(value) =>
+                  setValue("grade", value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                    shouldTouch: true,
+                  })
+                }
               >
                 <SelectTrigger className="w-full" disabled={isGradesLoading}>
                   <SelectValue placeholder="Select a grade" />
                 </SelectTrigger>
+
                 <SelectContent className="w-full">
-                  {/* 🔍 Search bar inside dropdown */}
-                  <div className="p-2 border-b">
+                  <div className="border-b p-2">
                     <Input
                       placeholder="Search grade..."
                       value={gradeSearch}
@@ -213,12 +238,20 @@ export function AddPaper() {
                 </p>
               )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="subject">Subject</Label>
+
               <Select
-                onValueChange={(value) => setValue("subject", value)}
                 value={watch("subject")}
                 disabled={!selectedGradeId || isGradeDetailsLoading}
+                onValueChange={(value) =>
+                  setValue("subject", value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                    shouldTouch: true,
+                  })
+                }
               >
                 <SelectTrigger
                   className="w-full"
@@ -226,8 +259,9 @@ export function AddPaper() {
                 >
                   <SelectValue placeholder="Select a subject" />
                 </SelectTrigger>
+
                 <SelectContent className="w-full">
-                  <div className="p-2 border-b">
+                  <div className="border-b p-2">
                     <Input
                       placeholder="Search subject..."
                       value={subjectSearch}
@@ -253,12 +287,14 @@ export function AddPaper() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {formState.errors.subject && (
                 <p className="text-sm text-red-500">
                   {formState.errors.subject.message}
                 </p>
               )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="year">Year</Label>
               <Input
@@ -273,23 +309,31 @@ export function AddPaper() {
                 </p>
               )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="url">Paper File</Label>
+
               <FileUploadDropzone
                 onUploaded={(url) => {
-                  createPaperForm.setValue("url", url);
+                  setValue("url", url, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                    shouldTouch: true,
+                  });
                 }}
               />
-              {createPaperForm.watch("url") && (
+
+              {watchedUrl && (
                 <a
-                  href={createPaperForm.watch("url")}
+                  href={watchedUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline mt-1 break-all"
+                  className="mt-1 break-all text-blue-600 hover:underline"
                 >
                   View Uploaded Paper
                 </a>
               )}
+
               {formState.errors.url && (
                 <p className="text-sm text-red-500">
                   {formState.errors.url.message}
@@ -297,15 +341,17 @@ export function AddPaper() {
               )}
             </div>
           </div>
+
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={createPaperForm.handleSubmit(onSubmit)}
+              onClick={handleSubmit(onSubmit)}
             >
               Create
             </Button>

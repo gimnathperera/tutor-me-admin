@@ -1,4 +1,5 @@
 "use client";
+
 import Checkbox from "@/components/form/input/Checkbox";
 import InputPassword from "@/components/shared/input-password";
 import InputText from "@/components/shared/input-text";
@@ -6,7 +7,7 @@ import SubmitButton from "@/components/shared/submit-button";
 import { useAuthContext } from "@/context";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { initialFormValues, LoginSchema, loginSchema } from "./schema";
 
@@ -14,16 +15,19 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
   const { login, isAuthError, setIsAuthError, isLoading } = useAuthContext();
 
-  const loginForm = useForm({
+  const loginForm = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: initialFormValues,
     mode: "onChange",
   });
 
-  const { watch } = loginForm;
-  watch(() => {
-    if (isAuthError) setIsAuthError(null);
-  });
+  useEffect(() => {
+    const subscription = loginForm.watch(() => {
+      if (isAuthError) setIsAuthError(null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [loginForm, isAuthError, setIsAuthError]);
 
   const onSubmit = (data: LoginSchema) => {
     login(data);
@@ -41,6 +45,7 @@ export default function SignInForm() {
               Enter your email and password to sign in!
             </p>
           </div>
+
           <div>
             <FormProvider {...loginForm}>
               <form onSubmit={loginForm.handleSubmit(onSubmit)}>
@@ -53,6 +58,7 @@ export default function SignInForm() {
                       type="email"
                     />
                   </div>
+
                   <div>
                     <InputPassword
                       label="Password"
@@ -60,9 +66,11 @@ export default function SignInForm() {
                       placeholder="*******"
                     />
                   </div>
+
                   {isAuthError && (
                     <span className="text-red-500 text-xs">{isAuthError}</span>
                   )}
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Checkbox checked={isChecked} onChange={setIsChecked} />
@@ -70,6 +78,7 @@ export default function SignInForm() {
                         Keep me logged in
                       </span>
                     </div>
+
                     <Link
                       href="/reset-password"
                       className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
@@ -77,6 +86,7 @@ export default function SignInForm() {
                       Forgot password?
                     </Link>
                   </div>
+
                   <div>
                     <SubmitButton
                       title="Sign In"

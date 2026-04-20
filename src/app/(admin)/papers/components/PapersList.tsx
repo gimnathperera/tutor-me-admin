@@ -3,8 +3,9 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchPapersQuery } from "@/store/api/splits/papers";
-import { Copy } from "lucide-react";
-import { useState } from "react";
+import { Copy, FileText, Search } from "lucide-react";
+import { AnimatePresence, motion, type Variants } from "motion/react";
+import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { DeletePaper } from "./DeletePaper";
 import { EditPaper } from "./edit-paper/EditPaper";
@@ -20,10 +21,16 @@ interface Subject {
   title: string;
 }
 
+interface MediumOption {
+  label?: string;
+  value?: string;
+  title?: string;
+}
+
 interface Paper {
   id: string;
   title?: string;
-  medium?: string;
+  medium?: string | MediumOption;
   grade?: Grade;
   subject?: Subject;
   year?: string;
@@ -31,8 +38,30 @@ interface Paper {
   createdAt?: string;
 }
 
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.35,
+      ease: "easeOut",
+    },
+  },
+};
+
+const staggerContainer: Variants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.06,
+    },
+  },
+};
+
 export default function PapersTable() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const [searchTerm, setSearchTerm] = useState("");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   const { data, isLoading } = useFetchPapersQuery({
@@ -41,7 +70,6 @@ export default function PapersTable() {
     sortBy: "createdAt:desc",
   });
 
-  const papers = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -49,11 +77,12 @@ export default function PapersTable() {
     setPage(newPage);
   };
 
-  const getSafeValue = (
-    value: unknown,
-    fallback = "N/A",
-  ): string => {
+  const getSafeValue = (value: unknown, fallback = "N/A"): string => {
     if (value === undefined || value === null) {
+      return fallback;
+    }
+
+    if (typeof value === "object") {
       return fallback;
     }
 
@@ -75,6 +104,36 @@ export default function PapersTable() {
       return fallback;
     }
     return obj[property] || fallback;
+  };
+
+  const getSafeMedium = (
+    medium: string | MediumOption | undefined | null,
+    fallback = "No medium provided",
+  ): string => {
+    if (!medium) return fallback;
+
+    if (typeof medium === "string") {
+      return medium.trim() ? medium : fallback;
+    }
+
+    if (typeof medium === "object") {
+      const resolved = medium.label || medium.value || medium.title || "";
+      return resolved.trim() ? resolved : fallback;
+    }
+
+    return fallback;
+  };
+
+  const getMediumValueForEdit = (
+    medium: string | MediumOption | undefined | null,
+  ): string => {
+    if (!medium) return "";
+
+    if (typeof medium === "string") {
+      return medium;
+    }
+
+    return medium.value || medium.label || medium.title || "";
   };
 
   const isValidUrl = (url: string | undefined | null): boolean => {
@@ -103,6 +162,17 @@ export default function PapersTable() {
     }
   };
 
+  const filteredPapers = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    const papers = data?.results || [];
+
+    if (!query) return papers;
+
+    return papers.filter((paper: Paper) =>
+      getSafeValue(paper.title, "").toLowerCase().includes(query),
+    );
+  }, [data, searchTerm]);
+
   const columns = [
     {
       key: "title",
@@ -114,7 +184,7 @@ export default function PapersTable() {
         return (
           <span
             title={`Title: ${safeTitle}`}
-            className={`truncate block ${!row.title ? "text-gray-400 italic" : ""}`}
+            className={`block truncate ${!row.title ? "italic text-gray-400" : ""}`}
             style={{ width: "inherit" }}
           >
             {safeTitle}
@@ -136,7 +206,7 @@ export default function PapersTable() {
         return (
           <span
             title={`Subject: ${safeSubjectTitle}`}
-            className={`truncate block ${!row.subject?.title ? "text-gray-400 italic" : ""}`}
+            className={`block truncate ${!row.subject?.title ? "italic text-gray-400" : ""}`}
           >
             {safeSubjectTitle}
           </span>
@@ -157,7 +227,7 @@ export default function PapersTable() {
         return (
           <span
             title={`Grade: ${safeGradeTitle}`}
-            className={`truncate block ${!row.grade?.title ? "text-gray-400 italic" : ""}`}
+            className={`block truncate ${!row.grade?.title ? "italic text-gray-400" : ""}`}
           >
             {safeGradeTitle}
           </span>
@@ -173,7 +243,7 @@ export default function PapersTable() {
         return (
           <span
             title={`Year: ${safeYear}`}
-            className={`${!row.year ? "text-gray-400 italic" : ""}`}
+            className={`${!row.year ? "italic text-gray-400" : ""}`}
           >
             {safeYear}
           </span>
@@ -192,7 +262,7 @@ export default function PapersTable() {
         if (!hasValidUrl) {
           return (
             <span
-              className="text-gray-400 italic"
+              className="italic text-gray-400"
               title="No valid URL available"
             >
               No URL provided
@@ -204,10 +274,10 @@ export default function PapersTable() {
           <span
             onClick={() => copyToClipboard(row.url)}
             title="Click to copy URL"
-            className="cursor-pointer relative group truncate max-w-full flex items-center gap-1 hover:underline hover:text-blue-700 dark:hover:text-blue-400"
+            className="group relative flex max-w-full cursor-pointer items-center gap-1 truncate hover:text-blue-700 hover:underline dark:hover:text-blue-400"
           >
             <span className="truncate">{safeUrl}</span>
-            <Copy className="w-4 opacity-0 group-hover:opacity-100 transition-opacity text-blue-700 dark:text-blue-400 flex-shrink-0" />
+            <Copy className="w-4 flex-shrink-0 opacity-0 text-blue-700 transition-opacity group-hover:opacity-100 dark:text-blue-400" />
           </span>
         );
       },
@@ -215,12 +285,13 @@ export default function PapersTable() {
     {
       key: "view",
       header: <div className="w-full text-center">View</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: Paper) => (
-        <div className="w-full flex justify-center items-center">
+        <div className="flex w-full items-center justify-center">
           <PaperDetails
             title={getSafeValue(row.title, "No title provided")}
-            medium={getSafeValue(row.medium, "No medium provided")}
+            medium={getSafeMedium(row.medium)}
             grade={getSafeNestedValue(row.grade, "title", "No grade specified")}
             subject={getSafeNestedValue(
               row.subject,
@@ -236,13 +307,14 @@ export default function PapersTable() {
     {
       key: "edit",
       header: <div className="w-full text-center">Edit</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: Paper) => (
-        <div className="w-full flex justify-center items-center">
+        <div className="flex w-full items-center justify-center">
           <EditPaper
             id={row.id}
             title={getSafeValue(row.title, "")}
-            medium={getSafeValue(row.medium, "")}
+            medium={getMediumValueForEdit(row.medium)}
             grade={getSafeNestedValue(row.grade, "id", "")}
             subject={getSafeNestedValue(row.subject, "id", "")}
             year={getSafeValue(row.year, "")}
@@ -254,9 +326,10 @@ export default function PapersTable() {
     {
       key: "delete",
       header: <div className="w-full text-center">Delete</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Paper) => (
-        <div className="w-full flex justify-center items-center">
+        <div className="flex w-full items-center justify-center">
           <DeletePaper paperId={row.id} />
         </div>
       ),
@@ -264,15 +337,220 @@ export default function PapersTable() {
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={papers}
-      page={page}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-      totalResults={totalResults}
-      limit={limit}
-      isLoading={isLoading}
-    />
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={staggerContainer}
+      className="space-y-4"
+    >
+      <motion.div
+        variants={fadeUp}
+        className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+            Papers
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Filter papers by title and manage them across desktop and mobile.
+          </p>
+        </div>
+
+        <motion.div layout className="relative w-full sm:max-w-xs">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(TABLE_CONFIG.DEFAULT_PAGE);
+            }}
+            placeholder="Filter by name..."
+            className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400"
+          />
+        </motion.div>
+      </motion.div>
+
+      <motion.div variants={fadeUp} className="hidden md:block">
+        <motion.div layout className="overflow-hidden rounded-2xl">
+          <DataTable
+            columns={columns}
+            data={filteredPapers}
+            page={page}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalResults={searchTerm ? filteredPapers.length : totalResults}
+            limit={limit}
+            isLoading={isLoading}
+          />
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="grid gap-4 md:hidden"
+      >
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, index) => (
+            <motion.div
+              key={index}
+              variants={fadeUp}
+              className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+            >
+              <div className="h-4 w-28 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="mt-3 h-3 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="mt-4 h-9 w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700" />
+            </motion.div>
+          ))
+        ) : filteredPapers.length > 0 ? (
+          filteredPapers.map((row) => {
+            const safeTitle = getSafeValue(row.title, "No title provided");
+            const safeMedium = getSafeMedium(row.medium);
+            const safeSubject = getSafeNestedValue(
+              row.subject,
+              "title",
+              "No subject",
+            );
+            const safeGrade = getSafeNestedValue(
+              row.grade,
+              "title",
+              "No grade",
+            );
+            const safeYear = getSafeValue(row.year, "No year");
+            const safeUrl = getSafeValue(row.url, "");
+            const hasValidUrl = isValidUrl(row.url);
+
+            return (
+              <motion.div
+                key={row.id}
+                variants={fadeUp}
+                layout
+                whileHover={{ y: -3 }}
+                className="overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3
+                      className={`truncate text-sm font-semibold text-gray-900 dark:text-white ${
+                        !row.title ? "italic text-gray-400" : ""
+                      }`}
+                    >
+                      {safeTitle}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                      {safeSubject} • {safeGrade}
+                    </p>
+                  </div>
+
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                  <div className="rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-800">
+                    <p className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Medium
+                    </p>
+                    <p className="mt-1 truncate text-gray-900 dark:text-white">
+                      {safeMedium}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-800">
+                    <p className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                      Year
+                    </p>
+                    <p className="mt-1 truncate text-gray-900 dark:text-white">
+                      {safeYear}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-800">
+                  <p className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                    URL
+                  </p>
+                  {hasValidUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(row.url)}
+                      className="mt-1 flex w-full items-center gap-2 text-left text-sm text-blue-600 dark:text-blue-400"
+                    >
+                      <span className="truncate">{safeUrl}</span>
+                      <Copy className="h-4 w-4 shrink-0" />
+                    </button>
+                  ) : (
+                    <p className="mt-1 italic text-gray-400">No URL provided</p>
+                  )}
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <div className="flex justify-center rounded-xl border border-gray-200 p-2 dark:border-gray-700">
+                    <PaperDetails
+                      title={safeTitle}
+                      medium={safeMedium}
+                      grade={safeGrade}
+                      subject={safeSubject}
+                      year={safeYear}
+                      url={safeUrl}
+                    />
+                  </div>
+                  <div className="flex justify-center rounded-xl border border-gray-200 p-2 dark:border-gray-700">
+                    <EditPaper
+                      id={row.id}
+                      title={getSafeValue(row.title, "")}
+                      medium={getMediumValueForEdit(row.medium)}
+                      grade={getSafeNestedValue(row.grade, "id", "")}
+                      subject={getSafeNestedValue(row.subject, "id", "")}
+                      year={getSafeValue(row.year, "")}
+                      url={getSafeValue(row.url, "")}
+                    />
+                  </div>
+                  <div className="flex justify-center rounded-xl border border-gray-200 p-2 dark:border-gray-700">
+                    <DeletePaper paperId={row.id} />
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="empty-state"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900"
+            >
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                No papers found
+              </p>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Try a different title in the filter input.
+              </p>
+            </motion.div>
+          </AnimatePresence>
+        )}
+      </motion.div>
+
+      {!isLoading && filteredPapers.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="hidden rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900 md:block"
+        >
+          <p className="text-sm font-medium text-gray-900 dark:text-white">
+            No papers found
+          </p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Try a different title in the filter input.
+          </p>
+        </motion.div>
+      )}
+    </motion.div>
   );
 }
