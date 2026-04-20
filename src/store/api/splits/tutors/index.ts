@@ -52,12 +52,16 @@ export const TutorsApi = baseApi.injectEndpoints({
 
     updateTutorStatus: build.mutation<
       Tutor,
-      { id: string; status: string; adminId?: string | null }
+      { id: string; status: string; adminId?: string | null; rejectionMessage?: string }
     >({
-      query: ({ id, status, adminId }) => ({
+      query: ({ id, status, adminId, rejectionMessage }) => ({
         url: `${Endpoints.FindATutor}/${id}`,
         method: "PATCH",
-        body: { status, ...(adminId ? { adminId } : {}) },
+        body: {
+          status,
+          ...(adminId ? { adminId } : {}),
+          ...(rejectionMessage !== undefined ? { rejectionMessage } : {}),
+        },
       }),
       invalidatesTags: ["FindATutor"],
     }),
