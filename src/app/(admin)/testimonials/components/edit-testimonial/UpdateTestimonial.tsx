@@ -23,6 +23,7 @@ import { useUpdateTestimonialMutation } from "@/store/api/splits/testimonials";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -182,18 +183,9 @@ export function UpdateTestimonial({
               )}
             </div>
 
-            {/* Owner Avatar (UPDATED) */}
+            {/* Owner Avatar */}
             <div className="grid gap-3">
               <Label>Owner Avatar</Label>
-
-              {/* Existing avatar preview */}
-              {avatarUrl && (
-                <img
-                  src={avatarUrl}
-                  alt="Avatar preview"
-                  className="h-16 w-16 rounded-full object-cover border"
-                />
-              )}
 
               <FileUploadDropzone
                 onUploaded={(url) => {
@@ -206,9 +198,13 @@ export function UpdateTestimonial({
               />
 
               {avatarUrl && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 break-all">
-                  Uploaded URL: {avatarUrl}
-                </p>
+                <Image
+                  src={avatarUrl}
+                  alt="Avatar preview"
+                  width={64}
+                  height={64}
+                  className="rounded-full object-cover border"
+                />
               )}
 
               {formState.errors.owner?.avatar && (

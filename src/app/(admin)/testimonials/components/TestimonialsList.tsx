@@ -36,7 +36,6 @@ export default function TestimonialsTable() {
     sortBy: "createdAt:desc",
   });
 
-  const testimonials = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -50,15 +49,16 @@ export default function TestimonialsTable() {
     return str.trim() === "" ? fallback : str;
   };
 
-  // ✅ FILTER
   const filteredTestimonials = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
+    const testimonials = data?.results || [];
+
     if (!query) return testimonials;
 
     return testimonials.filter((t: Testimonial) =>
       getSafeValue(t.owner?.name, "").toLowerCase().includes(query),
     );
-  }, [testimonials, searchTerm]);
+  }, [data, searchTerm]);
 
   const columns = [
     {
@@ -70,13 +70,9 @@ export default function TestimonialsTable() {
         <div className="flex items-center gap-3">
           {row.owner?.avatar ? (
             <img
-              src={row.owner.avatar}
-              alt={row.owner?.name || "Owner"}
-              className="w-10 h-10 rounded-full object-cover"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src =
-                  "/images/user/user.png";
-              }}
+              src={row.owner?.avatar || "/images/user/user.png"}
+              alt={getSafeValue(row.owner?.name, "User avatar")}
+              className="w-10 h-10 rounded-full"
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
@@ -192,7 +188,6 @@ export default function TestimonialsTable() {
       variants={staggerContainer}
       className="space-y-4"
     >
-      {/* 🔍 FILTER BAR */}
       <motion.div
         variants={fadeUp}
         className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm dark:bg-gray-900 sm:flex-row sm:justify-between"
@@ -203,7 +198,7 @@ export default function TestimonialsTable() {
         </div>
 
         <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             value={searchTerm}
             onChange={(e) => {
@@ -216,7 +211,6 @@ export default function TestimonialsTable() {
         </div>
       </motion.div>
 
-      {/* 💻 DESKTOP TABLE */}
       <motion.div variants={fadeUp} className="hidden md:block">
         <DataTable
           columns={columns}
@@ -230,17 +224,17 @@ export default function TestimonialsTable() {
         />
       </motion.div>
 
-      {/* 📱 MOBILE CARDS */}
       <motion.div className="grid gap-4 md:hidden">
         {filteredTestimonials.map((row) => (
           <motion.div
             key={row.id}
             variants={fadeUp}
-            className="p-4 border rounded-2xl bg-white dark:bg-gray-900"
+            className="rounded-2xl border bg-white p-4 dark:bg-gray-900"
           >
             <div className="flex items-center gap-3">
               <img
                 src={row.owner?.avatar || "/images/user/user.png"}
+                alt={getSafeValue(row.owner?.name, "User avatar")}
                 className="w-10 h-10 rounded-full"
               />
               <div>
@@ -255,7 +249,7 @@ export default function TestimonialsTable() {
               {getSafeValue(row.content)}
             </p>
 
-            <div className="flex gap-1 mt-2">
+            <div className="mt-2 flex gap-1">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star
                   key={i}

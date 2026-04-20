@@ -30,7 +30,6 @@ export default function FAQTable() {
     sortBy: "createdAt:desc",
   });
 
-  const faqs = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -79,6 +78,7 @@ export default function FAQTable() {
 
   const filteredFaqs = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
+    const faqs = data?.results || [];
 
     if (!query) return faqs;
 
@@ -91,7 +91,7 @@ export default function FAQTable() {
         question.includes(query) || answer.includes(query) || id.includes(query)
       );
     });
-  }, [faqs, searchTerm]);
+  }, [data, searchTerm]);
 
   const columns = [
     {

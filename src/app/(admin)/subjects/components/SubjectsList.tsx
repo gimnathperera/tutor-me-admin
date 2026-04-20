@@ -29,7 +29,6 @@ export default function SubjectsTable() {
     sortBy: "createdAt:desc",
   });
 
-  const subjects = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -49,13 +48,14 @@ export default function SubjectsTable() {
 
   const filteredSubjects = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
+    const subjects = data?.results || [];
 
     if (!query) return subjects;
 
     return subjects.filter((subject: Subject) =>
       getSafeValue(subject.title, "").toLowerCase().includes(query),
     );
-  }, [subjects, searchTerm]);
+  }, [data, searchTerm]);
 
   const columns = [
     {
