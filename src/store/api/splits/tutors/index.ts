@@ -50,6 +50,18 @@ export const TutorsApi = baseApi.injectEndpoints({
       invalidatesTags: ["FindATutor"],
     }),
 
+    updateTutorStatus: build.mutation<
+      Tutor,
+      { id: string; status: string; adminId?: string | null }
+    >({
+      query: ({ id, status, adminId }) => ({
+        url: `${Endpoints.FindATutor}/${id}`,
+        method: "PATCH",
+        body: { status, ...(adminId ? { adminId } : {}) },
+      }),
+      invalidatesTags: ["FindATutor"],
+    }),
+
     deleteTutor: build.mutation<void, string>({
       query: (id) => ({
         url: `${Endpoints.FindATutor}/${id}`,
@@ -86,6 +98,7 @@ export const {
   useLazyFetchTutorByIdQuery,
   useCreateTutorMutation,
   useUpdateTutorMutation,
+  useUpdateTutorStatusMutation,
   useDeleteTutorMutation,
   useSendTempPasswordTutorMutation,
   useFetchMatchingTutorsQuery,

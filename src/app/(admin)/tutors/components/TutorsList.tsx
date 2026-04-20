@@ -1,10 +1,16 @@
 "use client";
 
-import { formatYearsExperience } from "@/app/(admin)/tutors/constants";
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
-import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
+import {
+  useFetchTutorsQuery,
+  useUpdateTutorStatusMutation,
+} from "@/store/api/splits/tutors";
+import { getErrorInApiResult } from "@/utils/api";
+import { getAdminId } from "@/utils/auth";
+import { Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { DeleteTutor } from "./DeleteTutor";
 import { EditTutor } from "./edit-tutor/EditTutor";
 import { ResetPassword } from "./ResetPassword";
@@ -20,6 +26,8 @@ interface Tutor {
   age: number;
   nationality: string;
   race: string;
+  status: string;
+  classType: string[];
 
   tutoringLevels: string[];
   preferredLocations: string[];
@@ -32,7 +40,106 @@ interface Tutor {
   sellingPoints: string;
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
+  certificatesAndQualifications: { id?: string; type: string; url: string }[];
   createdAt?: string;
+}
+
+const STATUS_OPTIONS = [
+  { value: "pending", label: "Pending" },
+  { value: "approved", label: "Approved" },
+  { value: "rejected", label: "Rejected" },
+  { value: "suspended", label: "Suspended" },
+];
+
+const STATUS_STYLES: Record<string, { badge: string; select: string }> = {
+  pending: {
+    badge: "bg-yellow-100 text-yellow-700 border-yellow-200",
+    select: "bg-yellow-50 text-yellow-700 border-yellow-300 focus:ring-yellow-400",
+  },
+  approved: {
+    badge: "bg-green-100 text-green-700 border-green-200",
+    select: "bg-green-50 text-green-700 border-green-300 focus:ring-green-400",
+  },
+  rejected: {
+    badge: "bg-red-100 text-red-700 border-red-200",
+    select: "bg-red-50 text-red-700 border-red-300 focus:ring-red-400",
+  },
+  suspended: {
+    badge: "bg-gray-200 text-gray-600 border-gray-300",
+    select: "bg-gray-100 text-gray-600 border-gray-300 focus:ring-gray-400",
+  },
+};
+
+function StatusDropdown({ tutor }: { tutor: Tutor }) {
+  const [updateTutorStatus, { isLoading }] = useUpdateTutorStatusMutation();
+  const [localStatus, setLocalStatus] = useState(
+    (tutor.status || "pending").toLowerCase(),
+  );
+
+  const style =
+    STATUS_STYLES[localStatus] || STATUS_STYLES["pending"];
+
+  const handleChange = async (newStatus: string) => {
+    const previous = localStatus;
+    setLocalStatus(newStatus); // optimistic update
+
+    try {
+      const adminId = getAdminId();
+      const result = await updateTutorStatus({ id: tutor.id, status: newStatus, adminId });
+      const error = getErrorInApiResult(result);
+
+      if (error) {
+        setLocalStatus(previous); // revert on error
+        toast.error(`Failed to update status: ${error}`);
+        return;
+      }
+
+      const label =
+        STATUS_OPTIONS.find((o) => o.value === newStatus)?.label ?? newStatus;
+      toast.success(`Status updated to "${label}"`);
+    } catch {
+      setLocalStatus(previous);
+      toast.error("An unexpected error occurred while updating status");
+    }
+  };
+
+  return (
+    <div className="relative flex items-center gap-1.5">
+      <select
+        value={localStatus}
+        disabled={isLoading}
+        onChange={(e) => handleChange(e.target.value)}
+        className={`
+          appearance-none text-xs font-semibold capitalize rounded-full
+          pl-2.5 pr-6 py-1 border cursor-pointer
+          transition-colors duration-150 outline-none
+          focus:ring-2 focus:ring-offset-1
+          disabled:opacity-60 disabled:cursor-not-allowed
+          ${style.select}
+        `}
+      >
+        {STATUS_OPTIONS.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+
+      {isLoading ? (
+        <Loader2 className="absolute right-1.5 h-3 w-3 animate-spin text-current pointer-events-none" />
+      ) : (
+        <svg
+          className="absolute right-1.5 h-3 w-3 pointer-events-none opacity-60"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2.5}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      )}
+    </div>
+  );
 }
 
 export default function TutorsList() {
@@ -109,41 +216,10 @@ export default function TutorsList() {
         ),
       },
       {
-        key: "tutorType",
-        header: "Type",
-        className:
-          "min-w-[120px] max-w-[180px] truncate overflow-hidden cursor-default",
-        render: (row: Tutor) => (
-          <span
-            title={Array.isArray(row.tutorType) ? row.tutorType.join(", ") : row.tutorType || "No type provided"}
-            className={`truncate block ${!row.tutorType || row.tutorType.length === 0 ? "text-gray-400 italic" : ""}`}
-          >
-            {Array.isArray(row.tutorType) ? row.tutorType.join(", ") : getSafeValue(row.tutorType, "No type provided")}
-          </span>
-        ),
-      },
-      {
-        key: "yearsExperience",
-        header: (
-          <span
-            className="truncate  w-full  text-center block max-w-[100px]"
-            title="Experience (Years)"
-          >
-            Experience (Years)
-          </span>
-        ),
-        className:
-          "min-w-[100px] truncate  max-w-[100px] overflow-hidden cursor-default",
-        render: (row: Tutor) => (
-          <div className="flex justify-center w-full ">
-            <span
-              title={formatYearsExperience(row.yearsExperience) || "N/A"}
-              className={`truncate block ${row.yearsExperience === undefined ? "text-gray-400 italic" : ""}`}
-            >
-              {formatYearsExperience(row.yearsExperience) || "N/A"}
-            </span>
-          </div>
-        ),
+        key: "status",
+        header: "Status",
+        className: "min-w-[140px] max-w-[160px] overflow-visible",
+        render: (row: Tutor) => <StatusDropdown tutor={row} />,
       },
 
       // View button
@@ -170,7 +246,7 @@ export default function TutorsList() {
         ),
       },
 
-      //Reset Password
+      // Reset Password
       {
         key: "resetPassword",
         header: (

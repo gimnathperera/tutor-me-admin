@@ -20,6 +20,13 @@ export const getAccessToken = (): string | null => {
   return storedToken?.access?.token || null;
 };
 
+export const getAdminId = (): string | null => {
+  const userData = getLocalStorageItem<{ id?: string | number }>(
+    LocalStorageKey.USER_DATA,
+  );
+  return userData?.id ? String(userData.id) : null;
+};
+
 export const handleRefreshTokenProcess = async (): Promise<boolean> => {
   const storedToken = getLocalStorageItem<Tokens>(LocalStorageKey.TOKENS);
   const refreshToken = storedToken?.refresh?.token;
