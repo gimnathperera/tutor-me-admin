@@ -21,10 +21,16 @@ interface Subject {
   title: string;
 }
 
+interface MediumOption {
+  label?: string;
+  value?: string;
+  title?: string;
+}
+
 interface Paper {
   id: string;
   title?: string;
-  medium?: string;
+  medium?: string | MediumOption;
   grade?: Grade;
   subject?: Subject;
   year?: string;
@@ -64,7 +70,6 @@ export default function PapersTable() {
     sortBy: "createdAt:desc",
   });
 
-  const papers = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -74,6 +79,10 @@ export default function PapersTable() {
 
   const getSafeValue = (value: unknown, fallback = "N/A"): string => {
     if (value === undefined || value === null) {
+      return fallback;
+    }
+
+    if (typeof value === "object") {
       return fallback;
     }
 
@@ -95,6 +104,36 @@ export default function PapersTable() {
       return fallback;
     }
     return obj[property] || fallback;
+  };
+
+  const getSafeMedium = (
+    medium: string | MediumOption | undefined | null,
+    fallback = "No medium provided",
+  ): string => {
+    if (!medium) return fallback;
+
+    if (typeof medium === "string") {
+      return medium.trim() ? medium : fallback;
+    }
+
+    if (typeof medium === "object") {
+      const resolved = medium.label || medium.value || medium.title || "";
+      return resolved.trim() ? resolved : fallback;
+    }
+
+    return fallback;
+  };
+
+  const getMediumValueForEdit = (
+    medium: string | MediumOption | undefined | null,
+  ): string => {
+    if (!medium) return "";
+
+    if (typeof medium === "string") {
+      return medium;
+    }
+
+    return medium.value || medium.label || medium.title || "";
   };
 
   const isValidUrl = (url: string | undefined | null): boolean => {
@@ -125,13 +164,14 @@ export default function PapersTable() {
 
   const filteredPapers = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
+    const papers = data?.results || [];
 
     if (!query) return papers;
 
     return papers.filter((paper: Paper) =>
       getSafeValue(paper.title, "").toLowerCase().includes(query),
     );
-  }, [papers, searchTerm]);
+  }, [data, searchTerm]);
 
   const columns = [
     {
@@ -251,7 +291,7 @@ export default function PapersTable() {
         <div className="flex w-full items-center justify-center">
           <PaperDetails
             title={getSafeValue(row.title, "No title provided")}
-            medium={getSafeValue(row.medium, "No medium provided")}
+            medium={getSafeMedium(row.medium)}
             grade={getSafeNestedValue(row.grade, "title", "No grade specified")}
             subject={getSafeNestedValue(
               row.subject,
@@ -274,7 +314,7 @@ export default function PapersTable() {
           <EditPaper
             id={row.id}
             title={getSafeValue(row.title, "")}
-            medium={getSafeValue(row.medium, "")}
+            medium={getMediumValueForEdit(row.medium)}
             grade={getSafeNestedValue(row.grade, "id", "")}
             subject={getSafeNestedValue(row.subject, "id", "")}
             year={getSafeValue(row.year, "")}
@@ -368,7 +408,7 @@ export default function PapersTable() {
         ) : filteredPapers.length > 0 ? (
           filteredPapers.map((row) => {
             const safeTitle = getSafeValue(row.title, "No title provided");
-            const safeMedium = getSafeValue(row.medium, "No medium provided");
+            const safeMedium = getSafeMedium(row.medium);
             const safeSubject = getSafeNestedValue(
               row.subject,
               "title",
@@ -463,7 +503,7 @@ export default function PapersTable() {
                     <EditPaper
                       id={row.id}
                       title={getSafeValue(row.title, "")}
-                      medium={getSafeValue(row.medium, "")}
+                      medium={getMediumValueForEdit(row.medium)}
                       grade={getSafeNestedValue(row.grade, "id", "")}
                       subject={getSafeNestedValue(row.subject, "id", "")}
                       year={getSafeValue(row.year, "")}

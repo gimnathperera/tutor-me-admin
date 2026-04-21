@@ -5,6 +5,7 @@ import { useLoginMutation, useLogoutMutation } from "@/store/api/splits/auth";
 import { AuthUserData, Tokens } from "@/types/auth-types";
 import { UserLoginResponse } from "@/types/response-types";
 import { getErrorInApiResult } from "@/utils/api";
+import { isSessionValid } from "@/utils/auth";
 import {
   getLocalStorageItem,
   LocalStorageKey,
@@ -59,6 +60,16 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     useLogoutMutation();
 
   useEffect(() => {
+    // Validate that the stored refresh token is still valid.
+    // If the session has expired, clear stale credentials so the
+    // ProtectedRoute guard will redirect the user to /signin.
+    if (!isSessionValid()) {
+      removeLocalStorageItem(LocalStorageKey.USER_DATA);
+      removeLocalStorageItem(LocalStorageKey.TOKENS);
+      setIsUserLoaded(true);
+      return;
+    }
+
     const existingUserData = getLocalStorageItem<AuthUserData>(
       LocalStorageKey.USER_DATA,
     );

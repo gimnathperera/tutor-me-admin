@@ -8,11 +8,30 @@ import {
 import { env } from "@/configs/env";
 import { Endpoints } from "@/store/api/endpoints";
 
+/**
+ * Returns true if the given ISO date string is in the past (i.e. expired).
+ */
+export const isTokenExpired = (expiresAt: string): boolean => {
+  return new Date(expiresAt).getTime() < Date.now();
+};
+
+/**
+ * Returns true when the stored refresh token exists and has NOT yet expired.
+ * This is the primary guard for whether the user is still authenticated.
+ */
+export const isSessionValid = (): boolean => {
+  const tokens = getLocalStorageItem<Tokens>(LocalStorageKey.TOKENS);
+  if (!tokens?.refresh?.token || !tokens?.refresh?.expires) {
+    return false;
+  }
+  return !isTokenExpired(tokens.refresh.expires);
+};
+
 export const handleForceLogout = () => {
   removeLocalStorageItem(LocalStorageKey.USER_DATA);
   removeLocalStorageItem(LocalStorageKey.TOKENS);
   localStorage.clear();
-  window.location.href = "/";
+  window.location.href = "/signin";
 };
 
 export const getAccessToken = (): string | null => {

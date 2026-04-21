@@ -3,7 +3,10 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
-import { useState } from "react";
+import { fadeUp, staggerContainer } from "@/types/animation-types";
+import { Search } from "lucide-react";
+import { motion } from "motion/react";
+import { useMemo, useState } from "react";
 import { DeleteGrade } from "./DeleteGrade";
 import { GradeDetails } from "./ViewDetails";
 import { UpdateGrade } from "./edit-grade/UpdateGrade";
@@ -21,8 +24,9 @@ interface Grade {
   createdAt?: string;
 }
 
-export default function SubjectsTable() {
+export default function GradesTable() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const [searchTerm, setSearchTerm] = useState("");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   const { data, isLoading } = useFetchGradesQuery({
@@ -31,7 +35,6 @@ export default function SubjectsTable() {
     sortBy: "createdAt:desc",
   });
 
-  const grades = data?.results || [];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -50,11 +53,24 @@ export default function SubjectsTable() {
   };
 
   const getSafeArray = (value: Subject[] | undefined | null): Subject[] => {
-    if (!Array.isArray(value)) {
-      return [];
-    }
+    if (!Array.isArray(value)) return [];
     return value;
   };
+
+  // ✅ FILTER (same as Subjects)
+  const filteredGrades = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    const grades = data?.results || [];
+
+    if (!query) return grades;
+
+    return grades.filter((grade: Grade) => {
+      const title = getSafeValue(grade.title, "").toLowerCase();
+      const description = getSafeValue(grade.description, "").toLowerCase();
+
+      return title.includes(query) || description.includes(query);
+    });
+  }, [data, searchTerm]);
 
   const columns = [
     {
@@ -67,8 +83,9 @@ export default function SubjectsTable() {
         return (
           <span
             title={`Title: ${safeTitle}`}
-            className={`truncate block ${!row.title ? "text-gray-400 italic" : ""}`}
-            style={{ width: "inherit" }}
+            className={`truncate block ${
+              !row.title ? "text-gray-400 italic" : ""
+            }`}
           >
             {safeTitle}
           </span>
@@ -88,7 +105,9 @@ export default function SubjectsTable() {
         return (
           <span
             title={`Description: ${safeDescription}`}
-            className={`truncate block ${!row.description ? "text-gray-400 italic" : ""}`}
+            className={`truncate block ${
+              !row.description ? "text-gray-400 italic" : ""
+            }`}
           >
             {safeDescription}
           </span>
@@ -98,35 +117,32 @@ export default function SubjectsTable() {
     {
       key: "subjects",
       header: "Subjects",
-      className: "min-w-[120px] max-w-[150px] cursor-default",
+      className: "min-w-[120px]",
       render: (row: Grade) => {
         const safeSubjects = getSafeArray(row.subjects);
-        const subjectCount = safeSubjects.length;
+        const count = safeSubjects.length;
 
         return (
           <span
-            title={`${subjectCount} subject${subjectCount !== 1 ? "s" : ""}`}
-            className={`${subjectCount === 0 ? "text-gray-400 italic" : "text-blue-600 dark:text-blue-400"}`}
+            className={
+              count === 0
+                ? "text-gray-400 italic"
+                : "text-blue-600 dark:text-blue-400"
+            }
           >
-            {subjectCount === 0
-              ? "No subjects"
-              : `${subjectCount} subject${subjectCount !== 1 ? "s" : ""}`}
+            {count === 0 ? "No subjects" : `${count} subjects`}
           </span>
         );
       },
     },
     {
       key: "view",
-      header: <div className="w-full text-center">View</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
+      header: <div className="text-center">View</div>,
       render: (row: Grade) => (
-        <div className="w-full flex justify-center items-center">
+        <div className="flex justify-center">
           <GradeDetails
-            title={getSafeValue(row.title, "No title provided")}
-            description={getSafeValue(
-              row.description,
-              "No description provided",
-            )}
+            title={getSafeValue(row.title)}
+            description={getSafeValue(row.description)}
             subjects={getSafeArray(row.subjects)}
           />
         </div>
@@ -134,27 +150,23 @@ export default function SubjectsTable() {
     },
     {
       key: "edit",
-      header: <div className="w-full text-center">Edit</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
+      header: <div className="text-center">Edit</div>,
       render: (row: Grade) => (
-        <div className="w-full flex justify-center items-center">
+        <div className="flex justify-center">
           <UpdateGrade
             id={row.id}
             title={getSafeValue(row.title, "")}
             description={getSafeValue(row.description, "")}
-            subjects={getSafeArray(row.subjects).map(
-              (subject) => subject.title,
-            )}
+            subjects={getSafeArray(row.subjects).map((s) => s.title)}
           />
         </div>
       ),
     },
     {
       key: "delete",
-      header: <div className="w-full text-center">Delete</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
+      header: <div className="text-center">Delete</div>,
       render: (row: Grade) => (
-        <div className="w-full flex justify-center items-center">
+        <div className="flex justify-center">
           <DeleteGrade gradeId={row.id} />
         </div>
       ),
@@ -162,15 +174,48 @@ export default function SubjectsTable() {
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={grades}
-      page={page}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-      totalResults={totalResults}
-      limit={limit}
-      isLoading={isLoading}
-    />
+    <motion.div
+      initial="hidden"
+      animate="show"
+      variants={staggerContainer}
+      className="space-y-4"
+    >
+      {/* 🔍 FILTER BAR */}
+      <motion.div
+        variants={fadeUp}
+        className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm dark:bg-gray-900 sm:flex-row sm:justify-between"
+      >
+        <div>
+          <h2 className="font-semibold">Grades</h2>
+          <p className="text-sm text-gray-500">
+            Filter grades by title or description
+          </p>
+        </div>
+
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Filter grades..."
+            className="h-11 w-full rounded-xl border pl-10 pr-4 text-sm"
+          />
+        </div>
+      </motion.div>
+
+      <DataTable
+        columns={columns}
+        data={filteredGrades}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        totalResults={searchTerm ? filteredGrades.length : totalResults}
+        limit={limit}
+        isLoading={isLoading}
+      />
+    </motion.div>
   );
 }
