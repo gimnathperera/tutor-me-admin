@@ -160,24 +160,18 @@ export type UpdateSubjectRequest = {
 export type UpdateUserRequest = {
   id: string;
   email?: string;
-  password?: string;
   name?: string;
-  role?: string;
+  role?: "tutor" | "admin";
   phoneNumber?: string;
   birthday?: string;
-  status?: string;
+  status?: "pending" | "approved" | "rejected" | "suspended";
   country?: string;
   city?: string;
   state?: string;
   region?: string;
   zip?: string;
   address?: string;
-  tutorType?: string;
   gender?: string;
-  duration?: string;
-  frequency?: string;
-  timezone?: string;
-  language?: string;
   avatar?: string;
 };
 

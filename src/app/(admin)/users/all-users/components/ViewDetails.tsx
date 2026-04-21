@@ -21,19 +21,14 @@ interface SubjectDetailsProps {
   role?: "admin" | "user" | "tutor";
   phoneNumber?: string;
   birthday?: string;
-  status: "active" | "inactive";
+  status: "pending" | "approved" | "rejected" | "suspended";
   country?: string;
   city?: string;
   zip?: string;
   address?: string;
   state?: string;
   region?: string;
-  tutorType?: "full-time" | "part-time" | "gov";
   gender?: "male" | "female" | "other";
-  duration?: string;
-  frequency?: string;
-  timezone?: string;
-  language?: string;
   avatar?: string;
 }
 
@@ -50,12 +45,7 @@ export function UserDetails({
   address,
   state,
   region,
-  tutorType,
   gender,
-  duration,
-  frequency,
-  timezone,
-  language,
   avatar,
 }: SubjectDetailsProps) {
   const [open, setOpen] = useState(false);
@@ -217,18 +207,6 @@ export function UserDetails({
             </div>
           </div>
           <div className="grid gap-3">
-            <Label>Tutor Type</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(tutorType)}
-            </div>
-          </div>
-          <div className="grid gap-3">
             <Label>Gender</Label>
             <div
               className={cn(
@@ -238,54 +216,6 @@ export function UserDetails({
               )}
             >
               {displayValue(gender)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Duration</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(duration)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Frequency</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(frequency)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Time Zone</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(timezone)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Language</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(language)}
             </div>
           </div>
           <div className="grid gap-3">
