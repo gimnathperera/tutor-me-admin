@@ -105,7 +105,18 @@ export default function MultiFileUploadDropzone(
               fileType: file.type,
             }),
           }).then((res) => res.json());
+        try {
+          const signed = await fetch("/api/upload-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fileName: `${Date.now()}-${file.name}`,
+              fileType: file.type,
+            }),
+          }).then((res) => res.json());
 
+          const uploadUrl = signed.uploadUrl;
+          if (!uploadUrl) throw new Error("Failed to generate upload URL");
           const uploadUrl = signed.uploadUrl;
           if (!uploadUrl) throw new Error("Failed to generate upload URL");
 
@@ -117,7 +128,16 @@ export default function MultiFileUploadDropzone(
             },
             body: file,
           });
+          const uploadRes = await fetch(uploadUrl, {
+            method: "PUT",
+            headers: {
+              "x-ms-blob-type": "BlockBlob",
+              "Content-Type": file.type,
+            },
+            body: file,
+          });
 
+          if (!uploadRes.ok) throw new Error("Upload failed");
           if (!uploadRes.ok) throw new Error("Upload failed");
 
           fileObj.url = uploadUrl.split("?")[0];
@@ -178,6 +198,14 @@ export default function MultiFileUploadDropzone(
     );
   };
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: true,
+    accept: {
+      "image/*": [],
+      "application/pdf": [],
+    },
+  });
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: true,

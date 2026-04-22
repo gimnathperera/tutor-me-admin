@@ -10,6 +10,23 @@ import { DeleteBlog } from "./DeleteBlog";
 import { BlogStatusDialog } from "./StatusChangeBlog";
 import { BlogDetails } from "./ViewDetails";
 
+type BlogAuthor = {
+  id?: string | { $oid?: string };
+  role?: string;
+  name?: string;
+  avatar?: string;
+};
+
+type BlogRow = Blogs & {
+  author?: BlogAuthor;
+};
+
+const normalizeMongoId = (value?: string | { $oid?: string }) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value.$oid || "";
+};
+
 export default function BlogsTable() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
@@ -20,7 +37,7 @@ export default function BlogsTable() {
     sortBy: "createdAt:desc",
   });
 
-  const blogs: Blogs[] = data?.results || [];
+  const blogs: BlogRow[] = (data?.results || []) as BlogRow[];
   const totalPages = data?.totalPages || 0;
   const totalResults = data?.totalResults || 0;
 
@@ -37,7 +54,7 @@ export default function BlogsTable() {
       header: "Title",
       className:
         "truncate overflow-hidden lg:min-w-[300px] min-w-[150px] max-w-[250px] sticky left-0 z-20 bg-white dark:bg-gray-900",
-      render: (row: Blogs) => {
+      render: (row: BlogRow) => {
         const safeTitle = getSafeValue(row.title, "No title provided");
         return (
           <span
@@ -55,7 +72,7 @@ export default function BlogsTable() {
       header: "Status",
       className:
         "truncate min-w-[150px] max-w-[250px] lg:min-w-[300px] overflow-hidden cursor-default",
-      render: (row: Blogs) => {
+      render: (row: BlogRow) => {
         const safeStatus = getSafeValue(row.status, "No status");
         return (
           <span
@@ -74,44 +91,48 @@ export default function BlogsTable() {
           View
         </span>
       ),
-
       className:
         "lg:min-w-[80px] lg:max-w-[80px] min-w-[80px] max-w-[80px] sticky right-[220px] z-20 bg-white dark:bg-gray-900",
-      render: (row: Blogs) => (
-        <div className="w-full flex items-center justify-center">
-          <BlogDetails
-            blog={{
-              id: row.id,
-              title: getSafeValue(row.title, "No Title"),
-              author: {
-                name: row.author?.name ?? "Unknown",
-                avatar: row.author?.avatar ?? "https://via.placeholder.com/40",
-                role: row.author?.role ?? "Author",
-              },
-              image: row.image,
-              status:
-                (row.status as "pending" | "approved" | "rejected") ??
-                "pending",
-              content: (row.content ?? []).map((block, index) => ({
-                _id: `${block.type}-${index}`,
-                ...block,
-              })),
-              relatedArticles: row.relatedArticles ?? [],
-            }}
-          />
-        </div>
-      ),
+      render: (row: BlogRow) => {
+        const authorId = normalizeMongoId(row.author?.id);
+
+        return (
+          <div className="w-full flex items-center justify-center">
+            <BlogDetails
+              blog={{
+                id: row.id,
+                title: getSafeValue(row.title, "No Title"),
+                author: {
+                  id: authorId,
+                  role: row.author?.role || "admin",
+                  name: row.author?.name,
+                  avatar: row.author?.avatar,
+                },
+                image: row.image || "",
+                status:
+                  (row.status as "pending" | "approved" | "rejected") ??
+                  "pending",
+                content: (row.content ?? []).map((block, index) => ({
+                  _id: `${block.type}-${index}`,
+                  ...block,
+                })),
+                relatedArticles: row.relatedArticles ?? [],
+              }}
+            />
+          </div>
+        );
+      },
     },
     {
-      key: "status",
+      key: "changeStatus",
       header: (
-        <span className="truncate  block w-full" title="Change Status">
+        <span className="truncate block w-full" title="Change Status">
           Change Status
         </span>
       ),
       className:
         "lg:min-w-[140px] lg:max-w-[140px] min-w-[140px] max-w-[140px] flex justify-center sticky right-[80px] z-20 bg-white dark:bg-gray-900",
-      render: (row: Blogs) => (
+      render: (row: BlogRow) => (
         <div className="flex w-full items-center justify-center">
           <BlogStatusDialog
             id={row.id}
@@ -129,7 +150,7 @@ export default function BlogsTable() {
       ),
       className:
         "lg:min-w-[80px] lg:max-w-[80px] min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
-      render: (row: Blogs) => (
+      render: (row: BlogRow) => (
         <div className="w-full flex items-center justify-center">
           <DeleteBlog
             blogId={row.id}
