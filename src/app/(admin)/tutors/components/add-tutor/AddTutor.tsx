@@ -669,6 +669,7 @@ export function AddTutor() {
             <div className="grid gap-3 border p-4 rounded-md">
               <Label>Certificates & Qualifications</Label>
               <MultiFileUploader
+                mode="certificate"
                 onUploaded={(items) =>
                   setValue("certificatesAndQualifications", items, {
                     shouldDirty: true,
