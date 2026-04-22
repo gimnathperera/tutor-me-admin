@@ -296,7 +296,7 @@ function TutorStatusActions({ tutor }: { tutor: Tutor }) {
       toast.error(`Failed to approve: ${error}`);
       return;
     }
-    toast.success(`"${tutor.fullName}" approved — approval email sent.`);
+    toast.success(`"${tutor.fullName}" approved. Linked tutor user was created or updated.`);
   };
 
   return (
