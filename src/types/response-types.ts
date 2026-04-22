@@ -295,13 +295,21 @@ type TutorTypeInfo = {
   genderPreference: string;
 };
 
+export type CertificateItem = {
+  id?: string;
+  type: string;
+  url: string;
+};
+
 export type Tutor = BaseEntity & {
+  status: string;
   fullName: string;
   name: string;
   contactNumber: string;
   tutorMediums: string[];
   grades: string[];
   subjects: string[];
+  classType: string[];
   email: string;
   dateOfBirth: string;
   gender: string;
@@ -320,7 +328,7 @@ export type Tutor = BaseEntity & {
   preferredLocations: string[];
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
-  certificatesAndQualifications: string[];
+  certificatesAndQualifications: CertificateItem[];
 };
 
 export type RequestTutorTutor = {

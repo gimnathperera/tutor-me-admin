@@ -36,7 +36,7 @@ export const TutorsApi = baseApi.injectEndpoints({
           body: payload,
         };
       },
-      invalidatesTags: ["FindATutor"],
+      invalidatesTags: ["FindATutor", "Users"],
     }),
 
     updateTutor: build.mutation<Tutor, { id: string } & UpdateTutorSchema>({
@@ -47,7 +47,23 @@ export const TutorsApi = baseApi.injectEndpoints({
           body: payload,
         };
       },
-      invalidatesTags: ["FindATutor"],
+      invalidatesTags: ["FindATutor", "Users"],
+    }),
+
+    updateTutorStatus: build.mutation<
+      Tutor,
+      { id: string; status: string; adminId?: string | null; rejectionMessage?: string }
+    >({
+      query: ({ id, status, adminId, rejectionMessage }) => ({
+        url: `${Endpoints.FindATutor}/${id}`,
+        method: "PATCH",
+        body: {
+          status,
+          ...(adminId ? { adminId } : {}),
+          ...(rejectionMessage !== undefined ? { rejectionMessage } : {}),
+        },
+      }),
+      invalidatesTags: ["FindATutor", "Users"],
     }),
 
     deleteTutor: build.mutation<void, string>({
@@ -55,7 +71,7 @@ export const TutorsApi = baseApi.injectEndpoints({
         url: `${Endpoints.FindATutor}/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["FindATutor"],
+      invalidatesTags: ["FindATutor", "Users"],
     }),
 
     sendTempPasswordTutor: build.mutation<void, string>({
@@ -63,7 +79,7 @@ export const TutorsApi = baseApi.injectEndpoints({
         url: `${Endpoints.FindATutor}/temp-password/${id}`,
         method: "POST",
       }),
-      invalidatesTags: ["FindATutor"],
+      invalidatesTags: ["FindATutor", "Users"],
     }),
 
     fetchMatchingTutors: build.query<
@@ -86,6 +102,7 @@ export const {
   useLazyFetchTutorByIdQuery,
   useCreateTutorMutation,
   useUpdateTutorMutation,
+  useUpdateTutorStatusMutation,
   useDeleteTutorMutation,
   useSendTempPasswordTutorMutation,
   useFetchMatchingTutorsQuery,

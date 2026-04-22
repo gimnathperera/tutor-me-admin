@@ -40,25 +40,24 @@ import {
   UpdateUserSchema,
 } from "./schema";
 
+type UserRole = "tutor" | "admin";
+type UserStatus = "pending" | "approved" | "rejected" | "suspended";
+
 interface UpdateUserProps {
   id: string;
   email: string;
-  role: "user" | "admin" | "tutor";
+  role: UserRole;
   name: string;
   phoneNumber?: string;
   birthday?: string;
-  status: "active" | "inactive" | "blocked";
+  status: UserStatus;
   country?: string;
   city?: string;
   zip?: string;
   address?: string;
   state?: string;
   region?: string;
-  tutorType?: "full-time" | "part-time" | "gov";
   gender?: "male" | "female" | "other";
-  duration?: string;
-  frequency?: string;
-  language?: string;
   avatar?: string;
 }
 
@@ -88,11 +87,13 @@ export function UpdateUser(props: UpdateUserProps) {
         ...initialFormValues,
         ...props,
         birthday: props.birthday
-          ? new Date(props.birthday).toISOString().substring(0, 10) // YYYY-MM-DD
+          ? new Date(props.birthday).toISOString().substring(0, 10)
           : "",
       });
+      setPreviewUrl(props.avatar || null);
     }
   }, [open, props, reset]);
+
   function handleSelect<T extends keyof UpdateUserSchema>(
     key: T,
     val: string,
@@ -108,22 +109,16 @@ export function UpdateUser(props: UpdateUserProps) {
         email: data.email,
         role: data.role,
         name: data.name,
-        status: data.status || "active",
+        status: data.status || "pending",
         phoneNumber: data.phoneNumber || "",
-        birthday: props.birthday
-          ? new Date(props.birthday).toISOString().split("T")[0]
-          : "",
+        birthday: data.birthday || "",
         country: data.country || "",
         city: data.city || "",
         state: data.state || "",
         region: data.region || "",
         zip: data.zip || "",
         address: data.address || "",
-        tutorType: data.tutorType || "full-time",
         gender: data.gender || "other",
-        duration: data.duration || "",
-        frequency: data.frequency || "",
-        language: data.language || "",
         avatar: data.avatar || "",
       };
 
@@ -146,14 +141,13 @@ export function UpdateUser(props: UpdateUserProps) {
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+        <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>Edit the user details.</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4">
-            {/* Name */}
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               <Input id="name" {...register("name")} />
@@ -163,7 +157,7 @@ export function UpdateUser(props: UpdateUserProps) {
                 </p>
               )}
             </div>
-            {/* Email */}
+
             <div className="grid gap-3">
               <Label htmlFor="email">Email</Label>
               <Input id="email" {...register("email")} />
@@ -174,40 +168,16 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Status */}
-            <div className="grid gap-3">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                onValueChange={(val) => handleSelect("status", val, setValue)}
-                defaultValue={props.status || "active"}
-              >
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="blocked">Blocked</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.status && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.status.message}
-                </p>
-              )}
-            </div>
-            {/* Role */}
             <div className="grid gap-3">
               <Label htmlFor="role">Role</Label>
               <Select
                 onValueChange={(val) => handleSelect("role", val, setValue)}
-                defaultValue={props.role || "user"}
+                defaultValue={props.role || "tutor"}
               >
                 <SelectTrigger id="role">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
                   <SelectItem value="tutor">Tutor</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
@@ -219,7 +189,6 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Phone Number */}
             <div className="grid gap-3">
               <Label htmlFor="phoneNumber">Phone Number</Label>
               <Input
@@ -234,19 +203,29 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Birthday */}
             <div className="grid gap-3">
-              <Label htmlFor="birthday">Birthday</Label>
-              <Input id="birthday" type="date" {...register("birthday")} />
-
-              {formState.errors.birthday && (
+              <Label htmlFor="status">Status</Label>
+              <Select
+                onValueChange={(val) => handleSelect("status", val, setValue)}
+                defaultValue={props.status || "pending"}
+              >
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                </SelectContent>
+              </Select>
+              {formState.errors.status && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.birthday.message}
+                  {formState.errors.status.message}
                 </p>
               )}
             </div>
 
-            {/* Country */}
             <div className="grid gap-3">
               <Label htmlFor="country">Country</Label>
               <Input id="country" {...register("country")} />
@@ -257,7 +236,6 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* City */}
             <div className="grid gap-3">
               <Label htmlFor="city">City</Label>
               <Input id="city" {...register("city")} />
@@ -268,7 +246,6 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* State */}
             <div className="grid gap-3">
               <Label htmlFor="state">State</Label>
               <Input id="state" {...register("state")} />
@@ -279,7 +256,6 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Region */}
             <div className="grid gap-3">
               <Label htmlFor="region">Region</Label>
               <Input id="region" {...register("region")} />
@@ -290,7 +266,6 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Zip */}
             <div className="grid gap-3">
               <Label htmlFor="zip">Zip</Label>
               <Input id="zip" {...register("zip")} />
@@ -301,7 +276,6 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Address */}
             <div className="grid gap-3">
               <Label htmlFor="address">Address</Label>
               <Input id="address" {...register("address")} />
@@ -312,32 +286,16 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Tutor Type */}
             <div className="grid gap-3">
-              <Label htmlFor="tutorType">Tutor Type</Label>
-              <Select
-                onValueChange={(val) =>
-                  handleSelect("tutorType", val, setValue)
-                }
-                defaultValue={props.tutorType || "full-time"}
-              >
-                <SelectTrigger id="tutorType">
-                  <SelectValue placeholder="Select Tutor Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="full-time">Full-Time</SelectItem>
-                  <SelectItem value="part-time">Part-Time</SelectItem>
-                  <SelectItem value="gov">Gov</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.tutorType && (
+              <Label htmlFor="birthday">Birthday</Label>
+              <Input id="birthday" type="date" {...register("birthday")} />
+              {formState.errors.birthday && (
                 <p className="text-sm text-red-500">
-                  {formState.errors.tutorType.message}
+                  {formState.errors.birthday.message}
                 </p>
               )}
             </div>
 
-            {/* Gender */}
             <div className="grid gap-3">
               <Label htmlFor="gender">Gender</Label>
               <Select
@@ -360,75 +318,6 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            {/* Duration */}
-            <div className="grid gap-3">
-              <Label htmlFor="duration">Duration</Label>
-              <Select
-                onValueChange={(val) => handleSelect("duration", val, setValue)}
-                defaultValue={props.duration || "30 minutes"}
-              >
-                <SelectTrigger id="duration">
-                  <SelectValue placeholder="Select Duration" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="30 minutes">30 Minutes</SelectItem>
-                  <SelectItem value="1 hour">1 Hour</SelectItem>
-                  <SelectItem value="2 hours">2 Hours</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.duration && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.duration.message}
-                </p>
-              )}
-            </div>
-
-            {/* Frequency */}
-            <div className="grid gap-3">
-              <Label htmlFor="frequency">Frequency</Label>
-              <Select
-                onValueChange={(val) =>
-                  handleSelect("frequency", val, setValue)
-                }
-                defaultValue={props.frequency || "daily"}
-              >
-                <SelectTrigger id="frequency">
-                  <SelectValue placeholder="Select Frequency" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="once a week">Once a Week</SelectItem>
-                  <SelectItem value="twice a week">Twice a Week</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.frequency && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.frequency.message}
-                </p>
-              )}
-            </div>
-
-            {/* Language */}
-            <div className="grid gap-3">
-              <Label htmlFor="language">Language</Label>
-              <Select
-                onValueChange={(val) => handleSelect("language", val, setValue)}
-                defaultValue={props.language || "Sinhala"}
-              >
-                <SelectTrigger id="language">
-                  <SelectValue placeholder="Select Language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Sinhala">Sinhala</SelectItem>
-                  <SelectItem value="English">English</SelectItem>
-                </SelectContent>
-              </Select>
-              {formState.errors.language && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.language.message}
-                </p>
-              )}
-            </div>
             <div className="grid gap-3">
               <Label htmlFor="avatar">Avatar</Label>
               <FileUploadDropzone

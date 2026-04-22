@@ -5,38 +5,85 @@ import { Loader2, Plus, X } from "lucide-react";
 import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-interface FileItem {
+export interface CertificateFileItem {
+  type: string;
+  url: string;
+  id?: string;
+}
+
+interface NewFileItem {
   file: File;
   url?: string;
   previewUrl?: string;
+  type: string;
 }
 
-interface MultiFileUploadDropzoneProps {
+const CERTIFICATE_TYPE_OPTIONS = [
+  "NIC",
+  "Passport",
+  "Degree Certificate",
+  "A/L Certificate",
+  "O/L Certificate",
+  "Professional Certificate",
+  "Teaching Certificate",
+  "Others",
+];
+
+// Overload 1: Simple mode — returns string[]
+interface SimpleUploadProps {
+  mode?: "simple";
   onUploaded: (urls: string[]) => void;
   defaultFiles?: string[];
 }
 
-export default function MultiFileUploadDropzone({
-  onUploaded,
-  defaultFiles = [],
-}: MultiFileUploadDropzoneProps) {
+// Overload 2: Certificate mode — returns CertificateFileItem[]
+interface CertificateUploadProps {
+  mode: "certificate";
+  onUploaded: (items: CertificateFileItem[]) => void;
+  defaultFiles?: CertificateFileItem[];
+}
+
+type MultiFileUploadDropzoneProps = SimpleUploadProps | CertificateUploadProps;
+
+export default function MultiFileUploadDropzone(
+  props: MultiFileUploadDropzoneProps,
+) {
+  const isCertMode = props.mode === "certificate";
+
   const [uploading, setUploading] = useState(false);
-  const [files, setFiles] = useState<FileItem[]>([]);
-  const [existingUrls, setExistingUrls] = useState<string[]>(defaultFiles);
+  const [newFiles, setNewFiles] = useState<NewFileItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Existing files: stored uniformly as CertificateFileItem internally
+  const [existingFiles, setExistingFiles] = useState<CertificateFileItem[]>(
+    () => {
+      if (isCertMode) {
+        return (props as CertificateUploadProps).defaultFiles ?? [];
+      }
+      return (
+        ((props as SimpleUploadProps).defaultFiles ?? []).map((url) => ({
+          type: "Others",
+          url,
+        }))
+      );
+    },
+  );
 
   const onDrop = useCallback(
     async (acceptedFiles: File[], fileRejections: unknown[]) => {
-      if (fileRejections.length > 0) {
+      if ((fileRejections as unknown[]).length > 0) {
         setError("Only images and PDF files are accepted");
       } else {
         setError(null);
       }
 
-      const newFiles: FileItem[] = acceptedFiles.map((file) => ({ file }));
-      setFiles((prev) => [...prev, ...newFiles]);
+      const incoming: NewFileItem[] = acceptedFiles.map((file) => ({
+        file,
+        type: "Others",
+      }));
+      setNewFiles((prev) => [...prev, ...incoming]);
 
-      for (const fileObj of newFiles) {
+      for (const fileObj of incoming) {
         const file = fileObj.file;
         setUploading(true);
 
@@ -44,7 +91,7 @@ export default function MultiFileUploadDropzone({
           const reader = new FileReader();
           reader.onload = () => {
             fileObj.previewUrl = reader.result as string;
-            setFiles((prev) => [...prev]);
+            setNewFiles((prev) => [...prev]);
           };
           reader.readAsDataURL(file);
         }
@@ -58,7 +105,18 @@ export default function MultiFileUploadDropzone({
               fileType: file.type,
             }),
           }).then((res) => res.json());
+        try {
+          const signed = await fetch("/api/upload-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              fileName: `${Date.now()}-${file.name}`,
+              fileType: file.type,
+            }),
+          }).then((res) => res.json());
 
+          const uploadUrl = signed.uploadUrl;
+          if (!uploadUrl) throw new Error("Failed to generate upload URL");
           const uploadUrl = signed.uploadUrl;
           if (!uploadUrl) throw new Error("Failed to generate upload URL");
 
@@ -70,11 +128,20 @@ export default function MultiFileUploadDropzone({
             },
             body: file,
           });
+          const uploadRes = await fetch(uploadUrl, {
+            method: "PUT",
+            headers: {
+              "x-ms-blob-type": "BlockBlob",
+              "Content-Type": file.type,
+            },
+            body: file,
+          });
 
+          if (!uploadRes.ok) throw new Error("Upload failed");
           if (!uploadRes.ok) throw new Error("Upload failed");
 
           fileObj.url = uploadUrl.split("?")[0];
-          setFiles((prev) => [...prev]);
+          setNewFiles((prev) => [...prev]);
         } catch (err) {
           console.error(err);
           alert(`Upload failed for ${file.name}`);
@@ -86,34 +153,59 @@ export default function MultiFileUploadDropzone({
     [],
   );
 
-  const onUploadedRef = useRef(onUploaded);
+  // Keep a stable ref to onUploaded to avoid stale closures
+  const onUploadedRef = useRef(props.onUploaded);
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onUploadedRef.current = props.onUploaded as any;
+  }, [props.onUploaded]);
 
   useEffect(() => {
-    onUploadedRef.current = onUploaded;
-  }, [onUploaded]);
+    const uploadedNew: CertificateFileItem[] = newFiles
+      .filter((f) => f.url)
+      .map((f) => ({ type: f.type, url: f.url! }));
 
-  useEffect(() => {
-    const newUrls = [
-      ...existingUrls,
-      ...files.filter((f) => f.url).map((f) => f.url!),
-    ];
-    onUploadedRef.current(newUrls);
-  }, [files, existingUrls]);
+    const combined: CertificateFileItem[] = [...existingFiles, ...uploadedNew];
 
-  const removeFile = (index: number, e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    const updatedFiles = [...files];
-    updatedFiles.splice(index, 1);
-    setFiles(updatedFiles);
-  };
+    if (isCertMode) {
+      (onUploadedRef.current as CertificateUploadProps["onUploaded"])(combined);
+    } else {
+      (onUploadedRef.current as SimpleUploadProps["onUploaded"])(
+        combined.map((c) => c.url),
+      );
+    }
+  }, [newFiles, existingFiles, isCertMode]);
 
   const removeExisting = (index: number, e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    const updated = [...existingUrls];
-    updated.splice(index, 1);
-    setExistingUrls(updated);
+    setExistingFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const updateExistingType = (index: number, type: string) => {
+    setExistingFiles((prev) =>
+      prev.map((f, i) => (i === index ? { ...f, type } : f)),
+    );
+  };
+
+  const removeNew = (index: number, e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateNewType = (index: number, type: string) => {
+    setNewFiles((prev) =>
+      prev.map((f, i) => (i === index ? { ...f, type } : f)),
+    );
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: true,
+    accept: {
+      "image/*": [],
+      "application/pdf": [],
+    },
+  });
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: true,
@@ -125,6 +217,7 @@ export default function MultiFileUploadDropzone({
 
   return (
     <div className="w-full space-y-4">
+      {/* Drop zone */}
       <div
         {...getRootProps()}
         className={`relative rounded-md border-2 border-dashed p-6 transition-colors cursor-pointer
@@ -143,7 +236,6 @@ export default function MultiFileUploadDropzone({
               <Plus className="h-6 w-6 text-brand-500" />
             )}
           </div>
-
           <div className="space-y-1">
             <p className="text-sm font-medium text-gray-800 dark:text-white/90">
               {isDragActive ? "Drop files here" : "Click or drag to upload"}
@@ -157,11 +249,13 @@ export default function MultiFileUploadDropzone({
 
       {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-      {(files.length > 0 || existingUrls.length > 0) && (
+      {/* File list */}
+      {(existingFiles.length > 0 || newFiles.length > 0) && (
         <div className="grid gap-2">
-          {existingUrls.map((url, i) => (
+          {/* Existing files */}
+          {existingFiles.map((cert, i) => (
             <div
-              key={`existing-${i}-${url}`}
+              key={`existing-${i}-${cert.url}`}
               className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-900"
             >
               <div className="flex min-w-0 items-center space-x-3 overflow-hidden">
@@ -170,16 +264,29 @@ export default function MultiFileUploadDropzone({
                     LINK
                   </span>
                 </div>
-                <div className="min-w-0">
+                <div className="min-w-0 grid gap-1">
                   <p className="truncate text-sm font-medium text-gray-800 dark:text-white/90">
-                    {url.split("/").pop() || url}
+                    {cert.url.split("/").pop() || cert.url}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Existing Upload
                   </p>
+                  {isCertMode && (
+                    <select
+                      value={cert.type}
+                      onChange={(e) => updateExistingType(i, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs border rounded px-2 py-1 bg-white text-gray-700 w-full max-w-[220px] dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
+                    >
+                      {CERTIFICATE_TYPE_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
-
               <button
                 type="button"
                 onClick={(e) => removeExisting(i, e)}
@@ -190,7 +297,8 @@ export default function MultiFileUploadDropzone({
             </div>
           ))}
 
-          {files.map((fileObj, i) => (
+          {/* Newly added files */}
+          {newFiles.map((fileObj, i) => (
             <div
               key={`new-${i}-${fileObj.file.name}`}
               className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-900"
@@ -211,8 +319,7 @@ export default function MultiFileUploadDropzone({
                     </span>
                   </div>
                 )}
-
-                <div className="min-w-0">
+                <div className="min-w-0 grid gap-1">
                   <p className="truncate text-sm font-medium text-gray-800 dark:text-white/90">
                     {fileObj.file.name}
                   </p>
@@ -226,12 +333,25 @@ export default function MultiFileUploadDropzone({
                       </span>
                     )}
                   </div>
+                  {isCertMode && (
+                    <select
+                      value={fileObj.type}
+                      onChange={(e) => updateNewType(i, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs border rounded px-2 py-1 bg-white text-gray-700 w-full max-w-[220px] dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
+                    >
+                      {CERTIFICATE_TYPE_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               </div>
-
               <button
                 type="button"
-                onClick={(e) => removeFile(i, e)}
+                onClick={(e) => removeNew(i, e)}
                 className="p-2 text-gray-400 transition-colors hover:text-red-500"
               >
                 <X className="h-4 w-4" />
