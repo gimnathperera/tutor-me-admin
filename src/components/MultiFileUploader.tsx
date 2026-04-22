@@ -29,23 +29,49 @@ const CERTIFICATE_TYPE_OPTIONS = [
   "Others",
 ];
 
-interface MultiFileUploadDropzoneProps {
+// Overload 1: Simple mode — returns string[]
+interface SimpleUploadProps {
+  mode?: "simple";
+  onUploaded: (urls: string[]) => void;
+  defaultFiles?: string[];
+}
+
+// Overload 2: Certificate mode — returns CertificateFileItem[]
+interface CertificateUploadProps {
+  mode: "certificate";
   onUploaded: (items: CertificateFileItem[]) => void;
   defaultFiles?: CertificateFileItem[];
 }
 
-export default function MultiFileUploadDropzone({
-  onUploaded,
-  defaultFiles = [],
-}: MultiFileUploadDropzoneProps) {
+type MultiFileUploadDropzoneProps = SimpleUploadProps | CertificateUploadProps;
+
+export default function MultiFileUploadDropzone(
+  props: MultiFileUploadDropzoneProps,
+) {
+  const isCertMode = props.mode === "certificate";
+
   const [uploading, setUploading] = useState(false);
   const [newFiles, setNewFiles] = useState<NewFileItem[]>([]);
-  const [existingFiles, setExistingFiles] = useState<CertificateFileItem[]>(defaultFiles);
   const [error, setError] = useState<string | null>(null);
+
+  // Existing files: stored uniformly as CertificateFileItem internally
+  const [existingFiles, setExistingFiles] = useState<CertificateFileItem[]>(
+    () => {
+      if (isCertMode) {
+        return (props as CertificateUploadProps).defaultFiles ?? [];
+      }
+      return (
+        ((props as SimpleUploadProps).defaultFiles ?? []).map((url) => ({
+          type: "Others",
+          url,
+        }))
+      );
+    },
+  );
 
   const onDrop = useCallback(
     async (acceptedFiles: File[], fileRejections: unknown[]) => {
-      if (fileRejections && (fileRejections as unknown[]).length > 0) {
+      if ((fileRejections as unknown[]).length > 0) {
         setError("Only images and PDF files are accepted");
       } else {
         setError(null);
@@ -107,17 +133,28 @@ export default function MultiFileUploadDropzone({
     [],
   );
 
-  const onUploadedRef = useRef(onUploaded);
+  // Keep a stable ref to onUploaded to avoid stale closures
+  const onUploadedRef = useRef(props.onUploaded);
   useEffect(() => {
-    onUploadedRef.current = onUploaded;
-  }, [onUploaded]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onUploadedRef.current = props.onUploaded as any;
+  }, [props.onUploaded]);
 
   useEffect(() => {
     const uploadedNew: CertificateFileItem[] = newFiles
       .filter((f) => f.url)
       .map((f) => ({ type: f.type, url: f.url! }));
-    onUploadedRef.current([...existingFiles, ...uploadedNew]);
-  }, [newFiles, existingFiles]);
+
+    const combined: CertificateFileItem[] = [...existingFiles, ...uploadedNew];
+
+    if (isCertMode) {
+      (onUploadedRef.current as CertificateUploadProps["onUploaded"])(combined);
+    } else {
+      (onUploadedRef.current as SimpleUploadProps["onUploaded"])(
+        combined.map((c) => c.url),
+      );
+    }
+  }, [newFiles, existingFiles, isCertMode]);
 
   const removeExisting = (index: number, e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -152,65 +189,80 @@ export default function MultiFileUploadDropzone({
 
   return (
     <div className="w-full space-y-4">
+      {/* Drop zone */}
       <div
         {...getRootProps()}
-        className={`
-          relative border-2 border-dashed rounded-lg p-6 transition-colors
-          ${isDragActive
-            ? "border-blue-500 bg-blue-50/50"
-            : "border-gray-200 hover:border-blue-500/50 hover:bg-gray-50/50"
-          }
-        `}
+        className={`relative rounded-md border-2 border-dashed p-6 transition-colors cursor-pointer
+          ${
+            isDragActive
+              ? "border-brand-300 bg-brand-50/40 dark:border-brand-500 dark:bg-gray-800/80"
+              : "border-gray-300 bg-white hover:border-brand-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-500 dark:hover:bg-gray-800/80"
+          }`}
       >
         <input {...getInputProps()} />
-        <div className="flex flex-col items-center justify-center text-center space-y-2">
-          <div className="p-3 rounded-full bg-gray-100">
+        <div className="flex flex-col items-center justify-center space-y-2 text-center">
+          <div className="flex h-[68px] w-[68px] items-center justify-center rounded-full bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
             {uploading ? (
-              <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+              <Loader2 className="h-6 w-6 animate-spin text-brand-500" />
             ) : (
-              <Plus className="h-6 w-6 text-gray-500" />
+              <Plus className="h-6 w-6 text-brand-500" />
             )}
           </div>
           <div className="space-y-1">
-            <p className="text-sm font-medium text-gray-700">
+            <p className="text-sm font-medium text-gray-800 dark:text-white/90">
               {isDragActive ? "Drop files here" : "Click or drag to upload"}
             </p>
-            <p className="text-xs text-gray-500">PDF, Images</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              PDF, Images
+            </p>
           </div>
         </div>
       </div>
+
       {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
+      {/* File list */}
       {(existingFiles.length > 0 || newFiles.length > 0) && (
         <div className="grid gap-2">
-          {/* Existing uploaded files */}
+          {/* Existing files */}
           {existingFiles.map((cert, i) => (
             <div
               key={`existing-${i}-${cert.url}`}
-              className="flex items-center gap-3 p-3 bg-white border rounded-lg shadow-sm"
+              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-900"
             >
-              <div className="h-10 w-10 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center">
-                <span className="text-xs font-medium text-gray-500">LINK</span>
-              </div>
-              <div className="flex-1 min-w-0 grid gap-1">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {cert.url.split("/").pop() || cert.url}
-                </p>
-                <select
-                  value={cert.type}
-                  onChange={(e) => updateExistingType(i, e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-xs border rounded px-2 py-1 bg-white text-gray-700 w-full max-w-[220px]"
-                >
-                  {CERTIFICATE_TYPE_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
+              <div className="flex min-w-0 items-center space-x-3 overflow-hidden">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    LINK
+                  </span>
+                </div>
+                <div className="min-w-0 grid gap-1">
+                  <p className="truncate text-sm font-medium text-gray-800 dark:text-white/90">
+                    {cert.url.split("/").pop() || cert.url}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Existing Upload
+                  </p>
+                  {isCertMode && (
+                    <select
+                      value={cert.type}
+                      onChange={(e) => updateExistingType(i, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs border rounded px-2 py-1 bg-white text-gray-700 w-full max-w-[220px] dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
+                    >
+                      {CERTIFICATE_TYPE_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
               </div>
               <button
                 type="button"
                 onClick={(e) => removeExisting(i, e)}
-                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                className="p-2 text-gray-400 transition-colors hover:text-red-500"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -221,46 +273,58 @@ export default function MultiFileUploadDropzone({
           {newFiles.map((fileObj, i) => (
             <div
               key={`new-${i}-${fileObj.file.name}`}
-              className="flex items-center gap-3 p-3 bg-white border rounded-lg shadow-sm"
+              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-900"
             >
-              <div className="h-10 w-10 shrink-0 rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
+              <div className="flex min-w-0 items-center space-x-3 overflow-hidden">
                 {fileObj.previewUrl ? (
-                  <img
-                    src={fileObj.previewUrl}
-                    alt={fileObj.file.name}
-                    className="h-full w-full object-cover"
-                  />
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+                    <img
+                      src={fileObj.previewUrl}
+                      alt={fileObj.file.name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                 ) : (
-                  <span className="text-xs font-medium text-gray-500">FILE</span>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                      FILE
+                    </span>
+                  </div>
                 )}
-              </div>
-              <div className="flex-1 min-w-0 grid gap-1">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {fileObj.file.name}
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-gray-500">
-                    {(fileObj.file.size / 1024 / 1024).toFixed(2)} MB
+                <div className="min-w-0 grid gap-1">
+                  <p className="truncate text-sm font-medium text-gray-800 dark:text-white/90">
+                    {fileObj.file.name}
                   </p>
-                  {fileObj.url && (
-                    <span className="text-xs text-green-600 font-medium">Uploaded</span>
+                  <div className="flex items-center space-x-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {(fileObj.file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                    {fileObj.url && (
+                      <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        Uploaded
+                      </span>
+                    )}
+                  </div>
+                  {isCertMode && (
+                    <select
+                      value={fileObj.type}
+                      onChange={(e) => updateNewType(i, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs border rounded px-2 py-1 bg-white text-gray-700 w-full max-w-[220px] dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600"
+                    >
+                      {CERTIFICATE_TYPE_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
                   )}
                 </div>
-                <select
-                  value={fileObj.type}
-                  onChange={(e) => updateNewType(i, e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-xs border rounded px-2 py-1 bg-white text-gray-700 w-full max-w-[220px]"
-                >
-                  {CERTIFICATE_TYPE_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
               </div>
               <button
                 type="button"
                 onClick={(e) => removeNew(i, e)}
-                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                className="p-2 text-gray-400 transition-colors hover:text-red-500"
               >
                 <X className="h-4 w-4" />
               </button>
