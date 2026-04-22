@@ -20,12 +20,12 @@ export const updateUserSchema = z.object({
 
   phoneNumber: z
     .string()
-    .min(1, "Contact Number is required")
+    .min(1, "Phone Number is required")
     .refine((value) => !/\s/.test(value), {
-      message: "Contact Number must contain numeric values only",
+      message: "Phone Number must contain numeric values only",
     })
     .refine((value) => digitsOnlyRegex.test(value), {
-      message: "Contact Number should be exactly 10 digits.",
+      message: "Phone Number should be exactly 10 digits.",
     }),
 
   birthday: z.string().min(1, "Birthday is required"),
