@@ -29,18 +29,12 @@ export default function GradesTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
+  // TODO:Best for small/medium datasets. For very large datasets, move search to the backend.
   const { data, isLoading } = useFetchGradesQuery({
-    page,
-    limit,
+    page: 1,
+    limit: 1000,
     sortBy: "createdAt:desc",
   });
-
-  const totalPages = data?.totalPages || 0;
-  const totalResults = data?.totalResults || 0;
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
 
   const getSafeValue = (
     value: string | undefined | null,
@@ -57,7 +51,7 @@ export default function GradesTable() {
     return value;
   };
 
-  // ✅ FILTER (same as Subjects)
+  // Filter against the full fetched dataset
   const filteredGrades = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
     const grades = data?.results || [];
@@ -71,6 +65,20 @@ export default function GradesTable() {
       return title.includes(query) || description.includes(query);
     });
   }, [data, searchTerm]);
+
+  // Apply pagination after filtering
+  const paginatedGrades = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    return filteredGrades.slice(startIndex, endIndex);
+  }, [filteredGrades, page, limit]);
+
+  const totalResults = filteredGrades.length;
+  const totalPages = Math.ceil(totalResults / limit);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
   const columns = [
     {
@@ -180,7 +188,6 @@ export default function GradesTable() {
       variants={staggerContainer}
       className="space-y-4"
     >
-      {/* 🔍 FILTER BAR */}
       <motion.div
         variants={fadeUp}
         className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm dark:bg-gray-900 sm:flex-row sm:justify-between"
@@ -208,11 +215,11 @@ export default function GradesTable() {
 
       <DataTable
         columns={columns}
-        data={filteredGrades}
+        data={paginatedGrades}
         page={page}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-        totalResults={searchTerm ? filteredGrades.length : totalResults}
+        totalResults={totalResults}
         limit={limit}
         isLoading={isLoading}
       />

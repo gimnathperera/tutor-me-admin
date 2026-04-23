@@ -24,14 +24,12 @@ export default function FAQTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
+  // TODO:Best for small/medium datasets. For very large datasets, move search to the backend.
   const { data, isLoading } = useFetchFaqsQuery({
-    page,
-    limit,
+    page: 1,
+    limit: 1000,
     sortBy: "createdAt:desc",
   });
-
-  const totalPages = data?.totalPages || 0;
-  const totalResults = data?.totalResults || 0;
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -76,6 +74,7 @@ export default function FAQTable() {
     }
   };
 
+  // Filter against the full fetched dataset
   const filteredFaqs = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
     const faqs = data?.results || [];
@@ -92,6 +91,16 @@ export default function FAQTable() {
       );
     });
   }, [data, searchTerm]);
+
+  // Apply pagination after filtering
+  const paginatedFaqs = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    return filteredFaqs.slice(startIndex, endIndex);
+  }, [filteredFaqs, page, limit]);
+
+  const totalResults = filteredFaqs.length;
+  const totalPages = Math.ceil(totalResults / limit);
 
   const columns = [
     {
@@ -222,8 +231,8 @@ export default function FAQTable() {
             FAQs
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Filter FAQs by question, answer, or ID and manage them across
-            desktop and mobile.
+            Filter FAQs across the full dataset and manage them across desktop
+            and mobile.
           </p>
         </div>
 
@@ -246,10 +255,10 @@ export default function FAQTable() {
         <motion.div layout className="overflow-hidden rounded-2xl">
           <DataTable
             columns={columns}
-            data={filteredFaqs}
+            data={paginatedFaqs}
             page={page}
             totalPages={totalPages}
-            totalResults={searchTerm ? filteredFaqs.length : totalResults}
+            totalResults={totalResults}
             limit={limit}
             onPageChange={handlePageChange}
             isLoading={isLoading}
@@ -276,8 +285,8 @@ export default function FAQTable() {
               <div className="mt-4 h-9 w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700" />
             </motion.div>
           ))
-        ) : filteredFaqs.length > 0 ? (
-          filteredFaqs.map((row) => {
+        ) : paginatedFaqs.length > 0 ? (
+          paginatedFaqs.map((row) => {
             const safeQuestion = getSafeValue(
               row.question,
               "No question provided",
@@ -374,7 +383,7 @@ export default function FAQTable() {
         )}
       </motion.div>
 
-      {!isLoading && filteredFaqs.length === 0 && (
+      {!isLoading && paginatedFaqs.length === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

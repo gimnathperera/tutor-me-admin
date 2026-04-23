@@ -279,7 +279,6 @@ export default function UpdateUser() {
                   options={[
                     { value: "male", label: "Male" },
                     { value: "female", label: "Female" },
-                    { value: "other", label: "Other" },
                   ]}
                   value={genderValue}
                   onChange={(value) =>
@@ -319,7 +318,6 @@ export default function UpdateUser() {
                   )}
                 </div>
               </div>
-
               <div className="flex flex-col">
                 <Label htmlFor="birthday" className="mb-3">
                   Birthday *
@@ -336,13 +334,6 @@ export default function UpdateUser() {
                   label=""
                   required
                 />
-                <div className="mt-1">
-                  {errors.birthday && (
-                    <p className="text-sm text-red-500">
-                      {errors.birthday.message}
-                    </p>
-                  )}
-                </div>
               </div>
             </div>
 

@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { initialFormValues, LoginSchema, loginSchema } from "./schema";
 
 export default function SignInForm() {
@@ -29,6 +30,12 @@ export default function SignInForm() {
     return () => subscription.unsubscribe();
   }, [loginForm, isAuthError, setIsAuthError]);
 
+  useEffect(() => {
+    if (isAuthError) {
+      toast.error("Invalid credentials. Email or password wrong.");
+    }
+  }, [isAuthError]);
+
   const onSubmit = (data: LoginSchema) => {
     login(data);
   };
@@ -46,58 +53,45 @@ export default function SignInForm() {
             </p>
           </div>
 
-          <div>
-            <FormProvider {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(onSubmit)}>
-                <div className="space-y-6">
-                  <div>
-                    <InputText
-                      label="Email"
-                      name="email"
-                      placeholder="jhon@xyz.com"
-                      type="email"
-                    />
+          <FormProvider {...loginForm}>
+            <form onSubmit={loginForm.handleSubmit(onSubmit)}>
+              <div className="space-y-6">
+                <InputText
+                  label="Email"
+                  name="email"
+                  placeholder="jhon@xyz.com"
+                  type="email"
+                />
+
+                <InputPassword
+                  label="Password"
+                  name="password"
+                  placeholder="*******"
+                />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Checkbox checked={isChecked} onChange={setIsChecked} />
+                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
+                      Keep me logged in
+                    </span>
                   </div>
 
-                  <div>
-                    <InputPassword
-                      label="Password"
-                      name="password"
-                      placeholder="*******"
-                    />
-                  </div>
-
-                  {isAuthError && (
-                    <span className="text-red-500 text-xs">{isAuthError}</span>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Checkbox checked={isChecked} onChange={setIsChecked} />
-                      <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                        Keep me logged in
-                      </span>
-                    </div>
-
-                    <Link
-                      href="/reset-password"
-                      className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-
-                  <div>
-                    <SubmitButton
-                      title="Sign In"
-                      type="submit"
-                      loading={isLoading}
-                    />
-                  </div>
+                  <Link
+                    href="/reset-password"
+                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
-              </form>
-            </FormProvider>
-          </div>
+
+                <SubmitButton
+                  title="Sign In"
+                  type="submit"
+                  loading={isLoading}
+                />
+              </div>
+            </form>
+          </FormProvider>
         </div>
       </div>
     </div>
