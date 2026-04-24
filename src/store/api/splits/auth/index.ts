@@ -2,8 +2,13 @@ import {
   UserLoginRequest,
   UserLogoutRequest,
   UserRefreshTokenRequest,
+  ResetPasswordRequest,
 } from "@/types/request-types";
-import { TokenResponse, UserLoginResponse } from "@/types/response-types";
+import {
+  TokenResponse,
+  UpdatePasswordResponse,
+  UserLoginResponse,
+} from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
@@ -36,6 +41,13 @@ export const usersApi = baseApi.injectEndpoints({
         };
       },
     }),
+    resetPassword: build.mutation<UpdatePasswordResponse, ResetPasswordRequest>({
+      query: ({ token, password }) => ({
+        url: `${Endpoints.ResetPassword}?token=${encodeURIComponent(token)}`,
+        method: "POST",
+        body: { password },
+      }),
+    }),
   }),
 
   overrideExisting: false,
@@ -45,4 +57,5 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useFetchAccessTokenMutation,
+  useResetPasswordMutation,
 } = usersApi;

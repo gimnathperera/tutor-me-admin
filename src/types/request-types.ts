@@ -59,6 +59,18 @@ export type UserRegisterRequest = {
   name: string;
 };
 
+export type CreateAdminRequest = {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+};
+
+export type ResetPasswordRequest = {
+  token: string;
+  password: string;
+};
+
 export type UpdateProfileRequest = {
   id: string;
   payload: {
