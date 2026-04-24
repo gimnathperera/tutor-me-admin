@@ -30,18 +30,12 @@ export default function TestimonialsTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
+  // TODO: Best for small/medium datasets. For very large datasets, move search to the backend.
   const { data, isLoading } = useFetchTestimonialsQuery({
-    page,
-    limit,
+    page: 1,
+    limit: 1000,
     sortBy: "createdAt:desc",
   });
-
-  const totalPages = data?.totalPages || 0;
-  const totalResults = data?.totalResults || 0;
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
 
   const getSafeValue = (value: unknown, fallback = "N/A"): string => {
     if (value === undefined || value === null) return fallback;
@@ -49,16 +43,41 @@ export default function TestimonialsTable() {
     return str.trim() === "" ? fallback : str;
   };
 
+  // Filter against the full fetched dataset
   const filteredTestimonials = useMemo(() => {
     const query = searchTerm.toLowerCase().trim();
     const testimonials = data?.results || [];
 
     if (!query) return testimonials;
 
-    return testimonials.filter((t: Testimonial) =>
-      getSafeValue(t.owner?.name, "").toLowerCase().includes(query),
-    );
+    return testimonials.filter((t: Testimonial) => {
+      const ownerName = getSafeValue(t.owner?.name, "").toLowerCase();
+      const ownerRole = getSafeValue(t.owner?.role, "").toLowerCase();
+      const content = getSafeValue(t.content, "").toLowerCase();
+      const rating = getSafeValue(t.rating, "").toLowerCase();
+
+      return (
+        ownerName.includes(query) ||
+        ownerRole.includes(query) ||
+        content.includes(query) ||
+        rating.includes(query)
+      );
+    });
   }, [data, searchTerm]);
+
+  // Apply pagination after filtering
+  const paginatedTestimonials = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    return filteredTestimonials.slice(startIndex, endIndex);
+  }, [filteredTestimonials, page, limit]);
+
+  const totalResults = filteredTestimonials.length;
+  const totalPages = Math.ceil(totalResults / limit);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
   const columns = [
     {
@@ -75,7 +94,7 @@ export default function TestimonialsTable() {
               className="w-10 h-10 rounded-full"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
               <User size={14} />
             </div>
           )}
@@ -194,7 +213,9 @@ export default function TestimonialsTable() {
       >
         <div>
           <h2 className="font-semibold">Testimonials</h2>
-          <p className="text-sm text-gray-500">Filter by owner name</p>
+          <p className="text-sm text-gray-500">
+            Filter testimonials across the full dataset
+          </p>
         </div>
 
         <div className="relative w-full sm:max-w-xs">
@@ -205,7 +226,7 @@ export default function TestimonialsTable() {
               setSearchTerm(e.target.value);
               setPage(1);
             }}
-            placeholder="filter by owner..."
+            placeholder="filter testimonials..."
             className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400"
           />
         </div>
@@ -214,29 +235,36 @@ export default function TestimonialsTable() {
       <motion.div variants={fadeUp} className="hidden md:block">
         <DataTable
           columns={columns}
-          data={filteredTestimonials}
+          data={paginatedTestimonials}
           page={page}
           totalPages={totalPages}
           onPageChange={handlePageChange}
-          totalResults={searchTerm ? filteredTestimonials.length : totalResults}
+          totalResults={totalResults}
           limit={limit}
           isLoading={isLoading}
         />
       </motion.div>
 
       <motion.div className="grid gap-4 md:hidden">
-        {filteredTestimonials.map((row) => (
+        {paginatedTestimonials.map((row) => (
           <motion.div
             key={row.id}
             variants={fadeUp}
             className="rounded-2xl border bg-white p-4 dark:bg-gray-900"
           >
             <div className="flex items-center gap-3">
-              <img
-                src={row.owner?.avatar || "/images/user/user.png"}
-                alt={getSafeValue(row.owner?.name, "User avatar")}
-                className="w-10 h-10 rounded-full"
-              />
+              {row.owner?.avatar ? (
+                <img
+                  src={row.owner?.avatar || "/images/user/user.png"}
+                  alt={getSafeValue(row.owner?.name, "User avatar")}
+                  className="h-10 w-10 rounded-full"
+                />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
+                  <User size={14} />
+                </div>
+              )}
+
               <div>
                 <p className="font-medium">{getSafeValue(row.owner?.name)}</p>
                 <p className="text-xs text-gray-500">
