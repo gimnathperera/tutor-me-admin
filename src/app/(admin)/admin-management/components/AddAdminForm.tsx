@@ -25,6 +25,7 @@ import {
 const workflowSteps = [
   "Create the admin account with name, email, phone number, and password.",
   "Backend creates the admin with role: admin.",
+  "New admin opens the link, sets a new password, and then logs in normally.",
 ];
 
 export default function AddAdminForm() {
