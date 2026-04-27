@@ -718,6 +718,7 @@ export function EditTutor({ id }: EditTutorProps) {
             <div className="grid gap-3 border p-4 rounded-md">
               <Label>Certificates & Qualifications</Label>
               <MultiFileUploader
+                mode="certificate"
                 defaultFiles={tutorData?.certificatesAndQualifications || []}
                 onUploaded={(items) =>
                   setValue("certificatesAndQualifications" as never, items as never, {

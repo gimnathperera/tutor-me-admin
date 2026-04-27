@@ -4,8 +4,8 @@ import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
-import { Layers3, Search } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { Search } from "lucide-react";
+import { motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { DeleteSubject } from "./DeleteSubject";
 import { UpdateSubject } from "./edit-subject/UpdateSubject";
@@ -23,14 +23,12 @@ export default function SubjectsTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
+  // ✅ FETCH MORE DATA (for full filtering)
   const { data, isLoading } = useFetchSubjectsQuery({
-    page,
-    limit,
+    page: 1,
+    limit: 1000,
     sortBy: "createdAt:desc",
   });
-
-  const totalPages = data?.totalPages || 0;
-  const totalResults = data?.totalResults || 0;
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -46,6 +44,7 @@ export default function SubjectsTable() {
     return value;
   };
 
+  // ✅ FILTER FULL DATASET
   const filteredSubjects = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
     const subjects = data?.results || [];
@@ -56,6 +55,16 @@ export default function SubjectsTable() {
       getSafeValue(subject.title, "").toLowerCase().includes(query),
     );
   }, [data, searchTerm]);
+
+  // ✅ PAGINATE AFTER FILTER
+  const paginatedSubjects = useMemo(() => {
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    return filteredSubjects.slice(start, end);
+  }, [filteredSubjects, page, limit]);
+
+  const totalResults = filteredSubjects.length;
+  const totalPages = Math.ceil(totalResults / limit);
 
   const columns = [
     {
@@ -68,8 +77,9 @@ export default function SubjectsTable() {
         return (
           <span
             title={`Title: ${safeTitle}`}
-            className={`block truncate ${!row.title ? "italic text-gray-400" : ""}`}
-            style={{ width: "inherit" }}
+            className={`block truncate ${
+              !row.title ? "italic text-gray-400" : ""
+            }`}
           >
             {safeTitle}
           </span>
@@ -79,8 +89,7 @@ export default function SubjectsTable() {
     {
       key: "description",
       header: "Description",
-      className:
-        "min-w-[200px] max-w-[300px] truncate overflow-hidden cursor-default",
+      className: "min-w-[200px] max-w-[300px] truncate overflow-hidden",
       render: (row: Subject) => {
         const safeDescription = getSafeValue(
           row.description,
@@ -89,7 +98,9 @@ export default function SubjectsTable() {
         return (
           <span
             title={`Description: ${safeDescription}`}
-            className={`block truncate ${!row.description ? "italic text-gray-400" : ""}`}
+            className={`block truncate ${
+              !row.description ? "italic text-gray-400" : ""
+            }`}
           >
             {safeDescription}
           </span>
@@ -99,16 +110,11 @@ export default function SubjectsTable() {
     {
       key: "view",
       header: <div className="w-full text-center">View</div>,
-      className:
-        "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: Subject) => (
-        <div className="flex w-full items-center justify-center">
+        <div className="flex justify-center">
           <SubjectDetails
-            title={getSafeValue(row.title, "No title provided")}
-            description={getSafeValue(
-              row.description,
-              "No description provided",
-            )}
+            title={getSafeValue(row.title)}
+            description={getSafeValue(row.description)}
           />
         </div>
       ),
@@ -116,10 +122,8 @@ export default function SubjectsTable() {
     {
       key: "edit",
       header: <div className="w-full text-center">Edit</div>,
-      className:
-        "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: Subject) => (
-        <div className="flex w-full items-center justify-center">
+        <div className="flex justify-center">
           <UpdateSubject
             id={row.id}
             title={getSafeValue(row.title, "")}
@@ -131,10 +135,8 @@ export default function SubjectsTable() {
     {
       key: "delete",
       header: <div className="w-full text-center">Delete</div>,
-      className:
-        "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Subject) => (
-        <div className="flex w-full items-center justify-center">
+        <div className="flex justify-center">
           <DeleteSubject subjectId={row.id} />
         </div>
       ),
@@ -148,164 +150,40 @@ export default function SubjectsTable() {
       variants={staggerContainer}
       className="space-y-4"
     >
+      {/* FILTER BAR */}
       <motion.div
         variants={fadeUp}
-        className="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:flex-row sm:items-center sm:justify-between"
+        className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm dark:bg-gray-900 sm:flex-row sm:justify-between"
       >
         <div>
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-            Subjects
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Filter subjects by title and manage them across desktop and mobile.
-          </p>
+          <h2 className="font-semibold">Subjects</h2>
+          <p className="text-sm text-gray-500">Filter subjects by title</p>
         </div>
 
-        <motion.div layout className="relative w-full sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
-            type="text"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
-              setPage(TABLE_CONFIG.DEFAULT_PAGE);
+              setPage(1);
             }}
-            placeholder="Filter by name..."
-            className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400"
+            placeholder="Filter subjects..."
+            className="h-11 w-full rounded-xl border pl-10 pr-4 text-sm"
           />
-        </motion.div>
+        </div>
       </motion.div>
 
-      <motion.div variants={fadeUp} className="hidden md:block">
-        <motion.div layout className="overflow-hidden rounded-2xl">
-          <DataTable
-            columns={columns}
-            data={filteredSubjects}
-            page={page}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            totalResults={searchTerm ? filteredSubjects.length : totalResults}
-            limit={limit}
-            isLoading={isLoading}
-          />
-        </motion.div>
-      </motion.div>
-
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="show"
-        className="grid gap-4 md:hidden"
-      >
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, index) => (
-            <motion.div
-              key={index}
-              variants={fadeUp}
-              className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-            >
-              <div className="h-4 w-28 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-              <div className="mt-3 h-3 w-full animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-              <div className="mt-2 h-3 w-2/3 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-              <div className="mt-4 h-9 w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700" />
-            </motion.div>
-          ))
-        ) : filteredSubjects.length > 0 ? (
-          filteredSubjects.map((row) => {
-            const safeTitle = getSafeValue(row.title, "No title provided");
-            const safeDescription = getSafeValue(
-              row.description,
-              "No description provided",
-            );
-
-            return (
-              <motion.div
-                key={row.id}
-                variants={fadeUp}
-                layout
-                whileHover={{ y: -3 }}
-                className="overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <h3
-                      className={`truncate text-sm font-semibold text-gray-900 dark:text-white ${
-                        !row.title ? "italic text-gray-400" : ""
-                      }`}
-                    >
-                      {safeTitle}
-                    </h3>
-                    <p className="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
-                      {safeDescription}
-                    </p>
-                  </div>
-
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
-                    <Layers3 className="h-5 w-5" />
-                  </div>
-                </div>
-
-                <div className="mt-4 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-800">
-                  <span className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Subject details
-                  </span>
-                </div>
-
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <div className="flex justify-center rounded-xl border border-gray-200 p-2 dark:border-gray-700">
-                    <SubjectDetails
-                      title={safeTitle}
-                      description={safeDescription}
-                    />
-                  </div>
-                  <div className="flex justify-center rounded-xl border border-gray-200 p-2 dark:border-gray-700">
-                    <UpdateSubject
-                      id={row.id}
-                      title={getSafeValue(row.title, "")}
-                      description={getSafeValue(row.description, "")}
-                    />
-                  </div>
-                  <div className="flex justify-center rounded-xl border border-gray-200 p-2 dark:border-gray-700">
-                    <DeleteSubject subjectId={row.id} />
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key="empty-state"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900"
-            >
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
-                No subjects found
-              </p>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Try a different title in the filter input.
-              </p>
-            </motion.div>
-          </AnimatePresence>
-        )}
-      </motion.div>
-
-      {!isLoading && filteredSubjects.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="hidden rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900 md:block"
-        >
-          <p className="text-sm font-medium text-gray-900 dark:text-white">
-            No subjects found
-          </p>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Try a different title in the filter input.
-          </p>
-        </motion.div>
-      )}
+      <DataTable
+        columns={columns}
+        data={paginatedSubjects}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        totalResults={totalResults}
+        limit={limit}
+        isLoading={isLoading}
+      />
     </motion.div>
   );
 }

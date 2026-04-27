@@ -24,7 +24,7 @@ export const paperSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   grade: z.string().min(1, "Grade is required"),
   year: z.string().regex(/^\d{4}$/, "Year must be a 4-digit number"),
-  url: z.string().url("Must be a valid URL"),
+  url: z.string().url("Paper File is required"),
 });
 
 export type PaperSchema = z.infer<typeof paperSchema>;

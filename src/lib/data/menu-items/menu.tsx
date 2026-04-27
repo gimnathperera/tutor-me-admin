@@ -5,6 +5,7 @@ import {
   LibraryBig,
   MessageSquareHeart,
   NotebookText,
+  UserCog,
   TextSearch,
   User,
 } from "lucide-react";
@@ -68,6 +69,11 @@ const NavItems = [
       { name: "Tutors", path: "/tutors", pro: false },
       { name: "Users", path: "/users/all-users", pro: false },
     ],
+  },
+  {
+    name: "Admin Management",
+    icon: <UserCog />,
+    path: "/admin-management",
   },
   // {
   //   icon: <MessageSquareMore />,

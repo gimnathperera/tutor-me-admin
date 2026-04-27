@@ -64,18 +64,12 @@ export default function PapersTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
+  // TODO: Best for small/medium datasets. For very large datasets, move search to the backend.
   const { data, isLoading } = useFetchPapersQuery({
-    page,
-    limit,
+    page: 1,
+    limit: 1000,
     sortBy: "createdAt:desc",
   });
-
-  const totalPages = data?.totalPages || 0;
-  const totalResults = data?.totalResults || 0;
-
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
 
   const getSafeValue = (value: unknown, fallback = "N/A"): string => {
     if (value === undefined || value === null) {
@@ -162,16 +156,49 @@ export default function PapersTable() {
     }
   };
 
+  // Filter against the full fetched dataset
   const filteredPapers = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
     const papers = data?.results || [];
 
     if (!query) return papers;
 
-    return papers.filter((paper: Paper) =>
-      getSafeValue(paper.title, "").toLowerCase().includes(query),
-    );
+    return papers.filter((paper: Paper) => {
+      const title = getSafeValue(paper.title, "").toLowerCase();
+      const subject = getSafeNestedValue(
+        paper.subject,
+        "title",
+        "",
+      ).toLowerCase();
+      const grade = getSafeNestedValue(paper.grade, "title", "").toLowerCase();
+      const year = getSafeValue(paper.year, "").toLowerCase();
+      const medium = getSafeMedium(paper.medium, "").toLowerCase();
+      const url = getSafeValue(paper.url, "").toLowerCase();
+
+      return (
+        title.includes(query) ||
+        subject.includes(query) ||
+        grade.includes(query) ||
+        year.includes(query) ||
+        medium.includes(query) ||
+        url.includes(query)
+      );
+    });
   }, [data, searchTerm]);
+
+  // Apply pagination after filtering
+  const paginatedPapers = useMemo(() => {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    return filteredPapers.slice(startIndex, endIndex);
+  }, [filteredPapers, page, limit]);
+
+  const totalResults = filteredPapers.length;
+  const totalPages = Math.ceil(totalResults / limit);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
   const columns = [
     {
@@ -352,7 +379,8 @@ export default function PapersTable() {
             Papers
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Filter papers by title and manage them across desktop and mobile.
+            Filter papers across the full dataset and manage them across desktop
+            and mobile.
           </p>
         </div>
 
@@ -365,7 +393,7 @@ export default function PapersTable() {
               setSearchTerm(e.target.value);
               setPage(TABLE_CONFIG.DEFAULT_PAGE);
             }}
-            placeholder="Filter by name..."
+            placeholder="Filter papers..."
             className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400"
           />
         </motion.div>
@@ -375,11 +403,11 @@ export default function PapersTable() {
         <motion.div layout className="overflow-hidden rounded-2xl">
           <DataTable
             columns={columns}
-            data={filteredPapers}
+            data={paginatedPapers}
             page={page}
             totalPages={totalPages}
             onPageChange={handlePageChange}
-            totalResults={searchTerm ? filteredPapers.length : totalResults}
+            totalResults={totalResults}
             limit={limit}
             isLoading={isLoading}
           />
@@ -405,8 +433,8 @@ export default function PapersTable() {
               <div className="mt-4 h-9 w-full animate-pulse rounded-xl bg-gray-200 dark:bg-gray-700" />
             </motion.div>
           ))
-        ) : filteredPapers.length > 0 ? (
-          filteredPapers.map((row) => {
+        ) : paginatedPapers.length > 0 ? (
+          paginatedPapers.map((row) => {
             const safeTitle = getSafeValue(row.title, "No title provided");
             const safeMedium = getSafeMedium(row.medium);
             const safeSubject = getSafeNestedValue(
@@ -530,14 +558,14 @@ export default function PapersTable() {
                 No papers found
               </p>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Try a different title in the filter input.
+                Try a different filter value.
               </p>
             </motion.div>
           </AnimatePresence>
         )}
       </motion.div>
 
-      {!isLoading && filteredPapers.length === 0 && (
+      {!isLoading && paginatedPapers.length === 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -547,7 +575,7 @@ export default function PapersTable() {
             No papers found
           </p>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Try a different title in the filter input.
+            Try a different filter value.
           </p>
         </motion.div>
       )}
