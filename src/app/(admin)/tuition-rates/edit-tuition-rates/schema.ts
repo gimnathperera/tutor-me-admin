@@ -39,15 +39,10 @@ export const updateTuitionSchema = z.object({
   subject: z.string().min(1, "Subject is required"),
   grade: z.string().min(1, "Grade is required"),
 
-  fullTimeTuitionRate: z
-    .array(rateObject)
-    .nonempty("Full-time tuition rate is required"),
-  govTuitionRate: z
-    .array(rateObject)
-    .nonempty("Government tuition rate is required"),
-  partTimeTuitionRate: z
-    .array(rateObject)
-    .nonempty("Part-time tuition rate is required"),
+  universityStudentsRate: rateObject,
+  partTimeTutorRate: rateObject,
+  fullTimeTutorRate: rateObject,
+  moeTeacherRate: rateObject,
 });
 
 export type UpdateTuitionSchema = z.infer<typeof updateTuitionSchema>;
@@ -55,7 +50,8 @@ export type UpdateTuitionSchema = z.infer<typeof updateTuitionSchema>;
 export const initialFormValues: UpdateTuitionSchema = {
   subject: "",
   grade: "",
-  fullTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
-  govTuitionRate: [{ minimumRate: "", maximumRate: "" }],
-  partTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+  universityStudentsRate: { minimumRate: "", maximumRate: "" },
+  partTimeTutorRate: { minimumRate: "", maximumRate: "" },
+  fullTimeTutorRate: { minimumRate: "", maximumRate: "" },
+  moeTeacherRate: { minimumRate: "", maximumRate: "" },
 };

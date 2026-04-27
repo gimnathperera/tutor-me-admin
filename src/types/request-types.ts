@@ -213,17 +213,19 @@ export type UpdateTuitionRateRequest = {
   id: string;
   subject: string;
   grade: string;
-  fullTimeTuitionRate?: TuitionRate[];
-  govTuitionRate?: TuitionRate[];
-  partTimeTuitionRate?: TuitionRate[];
+  universityStudentsRate?: TuitionRate;
+  partTimeTutorRate?: TuitionRate;
+  fullTimeTutorRate?: TuitionRate;
+  moeTeacherRate?: TuitionRate;
 };
 
 export type FetchTuitionRatesRequest = {
   subject?: string[];
   grade?: string[];
-  fullTimeTuitionRate?: TuitionRate[];
-  govTuitionRate?: TuitionRate[];
-  partTimeTuitionRate?: TuitionRate[];
+  universityStudentsRate?: TuitionRate;
+  partTimeTutorRate?: TuitionRate;
+  fullTimeTutorRate?: TuitionRate;
+  moeTeacherRate?: TuitionRate;
   page?: number;
   sortBy?: string;
   limit?: number;
