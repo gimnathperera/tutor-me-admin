@@ -22,9 +22,10 @@ interface TuitionRateData {
   id: string;
   subject: RateDetail;
   grade: RateDetail | null;
-  fullTimeTuitionRate: TuitionRateObject[];
-  govTuitionRate: TuitionRateObject[];
-  partTimeTuitionRate: TuitionRateObject[];
+  universityStudentsRate: TuitionRateObject;
+  partTimeTutorRate: TuitionRateObject;
+  fullTimeTutorRate: TuitionRateObject;
+  moeTeacherRate: TuitionRateObject;
 }
 
 export default function TuitionRatesTable() {
@@ -77,9 +78,10 @@ export default function TuitionRatesTable() {
           <TuitionRateDetails
             grade={row.grade || { id: "", title: "N/A" }}
             subject={row.subject || { id: "", title: "N/A" }}
-            fullTimeTuitionRate={row.fullTimeTuitionRate || []}
-            govTuitionRate={row.govTuitionRate || []}
-            partTimeTuitionRate={row.partTimeTuitionRate || []}
+            universityStudentsRate={row.universityStudentsRate}
+            partTimeTutorRate={row.partTimeTutorRate}
+            fullTimeTutorRate={row.fullTimeTutorRate}
+            moeTeacherRate={row.moeTeacherRate}
           />
         </div>
       ),
@@ -94,9 +96,10 @@ export default function TuitionRatesTable() {
             id={row.id}
             subject={row.subject?.id || ""}
             grade={row.grade?.id || ""}
-            fullTimeTuitionRate={row.fullTimeTuitionRate || []}
-            govTuitionRate={row.govTuitionRate || []}
-            partTimeTuitionRate={row.partTimeTuitionRate || []}
+            universityStudentsRate={row.universityStudentsRate}
+            partTimeTutorRate={row.partTimeTutorRate}
+            fullTimeTutorRate={row.fullTimeTutorRate}
+            moeTeacherRate={row.moeTeacherRate}
           />
         </div>
       ),
