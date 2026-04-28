@@ -50,6 +50,17 @@ export const GradesApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Grades"],
     }),
+
+    fetchSubjectsByGrades: build.mutation<
+      { subjects: { id: string; title: string }[] },
+      { gradeIds: string[] }
+    >({
+      query: (body) => ({
+        url: `${Endpoints.Grades}/subjects-by-grades`,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -61,4 +72,5 @@ export const {
   useCreateGradeMutation,
   useUpdateGradeMutation,
   useDeleteGradeMutation,
+  useFetchSubjectsByGradesMutation,
 } = GradesApi;

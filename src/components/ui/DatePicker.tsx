@@ -13,6 +13,7 @@ interface DatePickerProps {
   error?: string;
   placeholder?: string;
   className?: string;
+  maxDate?: string;
 }
 
 // Custom input component with calendar icon
@@ -55,6 +56,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   error,
   placeholder = "Select your date of birth",
   className = "",
+  maxDate,
 }) => {
   const handleDateChange = (date: Date | null): void => {
     onChange(date?.toISOString().split("T")[0] || "");
@@ -75,7 +77,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         showMonthDropdown
         dropdownMode="select"
         yearDropdownItemNumber={15}
-        maxDate={new Date()}
+        maxDate={maxDate ? new Date(maxDate) : new Date()}
         customInput={<CustomInput error={error} />}
         placeholderText={placeholder}
         calendarClassName="shadow-xl border-0 rounded-lg bg-white"
