@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AddAdminForm from "./components/AddAdminForm";
 
 export const metadata: Metadata = {
-  title: "Admin Management | TuitionLanka Admin Panel",
+  title: "Admin | Tuition Lanka",
   description: "Create and invite new admin users from the admin panel.",
 };
 

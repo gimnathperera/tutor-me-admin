@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 
 import { Outfit } from "next/font/google";
+import type { Metadata } from "next";
 import "./globals.css";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -12,6 +13,15 @@ import { WithProviders } from "@/hocs/with-providers";
 const outfit = Outfit({
   subsets: ["latin"],
 });
+
+export const metadata: Metadata = {
+  title: "Admin | Tuition Lanka",
+  icons: {
+    icon: "/images/logo/LightThemeLogoIcon.svg",
+    shortcut: "/images/logo/LightThemeLogoIcon.svg",
+    apple: "/images/logo/LightThemeLogoIcon.svg",
+  },
+};
 
 export default function RootLayout({
   children,
