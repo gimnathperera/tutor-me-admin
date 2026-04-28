@@ -32,10 +32,10 @@ import {
   tutorTypeOptions,
   YEARS_EXPERIENCE_OPTIONS,
 } from "@/app/(admin)/tutors/constants";
-import MultiFileUploader from "@/components/MultiFileUploader";
+import MultiFileUploadDropzone from "@/components/MultiFileUploader";
 import {
   useFetchGradesQuery,
-  useLazyFetchGradeByIdQuery,
+  useFetchSubjectsByGradesMutation,
 } from "@/store/api/splits/grades";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,7 +57,7 @@ interface EditTutorProps {
   id: string;
 }
 
-const genderOptions = ["Male", "Female"] as const;
+const genderOptions = ["Male", "Female", "Others"] as const;
 const nationalityOptions = ["Sri Lankan", "Others"] as const;
 const raceOptions = [
   "Sinhalese",
@@ -69,28 +69,11 @@ const raceOptions = [
 
 const educationOptions = [
   "PhD",
-  "Diploma",
   "Masters",
-  "Undergraduate",
   "Bachelor Degree",
-  "Diploma and Professional",
-  "JC/A Levels",
-  "Poly",
-  "Others",
-] as const;
-
-const tutoringLevelsList = [
-  "Pre-School / Montessori",
-  "Primary School (Grades 1-5)",
-  "Ordinary Level (O/L) (Grades 6-11)",
-  "Advanced Level (A/L) (Grades 12-13)",
-  "International Syllabus (Cambridge, Edexcel, IB)",
   "Undergraduate",
-  "Diploma / Degree",
-  "Language (e.g., English, French, Japanese)",
-  "Computing (e.g., Programming, Graphic Design)",
-  "Music & Arts",
-  "Special Skills",
+  "Diploma and Professional",
+  "AL",
 ] as const;
 
 const locationOptions = [
@@ -144,19 +127,15 @@ const locationOptions = [
 const tutorTypeValues = [
   "Private Tutor",
   "Government Teacher",
-  "International School Teacher",
-  "University Lecturer",
-  "Online Tutor",
-  "Others",
+  "University Student",
+  "Coach",
 ] as const;
 
 const classTypeValues = [
   "Online - Individual",
   "Online - Group",
-  "Home Visit - Individual",
-  "Home Visit - Group",
-  "At Tutor's Place - Individual",
-  "At Tutor's Place - Group",
+  "Physical - Individual",
+  "Physical - Group",
 ] as const;
 
 export function EditTutor({ id }: EditTutorProps) {
@@ -165,7 +144,7 @@ export function EditTutor({ id }: EditTutorProps) {
   const [updateTutor, { isLoading: isUpdating }] = useUpdateTutorMutation();
 
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
-  const [fetchGradeById] = useLazyFetchGradeByIdQuery();
+  const [fetchSubjectsByGrades, { isLoading: isSubjectsLoading }] = useFetchSubjectsByGradesMutation();
   const gradeOptions =
     gradesData?.results?.map((g) => ({ value: g.id, text: g.title })) || [];
 
@@ -190,7 +169,6 @@ export function EditTutor({ id }: EditTutorProps) {
       race: "Sinhalese",
       status: "pending",
       classType: [],
-      tutoringLevels: [],
       preferredLocations: [],
       tutorType: [],
       yearsExperience: 0,
@@ -250,10 +228,7 @@ export function EditTutor({ id }: EditTutorProps) {
     const grades = JSON.parse(selectedGradesJson || "[]") as string[];
 
     if (grades.length === 0) {
-      if (
-        subjectOptions.length > 0 ||
-        (selectedSubjects && selectedSubjects.length > 0)
-      ) {
+      if (subjectOptions.length > 0 || (selectedSubjects && selectedSubjects.length > 0)) {
         setSubjectOptions([]);
         if (selectedSubjects && selectedSubjects.length > 0) {
           setValue("subjects", [], { shouldValidate: true });
@@ -263,58 +238,23 @@ export function EditTutor({ id }: EditTutorProps) {
       return;
     }
 
-    let cancelled = false;
-    const loadSubjects = async () => {
-      const allSubjects: { id: string; title: string }[] = [];
+    if (prevUniqueSubjectsRef.current === selectedGradesJson) return;
+    prevUniqueSubjectsRef.current = selectedGradesJson;
 
-      for (const gradeId of grades) {
-        try {
-          const res = await fetchGradeById(gradeId);
-          if (res?.data?.subjects) {
-            allSubjects.push(...res.data.subjects);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-
-      const uniqueSubjects = Array.from(
-        new Map(allSubjects.map((s) => [s.id, s])).values(),
-      );
-
-      const uniqueJson = JSON.stringify(
-        uniqueSubjects.map((s) => ({ id: s.id, title: s.title })),
-      );
-
-      if (cancelled) return;
-
-      if (prevUniqueSubjectsRef.current !== uniqueJson) {
-        setSubjectOptions(
-          uniqueSubjects.map((s) => ({ value: s.id, text: s.title })),
+    fetchSubjectsByGrades({ gradeIds: grades })
+      .unwrap()
+      .then((res) => {
+        const subjects = res.subjects ?? [];
+        setSubjectOptions(subjects.map((s) => ({ value: s.id, text: s.title })));
+        const validSelected = (selectedSubjects || []).filter((sId) =>
+          subjects.some((s) => s.id === sId),
         );
-        prevUniqueSubjectsRef.current = uniqueJson;
-      }
-
-      const validSelected = (selectedSubjects || []).filter((sId: string) =>
-        uniqueSubjects.some((us) => us.id === sId),
-      );
-      if (validSelected.length !== (selectedSubjects || []).length) {
-        setValue("subjects", validSelected, { shouldValidate: true });
-      }
-    };
-
-    loadSubjects();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    fetchGradeById,
-    selectedGradesJson,
-    setValue,
-    selectedSubjects,
-    subjectOptions.length,
-  ]);
+        if (validSelected.length !== (selectedSubjects || []).length) {
+          setValue("subjects", validSelected, { shouldValidate: true });
+        }
+      })
+      .catch(() => setSubjectOptions([]));
+  }, [selectedGradesJson]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buildResetValues = (data: typeof tutorData) => {
     if (!data) return {};
@@ -336,13 +276,12 @@ export function EditTutor({ id }: EditTutorProps) {
         "pending",
       ),
       classType: safeArrayEnumValue(data.classType, classTypeValues),
-      tutoringLevels: safeArrayEnumValue(data.tutoringLevels, tutoringLevelsList),
       preferredLocations: safeArrayEnumValue(data.preferredLocations, locationOptions),
       tutorType: safeArrayEnumValue(
         data.tutorType,
         tutorTypeValues,
       ) as UpdateTutorSchema["tutorType"],
-      yearsExperience: data.yearsExperience || 0,
+      yearsExperience: data.yearsExperience || 1,
       highestEducation: safeEnumValue(data.highestEducation, educationOptions, "Undergraduate"),
       academicDetails: data.academicDetails || "",
       teachingSummary: data.teachingSummary || "",
@@ -381,11 +320,6 @@ export function EditTutor({ id }: EditTutorProps) {
   };
 
   const preferredLocationOptions = locationOptions.map((v) => ({
-    value: v,
-    text: v,
-  }));
-
-  const tutoringLevelOptions = tutoringLevelsList.map((v) => ({
     value: v,
     text: v,
   }));
@@ -555,6 +489,7 @@ export function EditTutor({ id }: EditTutorProps) {
                   <SelectContent>
                     <SelectItem value="Male">Male</SelectItem>
                     <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
                   </SelectContent>
                 </Select>
                 {formState.errors.gender && (
@@ -707,6 +642,7 @@ export function EditTutor({ id }: EditTutorProps) {
                   })
                 }
                 disabled={!selectedGrades || selectedGrades.length === 0}
+                isLoading={isSubjectsLoading}
               />
               {formState.errors.subjects && (
                 <p className="text-sm text-red-500">
@@ -717,10 +653,11 @@ export function EditTutor({ id }: EditTutorProps) {
 
             <div className="grid gap-3 border p-4 rounded-md">
               <Label>Certificates & Qualifications</Label>
-              <MultiFileUploader
+              <MultiFileUploadDropzone
+                mode="certificate"
                 defaultFiles={tutorData?.certificatesAndQualifications || []}
                 onUploaded={(items) =>
-                  setValue("certificatesAndQualifications" as never, items as never, {
+                  setValue("certificatesAndQualifications", items, {
                     shouldDirty: true,
                     shouldValidate: true,
                   })
@@ -731,22 +668,6 @@ export function EditTutor({ id }: EditTutorProps) {
                   {formState.errors.certificatesAndQualifications.message}
                 </p>
               )}
-            </div>
-
-            {/* Tutoring Preferences */}
-            <div className="z-50">
-              <MultiSelect
-                label="Tutoring Levels"
-                options={tutoringLevelOptions}
-                defaultSelected={watch("tutoringLevels")}
-                onChange={(selected) =>
-                  setValue(
-                    "tutoringLevels",
-                    selected as UpdateTutorSchema["tutoringLevels"],
-                    { shouldValidate: true },
-                  )
-                }
-              />
             </div>
 
             <MultiSelect
@@ -806,14 +727,11 @@ export function EditTutor({ id }: EditTutorProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="PhD">PhD</SelectItem>
-                    <SelectItem value="Diploma">Diploma</SelectItem>
-                    <SelectItem value="Masters">Masters</SelectItem>
-                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
+                    <SelectItem value="Masters">Master&apos;s Degree</SelectItem>
                     <SelectItem value="Bachelor Degree">Bachelor Degree</SelectItem>
+                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
                     <SelectItem value="Diploma and Professional">Diploma and Professional</SelectItem>
-                    <SelectItem value="JC/A Levels">JC/A Levels</SelectItem>
-                    <SelectItem value="Poly">Poly</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
+                    <SelectItem value="AL">Advanced Level (A/L)</SelectItem>
                   </SelectContent>
                 </Select>
                 {formState.errors.highestEducation && (
@@ -826,58 +744,45 @@ export function EditTutor({ id }: EditTutorProps) {
 
             <div className="grid gap-3">
               <Label htmlFor="academicDetails">Academic Details</Label>
-              <Textarea
-                id="academicDetails"
-                placeholder="Academic Details"
-                {...form.register("academicDetails")}
-              />
+              <Textarea id="academicDetails" rows={3} {...form.register("academicDetails")} />
+              <p className="text-xs text-gray-400 text-right">
+                {(watch("academicDetails") ?? "").length} / 500
+              </p>
               {formState.errors.academicDetails && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.academicDetails.message}
-                </p>
+                <p className="text-sm text-red-500">{formState.errors.academicDetails.message}</p>
               )}
             </div>
 
-            {/* Tutor Profile */}
             <div className="grid gap-3">
               <Label htmlFor="teachingSummary">Teaching Summary</Label>
-              <Textarea
-                id="teachingSummary"
-                placeholder="Teaching Summary"
-                {...form.register("teachingSummary")}
-              />
+              <Textarea id="teachingSummary" rows={3} {...form.register("teachingSummary")} />
+              <p className="text-xs text-gray-400 text-right">
+                {(watch("teachingSummary") ?? "").length} / 500
+              </p>
               {formState.errors.teachingSummary && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.teachingSummary.message}
-                </p>
+                <p className="text-sm text-red-500">{formState.errors.teachingSummary.message}</p>
               )}
             </div>
 
             <div className="grid gap-3">
               <Label htmlFor="studentResults">Student Results</Label>
-              <Textarea
-                id="studentResults"
-                placeholder="Student Results"
-                {...form.register("studentResults")}
-              />
+              <Textarea id="studentResults" rows={3} {...form.register("studentResults")} />
+              <p className="text-xs text-gray-400 text-right">
+                {(watch("studentResults") ?? "").length} / 500
+              </p>
               {formState.errors.studentResults && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.studentResults.message}
-                </p>
+                <p className="text-sm text-red-500">{formState.errors.studentResults.message}</p>
               )}
             </div>
 
             <div className="grid gap-3">
               <Label htmlFor="sellingPoints">Selling Points</Label>
-              <Textarea
-                id="sellingPoints"
-                placeholder="Selling Points"
-                {...form.register("sellingPoints")}
-              />
+              <Textarea id="sellingPoints" rows={3} {...form.register("sellingPoints")} />
+              <p className="text-xs text-gray-400 text-right">
+                {(watch("sellingPoints") ?? "").length} / 500
+              </p>
               {formState.errors.sellingPoints && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.sellingPoints.message}
-                </p>
+                <p className="text-sm text-red-500">{formState.errors.sellingPoints.message}</p>
               )}
             </div>
           </div>
