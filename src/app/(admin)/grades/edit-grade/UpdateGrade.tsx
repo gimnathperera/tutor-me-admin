@@ -49,14 +49,22 @@ export function UpdateGrade({
     mode: "onChange",
   });
 
-  const { reset, control, register, handleSubmit } = updateGradeForm;
+  const {
+    reset,
+    control,
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = updateGradeForm;
 
-  const watched = updateGradeForm.watch();
+  const watched = watch();
 
   const isFormChanged =
     initialValues !== null
       ? JSON.stringify(watched) !== JSON.stringify(initialValues)
       : false;
+
   const [updateGrade, { isLoading }] = useUpdateGradeMutation();
   const { data: subjectsData } = useFetchSubjectsQuery({
     page: 1,
@@ -83,6 +91,7 @@ export function UpdateGrade({
         description,
         subjects: subjectIds,
       };
+
       reset(iv);
       setInitialValues(iv);
     }
@@ -92,6 +101,7 @@ export function UpdateGrade({
     try {
       const result = await updateGrade({ id, ...data });
       const error = getErrorInApiResult(result);
+
       if (error) return toast.error(error);
 
       if ("data" in result) {
@@ -121,7 +131,11 @@ export function UpdateGrade({
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
               <Input id="title" placeholder="Title" {...register("title")} />
+              {errors.title && (
+                <p className="text-sm text-red-500">{errors.title.message}</p>
+              )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
               <Input
@@ -129,7 +143,13 @@ export function UpdateGrade({
                 placeholder="Description"
                 {...register("description")}
               />
+              {errors.description && (
+                <p className="text-sm text-red-500">
+                  {errors.description.message}
+                </p>
+              )}
             </div>
+
             <div className="grid gap-3">
               <Label htmlFor="subjects">Subjects</Label>
               <Controller
@@ -144,6 +164,11 @@ export function UpdateGrade({
                   />
                 )}
               />
+              {errors.subjects && (
+                <p className="text-sm pl-1 text-red-500">
+                  {errors.subjects.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -151,6 +176,7 @@ export function UpdateGrade({
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"

@@ -87,10 +87,26 @@ export function formatYearsExperience(value?: number | string | null): string {
 }
 
 export const tutorTypeOptions = [
-  "Full-Time",
-  "Part-Time",
-  "Online",
-  "School Teacher Tutors",
-  "Group Tutors",
-  "Exam Coaches",
+  "Private Tutor",
+  "Government Teacher",
+  "International School Teacher",
+  "University Lecturer",
+  "Online Tutor",
+  "Others",
 ].map((v) => ({ value: v, text: v }));
+
+export const classTypeOptions = [
+  "Online - Individual",
+  "Online - Group",
+  "Home Visit - Individual",
+  "Home Visit - Group",
+  "At Tutor's Place - Individual",
+  "At Tutor's Place - Group",
+].map((v) => ({ value: v, text: v }));
+
+export const tutorStatusOptions = [
+  { value: "pending", label: "Pending" },
+  { value: "approved", label: "Approved" },
+  { value: "rejected", label: "Rejected" },
+  { value: "suspended", label: "Suspended" },
+];

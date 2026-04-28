@@ -63,30 +63,10 @@ export function EditPaper({
   url,
 }: EditPaperProps) {
   const [open, setOpen] = useState(false);
-  const handleDialogClose = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (!isOpen && initialValues) {
-      // discard changes and restore original values
-      reset(initialValues);
-      setSubjectSearch("");
-      setSelectedGradeId(initialValues.grade || null);
-      setPreviewUrl(initialValues.url || null);
-    }
-  };
 
-  const handleCancel = () => {
-    if (initialValues) {
-      reset(initialValues);
-      setSelectedGradeId(initialValues.grade);
-      setPreviewUrl(initialValues.url);
-      setSubjectSearch("");
-    }
-    setOpen(false);
-  };
-
-  // Extract IDs
   const gradeId = typeof grade === "string" ? grade : grade.id;
   const subjectId = typeof subject === "string" ? subject : subject.id;
+
   const MEDIUM_OPTIONS = [
     { label: "Sinhala", value: "Sinhala" },
     { label: "English", value: "English" },
@@ -97,12 +77,8 @@ export function EditPaper({
     gradeId,
   );
   const [previewUrl, setPreviewUrl] = useState<string | null>(url || null);
-
-  // 🔍 Grade search
   const [gradeSearch, setGradeSearch] = useState("");
   const debouncedGradeSearch = useDebounce(gradeSearch, 300);
-
-  // 🔍 Subject search (local)
   const [subjectSearch, setSubjectSearch] = useState("");
 
   const updatePaperForm = useForm<PaperSchema>({
@@ -122,10 +98,36 @@ export function EditPaper({
   const { formState, watch, setValue, register, reset, getValues } =
     updatePaperForm;
 
-
-
   const selectedGrade = watch("grade");
   const [initialValues, setInitialValues] = useState<PaperSchema | null>(null);
+
+  const handleDialogClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+
+    if (!isOpen && initialValues) {
+      reset(initialValues, {
+        keepDirty: false,
+        keepTouched: false,
+      });
+      setSubjectSearch("");
+      setSelectedGradeId(initialValues.grade || null);
+      setPreviewUrl(initialValues.url || null);
+    }
+  };
+
+  const handleCancel = () => {
+    if (initialValues) {
+      reset(initialValues, {
+        keepDirty: false,
+        keepTouched: false,
+      });
+      setSelectedGradeId(initialValues.grade);
+      setPreviewUrl(initialValues.url);
+      setSubjectSearch("");
+    }
+    setOpen(false);
+  };
+
   useEffect(() => {
     if (!open || !gradeDetails) return;
 
@@ -157,7 +159,11 @@ export function EditPaper({
     if (!selectedGrade) return;
 
     if (selectedGrade !== selectedGradeId) {
-      setValue("subject", "", { shouldDirty: true });
+      setValue("subject", "", {
+        shouldDirty: true,
+        shouldValidate: true,
+        shouldTouch: true,
+      });
       setSelectedGradeId(selectedGrade);
       setSubjectSearch("");
     }
@@ -180,7 +186,11 @@ export function EditPaper({
 
         const updatedValues = getValues();
         setInitialValues(updatedValues);
-        reset(updatedValues);
+        reset(updatedValues, {
+          keepDirty: false,
+          keepTouched: false,
+        });
+        setPreviewUrl(updatedValues.url);
 
         setOpen(false);
       }
@@ -196,18 +206,20 @@ export function EditPaper({
         <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
-        <form onSubmit={updatePaperForm.handleSubmit(onSubmit)}>
+      <DialogContent className="w-[95vw] max-w-[425px] max-h-[85vh] overflow-x-hidden bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+        <form
+          onSubmit={updatePaperForm.handleSubmit(onSubmit)}
+          className="min-w-0"
+        >
           <DialogHeader>
             <DialogTitle>Edit Paper</DialogTitle>
             <DialogDescription>Edit the paper details.</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
-            {/* TITLE */}
-            <div className="grid gap-3">
+          <div className="grid min-w-0 gap-4 max-h-[67vh] overflow-x-hidden overflow-y-auto pr-1">
+            <div className="grid min-w-0 gap-3">
               <Label>Title</Label>
-              <Input {...register("title")} />
+              <Input {...register("title")} className="w-full min-w-0" />
               {formState.errors.title && (
                 <p className="text-sm text-red-500">
                   {formState.errors.title.message}
@@ -215,8 +227,7 @@ export function EditPaper({
               )}
             </div>
 
-            {/* MEDIUM */}
-            <div className="grid gap-3">
+            <div className="grid min-w-0 gap-3">
               <Label>Medium</Label>
 
               <Select
@@ -224,17 +235,18 @@ export function EditPaper({
                 onValueChange={(value) =>
                   setValue("medium", value as "Sinhala" | "English" | "Tamil", {
                     shouldDirty: true,
+                    shouldValidate: true,
+                    shouldTouch: true,
                   })
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full min-w-0">
                   <SelectValue placeholder="Select medium" />
                 </SelectTrigger>
 
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Medium</SelectLabel>
-
                     {MEDIUM_OPTIONS.map(({ label, value }) => (
                       <SelectItem key={value} value={value}>
                         {label}
@@ -251,27 +263,29 @@ export function EditPaper({
               )}
             </div>
 
-            {/* GRADE DROPDOWN */}
-            <div className="grid gap-3">
+            <div className="grid min-w-0 gap-3">
               <Label>Grade</Label>
               <Select
                 value={watch("grade") || ""}
                 onValueChange={(value) =>
-                  setValue("grade", value, { shouldDirty: true })
+                  setValue("grade", value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                    shouldTouch: true,
+                  })
                 }
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full min-w-0">
                   <SelectValue placeholder="Select a grade" />
                 </SelectTrigger>
 
-                <SelectContent className="w-full">
-                  {/* 🔍 Grade search bar */}
-                  <div className="p-2 border-b">
+                <SelectContent>
+                  <div className="border-b p-2">
                     <Input
                       placeholder="Search grade..."
                       value={gradeSearch}
                       onChange={(e) => setGradeSearch(e.target.value)}
-                      className="h-8"
+                      className="h-8 w-full min-w-0"
                     />
                   </div>
 
@@ -300,28 +314,30 @@ export function EditPaper({
               )}
             </div>
 
-            {/* SUBJECT DROPDOWN */}
-            <div className="grid gap-3">
+            <div className="grid min-w-0 gap-3">
               <Label>Subject</Label>
               <Select
                 value={watch("subject") || ""}
                 onValueChange={(value) =>
-                  setValue("subject", value, { shouldDirty: true })
+                  setValue("subject", value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                    shouldTouch: true,
+                  })
                 }
                 disabled={!selectedGradeId || isGradeDetailsLoading}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full min-w-0">
                   <SelectValue placeholder="Select a subject" />
                 </SelectTrigger>
 
-                <SelectContent className="w-full">
-                  {/* 🔍 Subject search bar */}
-                  <div className="p-2 border-b">
+                <SelectContent>
+                  <div className="border-b p-2">
                     <Input
                       placeholder="Search subject..."
                       value={subjectSearch}
                       onChange={(e) => setSubjectSearch(e.target.value)}
-                      className="h-8"
+                      className="h-8 w-full min-w-0"
                     />
                   </div>
 
@@ -350,10 +366,13 @@ export function EditPaper({
               )}
             </div>
 
-            {/* YEAR */}
-            <div className="grid gap-3">
+            <div className="grid min-w-0 gap-3">
               <Label>Year</Label>
-              <Input type="text" {...register("year")} />
+              <Input
+                type="text"
+                {...register("year")}
+                className="w-full min-w-0"
+              />
               {formState.errors.year && (
                 <p className="text-sm text-red-500">
                   {formState.errors.year.message}
@@ -361,26 +380,39 @@ export function EditPaper({
               )}
             </div>
 
-            {/* FILE UPLOAD */}
-            <div className="grid gap-3">
+            <div className="grid min-w-0 gap-3">
               <Label>Paper File</Label>
-              <p>{previewUrl}</p>
-              <FileUploadDropzone
-                onUploaded={(uploadedUrl) => {
-                  setValue("url", uploadedUrl);
-                  setPreviewUrl(uploadedUrl);
-                }}
-              />
+
+              {previewUrl && (
+                <p className="w-full min-w-0 break-all text-sm text-gray-600 dark:text-gray-300">
+                  {previewUrl}
+                </p>
+              )}
+
+              <div className="min-w-0 overflow-x-hidden">
+                <FileUploadDropzone
+                  onUploaded={(uploadedUrl) => {
+                    setValue("url", uploadedUrl, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                      shouldTouch: true,
+                    });
+                    setPreviewUrl(uploadedUrl);
+                  }}
+                />
+              </div>
+
               {previewUrl && (
                 <a
                   href={previewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 underline mt-2"
+                  className="mt-2 break-all text-blue-600 underline dark:text-blue-400"
                 >
                   View Uploaded File
                 </a>
               )}
+
               {formState.errors.url && (
                 <p className="text-sm text-red-500">
                   {formState.errors.url.message}

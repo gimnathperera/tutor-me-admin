@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
+import { useFetchSubjectByIdQuery } from "@/store/api/splits/subjects";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -76,12 +77,22 @@ function TutorBlockItem({
   selectedTutorId: string;
   onSelect: (index: number, tutorId: string) => void;
 }) {
+  const isObjectId = /^[a-f\d]{24}$/i.test(tutorBlock.subject || "");
+
+  const { data: subjectData } = useFetchSubjectByIdQuery(tutorBlock.subject, {
+    skip: !isObjectId,
+  });
+
+  const subjectDisplay = isObjectId
+    ? (subjectData?.title ?? tutorBlock.subject)
+    : (tutorBlock.subject || "N/A");
+
   // Fetch only tutors that match the request's grade AND this block's subject
   const { data, isLoading } = useFetchTutorsQuery({
     page: 1,
     limit: LARGE_LIMIT,
     gradeId: gradeId || undefined,
-    subjectId: tutorBlock.subject || undefined,
+    subjectId: isObjectId ? tutorBlock.subject : undefined,
   });
 
   const tutors = data?.results ?? [];
@@ -102,7 +113,7 @@ function TutorBlockItem({
         <div>
           Subject:{" "}
           <span className="font-medium text-gray-800 dark:text-white">
-            {tutorBlock.subject || "N/A"}
+            {subjectDisplay}
           </span>
         </div>
         {tutorBlock.preferredTutorType && (
@@ -171,6 +182,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
 
   // Local selection state: index → tutorId
   const [selections, setSelections] = useState<Record<number, string>>({});
+  const [initialSelections, setInitialSelections] = useState<Record<number, string>>({});
 
   // Initialise selections from existing assignments whenever the dialog opens
   useEffect(() => {
@@ -182,17 +194,18 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
           initial[i] = assignedTutorId;
         }
       });
+      setInitialSelections(initial);
       setSelections(initial);
     }
   }, [open, row.tutors]);
 
   const totalParts = row.tutors?.length ?? 0;
 
-  // All parts must have a non-empty tutor selected
-  const allAssigned =
+  // Enable Assign only if at least one block has changed from its initial assignment
+  const hasChanges =
     totalParts > 0 &&
-    Array.from({ length: totalParts }, (_, i) => i).every(
-      (i) => selections[i] && selections[i] !== ""
+    Array.from({ length: totalParts }, (_, i) => i).some(
+      (i) => selections[i] && selections[i] !== "" && selections[i] !== initialSelections[i]
     );
 
   const handleSelect = (index: number, tutorId: string) => {
@@ -201,16 +214,21 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
   };
 
   const handleAssign = async () => {
-    if (!allAssigned || !row.tutors) return;
+    if (!hasChanges || !row.tutors) return;
 
-    // Collect all selected tutor IDs into one array
-    const assignedTutorIds = row.tutors.map((_, i) => selections[i]);
+    // Only send blocks where the selection has changed from the initial assignment
+    const blocksToAssign = row.tutors
+      .map((block, i) => ({ block, tutorId: selections[i] }))
+      .filter(({ tutorId }, i) => !!tutorId && tutorId !== "" && tutorId !== initialSelections[i]);
 
     try {
-      await updateAssignedTutor({
-        requestId: row.id,
-        assignedTutor: assignedTutorIds,
-      }).unwrap();
+      for (const { block, tutorId } of blocksToAssign) {
+        await updateAssignedTutor({
+          requestId: row.id,
+          tutorBlockId: block._id,
+          assignedTutor: tutorId,
+        }).unwrap();
+      }
 
       toast.success("Tutors assigned successfully");
       onUpdated?.();
@@ -225,23 +243,34 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
     setOpen(false);
   };
 
-  const isAssigned = row.tutors?.some(
-    (t) => Boolean(getAssignedTutorId(t.assignedTutor))
-  );
+  const assignedCount =
+    row.tutors?.filter((t) => Boolean(getAssignedTutorId(t.assignedTutor)))
+      .length ?? 0;
+  const totalCount = row.tutors?.length ?? 0;
+  const isPartial = assignedCount > 0 && assignedCount < totalCount;
+  const isFullyAssigned = assignedCount > 0 && assignedCount === totalCount;
 
   return (
     <div className="flex items-center gap-2">
-      {isAssigned && (
+      {isPartial && (
         <Button
           size="sm"
-          className="bg-green-600 hover:bg-green-700 text-white cursor-default"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white cursor-default text-xs px-2"
         >
-          Assigned
+          {assignedCount}/{totalCount} Assigned
+        </Button>
+      )}
+      {isFullyAssigned && (
+        <Button
+          size="sm"
+          className="bg-green-600 hover:bg-green-700 text-white cursor-default text-xs px-2"
+        >
+          {assignedCount}/{totalCount} Assigned
         </Button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          {isAssigned ? (
+          {isPartial || isFullyAssigned ? (
             <Button size="icon" variant="ghost" className="h-8 w-8">
               <Edit size={16} />
             </Button>
@@ -286,7 +315,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
             </Button>
             <Button
               onClick={handleAssign}
-              disabled={!allAssigned || isSubmitting}
+              disabled={!hasChanges || isSubmitting}
               className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
             >
               {isSubmitting ? "Assigning..." : "Assign"}

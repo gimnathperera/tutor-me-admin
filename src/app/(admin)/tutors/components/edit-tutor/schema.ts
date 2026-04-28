@@ -24,6 +24,11 @@ export const updateTutorSchema = z.object({
     .enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"])
     .optional(),
 
+  status: z
+    .enum(["pending", "approved", "rejected", "suspended"])
+    .optional(),
+
+  classType: z.array(z.string()).optional(),
 
   // Tutoring preferences
   tutoringLevels: z
@@ -102,12 +107,12 @@ export const updateTutorSchema = z.object({
   tutorType: z
     .array(
       z.enum([
-        "Full-Time",
-        "Part-Time",
-        "Online",
-        "School Teacher Tutors",
-        "Group Tutors",
-        "Exam Coaches",
+        "Private Tutor",
+        "Government Teacher",
+        "International School Teacher",
+        "University Lecturer",
+        "Online Tutor",
+        "Others",
       ]),
     )
     .optional(),
@@ -137,7 +142,13 @@ export const updateTutorSchema = z.object({
   agreeTerms: z.boolean().optional(),
   agreeAssignmentInfo: z.boolean().optional(),
   certificatesAndQualifications: z
-    .array(z.string())
+    .array(
+      z.object({
+        id: z.string().optional(),
+        type: z.string().min(1, "Certificate type is required"),
+        url: z.string().url("Must be a valid URL"),
+      }),
+    )
     .min(1, "At least one certificate or qualification is required"),
 });
 

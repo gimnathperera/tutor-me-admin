@@ -30,6 +30,12 @@ interface Grade {
   subjects?: { id: string; title: string }[];
 }
 
+interface CertificateItem {
+  id?: string;
+  type: string;
+  url: string;
+}
+
 interface ViewTutorProps {
   tutor: {
     fullName?: string;
@@ -40,6 +46,8 @@ interface ViewTutorProps {
     age?: number;
     nationality?: string;
     race?: string;
+    status?: string;
+    classType?: string[];
 
     tutorType?: string[];
     yearsExperience?: number;
@@ -57,8 +65,16 @@ interface ViewTutorProps {
     tutorMediums?: string[] | { id?: string; title?: string }[];
     grades?: string[] | { id?: string; title?: string }[];
     subjects?: string[] | { id?: string; title?: string }[];
+    certificatesAndQualifications?: CertificateItem[] | string[];
   };
 }
+
+const STATUS_STYLES: Record<string, string> = {
+  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
+  approved: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
+  rejected: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+  suspended: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+};
 
 function CertificateViewer({
   url,
@@ -146,8 +162,17 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
   const mediumList = normalizeArrayToStrings(tutor.tutorMediums);
   const levels = normalizeArrayToStrings(tutor.tutoringLevels);
   const locations = normalizeArrayToStrings(tutor.preferredLocations);
-  const certificates =
-    ((tutor as any).certificatesAndQualifications as string[]) || [];
+  const classTypeList: string[] = tutor.classType || [];
+
+  // Normalize certificates: support both old string[] and new {type, url}[]
+  const certificates: CertificateItem[] = useMemo(() => {
+    const raw = (tutor as any).certificatesAndQualifications;
+    if (!Array.isArray(raw)) return [];
+    return raw.map((item: any) => {
+      if (typeof item === "string") return { type: "Certificate", url: item };
+      return { type: item.type || "Certificate", url: item.url || "" };
+    });
+  }, [tutor]);
 
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 200 });
 
@@ -206,6 +231,9 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
     });
   }, [tutor?.subjects, subjectIdToTitle, gradesData]);
 
+  const statusKey = (tutor.status || "").toLowerCase();
+  const statusStyle = STATUS_STYLES[statusKey] || STATUS_STYLES["pending"];
+
   return (
     <>
       <CertificateViewer
@@ -224,6 +252,20 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
           </DialogHeader>
 
           <div className="grid gap-4">
+            {/** Status */}
+            {tutor.status && (
+              <div className="grid gap-3">
+                <Label>Status</Label>
+                <div>
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize ${statusStyle}`}
+                  >
+                    {tutor.status}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/** General Info */}
             <div className="grid gap-3">
               <Label>Full Name</Label>
@@ -284,7 +326,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
                   {getSafeValue(tutor.race)}
                 </div>
               </div>
-
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -300,12 +341,25 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
                 <Label>Years of Experience</Label>
                 <div className={displayFieldClass}>
                   {(() => {
-                    const formatted = formatYearsExperience(
-                      tutor.yearsExperience,
-                    );
+                    const formatted = formatYearsExperience(tutor.yearsExperience);
                     return formatted === "" ? "N/A" : formatted;
                   })()}
                 </div>
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              <Label>Class Type</Label>
+              <div className="flex flex-wrap">
+                {classTypeList.length === 0 ? (
+                  <span className={tagClass}>N/A</span>
+                ) : (
+                  classTypeList.map((ct, i) => (
+                    <span key={i} className={tagClass}>
+                      {ct}
+                    </span>
+                  ))
+                )}
               </div>
             </div>
 
@@ -445,9 +499,13 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
                       key={idx}
                       size="sm"
                       variant="outline"
-                      onClick={() => setSelectedCert(cert)}
+                      onClick={() => setSelectedCert(cert.url)}
+                      className="flex items-center gap-1"
                     >
-                      View Certificate {idx + 1}
+                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                        {cert.type}
+                      </span>
+                      <span>View</span>
                     </Button>
                   ))
                 )}

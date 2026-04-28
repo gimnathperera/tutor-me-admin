@@ -67,9 +67,10 @@ export type TuitionRateItem = {
   grade: Grade;
   subject: Subject;
   level: Level;
-  govTuitionRate: Rate[];
-  partTimeTuitionRate: Rate[];
-  fullTimeTuitionRate: Rate[];
+  universityStudentsRate: Rate;
+  partTimeTutorRate: Rate;
+  fullTimeTutorRate: Rate;
+  moeTeacherRate: Rate;
 };
 export type Rate = {
   minimumRate: string;
@@ -131,9 +132,10 @@ export type TuitionRates = BaseEntity &
   WithTitleDescription & {
     subject: EntityRef;
     grade: EntityRef;
-    fullTimeTuitionRate: TuitionRate[];
-    govTuitionRate: TuitionRate[];
-    partTimeTuitionRate: TuitionRate[];
+    universityStudentsRate: TuitionRate;
+    partTimeTutorRate: TuitionRate;
+    fullTimeTutorRate: TuitionRate;
+    moeTeacherRate: TuitionRate;
   };
 
 // Paper
@@ -295,13 +297,21 @@ type TutorTypeInfo = {
   genderPreference: string;
 };
 
+export type CertificateItem = {
+  id?: string;
+  type: string;
+  url: string;
+};
+
 export type Tutor = BaseEntity & {
+  status: string;
   fullName: string;
   name: string;
   contactNumber: string;
   tutorMediums: string[];
   grades: string[];
   subjects: string[];
+  classType: string[];
   email: string;
   dateOfBirth: string;
   gender: string;
@@ -320,7 +330,7 @@ export type Tutor = BaseEntity & {
   preferredLocations: string[];
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
-  certificatesAndQualifications: string[];
+  certificatesAndQualifications: CertificateItem[];
 };
 
 export type RequestTutorTutor = {

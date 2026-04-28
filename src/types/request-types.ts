@@ -59,6 +59,18 @@ export type UserRegisterRequest = {
   name: string;
 };
 
+export type CreateAdminRequest = {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+};
+
+export type ResetPasswordRequest = {
+  token: string;
+  password: string;
+};
+
 export type UpdateProfileRequest = {
   id: string;
   payload: {
@@ -160,24 +172,18 @@ export type UpdateSubjectRequest = {
 export type UpdateUserRequest = {
   id: string;
   email?: string;
-  password?: string;
   name?: string;
-  role?: string;
+  role?: "tutor" | "admin";
   phoneNumber?: string;
   birthday?: string;
-  status?: string;
+  status?: "pending" | "approved" | "rejected" | "suspended";
   country?: string;
   city?: string;
   state?: string;
   region?: string;
   zip?: string;
   address?: string;
-  tutorType?: string;
   gender?: string;
-  duration?: string;
-  frequency?: string;
-  timezone?: string;
-  language?: string;
   avatar?: string;
 };
 
@@ -207,17 +213,19 @@ export type UpdateTuitionRateRequest = {
   id: string;
   subject: string;
   grade: string;
-  fullTimeTuitionRate?: TuitionRate[];
-  govTuitionRate?: TuitionRate[];
-  partTimeTuitionRate?: TuitionRate[];
+  universityStudentsRate?: TuitionRate;
+  partTimeTutorRate?: TuitionRate;
+  fullTimeTutorRate?: TuitionRate;
+  moeTeacherRate?: TuitionRate;
 };
 
 export type FetchTuitionRatesRequest = {
   subject?: string[];
   grade?: string[];
-  fullTimeTuitionRate?: TuitionRate[];
-  govTuitionRate?: TuitionRate[];
-  partTimeTuitionRate?: TuitionRate[];
+  universityStudentsRate?: TuitionRate;
+  partTimeTutorRate?: TuitionRate;
+  fullTimeTutorRate?: TuitionRate;
+  moeTeacherRate?: TuitionRate;
   page?: number;
   sortBy?: string;
   limit?: number;

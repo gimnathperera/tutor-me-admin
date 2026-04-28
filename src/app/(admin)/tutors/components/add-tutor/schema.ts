@@ -1,5 +1,23 @@
 import { z } from "zod";
 
+const tutorTypeValues = [
+  "Private Tutor",
+  "Government Teacher",
+  "International School Teacher",
+  "University Lecturer",
+  "Online Tutor",
+  "Others",
+] as const;
+
+const classTypeValues = [
+  "Online - Individual",
+  "Online - Group",
+  "Home Visit - Individual",
+  "Home Visit - Group",
+  "At Tutor's Place - Individual",
+  "At Tutor's Place - Group",
+] as const;
+
 // Full form schema
 export const addTutorSchema = z.object({
   fullName: z
@@ -27,6 +45,9 @@ export const addTutorSchema = z.object({
   nationality: z.enum(["Sri Lankan", "Others"]),
   race: z.enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"]),
 
+  classType: z
+    .array(z.enum(classTypeValues))
+    .min(1, "Select at least one class type"),
 
   // Tutoring preferences
   tutoringLevels: z
@@ -101,21 +122,9 @@ export const addTutorSchema = z.object({
 
   // Academic qualifications
   tutorType: z
-    .array(
-      z.string().refine(
-        (v) =>
-          [
-            "Full-Time",
-            "Part-Time",
-            "Online",
-            "School Teacher Tutors",
-            "Group Tutors",
-            "Exam Coaches",
-          ].includes(v),
-        { message: "Invalid tutor type" },
-      ),
-    )
+    .array(z.enum(tutorTypeValues))
     .min(1, "Select at least one tutor type"),
+
   yearsExperience: z.number().int().min(0).max(50),
 
   highestEducation: z.enum([
@@ -136,7 +145,13 @@ export const addTutorSchema = z.object({
   studentResults: z.string().max(750),
   sellingPoints: z.string().max(750),
   certificatesAndQualifications: z
-    .array(z.string())
+    .array(
+      z.object({
+        id: z.string().optional(),
+        type: z.string().min(1, "Certificate type is required"),
+        url: z.string().url("Must be a valid URL"),
+      }),
+    )
     .min(1, "At least one certificate or qualification is required"),
 
   // Agreement
@@ -166,6 +181,7 @@ export const initialTutorFormValues: AddTutorFormValues = {
   nationality: "Sri Lankan",
   race: "Sinhalese",
 
+  classType: [],
   tutoringLevels: [],
   preferredLocations: [],
   tutorType: [],

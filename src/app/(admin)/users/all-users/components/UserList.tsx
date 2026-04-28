@@ -15,7 +15,7 @@ interface User {
   id: string;
   name?: string;
   role?: "admin" | "user" | "tutor";
-  status?: "active" | "inactive";
+  status?: "pending" | "approved" | "rejected" | "suspended";
   email?: string;
   password?: string;
   phoneNumber?: string;
@@ -26,12 +26,7 @@ interface User {
   address?: string;
   state?: string;
   region?: string;
-  tutorType?: "full-time" | "part-time";
   gender?: "male" | "female" | "other";
-  duration?: string;
-  frequency?: string;
-  timeZone?: string;
-  language?: string;
   avatar?: string;
   createdAt?: string;
 }
@@ -151,22 +146,17 @@ export default function UsersTable() {
             email={row.email || ""}
             password={row.password || ""}
             name={row.name || ""}
-            role={row.role || "user"}
+            role={row.role || "tutor"}
             phoneNumber={row.phoneNumber || ""}
             birthday={row.birthday || ""}
-            status={row.status || "active"}
+            status={row.status || "pending"}
             country={row.country || ""}
             city={row.city || ""}
             zip={row.zip || ""}
             address={row.address || ""}
             state={row.state}
             region={row.region}
-            tutorType={row.tutorType}
             gender={row.gender}
-            duration={row.duration}
-            frequency={row.frequency}
-            timezone={row.timeZone}
-            language={row.language}
             avatar={row.avatar}
           />
         </div>
@@ -184,20 +174,16 @@ export default function UsersTable() {
             name={row.name || ""}
             phoneNumber={row.phoneNumber || ""}
             birthday={row.birthday || ""}
-            status={row.status || "active"}
+            status={row.status || "pending"}
             country={row.country || ""}
             city={row.city || ""}
             zip={row.zip || ""}
             address={row.address || ""}
             state={row.state}
             region={row.region}
-            tutorType={row.tutorType}
             gender={row.gender}
-            duration={row.duration}
-            frequency={row.frequency}
-            language={row.language}
             avatar={row.avatar}
-            role={row.role || "user"}
+            role={row.role === "admin" ? "admin" : "tutor"}
           />
         </div>
       ),
@@ -225,7 +211,7 @@ export default function UsersTable() {
       className: "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="flex justify-center  w-full ">
-          <DeleteUser userId={row.id} userStatus={row.status ?? "active"} />
+          <DeleteUser userId={row.id} userStatus={row.status ?? "pending"} />
         </div>
       ),
     },

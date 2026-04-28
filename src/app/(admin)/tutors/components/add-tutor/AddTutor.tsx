@@ -45,6 +45,7 @@ import {
 } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
+  classTypeOptions,
   preferredLocationOptions,
   tutoringLevelOptions,
   tutorTypeOptions,
@@ -430,6 +431,25 @@ export function AddTutor() {
                   </p>
                 )}
               </div>
+              <div className="grid gap-3">
+                <MultiSelect
+                  label="Class Type *"
+                  options={classTypeOptions}
+                  defaultSelected={watch("classType")}
+                  onChange={(selected) =>
+                    setValue(
+                      "classType",
+                      selected as AddTutorFormValues["classType"],
+                      { shouldValidate: true },
+                    )
+                  }
+                />
+                {formState.errors.classType && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.classType.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="grid z-60 gap-3">
@@ -649,13 +669,18 @@ export function AddTutor() {
             <div className="grid gap-3 border p-4 rounded-md">
               <Label>Certificates & Qualifications</Label>
               <MultiFileUploader
-                onUploaded={(urls) =>
-                  setValue("certificatesAndQualifications", urls, {
+                onUploaded={(items) =>
+                  setValue("certificatesAndQualifications", items, {
                     shouldDirty: true,
                     shouldValidate: true,
                   })
                 }
               />
+              {formState.errors.certificatesAndQualifications && (
+                <p className="text-sm text-red-500">
+                  {formState.errors.certificatesAndQualifications.message}
+                </p>
+              )}
             </div>
 
             {/* Agreements */}
