@@ -37,7 +37,7 @@ export const addTutorSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
 
   gender: z.enum(["Male", "Female", "Others"]),
-  age: z.number().int().min(18, "Must be at least 18").max(80, "Must be 80 or under"),
+  age: z.number().int().min(18, "You must be at least 18 years old").max(80, "Must be 80 or under"),
 
   tutorMediums: z.array(z.string()).min(1, "Please select at least one medium."),
   grades: z.array(z.string()).min(1, "Select at least one grade"),
@@ -100,13 +100,13 @@ export const addTutorSchema = z.object({
         "No Preference",
       ]),
     )
-    .min(1, "Select at least one preferred location"),
+    .min(1, "Select at least one Preferred Location"),
 
   tutorType: z
     .array(z.enum(tutorTypeValues))
     .min(1, "Select at least one tutor type"),
 
-  yearsExperience: z.number().int().min(1, "Must be at least 1 year").max(50),
+  yearsExperience: z.number().int().min(1, "Years of experience is required").max(50),
 
   highestEducation: z.enum([
     "PhD",
@@ -117,10 +117,10 @@ export const addTutorSchema = z.object({
     "AL",
   ]),
 
-  academicDetails: z.string().min(1, "Academic Details is required").max(500, "Max 500 characters"),
+  academicDetails: z.string().min(1, "Academic Details are required").max(500, "Max 500 characters"),
   teachingSummary: z.string().min(1, "Teaching Summary is required").max(500, "Max 500 characters"),
-  studentResults: z.string().min(1, "Student Results is required").max(500, "Max 500 characters"),
-  sellingPoints: z.string().min(1, "Selling Points is required").max(500, "Max 500 characters"),
+  studentResults: z.string().min(1, "Student Results are required").max(500, "Max 500 characters"),
+  sellingPoints: z.string().min(1, "Selling Points are required").max(500, "Max 500 characters"),
 
   certificatesAndQualifications: z
     .array(
@@ -158,7 +158,7 @@ export const initialTutorFormValues: AddTutorFormValues = {
   confirmPassword: "",
   dateOfBirth: "",
   gender: "Male",
-  age: 18,
+  age: 0,
   tutorMediums: [],
   grades: [],
   subjects: [],
@@ -167,7 +167,7 @@ export const initialTutorFormValues: AddTutorFormValues = {
   classType: [],
   preferredLocations: [],
   tutorType: [],
-  yearsExperience: 1,
+  yearsExperience: 0,
   highestEducation: "Undergraduate",
   academicDetails: "",
   teachingSummary: "",
