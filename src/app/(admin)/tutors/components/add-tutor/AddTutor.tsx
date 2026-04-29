@@ -171,14 +171,14 @@ export function AddTutor() {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <DialogTrigger asChild>
-          <Button variant="outline" className="bg-blue-700 text-white hover:bg-blue-500">
-            Add Tutor
-          </Button>
-        </DialogTrigger>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="bg-blue-700 text-white hover:bg-blue-500">
+          Add Tutor
+        </Button>
+      </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 overflow-y-auto scrollbar-thin">
+      <DialogContent className="sm:max-w-[700px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 overflow-y-auto scrollbar-thin">
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>Add Tutor</DialogTitle>
           </DialogHeader>
@@ -221,7 +221,7 @@ export function AddTutor() {
             {/* Email */}
             <div className="grid gap-3">
               <Label htmlFor="email">Email *</Label>
-              <Input id="email" type="email" {...form.register("email")} />
+              <Input id="email" type="email" autoComplete="off" {...form.register("email")} />
               {formState.errors.email && (
                 <p className="text-sm text-red-500">{formState.errors.email.message}</p>
               )}
@@ -234,6 +234,7 @@ export function AddTutor() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   {...form.register("password")}
                 />
                 <button
@@ -256,6 +257,7 @@ export function AddTutor() {
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   {...form.register("confirmPassword")}
                 />
                 <button
@@ -365,7 +367,7 @@ export function AddTutor() {
             </div>
 
             {/* Tutor Type + Class Type */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 z-62">
               <div className="grid gap-3">
                 <MultiSelect
                   label="Tutor Type *"
@@ -564,7 +566,7 @@ export function AddTutor() {
                   })
                 }
               />
-              {formState.errors.certificatesAndQualifications && (
+              {formState.isSubmitted && formState.errors.certificatesAndQualifications && (
                 <p className="text-sm text-red-500">
                   {formState.errors.certificatesAndQualifications.message}
                 </p>
@@ -601,8 +603,8 @@ export function AddTutor() {
               Create
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }
