@@ -140,7 +140,16 @@ export default function MultiFileUploadDropzone(
     onUploadedRef.current = props.onUploaded as any;
   }, [props.onUploaded]);
 
+  // Skip the initial mount call so forms don't receive an empty array
+  // before the user has interacted with the uploader (prevents premature validation errors)
+  const hasInteracted = useRef(false);
+
   useEffect(() => {
+    if (!hasInteracted.current) {
+      hasInteracted.current = true;
+      return;
+    }
+
     const uploadedNew: CertificateFileItem[] = newFiles
       .filter((f) => f.url)
       .map((f) => ({ type: f.type, url: f.url! }));
