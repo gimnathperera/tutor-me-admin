@@ -194,6 +194,7 @@ export function EditTutor({ id }: EditTutorProps) {
     name: "subjects",
     defaultValue: [] as string[],
   }) as string[];
+  const dob = useWatch({ control, name: "dateOfBirth", defaultValue: "" }) as string;
 
   const safeEnumValue = <T extends string>(
     value: string | undefined,
@@ -255,6 +256,18 @@ export function EditTutor({ id }: EditTutorProps) {
       })
       .catch(() => setSubjectOptions([]));
   }, [selectedGradesJson]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!dob) return;
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return;
+    const today = new Date();
+    let age = today.getFullYear() - d.getFullYear();
+    const m = today.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+    if (age < 0) age = 0;
+    setValue("age", age, { shouldValidate: true });
+  }, [dob, setValue]);
 
   const buildResetValues = (data: typeof tutorData) => {
     if (!data) return {};
@@ -433,6 +446,8 @@ export function EditTutor({ id }: EditTutorProps) {
                 id="email"
                 type="email"
                 placeholder="Email"
+                readOnly
+                className="bg-gray-50 cursor-not-allowed"
                 {...form.register("email")}
               />
               {formState.errors.email && (
@@ -462,9 +477,8 @@ export function EditTutor({ id }: EditTutorProps) {
                 <Input
                   id="age"
                   type="number"
-                  placeholder="Age"
+                  disabled
                   {...form.register("age", { valueAsNumber: true })}
-                  min={1}
                 />
                 {formState.errors.age && (
                   <p className="text-sm text-red-500">
@@ -552,7 +566,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 z-62">
               <div className="grid gap-3">
                 <MultiSelect
                   label="Tutor Type *"
