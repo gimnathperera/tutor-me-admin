@@ -18,18 +18,25 @@ const classTypeValues = [
   "At Tutor's Place - Group",
 ] as const;
 
-// Full form schema
+const cleanSentence = /^(?!\s)(?!.*\s{2,})(?!.*\s$)[A-Za-z0-9.,()\-\/&\s]+$/;
+
 export const addTutorSchema = z.object({
   fullName: z
     .string()
     .min(1, "Full Name is required")
+    .regex(cleanSentence, "No leading, trailing, or multiple spaces allowed")
     .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
+
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .regex(cleanSentence, "No leading, trailing, or multiple spaces allowed")
+    .email("Email must be valid"),
   contactNumber: z
     .string()
     .regex(/^[0-9]+$/, "Contact number must contain only numbers")
     .length(10, "Contact number must be exactly 10 digits"),
 
-  email: z.string().email("Email must be valid"),
   dateOfBirth: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
@@ -129,21 +136,40 @@ export const addTutorSchema = z.object({
 
   highestEducation: z.enum([
     "PhD",
-    "Diploma",
-    "Masters",
+    "Masters Degree",
     "Undergraduate",
     "Bachelor Degree",
     "Diploma and Professional",
-    "JC/A Levels",
-    "Poly",
-    "Others",
+    "Advanced Level (A/L)",
   ]),
-  academicDetails: z.string().max(1000).optional(),
+  academicDetails: z
+    .string()
+    .max(1000)
+    .optional()
+    .refine((val) => !val || cleanSentence.test(val), {
+      message: "No leading, trailing, or multiple spaces allowed",
+    }),
 
-  // Tutor's profile
-  teachingSummary: z.string().max(750),
-  studentResults: z.string().max(750),
-  sellingPoints: z.string().max(750),
+  teachingSummary: z
+    .string()
+    .max(750)
+    .refine((val) => val === "" || cleanSentence.test(val), {
+      message: "No leading, trailing, or multiple spaces allowed",
+    }),
+
+  studentResults: z
+    .string()
+    .max(750)
+    .refine((val) => val === "" || cleanSentence.test(val), {
+      message: "No leading, trailing, or multiple spaces allowed",
+    }),
+
+  sellingPoints: z
+    .string()
+    .max(750)
+    .refine((val) => val === "" || cleanSentence.test(val), {
+      message: "No leading, trailing, or multiple spaces allowed",
+    }),
   certificatesAndQualifications: z
     .array(
       z.object({
