@@ -42,7 +42,6 @@ import {
   collapseTextSpaces,
   normalizeTextSpaces,
   stripLeadingSpaces,
-  trimText,
 } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
@@ -364,10 +363,14 @@ export function EditTutor({ id }: EditTutorProps) {
         educationOptions,
         "Undergraduate",
       ),
-      academicDetails: trimText(data.academicDetails || "") as string,
-      teachingSummary: trimText(data.teachingSummary || "") as string,
-      studentResults: trimText(data.studentResults || "") as string,
-      sellingPoints: trimText(data.sellingPoints || "") as string,
+      academicDetails: normalizeTextSpaces(
+        data.academicDetails || "",
+      ) as string,
+      teachingSummary: normalizeTextSpaces(
+        data.teachingSummary || "",
+      ) as string,
+      studentResults: normalizeTextSpaces(data.studentResults || "") as string,
+      sellingPoints: normalizeTextSpaces(data.sellingPoints || "") as string,
       agreeTerms:
         typeof data.agreeTerms === "boolean" ? data.agreeTerms : undefined,
       agreeAssignmentInfo:
@@ -448,28 +451,28 @@ export function EditTutor({ id }: EditTutorProps) {
   });
   const academicDetailsRegister = form.register("academicDetails", {
     onBlur: (event) => {
-      setValue("academicDetails", trimText(event.target.value) as string, {
+      setValue("academicDetails", collapseTextSpaces(event.target.value), {
         shouldValidate: true,
       });
     },
   });
   const teachingSummaryRegister = form.register("teachingSummary", {
     onBlur: (event) => {
-      setValue("teachingSummary", trimText(event.target.value) as string, {
+      setValue("teachingSummary", collapseTextSpaces(event.target.value), {
         shouldValidate: true,
       });
     },
   });
   const studentResultsRegister = form.register("studentResults", {
     onBlur: (event) => {
-      setValue("studentResults", trimText(event.target.value) as string, {
+      setValue("studentResults", collapseTextSpaces(event.target.value), {
         shouldValidate: true,
       });
     },
   });
   const sellingPointsRegister = form.register("sellingPoints", {
     onBlur: (event) => {
-      setValue("sellingPoints", trimText(event.target.value) as string, {
+      setValue("sellingPoints", collapseTextSpaces(event.target.value), {
         shouldValidate: true,
       });
     },

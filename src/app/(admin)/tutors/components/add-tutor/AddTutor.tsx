@@ -32,12 +32,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useCreateTutorMutation } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
 import {
   collapseTextSpaces,
   stripLeadingSpaces,
-  trimText,
 } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -250,28 +250,28 @@ export function AddTutor() {
   });
   const academicDetailsRegister = form.register("academicDetails", {
     onBlur: (event) => {
-      setValue("academicDetails", trimText(event.target.value) as string, {
+      setValue("academicDetails", collapseTextSpaces(event.target.value), {
         shouldValidate: true,
       });
     },
   });
   const teachingSummaryRegister = form.register("teachingSummary", {
     onBlur: (event) => {
-      setValue("teachingSummary", trimText(event.target.value) as string, {
+      setValue("teachingSummary", collapseTextSpaces(event.target.value), {
         shouldValidate: true,
       });
     },
   });
   const studentResultsRegister = form.register("studentResults", {
     onBlur: (event) => {
-      setValue("studentResults", trimText(event.target.value) as string, {
+      setValue("studentResults", collapseTextSpaces(event.target.value), {
         shouldValidate: true,
       });
     },
   });
   const sellingPointsRegister = form.register("sellingPoints", {
     onBlur: (event) => {
-      setValue("sellingPoints", trimText(event.target.value) as string, {
+      setValue("sellingPoints", collapseTextSpaces(event.target.value), {
         shouldValidate: true,
       });
     },
@@ -667,7 +667,11 @@ export function AddTutor() {
 
             <div className="grid gap-3">
               <Label htmlFor="academicDetails">Academic Details</Label>
-              <Input id="academicDetails" {...academicDetailsRegister} />
+              <Textarea
+                id="academicDetails"
+                placeholder="Academic Details"
+                {...academicDetailsRegister}
+              />
               {formState.errors.academicDetails && (
                 <p className="text-sm text-red-500">
                   {formState.errors.academicDetails.message}
@@ -677,7 +681,11 @@ export function AddTutor() {
 
             <div className="grid gap-3">
               <Label htmlFor="teachingSummary">Teaching Summary *</Label>
-              <Input id="teachingSummary" {...teachingSummaryRegister} />
+              <Textarea
+                id="teachingSummary"
+                placeholder="Teaching Summary"
+                {...teachingSummaryRegister}
+              />
               {formState.errors.teachingSummary && (
                 <p className="text-sm text-red-500">
                   {formState.errors.teachingSummary.message}
@@ -687,7 +695,11 @@ export function AddTutor() {
 
             <div className="grid gap-3">
               <Label htmlFor="studentResults">Student Results *</Label>
-              <Input id="studentResults" {...studentResultsRegister} />
+              <Textarea
+                id="studentResults"
+                placeholder="Student Results"
+                {...studentResultsRegister}
+              />
               {formState.errors.studentResults && (
                 <p className="text-sm text-red-500">
                   {formState.errors.studentResults.message}
@@ -697,7 +709,11 @@ export function AddTutor() {
 
             <div className="grid gap-3">
               <Label htmlFor="sellingPoints">Selling Points *</Label>
-              <Input id="sellingPoints" {...sellingPointsRegister} />
+              <Textarea
+                id="sellingPoints"
+                placeholder="Selling Points"
+                {...sellingPointsRegister}
+              />
               {formState.errors.sellingPoints && (
                 <p className="text-sm text-red-500">
                   {formState.errors.sellingPoints.message}
