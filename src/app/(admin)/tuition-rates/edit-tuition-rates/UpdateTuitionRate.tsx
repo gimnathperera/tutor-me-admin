@@ -31,18 +31,20 @@ interface UpdateTuitionRateProps {
   id: string;
   subject: string;
   grade: string;
-  fullTimeTuitionRate: { minimumRate: string; maximumRate: string }[];
-  govTuitionRate: { minimumRate: string; maximumRate: string }[];
-  partTimeTuitionRate: { minimumRate: string; maximumRate: string }[];
+  universityStudentsRate: { minimumRate: string; maximumRate: string };
+  partTimeTutorRate: { minimumRate: string; maximumRate: string };
+  fullTimeTutorRate: { minimumRate: string; maximumRate: string };
+  moeTeacherRate: { minimumRate: string; maximumRate: string };
 }
 
 export function UpdateTuitionRate({
   id,
   subject,
   grade,
-  fullTimeTuitionRate,
-  govTuitionRate,
-  partTimeTuitionRate,
+  universityStudentsRate,
+  partTimeTutorRate,
+  fullTimeTutorRate,
+  moeTeacherRate,
 }: UpdateTuitionRateProps) {
   const [open, setOpen] = useState(false);
 
@@ -57,9 +59,10 @@ export function UpdateTuitionRate({
     defaultValues: {
       subject: "",
       grade: "",
-      fullTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
-      govTuitionRate: [{ minimumRate: "", maximumRate: "" }],
-      partTimeTuitionRate: [{ minimumRate: "", maximumRate: "" }],
+      universityStudentsRate: { minimumRate: "", maximumRate: "" },
+      partTimeTutorRate: { minimumRate: "", maximumRate: "" },
+      fullTimeTutorRate: { minimumRate: "", maximumRate: "" },
+      moeTeacherRate: { minimumRate: "", maximumRate: "" },
     },
     mode: "onChange",
   });
@@ -85,24 +88,20 @@ export function UpdateTuitionRate({
       reset({
         subject: subject || "",
         grade: grade || "",
-        fullTimeTuitionRate: fullTimeTuitionRate.length
-          ? fullTimeTuitionRate
-          : [{ minimumRate: "", maximumRate: "" }],
-        govTuitionRate: govTuitionRate.length
-          ? govTuitionRate
-          : [{ minimumRate: "", maximumRate: "" }],
-        partTimeTuitionRate: partTimeTuitionRate.length
-          ? partTimeTuitionRate
-          : [{ minimumRate: "", maximumRate: "" }],
+        universityStudentsRate,
+        partTimeTutorRate,
+        fullTimeTutorRate,
+        moeTeacherRate,
       });
     }
   }, [
     open,
     subject,
     grade,
-    fullTimeTuitionRate,
-    govTuitionRate,
-    partTimeTuitionRate,
+    universityStudentsRate,
+    partTimeTutorRate,
+    fullTimeTutorRate,
+    moeTeacherRate,
     reset,
   ]);
 
@@ -111,9 +110,10 @@ export function UpdateTuitionRate({
       id,
       subject: data.subject,
       grade: data.grade,
-      fullTimeTuitionRate: data.fullTimeTuitionRate,
-      govTuitionRate: data.govTuitionRate,
-      partTimeTuitionRate: data.partTimeTuitionRate,
+      universityStudentsRate: data.universityStudentsRate,
+      partTimeTutorRate: data.partTimeTutorRate,
+      fullTimeTutorRate: data.fullTimeTutorRate,
+      moeTeacherRate: data.moeTeacherRate,
     };
 
     const result = await updateTuition(payload);
@@ -183,37 +183,40 @@ export function UpdateTuitionRate({
 
           {(
             [
-              "fullTimeTuitionRate",
-              "govTuitionRate",
-              "partTimeTuitionRate",
+              "universityStudentsRate",
+              "partTimeTutorRate",
+              "fullTimeTutorRate",
+              "moeTeacherRate",
             ] as const
           ).map((key) => (
             <div key={key} className="grid gap-2">
               <Label>
-                {key === "fullTimeTuitionRate"
-                  ? "Full-Time Tuition Rate"
-                  : key === "govTuitionRate"
-                    ? "Government Tuition Rate"
-                    : "Part-Time Tuition Rate"}
+                {key === "universityStudentsRate"
+                  ? "University Students Rate"
+                  : key === "partTimeTutorRate"
+                    ? "Part-Time Tutor Rate"
+                    : key === "fullTimeTutorRate"
+                      ? "Full-Time Tutor Rate"
+                      : "Ex/Current MOE Teacher Rate"}
               </Label>
 
               <Input
                 placeholder="Minimum Rate"
-                {...register(`${key}.0.minimumRate` as const)}
+                {...register(`${key}.minimumRate` as const)}
               />
-              {errors[key]?.[0]?.minimumRate && (
+              {errors[key]?.minimumRate && (
                 <p className="text-red-500 text-sm">
-                  {errors[key][0].minimumRate?.message}
+                  {errors[key]?.minimumRate?.message}
                 </p>
               )}
 
               <Input
                 placeholder="Maximum Rate"
-                {...register(`${key}.0.maximumRate` as const)}
+                {...register(`${key}.maximumRate` as const)}
               />
-              {errors[key]?.[0]?.maximumRate && (
+              {errors[key]?.maximumRate && (
                 <p className="text-red-500 text-sm">
-                  {errors[key][0].maximumRate?.message}
+                  {errors[key]?.maximumRate?.message}
                 </p>
               )}
             </div>

@@ -25,30 +25,30 @@ interface EntityRef {
 interface TuitionRateDetailsProps {
   grade: EntityRef;
   subject: EntityRef;
-  fullTimeTuitionRate?: TuitionRate[];
-  govTuitionRate?: TuitionRate[];
-  partTimeTuitionRate?: TuitionRate[];
+  universityStudentsRate?: TuitionRate;
+  partTimeTutorRate?: TuitionRate;
+  fullTimeTutorRate?: TuitionRate;
+  moeTeacherRate?: TuitionRate;
 }
 
 export function TuitionRateDetails({
   grade,
   subject,
-  fullTimeTuitionRate = [],
-  govTuitionRate = [],
-  partTimeTuitionRate = [],
+  universityStudentsRate,
+  partTimeTutorRate,
+  fullTimeTutorRate,
+  moeTeacherRate,
 }: TuitionRateDetailsProps) {
   const [open, setOpen] = useState(false);
 
   const displayFieldClass =
     "w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-700 dark:text-white/90";
 
-  const renderRateList = (rates: TuitionRate[]) =>
-    rates.length > 0 ? (
-      rates.map((rate, idx) => (
-        <div key={idx} className={displayFieldClass}>
-          Min: Rs. {rate.minimumRate} <br /> Max: Rs. {rate.maximumRate}
-        </div>
-      ))
+  const renderRate = (rate?: TuitionRate) =>
+    rate ? (
+      <div className={displayFieldClass}>
+        Min: Rs. {rate.minimumRate} <br /> Max: Rs. {rate.maximumRate}
+      </div>
     ) : (
       <div className={displayFieldClass}>No rates</div>
     );
@@ -77,22 +77,20 @@ export function TuitionRateDetails({
             <div className={displayFieldClass}>{subject.title}</div>
           </div>
           <div className="grid gap-3">
-            <Label>Full-Time Tuition Rate</Label>
-            <div className="flex flex-col gap-2">
-              {renderRateList(fullTimeTuitionRate)}
-            </div>
+            <Label>University Students Rate</Label>
+            {renderRate(universityStudentsRate)}
           </div>
           <div className="grid gap-3">
-            <Label>Government Tuition Rate</Label>
-            <div className="flex flex-col gap-2">
-              {renderRateList(govTuitionRate)}
-            </div>
+            <Label>Part-Time Tutor Rate</Label>
+            {renderRate(partTimeTutorRate)}
           </div>
           <div className="grid gap-3">
-            <Label>Part-Time Tuition Rate</Label>
-            <div className="flex flex-col gap-2">
-              {renderRateList(partTimeTuitionRate)}
-            </div>
+            <Label>Full-Time Tutor Rate</Label>
+            {renderRate(fullTimeTutorRate)}
+          </div>
+          <div className="grid gap-3">
+            <Label>Ex/Current MOE Teacher Rate</Label>
+            {renderRate(moeTeacherRate)}
           </div>
         </div>
       </DialogContent>
