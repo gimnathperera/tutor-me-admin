@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import {
   Pagination,
   PaginationContent,
@@ -37,6 +38,8 @@ interface DataTableProps<T> {
   totalResults?: number;
   limit?: number;
   isLoading?: boolean;
+  emptyMessage?: string;
+  className?: string;
 }
 
 function getPaginationRange({
@@ -97,6 +100,8 @@ export default function DataTable<T extends { id: string | number }>({
   totalResults = 0,
   limit = 10,
   isLoading = false,
+  emptyMessage = "This is empty. Please create a new one.",
+  className,
 }: DataTableProps<T>) {
   const showPagination = totalResults > limit;
   const isFirstPage = page === 1;
@@ -118,7 +123,7 @@ export default function DataTable<T extends { id: string | number }>({
     return (
       <div className="flex justify-center items-center h-48 rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90">
         <p className="text-gray-500 dark:text-white/70">
-          This is empty. Please create a new one.
+          {emptyMessage}
         </p>
       </div>
     );
@@ -126,9 +131,10 @@ export default function DataTable<T extends { id: string | number }>({
 
   return (
     <div
-      className={
-        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90 max-w-[73.5vw]"
-      }
+      className={cn(
+        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90 max-w-[73.5vw]",
+        className,
+      )}
     >
       <div className="max-w-full overflow-x-auto">
         <div className="min-w-[600px]">

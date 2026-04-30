@@ -242,6 +242,7 @@ export type FetchSubjectsRequest = {
 };
 
 export type FetchUserRequest = {
+  search?: string;
   email?: string;
   password?: string;
   name?: string;
