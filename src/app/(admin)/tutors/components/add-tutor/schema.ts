@@ -26,12 +26,18 @@ export const addTutorSchema = z.object({
     .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
   contactNumber: z
     .string()
+    .min(1, "Contact Number is required")
     .regex(/^[0-9]+$/, "Contact number must contain only numbers")
     .length(10, "Contact number must be exactly 10 digits"),
 
-  email: z.string().email("Email must be valid"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Email must be valid"),
   dateOfBirth: z
     .string()
+    .min(1, "Date of Birth is required")
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
 
   gender: z.enum(["Male", "Female"]),

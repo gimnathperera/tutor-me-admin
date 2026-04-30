@@ -4,13 +4,20 @@ export const updateTutorSchema = z.object({
   fullName: z.string().optional(),
   contactNumber: z
     .string()
+    .min(1, "Contact Number is required")
     .regex(/^\d+$/, "Contact number must contain only numbers")
     .min(7, "Contact number must be at least 7 digits")
     .max(15, "Contact number must be at most 15 digits")
     .optional(),
-  email: z.string().email("Email must be valid").optional(),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Email must be valid")
+    .optional(),
   dateOfBirth: z
     .string()
+    .min(1, "Date of Birth is required")
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD")
     .optional(),
   gender: z.enum(["Male", "Female"]).optional(),
@@ -24,9 +31,7 @@ export const updateTutorSchema = z.object({
     .enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"])
     .optional(),
 
-  status: z
-    .enum(["pending", "approved", "rejected", "suspended"])
-    .optional(),
+  status: z.enum(["pending", "approved", "rejected", "suspended"]).optional(),
 
   classType: z.array(z.string()).optional(),
 
