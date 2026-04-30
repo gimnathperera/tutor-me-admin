@@ -34,6 +34,10 @@ import {
 } from "@/components/ui/select";
 import { useCreateTutorMutation } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
+import {
+  collapseTextSpaces,
+  stripLeadingSpaces,
+} from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import {
@@ -83,9 +87,6 @@ export function AddTutor() {
     name: "dateOfBirth",
     defaultValue: "",
   }) as string;
-
-
-
 
   // Grades / Subjects state & queries (match client logic)
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
@@ -232,6 +233,21 @@ export function AddTutor() {
     }
   };
 
+  const fullNameRegister = form.register("fullName", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("fullName", cleaned, { shouldValidate: true });
+      }
+    },
+    onBlur: (event) => {
+      setValue("fullName", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -252,7 +268,7 @@ export function AddTutor() {
           <div className="grid gap-4 p-3">
             <div className="grid gap-3">
               <Label htmlFor="fullName">Full Name *</Label>
-              <Input id="fullName" {...form.register("fullName")} />
+              <Input id="fullName" {...fullNameRegister} />
               {formState.errors.fullName && (
                 <p className="text-sm text-red-500">
                   {formState.errors.fullName.message}
@@ -669,6 +685,7 @@ export function AddTutor() {
             <div className="grid gap-3 border p-4 rounded-md">
               <Label>Certificates & Qualifications</Label>
               <MultiFileUploader
+                mode="certificate"
                 onUploaded={(items) =>
                   setValue("certificatesAndQualifications", items, {
                     shouldDirty: true,

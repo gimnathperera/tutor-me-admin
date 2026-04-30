@@ -38,6 +38,11 @@ import {
   useLazyFetchGradeByIdQuery,
 } from "@/store/api/splits/grades";
 import { getErrorInApiResult } from "@/utils/api";
+import {
+  collapseTextSpaces,
+  normalizeTextSpaces,
+  stripLeadingSpaces,
+} from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -319,7 +324,7 @@ export function EditTutor({ id }: EditTutorProps) {
   const buildResetValues = (data: typeof tutorData) => {
     if (!data) return {};
     return {
-      fullName: data.fullName || "",
+      fullName: normalizeTextSpaces(data.fullName || "") as string,
       contactNumber: data.contactNumber || "",
       email: data.email || "",
       dateOfBirth: formatDateForForm(data.dateOfBirth),
@@ -328,7 +333,11 @@ export function EditTutor({ id }: EditTutorProps) {
       tutorMediums: data.tutorMediums || [],
       grades: data.grades || [],
       subjects: data.subjects || [],
-      nationality: safeEnumValue(data.nationality, nationalityOptions, "Sri Lankan"),
+      nationality: safeEnumValue(
+        data.nationality,
+        nationalityOptions,
+        "Sri Lankan",
+      ),
       race: safeEnumValue(data.race, raceOptions, "Sinhalese"),
       status: safeEnumValue(
         data.status,
@@ -336,14 +345,24 @@ export function EditTutor({ id }: EditTutorProps) {
         "pending",
       ),
       classType: safeArrayEnumValue(data.classType, classTypeValues),
-      tutoringLevels: safeArrayEnumValue(data.tutoringLevels, tutoringLevelsList),
-      preferredLocations: safeArrayEnumValue(data.preferredLocations, locationOptions),
+      tutoringLevels: safeArrayEnumValue(
+        data.tutoringLevels,
+        tutoringLevelsList,
+      ),
+      preferredLocations: safeArrayEnumValue(
+        data.preferredLocations,
+        locationOptions,
+      ),
       tutorType: safeArrayEnumValue(
         data.tutorType,
         tutorTypeValues,
       ) as UpdateTutorSchema["tutorType"],
       yearsExperience: data.yearsExperience || 0,
-      highestEducation: safeEnumValue(data.highestEducation, educationOptions, "Undergraduate"),
+      highestEducation: safeEnumValue(
+        data.highestEducation,
+        educationOptions,
+        "Undergraduate",
+      ),
       academicDetails: data.academicDetails || "",
       teachingSummary: data.teachingSummary || "",
       studentResults: data.studentResults || "",
@@ -362,7 +381,7 @@ export function EditTutor({ id }: EditTutorProps) {
     if (tutorData && open) {
       reset(buildResetValues(tutorData));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorData, open, reset]);
 
   const handleDialogOpenChange = (isOpen: boolean) => {
@@ -412,6 +431,21 @@ export function EditTutor({ id }: EditTutorProps) {
     }
   };
 
+  const fullNameRegister = form.register("fullName", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("fullName", cleaned, { shouldValidate: true });
+      }
+    },
+    onBlur: (event) => {
+      setValue("fullName", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
   if (isFetching) {
     return <p>Loading tutor details...</p>;
   }
@@ -456,7 +490,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <Input
                 id="fullName"
                 placeholder="Full Name"
-                {...form.register("fullName")}
+                {...fullNameRegister}
               />
               {formState.errors.fullName && (
                 <p className="text-sm text-red-500">
@@ -718,12 +752,17 @@ export function EditTutor({ id }: EditTutorProps) {
             <div className="grid gap-3 border p-4 rounded-md">
               <Label>Certificates & Qualifications</Label>
               <MultiFileUploader
+                mode="certificate"
                 defaultFiles={tutorData?.certificatesAndQualifications || []}
                 onUploaded={(items) =>
-                  setValue("certificatesAndQualifications" as never, items as never, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
+                  setValue(
+                    "certificatesAndQualifications" as never,
+                    items as never,
+                    {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    },
+                  )
                 }
               />
               {formState.errors.certificatesAndQualifications && (
@@ -809,8 +848,12 @@ export function EditTutor({ id }: EditTutorProps) {
                     <SelectItem value="Diploma">Diploma</SelectItem>
                     <SelectItem value="Masters">Masters</SelectItem>
                     <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                    <SelectItem value="Bachelor Degree">Bachelor Degree</SelectItem>
-                    <SelectItem value="Diploma and Professional">Diploma and Professional</SelectItem>
+                    <SelectItem value="Bachelor Degree">
+                      Bachelor Degree
+                    </SelectItem>
+                    <SelectItem value="Diploma and Professional">
+                      Diploma and Professional
+                    </SelectItem>
                     <SelectItem value="JC/A Levels">JC/A Levels</SelectItem>
                     <SelectItem value="Poly">Poly</SelectItem>
                     <SelectItem value="Others">Others</SelectItem>

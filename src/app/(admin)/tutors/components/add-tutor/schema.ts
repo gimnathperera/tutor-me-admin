@@ -1,3 +1,4 @@
+import { normalizeTextSpaces } from "@/utils/form-normalizers";
 import { z } from "zod";
 
 const tutorTypeValues = [
@@ -22,8 +23,16 @@ const classTypeValues = [
 export const addTutorSchema = z.object({
   fullName: z
     .string()
-    .min(1, "Full Name is required")
-    .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
+    .transform((value) => normalizeTextSpaces(value) as string)
+    .pipe(
+      z
+        .string()
+        .min(1, "Full Name is required")
+        .regex(
+          /^[A-Za-z\s]+$/,
+          "Full Name can contain letters and spaces only",
+        ),
+    ),
   contactNumber: z
     .string()
     .min(1, "Contact Number is required")
