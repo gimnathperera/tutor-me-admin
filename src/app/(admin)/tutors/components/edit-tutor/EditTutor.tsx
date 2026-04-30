@@ -1,6 +1,12 @@
 "use client";
 
+import {
+  classTypeOptions,
+  tutorTypeOptions,
+  YEARS_EXPERIENCE_OPTIONS,
+} from "@/app/(admin)/tutors/constants";
 import MultiSelect from "@/components/form/MultiSelect";
+import MultiFileUploader from "@/components/MultiFileUploader";
 import { Button } from "@/components/ui/button/Button";
 import DatePicker from "@/components/ui/DatePicker";
 import {
@@ -23,20 +29,13 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  useFetchTutorByIdQuery,
-  useUpdateTutorMutation,
-} from "@/store/api/splits/tutors";
-
-import {
-  classTypeOptions,
-  tutorTypeOptions,
-  YEARS_EXPERIENCE_OPTIONS,
-} from "@/app/(admin)/tutors/constants";
-import MultiFileUploader from "@/components/MultiFileUploader";
-import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
 } from "@/store/api/splits/grades";
+import {
+  useFetchTutorByIdQuery,
+  useUpdateTutorMutation,
+} from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
@@ -44,14 +43,6 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateTutorSchema, updateTutorSchema } from "./schema";
-
-export type StringLike =
-  | string
-  | number
-  | null
-  | undefined
-  | { id?: string; title?: string; name?: string };
-export type UnknownObject = Record<string, unknown>;
 
 interface EditTutorProps {
   id: string;
@@ -166,12 +157,14 @@ export function EditTutor({ id }: EditTutorProps) {
 
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();
+
   const gradeOptions =
     gradesData?.results?.map((g) => ({ value: g.id, text: g.title })) || [];
 
   const [subjectOptions, setSubjectOptions] = useState<
     { value: string; text: string }[]
   >([]);
+
   const prevUniqueSubjectsRef = useRef<string | null>(null);
 
   const form = useForm<UpdateTutorSchema>({
@@ -211,6 +204,7 @@ export function EditTutor({ id }: EditTutorProps) {
     name: "grades",
     defaultValue: [] as string[],
   }) as string[];
+
   const selectedSubjects = useWatch({
     control,
     name: "subjects",
@@ -228,6 +222,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
   const formatDateForForm = (isoDate: string | undefined): string => {
     if (!isoDate) return "";
+
     try {
       const date = new Date(isoDate);
       return date.toISOString().split("T")[0];
@@ -255,21 +250,25 @@ export function EditTutor({ id }: EditTutorProps) {
         (selectedSubjects && selectedSubjects.length > 0)
       ) {
         setSubjectOptions([]);
+
         if (selectedSubjects && selectedSubjects.length > 0) {
           setValue("subjects", [], { shouldValidate: true });
         }
       }
+
       prevUniqueSubjectsRef.current = null;
       return;
     }
 
     let cancelled = false;
+
     const loadSubjects = async () => {
       const allSubjects: { id: string; title: string }[] = [];
 
       for (const gradeId of grades) {
         try {
           const res = await fetchGradeById(gradeId);
+
           if (res?.data?.subjects) {
             allSubjects.push(...res.data.subjects);
           }
@@ -298,6 +297,7 @@ export function EditTutor({ id }: EditTutorProps) {
       const validSelected = (selectedSubjects || []).filter((sId: string) =>
         uniqueSubjects.some((us) => us.id === sId),
       );
+
       if (validSelected.length !== (selectedSubjects || []).length) {
         setValue("subjects", validSelected, { shouldValidate: true });
       }
@@ -318,6 +318,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
   const buildResetValues = (data: typeof tutorData) => {
     if (!data) return {};
+
     return {
       fullName: data.fullName || "",
       contactNumber: data.contactNumber || "",
@@ -328,7 +329,11 @@ export function EditTutor({ id }: EditTutorProps) {
       tutorMediums: data.tutorMediums || [],
       grades: data.grades || [],
       subjects: data.subjects || [],
-      nationality: safeEnumValue(data.nationality, nationalityOptions, "Sri Lankan"),
+      nationality: safeEnumValue(
+        data.nationality,
+        nationalityOptions,
+        "Sri Lankan",
+      ),
       race: safeEnumValue(data.race, raceOptions, "Sinhalese"),
       status: safeEnumValue(
         data.status,
@@ -336,14 +341,24 @@ export function EditTutor({ id }: EditTutorProps) {
         "pending",
       ),
       classType: safeArrayEnumValue(data.classType, classTypeValues),
-      tutoringLevels: safeArrayEnumValue(data.tutoringLevels, tutoringLevelsList),
-      preferredLocations: safeArrayEnumValue(data.preferredLocations, locationOptions),
+      tutoringLevels: safeArrayEnumValue(
+        data.tutoringLevels,
+        tutoringLevelsList,
+      ),
+      preferredLocations: safeArrayEnumValue(
+        data.preferredLocations,
+        locationOptions,
+      ),
       tutorType: safeArrayEnumValue(
         data.tutorType,
         tutorTypeValues,
       ) as UpdateTutorSchema["tutorType"],
       yearsExperience: data.yearsExperience || 0,
-      highestEducation: safeEnumValue(data.highestEducation, educationOptions, "Undergraduate"),
+      highestEducation: safeEnumValue(
+        data.highestEducation,
+        educationOptions,
+        "Undergraduate",
+      ),
       academicDetails: data.academicDetails || "",
       teachingSummary: data.teachingSummary || "",
       studentResults: data.studentResults || "",
@@ -362,11 +377,12 @@ export function EditTutor({ id }: EditTutorProps) {
     if (tutorData && open) {
       reset(buildResetValues(tutorData));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorData, open, reset]);
 
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
+
     if (!isOpen && tutorData) {
       reset(buildResetValues(tutorData));
     }
@@ -374,6 +390,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
+
     setValue("yearsExperience", parsed, {
       shouldValidate: true,
       shouldDirty: true,
@@ -423,469 +440,481 @@ export function EditTutor({ id }: EditTutorProps) {
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 max-h-[80vh] overflow-y-auto scrollbar-thin">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden">
+          <DialogHeader className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-b">
             <DialogTitle>Edit Tutor</DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-4 p-3">
-            {/* Status */}
-            <div className="grid gap-3">
-              <Label htmlFor="status">Status</Label>
-              <Select
-                onValueChange={(val) =>
-                  setValue("status", val as UpdateTutorSchema["status"])
-                }
-                value={watch("status")}
-              >
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="max-h-[70vh] overflow-y-auto scrollbar-thin px-6 py-6">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  onValueChange={(val) =>
+                    setValue("status", val as UpdateTutorSchema["status"])
+                  }
+                  value={watch("status")}
+                >
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Personal Info */}
-            <div className="grid gap-3">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                placeholder="Full Name"
-                {...form.register("fullName")}
-              />
-              {formState.errors.fullName && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.fullName.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="contactNumber">Contact Number</Label>
-              <Controller
-                name="contactNumber"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    id="contactNumber"
-                    type="tel"
-                    placeholder="912345678"
-                    maxLength={15}
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      const digits = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 15);
-                      field.onChange(digits);
-                    }}
-                  />
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  placeholder="Full Name"
+                  {...form.register("fullName")}
+                />
+                {formState.errors.fullName && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.fullName.message}
+                  </p>
                 )}
-              />
-              {formState.errors.contactNumber && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.contactNumber.message}
-                </p>
-              )}
-            </div>
+              </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Email"
-                {...form.register("email")}
-              />
-              {formState.errors.email && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.email.message}
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="contactNumber">Contact Number</Label>
+                <Controller
+                  name="contactNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      id="contactNumber"
+                      type="tel"
+                      placeholder="912345678"
+                      maxLength={15}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const digits = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 15);
+                        field.onChange(digits);
+                      }}
+                    />
+                  )}
+                />
+                {formState.errors.contactNumber && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.contactNumber.message}
+                  </p>
+                )}
+              </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="z-99">
-                <DatePicker
-                  label="Date of Birth"
-                  value={watch("dateOfBirth")}
-                  onChange={(date) =>
-                    setValue("dateOfBirth", date, {
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Email"
+                  {...form.register("email")}
+                />
+                {formState.errors.email && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.email.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <DatePicker
+                    label="Date of Birth"
+                    value={watch("dateOfBirth")}
+                    onChange={(date) =>
+                      setValue("dateOfBirth", date, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      })
+                    }
+                    placeholder="Select your date of birth"
+                    error={formState.errors.dateOfBirth?.message}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="age">Age</Label>
+                  <Input
+                    id="age"
+                    type="number"
+                    placeholder="Age"
+                    {...form.register("age", { valueAsNumber: true })}
+                    min={1}
+                  />
+                  {formState.errors.age && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.age.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Gender</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue("gender", val as UpdateTutorSchema["gender"])
+                    }
+                    value={watch("gender")}
+                  >
+                    <SelectTrigger id="gender">
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.gender && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.gender.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="nationality">Nationality</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue(
+                        "nationality",
+                        val as UpdateTutorSchema["nationality"],
+                      )
+                    }
+                    value={watch("nationality")}
+                  >
+                    <SelectTrigger id="nationality">
+                      <SelectValue placeholder="Select nationality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
+                      <SelectItem value="Others">Others</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.nationality && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.nationality.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="race">Race</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue("race", val as UpdateTutorSchema["race"])
+                    }
+                    value={watch("race")}
+                  >
+                    <SelectTrigger id="race">
+                      <SelectValue placeholder="Select race" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Sinhalese">Sinhalese</SelectItem>
+                      <SelectItem value="Tamil">Tamil</SelectItem>
+                      <SelectItem value="Muslim">Muslim</SelectItem>
+                      <SelectItem value="Burgher">Burgher</SelectItem>
+                      <SelectItem value="Others">Others</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.race && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.race.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <MultiSelect
+                    label="Tutor Type *"
+                    options={tutorTypeOptions}
+                    defaultSelected={watch("tutorType")}
+                    onChange={(selected) =>
+                      setValue(
+                        "tutorType",
+                        selected as UpdateTutorSchema["tutorType"],
+                        { shouldValidate: true },
+                      )
+                    }
+                  />
+                  {formState.errors.tutorType && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.tutorType.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <MultiSelect
+                    label="Class Type *"
+                    options={classTypeOptions}
+                    defaultSelected={watch("classType")}
+                    onChange={(selected) =>
+                      setValue("classType", selected as string[], {
+                        shouldValidate: true,
+                      })
+                    }
+                  />
+                  {formState.errors.classType && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.classType.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <MultiSelect
+                  label="Tutor Mediums *"
+                  options={["English", "Sinhala", "Tamil"].map((m) => ({
+                    value: m,
+                    text: m,
+                  }))}
+                  defaultSelected={watch("tutorMediums")}
+                  onChange={(selected) =>
+                    setValue("tutorMediums", selected as string[], {
                       shouldValidate: true,
-                      shouldDirty: true,
                     })
                   }
-                  placeholder="Select your date of birth"
-                  error={formState.errors.dateOfBirth?.message}
                 />
-              </div>
-              <div className="grid gap-3">
-                <Label htmlFor="age">Age</Label>
-                <Input
-                  id="age"
-                  type="number"
-                  placeholder="Age"
-                  {...form.register("age", { valueAsNumber: true })}
-                  min={1}
-                />
-                {formState.errors.age && (
+                {formState.errors.tutorMediums && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.age.message}
+                    {formState.errors.tutorMediums.message}
                   </p>
                 )}
               </div>
-            </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div className="grid gap-3">
-                <Label htmlFor="gender">Gender</Label>
-                <Select
-                  onValueChange={(val) =>
-                    setValue("gender", val as UpdateTutorSchema["gender"])
+              <div className="space-y-2">
+                <MultiSelect
+                  label="Grades *"
+                  options={gradeOptions}
+                  defaultSelected={watch("grades")}
+                  onChange={(selected) =>
+                    setValue("grades", selected as string[], {
+                      shouldValidate: true,
+                    })
                   }
-                  value={watch("gender")}
-                >
-                  <SelectTrigger id="gender">
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formState.errors.gender && (
+                />
+                {formState.errors.grades && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.gender.message}
+                    {formState.errors.grades.message}
                   </p>
                 )}
               </div>
 
-              <div className="grid gap-3">
-                <Label htmlFor="nationality">Nationality</Label>
-                <Select
-                  onValueChange={(val) =>
+              <div className="space-y-2">
+                <MultiSelect
+                  label="Subjects *"
+                  options={subjectOptions}
+                  defaultSelected={watch("subjects")}
+                  onChange={(selected) =>
+                    setValue("subjects", selected as string[], {
+                      shouldValidate: true,
+                    })
+                  }
+                  disabled={!selectedGrades || selectedGrades.length === 0}
+                />
+                {formState.errors.subjects && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.subjects.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3 rounded-md border p-4">
+                <Label>Certificates & Qualifications</Label>
+                <MultiFileUploader
+                  defaultFiles={tutorData?.certificatesAndQualifications || []}
+                  onUploaded={(items) =>
                     setValue(
-                      "nationality",
-                      val as UpdateTutorSchema["nationality"],
+                      "certificatesAndQualifications" as never,
+                      items as never,
+                      {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      },
                     )
                   }
-                  value={watch("nationality")}
-                >
-                  <SelectTrigger id="nationality">
-                    <SelectValue placeholder="Select nationality" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formState.errors.nationality && (
+                />
+                {formState.errors.certificatesAndQualifications && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.nationality.message}
+                    {formState.errors.certificatesAndQualifications.message}
                   </p>
                 )}
               </div>
 
-              <div className="grid gap-3">
-                <Label htmlFor="race">Race</Label>
-                <Select
-                  onValueChange={(val) =>
-                    setValue("race", val as UpdateTutorSchema["race"])
-                  }
-                  value={watch("race")}
-                >
-                  <SelectTrigger id="race">
-                    <SelectValue placeholder="Select race" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Sinhalese">Sinhalese</SelectItem>
-                    <SelectItem value="Tamil">Tamil</SelectItem>
-                    <SelectItem value="Muslim">Muslim</SelectItem>
-                    <SelectItem value="Burgher">Burgher</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formState.errors.race && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.race.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
+              <div className="space-y-2">
                 <MultiSelect
-                  label="Tutor Type *"
-                  options={tutorTypeOptions}
-                  defaultSelected={watch("tutorType")}
+                  label="Tutoring Levels"
+                  options={tutoringLevelOptions}
+                  defaultSelected={watch("tutoringLevels")}
                   onChange={(selected) =>
                     setValue(
-                      "tutorType",
-                      selected as UpdateTutorSchema["tutorType"],
+                      "tutoringLevels",
+                      selected as UpdateTutorSchema["tutoringLevels"],
                       { shouldValidate: true },
                     )
                   }
                 />
-                {formState.errors.tutorType && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.tutorType.message}
-                  </p>
-                )}
               </div>
 
-              <div className="grid gap-3">
+              <div className="space-y-2">
                 <MultiSelect
-                  label="Class Type *"
-                  options={classTypeOptions}
-                  defaultSelected={watch("classType")}
+                  label="Preferred Locations"
+                  options={preferredLocationOptions}
+                  defaultSelected={watch("preferredLocations")}
                   onChange={(selected) =>
-                    setValue("classType", selected as string[], {
-                      shouldValidate: true,
-                    })
-                  }
-                />
-                {formState.errors.classType && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.classType.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid z-60 gap-3">
-              <MultiSelect
-                label="Tutor Mediums *"
-                options={["English", "Sinhala", "Tamil"].map((m) => ({
-                  value: m,
-                  text: m,
-                }))}
-                defaultSelected={watch("tutorMediums")}
-                onChange={(selected) =>
-                  setValue("tutorMediums", selected as string[], {
-                    shouldValidate: true,
-                  })
-                }
-              />
-              {formState.errors.tutorMediums && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.tutorMediums.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid z-58 gap-3">
-              <MultiSelect
-                label="Grades *"
-                options={gradeOptions}
-                defaultSelected={watch("grades")}
-                onChange={(selected) =>
-                  setValue("grades", selected as string[], {
-                    shouldValidate: true,
-                  })
-                }
-              />
-              {formState.errors.grades && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.grades.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid z-56 gap-3">
-              <MultiSelect
-                label="Subjects *"
-                options={subjectOptions}
-                defaultSelected={watch("subjects")}
-                onChange={(selected) =>
-                  setValue("subjects", selected as string[], {
-                    shouldValidate: true,
-                  })
-                }
-                disabled={!selectedGrades || selectedGrades.length === 0}
-              />
-              {formState.errors.subjects && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.subjects.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3 border p-4 rounded-md">
-              <Label>Certificates & Qualifications</Label>
-              <MultiFileUploader
-                defaultFiles={tutorData?.certificatesAndQualifications || []}
-                onUploaded={(items) =>
-                  setValue("certificatesAndQualifications" as never, items as never, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              />
-              {formState.errors.certificatesAndQualifications && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.certificatesAndQualifications.message}
-                </p>
-              )}
-            </div>
-
-            {/* Tutoring Preferences */}
-            <div className="z-50">
-              <MultiSelect
-                label="Tutoring Levels"
-                options={tutoringLevelOptions}
-                defaultSelected={watch("tutoringLevels")}
-                onChange={(selected) =>
-                  setValue(
-                    "tutoringLevels",
-                    selected as UpdateTutorSchema["tutoringLevels"],
-                    { shouldValidate: true },
-                  )
-                }
-              />
-            </div>
-
-            <MultiSelect
-              label="Preferred Locations"
-              options={preferredLocationOptions}
-              defaultSelected={watch("preferredLocations")}
-              onChange={(selected) =>
-                setValue(
-                  "preferredLocations",
-                  selected as UpdateTutorSchema["preferredLocations"],
-                  { shouldValidate: true },
-                )
-              }
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <Label htmlFor="yearsExperience">Years of Experience</Label>
-                <Select
-                  onValueChange={(val) => handleYearsSelect(val)}
-                  value={String(watch("yearsExperience"))}
-                >
-                  <SelectTrigger id="yearsExperience">
-                    <SelectValue placeholder="Select years" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {YEARS_EXPERIENCE_OPTIONS.map((opt) => (
-                      <SelectItem
-                        key={String(opt.value)}
-                        value={String(opt.value)}
-                      >
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {formState.errors.yearsExperience && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.yearsExperience.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid gap-3">
-                <Label htmlFor="highestEducation">Highest Education</Label>
-                <Select
-                  onValueChange={(val) =>
                     setValue(
-                      "highestEducation",
-                      val as UpdateTutorSchema["highestEducation"],
+                      "preferredLocations",
+                      selected as UpdateTutorSchema["preferredLocations"],
+                      { shouldValidate: true },
                     )
                   }
-                  value={watch("highestEducation")}
-                >
-                  <SelectTrigger id="highestEducation">
-                    <SelectValue placeholder="Select education" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PhD">PhD</SelectItem>
-                    <SelectItem value="Diploma">Diploma</SelectItem>
-                    <SelectItem value="Masters">Masters</SelectItem>
-                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                    <SelectItem value="Bachelor Degree">Bachelor Degree</SelectItem>
-                    <SelectItem value="Diploma and Professional">Diploma and Professional</SelectItem>
-                    <SelectItem value="JC/A Levels">JC/A Levels</SelectItem>
-                    <SelectItem value="Poly">Poly</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formState.errors.highestEducation && (
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="yearsExperience">Years of Experience</Label>
+                  <Select
+                    onValueChange={(val) => handleYearsSelect(val)}
+                    value={String(watch("yearsExperience"))}
+                  >
+                    <SelectTrigger id="yearsExperience">
+                      <SelectValue placeholder="Select years" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {YEARS_EXPERIENCE_OPTIONS.map((opt) => (
+                        <SelectItem
+                          key={String(opt.value)}
+                          value={String(opt.value)}
+                        >
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.yearsExperience && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.yearsExperience.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="highestEducation">Highest Education</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue(
+                        "highestEducation",
+                        val as UpdateTutorSchema["highestEducation"],
+                      )
+                    }
+                    value={watch("highestEducation")}
+                  >
+                    <SelectTrigger id="highestEducation">
+                      <SelectValue placeholder="Select education" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PhD">PhD</SelectItem>
+                      <SelectItem value="Diploma">Diploma</SelectItem>
+                      <SelectItem value="Masters">Masters</SelectItem>
+                      <SelectItem value="Undergraduate">
+                        Undergraduate
+                      </SelectItem>
+                      <SelectItem value="Bachelor Degree">
+                        Bachelor Degree
+                      </SelectItem>
+                      <SelectItem value="Diploma and Professional">
+                        Diploma and Professional
+                      </SelectItem>
+                      <SelectItem value="JC/A Levels">JC/A Levels</SelectItem>
+                      <SelectItem value="Poly">Poly</SelectItem>
+                      <SelectItem value="Others">Others</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.highestEducation && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.highestEducation.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="academicDetails">Academic Details</Label>
+                <Textarea
+                  id="academicDetails"
+                  placeholder="Academic Details"
+                  {...form.register("academicDetails")}
+                />
+                {formState.errors.academicDetails && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.highestEducation.message}
+                    {formState.errors.academicDetails.message}
                   </p>
                 )}
               </div>
-            </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="academicDetails">Academic Details</Label>
-              <Textarea
-                id="academicDetails"
-                placeholder="Academic Details"
-                {...form.register("academicDetails")}
-              />
-              {formState.errors.academicDetails && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.academicDetails.message}
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="teachingSummary">Teaching Summary</Label>
+                <Textarea
+                  id="teachingSummary"
+                  placeholder="Teaching Summary"
+                  {...form.register("teachingSummary")}
+                />
+                {formState.errors.teachingSummary && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.teachingSummary.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Tutor Profile */}
-            <div className="grid gap-3">
-              <Label htmlFor="teachingSummary">Teaching Summary</Label>
-              <Textarea
-                id="teachingSummary"
-                placeholder="Teaching Summary"
-                {...form.register("teachingSummary")}
-              />
-              {formState.errors.teachingSummary && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.teachingSummary.message}
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="studentResults">Student Results</Label>
+                <Textarea
+                  id="studentResults"
+                  placeholder="Student Results"
+                  {...form.register("studentResults")}
+                />
+                {formState.errors.studentResults && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.studentResults.message}
+                  </p>
+                )}
+              </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="studentResults">Student Results</Label>
-              <Textarea
-                id="studentResults"
-                placeholder="Student Results"
-                {...form.register("studentResults")}
-              />
-              {formState.errors.studentResults && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.studentResults.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="sellingPoints">Selling Points</Label>
-              <Textarea
-                id="sellingPoints"
-                placeholder="Selling Points"
-                {...form.register("sellingPoints")}
-              />
-              {formState.errors.sellingPoints && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.sellingPoints.message}
-                </p>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="sellingPoints">Selling Points</Label>
+                <Textarea
+                  id="sellingPoints"
+                  placeholder="Selling Points"
+                  {...form.register("sellingPoints")}
+                />
+                {formState.errors.sellingPoints && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.sellingPoints.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"

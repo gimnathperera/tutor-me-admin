@@ -2,15 +2,9 @@
 
 import { YEARS_EXPERIENCE_OPTIONS } from "@/app/(admin)/tutors/constants";
 import MultiSelect from "@/components/form/MultiSelect";
+import MultiFileUploader from "@/components/MultiFileUploader";
 import { Button } from "@/components/ui/button/Button";
 import DatePicker from "@/components/ui/DatePicker";
-
-import {
-  useFetchGradesQuery,
-  useLazyFetchGradeByIdQuery,
-} from "@/store/api/splits/grades";
-import { useRef } from "react";
-
 import {
   Dialog,
   DialogClose,
@@ -21,9 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useWatch } from "react-hook-form";
-
-import MultiFileUploader from "@/components/MultiFileUploader";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -32,16 +23,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  useFetchGradesQuery,
+  useLazyFetchGradeByIdQuery,
+} from "@/store/api/splits/grades";
 import { useCreateTutorMutation } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Controller,
   FieldValues,
   Path,
   useForm,
   UseFormReturn,
+  useWatch,
 } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
@@ -63,35 +59,33 @@ export function AddTutor() {
   const form = useForm<AddTutorFormValues>({
     resolver: zodResolver(addTutorSchema),
     defaultValues: initialTutorFormValues,
-    mode: "onChange",
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
 
   const { formState, reset, setValue, watch, control } = form;
-  // watch selected grades and current subject selections
+
   const selectedGrades = useWatch({
     control,
     name: "grades",
     defaultValue: [],
   }) as string[];
+
   const selectedSubjects = useWatch({
     control,
     name: "subjects",
     defaultValue: [],
   }) as string[];
+
   const dob = useWatch({
     control,
     name: "dateOfBirth",
     defaultValue: "",
   }) as string;
 
-
-
-
-  // Grades / Subjects state & queries (match client logic)
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();
 
-  // derive grade options for MultiSelect
   const gradeOptions =
     gradesData?.results?.map((g) => ({ value: g.id, text: g.title })) || [];
 
@@ -99,27 +93,24 @@ export function AddTutor() {
     { value: string; text: string }[]
   >([]);
 
-  // keep a ref to the previous uniqueSubjects JSON to avoid useless setState
   const prevUniqueSubjectsRef = useRef<string | null>(null);
-
   const selectedGradesJson = JSON.stringify(selectedGrades || []);
 
   useEffect(() => {
-    // selectedGrades may be [] or array of ids
     const grades = JSON.parse(selectedGradesJson || "[]") as string[];
 
     if (grades.length === 0) {
-      // only clear if we actually have any subject options or form subjects non-empty
       if (
         subjectOptions.length > 0 ||
         (selectedSubjects && selectedSubjects.length > 0)
       ) {
         setSubjectOptions([]);
-        // only clear form subjects if not already empty
+
         if (selectedSubjects && selectedSubjects.length > 0) {
           setValue("subjects", [], { shouldValidate: true });
         }
       }
+
       prevUniqueSubjectsRef.current = null;
       return;
     }
@@ -146,7 +137,6 @@ export function AddTutor() {
 
       if (cancelled) return;
 
-      // only update subjectOptions if the list actually changed
       if (prevUniqueSubjectsRef.current !== uniqueJson) {
         setSubjectOptions(
           uniqueSubjects.map((s) => ({ value: s.id, text: s.title })),
@@ -154,11 +144,10 @@ export function AddTutor() {
         prevUniqueSubjectsRef.current = uniqueJson;
       }
 
-      // remove selected subjects that are no longer present
       const validSelected = (selectedSubjects || []).filter((sId: string) =>
         uniqueSubjects.some((us) => us.id === sId),
       );
-      // only update form subjects if something changed
+
       if (validSelected.length !== (selectedSubjects || []).length) {
         setValue("subjects", validSelected, { shouldValidate: true });
       }
@@ -185,6 +174,7 @@ export function AddTutor() {
 
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
+
     if (!isOpen) {
       reset(initialTutorFormValues);
     }
@@ -199,6 +189,7 @@ export function AddTutor() {
     const today = new Date();
     let age = today.getFullYear() - d.getFullYear();
     const m = today.getMonth() - d.getMonth();
+
     if (m < 0 || (m === 0 && today.getDate() < d.getDate())) {
       age--;
     }
@@ -210,6 +201,7 @@ export function AddTutor() {
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
+
     setValue("yearsExperience", parsed, {
       shouldValidate: true,
       shouldDirty: true,
@@ -217,7 +209,16 @@ export function AddTutor() {
   };
 
   const onSubmit = async (data: AddTutorFormValues) => {
-    const result = await createTutor({ ...data });
+    const cleanedData = {
+      ...data,
+      fullName: data.fullName.trim().replace(/\s+/g, " "),
+      academicDetails: data.academicDetails?.trim().replace(/\s+/g, " "),
+      teachingSummary: data.teachingSummary.trim().replace(/\s+/g, " "),
+      studentResults: data.studentResults.trim().replace(/\s+/g, " "),
+      sellingPoints: data.sellingPoints.trim().replace(/\s+/g, " "),
+    };
+
+    const result = await createTutor(cleanedData);
 
     const error = getErrorInApiResult(result);
     if (error) {
@@ -231,6 +232,8 @@ export function AddTutor() {
       setOpen(false);
     }
   };
+  const cleanTextInput = (value: string) =>
+    value.replace(/^\s+/, "").replace(/\s{2,}/g, " ");
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
@@ -244,466 +247,499 @@ export function AddTutor() {
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 overflow-y-auto scrollbar-thin">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden">
+          <DialogHeader className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-b">
             <DialogTitle>Add Tutor</DialogTitle>
           </DialogHeader>
 
-          <div className="grid gap-4 p-3">
-            <div className="grid gap-3">
-              <Label htmlFor="fullName">Full Name *</Label>
-              <Input id="fullName" {...form.register("fullName")} />
-              {formState.errors.fullName && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.fullName.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="contactNumber">Contact Number *</Label>
-              <Controller
-                name="contactNumber"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    id="contactNumber"
-                    type="tel"
-                    placeholder="912345678"
-                    maxLength={10}
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      const digits = e.target.value
-                        .replace(/\D/g, "")
-                        .slice(0, 10);
-                      field.onChange(digits);
-                    }}
-                  />
-                )}
-              />
-              {formState.errors.contactNumber && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.contactNumber.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="email">Email *</Label>
-              <Input id="email" type="email" {...form.register("email")} />
-              {formState.errors.email && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.email.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="z-99">
-                <DatePicker
-                  label="Date of Birth"
-                  required
-                  value={watch("dateOfBirth")}
-                  onChange={(date) =>
-                    setValue("dateOfBirth", date, {
-                      shouldValidate: true,
+          <div className="max-h-[70vh] overflow-y-auto scrollbar-thin px-6 py-6">
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name *</Label>
+                <Input
+                  id="fullName"
+                  value={watch("fullName")}
+                  onChange={(e) =>
+                    setValue("fullName", cleanTextInput(e.target.value), {
                       shouldDirty: true,
+                      shouldValidate: formState.isSubmitted,
                     })
                   }
-                  placeholder="Select your date of birth"
-                  error={formState.errors.dateOfBirth?.message}
                 />
+                {formState.errors.fullName && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.fullName.message}
+                  </p>
+                )}
               </div>
-              <div className="grid gap-3">
-                <Label htmlFor="age">Age *</Label>
-                <Input
-                  id="age"
-                  type="number"
-                  {...form.register("age", { valueAsNumber: true })}
-                  min={1}
+
+              <div className="space-y-2">
+                <Label htmlFor="contactNumber">Contact Number *</Label>
+                <Controller
+                  name="contactNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      id="contactNumber"
+                      type="tel"
+                      placeholder="912345678"
+                      maxLength={10}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const digits = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 10);
+                        field.onChange(digits);
+                      }}
+                    />
+                  )}
                 />
-                {formState.errors.age && (
+                {formState.errors.contactNumber && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.age.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              {/* Gender */}
-              <div className="grid gap-3">
-                <Label htmlFor="gender">Gender *</Label>
-                <Select
-                  onValueChange={(val) =>
-                    setValue("gender", val as AddTutorFormValues["gender"])
-                  }
-                  value={watch("gender")}
-                >
-                  <SelectTrigger id="gender">
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formState.errors.gender && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.gender.message}
+                    {formState.errors.contactNumber.message}
                   </p>
                 )}
               </div>
 
-              <div className="grid gap-3">
-                <Label htmlFor="nationality">Nationality *</Label>
-                <Select
-                  onValueChange={(val) =>
-                    setValue(
-                      "nationality",
-                      val as AddTutorFormValues["nationality"],
-                    )
-                  }
-                  value={watch("nationality")}
-                >
-                  <SelectTrigger id="nationality">
-                    <SelectValue placeholder="Select nationality" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formState.errors.nationality && (
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input id="email" type="email" {...form.register("email")} />
+                {formState.errors.email && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.nationality.message}
+                    {formState.errors.email.message}
                   </p>
                 )}
               </div>
 
-              <div className="grid gap-3">
-                <Label htmlFor="race">Race *</Label>
-                <Select
-                  onValueChange={(val) =>
-                    setValue("race", val as AddTutorFormValues["race"])
-                  }
-                  value={watch("race")}
-                >
-                  <SelectTrigger id="race">
-                    <SelectValue placeholder="Select race" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Sinhalese">Sinhalese</SelectItem>
-                    <SelectItem value="Tamil">Tamil</SelectItem>
-                    <SelectItem value="Muslim">Muslim</SelectItem>
-                    <SelectItem value="Burgher">Burgher</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formState.errors.race && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.race.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <MultiSelect
-                  label="Tutor Type *"
-                  options={tutorTypeOptions}
-                  defaultSelected={watch("tutorType")}
-                  onChange={(selected) =>
-                    setValue(
-                      "tutorType",
-                      selected as AddTutorFormValues["tutorType"],
-                      {
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <DatePicker
+                    label="Date of Birth"
+                    required
+                    value={watch("dateOfBirth")}
+                    onChange={(date) =>
+                      setValue("dateOfBirth", date, {
                         shouldValidate: true,
-                      },
-                    )
-                  }
-                />
-                {formState.errors.tutorType && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.tutorType.message}
-                  </p>
-                )}
+                        shouldDirty: true,
+                      })
+                    }
+                    placeholder="Select your date of birth"
+                    error={formState.errors.dateOfBirth?.message}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="age">Age *</Label>
+                  <Input
+                    id="age"
+                    type="number"
+                    {...form.register("age", { valueAsNumber: true })}
+                    min={1}
+                  />
+                  {formState.errors.age && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.age.message}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="grid gap-3">
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Gender *</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue("gender", val as AddTutorFormValues["gender"])
+                    }
+                    value={watch("gender")}
+                  >
+                    <SelectTrigger id="gender">
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.gender && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.gender.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="nationality">Nationality *</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue(
+                        "nationality",
+                        val as AddTutorFormValues["nationality"],
+                      )
+                    }
+                    value={watch("nationality")}
+                  >
+                    <SelectTrigger id="nationality">
+                      <SelectValue placeholder="Select nationality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
+                      <SelectItem value="Others">Others</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.nationality && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.nationality.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="race">Race *</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue("race", val as AddTutorFormValues["race"])
+                    }
+                    value={watch("race")}
+                  >
+                    <SelectTrigger id="race">
+                      <SelectValue placeholder="Select race" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Sinhalese">Sinhalese</SelectItem>
+                      <SelectItem value="Tamil">Tamil</SelectItem>
+                      <SelectItem value="Muslim">Muslim</SelectItem>
+                      <SelectItem value="Burgher">Burgher</SelectItem>
+                      <SelectItem value="Others">Others</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.race && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.race.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <MultiSelect
+                    label="Tutor Type *"
+                    options={tutorTypeOptions}
+                    defaultSelected={watch("tutorType")}
+                    onChange={(selected) =>
+                      setValue(
+                        "tutorType",
+                        selected as AddTutorFormValues["tutorType"],
+                        { shouldValidate: true },
+                      )
+                    }
+                  />
+                  {formState.errors.tutorType && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.tutorType.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <MultiSelect
+                    label="Class Type *"
+                    options={classTypeOptions}
+                    defaultSelected={watch("classType")}
+                    onChange={(selected) =>
+                      setValue(
+                        "classType",
+                        selected as AddTutorFormValues["classType"],
+                        { shouldValidate: true },
+                      )
+                    }
+                  />
+                  {formState.errors.classType && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.classType.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <MultiSelect
-                  label="Class Type *"
-                  options={classTypeOptions}
-                  defaultSelected={watch("classType")}
+                  label="Tutor Mediums *"
+                  options={["English", "Sinhala", "Tamil"].map((m) => ({
+                    value: m,
+                    text: m,
+                  }))}
+                  defaultSelected={watch("tutorMediums")}
                   onChange={(selected) =>
                     setValue(
-                      "classType",
-                      selected as AddTutorFormValues["classType"],
+                      "tutorMediums",
+                      selected as AddTutorFormValues["tutorMediums"],
                       { shouldValidate: true },
                     )
                   }
                 />
-                {formState.errors.classType && (
+                {formState.errors.tutorMediums && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.classType.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="grid z-60 gap-3">
-              <MultiSelect
-                label="Tutor Mediums *"
-                options={[
-                  ...["English", "Sinhala", "Tamil"].map((m) => ({
-                    value: m,
-                    text: m,
-                  })),
-                ]}
-                defaultSelected={watch("tutorMediums")}
-                onChange={(selected) =>
-                  setValue(
-                    "tutorMediums",
-                    selected as AddTutorFormValues["tutorMediums"],
-                    {
-                      shouldValidate: true,
-                    },
-                  )
-                }
-              />
-              {formState.errors.tutorMediums && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.tutorMediums.message}
-                </p>
-              )}
-            </div>
-
-            {/* Grades (loaded from API) */}
-            <div className="grid z-58 gap-3">
-              <MultiSelect
-                label="Grades *"
-                options={gradeOptions}
-                defaultSelected={watch("grades")}
-                onChange={(selected) =>
-                  setValue("grades", selected as AddTutorFormValues["grades"], {
-                    shouldValidate: true,
-                  })
-                }
-              />
-              {formState.errors.grades && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.grades.message}
-                </p>
-              )}
-            </div>
-
-            {/* Subjects (depends on grades) */}
-            <div className="grid z-56 gap-3">
-              <MultiSelect
-                label="Subjects *"
-                options={subjectOptions}
-                defaultSelected={watch("subjects")}
-                onChange={(selected) =>
-                  setValue(
-                    "subjects",
-                    selected as AddTutorFormValues["subjects"],
-                    {
-                      shouldValidate: true,
-                    },
-                  )
-                }
-                disabled={!selectedGrades || selectedGrades.length === 0}
-              />
-              {formState.errors.subjects && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.subjects.message}
-                </p>
-              )}
-            </div>
-
-            <div className="z-50">
-              <MultiSelect
-                label="Tutoring Levels"
-                options={tutoringLevelOptions}
-                defaultSelected={watch("tutoringLevels")}
-                onChange={(selected) =>
-                  setValue(
-                    "tutoringLevels",
-                    selected as AddTutorFormValues["tutoringLevels"],
-                    {
-                      shouldValidate: true,
-                    },
-                  )
-                }
-              />
-            </div>
-
-            <MultiSelect
-              label="Preferred Locations"
-              options={preferredLocationOptions}
-              defaultSelected={watch("preferredLocations")}
-              onChange={(selected) =>
-                setValue(
-                  "preferredLocations",
-                  selected as AddTutorFormValues["preferredLocations"],
-                  {
-                    shouldValidate: true,
-                  },
-                )
-              }
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <Label htmlFor="yearsExperience">Years of Experience *</Label>
-                <Select
-                  onValueChange={(val) => handleYearsSelect(val)}
-                  value={String(watch("yearsExperience"))}
-                >
-                  <SelectTrigger id="yearsExperience">
-                    <SelectValue placeholder="Select years" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {YEARS_EXPERIENCE_OPTIONS.map((opt) => (
-                      <SelectItem
-                        key={String(opt.value)}
-                        value={String(opt.value)}
-                      >
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {formState.errors.yearsExperience && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.yearsExperience.message}
+                    {formState.errors.tutorMediums.message}
                   </p>
                 )}
               </div>
 
-              <div className="grid gap-3">
-                <Label htmlFor="highestEducation">Highest Education *</Label>
-                <Select
-                  onValueChange={(val) =>
+              <div className="space-y-2">
+                <MultiSelect
+                  label="Grades *"
+                  options={gradeOptions}
+                  defaultSelected={watch("grades")}
+                  onChange={(selected) =>
                     setValue(
-                      "highestEducation",
-                      val as AddTutorFormValues["highestEducation"],
+                      "grades",
+                      selected as AddTutorFormValues["grades"],
+                      { shouldValidate: true },
                     )
                   }
-                  value={watch("highestEducation")}
-                >
-                  <SelectTrigger id="highestEducation">
-                    <SelectValue placeholder="Select education" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PhD">PhD</SelectItem>
-                    <SelectItem value="Diploma">Diploma</SelectItem>
-                    <SelectItem value="Masters">Masters</SelectItem>
-                    <SelectItem value="Undergraduate">Undergraduate</SelectItem>
-                    <SelectItem value="Bachelor Degree">
-                      Bachelor Degree
-                    </SelectItem>
-                    <SelectItem value="Diploma and Professional">
-                      Diploma and Professional
-                    </SelectItem>
-                    <SelectItem value="JC/A Levels">JC/A Levels</SelectItem>
-                    <SelectItem value="Poly">Poly</SelectItem>
-                    <SelectItem value="Others">Others</SelectItem>
-                  </SelectContent>
-                </Select>
-                {formState.errors.highestEducation && (
+                />
+                {formState.errors.grades && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.highestEducation.message}
+                    {formState.errors.grades.message}
                   </p>
                 )}
               </div>
-            </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="academicDetails">Academic Details</Label>
-              <Input
-                id="academicDetails"
-                {...form.register("academicDetails")}
-              />
-              {formState.errors.academicDetails && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.academicDetails.message}
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <MultiSelect
+                  label="Subjects *"
+                  options={subjectOptions}
+                  defaultSelected={watch("subjects")}
+                  onChange={(selected) =>
+                    setValue(
+                      "subjects",
+                      selected as AddTutorFormValues["subjects"],
+                      { shouldValidate: true },
+                    )
+                  }
+                  disabled={!selectedGrades || selectedGrades.length === 0}
+                />
+                {formState.errors.subjects && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.subjects.message}
+                  </p>
+                )}
+              </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="teachingSummary">Teaching Summary *</Label>
-              <Input
-                id="teachingSummary"
-                {...form.register("teachingSummary")}
-              />
-              {formState.errors.teachingSummary && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.teachingSummary.message}
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <MultiSelect
+                  label="Tutoring Levels"
+                  options={tutoringLevelOptions}
+                  defaultSelected={watch("tutoringLevels")}
+                  onChange={(selected) =>
+                    setValue(
+                      "tutoringLevels",
+                      selected as AddTutorFormValues["tutoringLevels"],
+                      { shouldValidate: true },
+                    )
+                  }
+                />
+              </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="studentResults">Student Results *</Label>
-              <Input id="studentResults" {...form.register("studentResults")} />
-              {formState.errors.studentResults && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.studentResults.message}
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <MultiSelect
+                  label="Preferred Locations"
+                  options={preferredLocationOptions}
+                  defaultSelected={watch("preferredLocations")}
+                  onChange={(selected) =>
+                    setValue(
+                      "preferredLocations",
+                      selected as AddTutorFormValues["preferredLocations"],
+                      { shouldValidate: true },
+                    )
+                  }
+                />
+              </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="sellingPoints">Selling Points *</Label>
-              <Input id="sellingPoints" {...form.register("sellingPoints")} />
-              {formState.errors.sellingPoints && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.sellingPoints.message}
-                </p>
-              )}
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label htmlFor="yearsExperience">Years of Experience *</Label>
+                  <Select
+                    onValueChange={(val) => handleYearsSelect(val)}
+                    value={String(watch("yearsExperience"))}
+                  >
+                    <SelectTrigger id="yearsExperience">
+                      <SelectValue placeholder="Select years" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {YEARS_EXPERIENCE_OPTIONS.map((opt) => (
+                        <SelectItem
+                          key={String(opt.value)}
+                          value={String(opt.value)}
+                        >
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.yearsExperience && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.yearsExperience.message}
+                    </p>
+                  )}
+                </div>
 
-            <div className="grid gap-3 border p-4 rounded-md">
-              <Label>Certificates & Qualifications</Label>
-              <MultiFileUploader
-                onUploaded={(items) =>
-                  setValue("certificatesAndQualifications", items, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              />
-              {formState.errors.certificatesAndQualifications && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.certificatesAndQualifications.message}
-                </p>
-              )}
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="highestEducation">Highest Education *</Label>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue(
+                        "highestEducation",
+                        val as AddTutorFormValues["highestEducation"],
+                      )
+                    }
+                    value={watch("highestEducation")}
+                  >
+                    <SelectTrigger id="highestEducation">
+                      <SelectValue placeholder="Select education" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PhD">PhD</SelectItem>
+                      <SelectItem value="Masters Degree">
+                        Masters Degree
+                      </SelectItem>
+                      <SelectItem value="Undergraduate">
+                        Undergraduate
+                      </SelectItem>
+                      <SelectItem value="Bachelor Degree">
+                        Bachelor Degree
+                      </SelectItem>
+                      <SelectItem value="Diploma and Professional">
+                        Diploma and Professional
+                      </SelectItem>
+                      <SelectItem value="Advanced Level (A/L)">
+                        Advanced Level (A/L)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formState.errors.highestEducation && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.highestEducation.message}
+                    </p>
+                  )}
+                </div>
+              </div>
 
-            {/* Agreements */}
-            <div className="mt-2">
-              <CheckboxField<AddTutorFormValues>
-                label="I agree to Terms & Conditions *"
-                id="agreeTerms"
-                form={form}
-              />
-            </div>
-            <div>
-              <CheckboxField<AddTutorFormValues>
-                label="I agree to receive assignment info *"
-                id="agreeAssignmentInfo"
-                form={form}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="academicDetails">Academic Details</Label>
+                <Input
+                  id="academicDetails"
+                  value={watch("academicDetails") || ""}
+                  onChange={(e) =>
+                    setValue(
+                      "academicDetails",
+                      cleanTextInput(e.target.value),
+                      {
+                        shouldDirty: true,
+                        shouldValidate: formState.isSubmitted,
+                      },
+                    )
+                  }
+                />
+                {formState.errors.academicDetails && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.academicDetails.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="teachingSummary">Teaching Summary *</Label>
+                <Input
+                  id="teachingSummary"
+                  value={watch("teachingSummary")}
+                  onChange={(e) =>
+                    setValue(
+                      "teachingSummary",
+                      cleanTextInput(e.target.value),
+                      {
+                        shouldDirty: true,
+                        shouldValidate: formState.isSubmitted,
+                      },
+                    )
+                  }
+                />
+                {formState.errors.teachingSummary && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.teachingSummary.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="studentResults">Student Results *</Label>
+                <Input
+                  id="studentResults"
+                  value={watch("studentResults")}
+                  onChange={(e) =>
+                    setValue("studentResults", cleanTextInput(e.target.value), {
+                      shouldDirty: true,
+                      shouldValidate: formState.isSubmitted,
+                    })
+                  }
+                />
+                {formState.errors.studentResults && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.studentResults.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sellingPoints">Selling Points *</Label>
+                <Input id="sellingPoints" {...form.register("sellingPoints")} />
+                {formState.errors.sellingPoints && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.sellingPoints.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3 rounded-md border p-4">
+                <Label>Certificates & Qualifications</Label>
+                <MultiFileUploader
+                  onUploaded={(items) =>
+                    setValue("certificatesAndQualifications", items, {
+                      shouldDirty: true,
+                      shouldValidate: formState.isSubmitted,
+                    })
+                  }
+                />
+                {formState.errors.certificatesAndQualifications && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.certificatesAndQualifications.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <CheckboxField<AddTutorFormValues>
+                  label="I agree to Terms & Conditions *"
+                  id="agreeTerms"
+                  form={form}
+                />
+
+                <CheckboxField<AddTutorFormValues>
+                  label="I agree to receive assignment info *"
+                  id="agreeAssignmentInfo"
+                  form={form}
+                />
+              </div>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
+
             <Button
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
@@ -729,12 +765,14 @@ function CheckboxField<T extends FieldValues>({
   form: UseFormReturn<T>;
 }) {
   const { formState } = form;
+
   return (
-    <div className="grid gap-1">
+    <div className="space-y-1">
       <Label className="flex items-center gap-2">
         <input type="checkbox" {...form.register(id)} />
         <span>{label}</span>
       </Label>
+
       {formState.errors[id] && (
         <p className="text-sm text-red-500">
           {
