@@ -37,6 +37,7 @@ import { getErrorInApiResult } from "@/utils/api";
 import {
   collapseTextSpaces,
   stripLeadingSpaces,
+  trimText,
 } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -243,6 +244,34 @@ export function AddTutor() {
     },
     onBlur: (event) => {
       setValue("fullName", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+  const academicDetailsRegister = form.register("academicDetails", {
+    onBlur: (event) => {
+      setValue("academicDetails", trimText(event.target.value) as string, {
+        shouldValidate: true,
+      });
+    },
+  });
+  const teachingSummaryRegister = form.register("teachingSummary", {
+    onBlur: (event) => {
+      setValue("teachingSummary", trimText(event.target.value) as string, {
+        shouldValidate: true,
+      });
+    },
+  });
+  const studentResultsRegister = form.register("studentResults", {
+    onBlur: (event) => {
+      setValue("studentResults", trimText(event.target.value) as string, {
+        shouldValidate: true,
+      });
+    },
+  });
+  const sellingPointsRegister = form.register("sellingPoints", {
+    onBlur: (event) => {
+      setValue("sellingPoints", trimText(event.target.value) as string, {
         shouldValidate: true,
       });
     },
@@ -638,10 +667,7 @@ export function AddTutor() {
 
             <div className="grid gap-3">
               <Label htmlFor="academicDetails">Academic Details</Label>
-              <Input
-                id="academicDetails"
-                {...form.register("academicDetails")}
-              />
+              <Input id="academicDetails" {...academicDetailsRegister} />
               {formState.errors.academicDetails && (
                 <p className="text-sm text-red-500">
                   {formState.errors.academicDetails.message}
@@ -651,10 +677,7 @@ export function AddTutor() {
 
             <div className="grid gap-3">
               <Label htmlFor="teachingSummary">Teaching Summary *</Label>
-              <Input
-                id="teachingSummary"
-                {...form.register("teachingSummary")}
-              />
+              <Input id="teachingSummary" {...teachingSummaryRegister} />
               {formState.errors.teachingSummary && (
                 <p className="text-sm text-red-500">
                   {formState.errors.teachingSummary.message}
@@ -664,7 +687,7 @@ export function AddTutor() {
 
             <div className="grid gap-3">
               <Label htmlFor="studentResults">Student Results *</Label>
-              <Input id="studentResults" {...form.register("studentResults")} />
+              <Input id="studentResults" {...studentResultsRegister} />
               {formState.errors.studentResults && (
                 <p className="text-sm text-red-500">
                   {formState.errors.studentResults.message}
@@ -674,7 +697,7 @@ export function AddTutor() {
 
             <div className="grid gap-3">
               <Label htmlFor="sellingPoints">Selling Points *</Label>
-              <Input id="sellingPoints" {...form.register("sellingPoints")} />
+              <Input id="sellingPoints" {...sellingPointsRegister} />
               {formState.errors.sellingPoints && (
                 <p className="text-sm text-red-500">
                   {formState.errors.sellingPoints.message}

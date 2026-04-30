@@ -42,6 +42,7 @@ import {
   collapseTextSpaces,
   normalizeTextSpaces,
   stripLeadingSpaces,
+  trimText,
 } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
@@ -363,10 +364,10 @@ export function EditTutor({ id }: EditTutorProps) {
         educationOptions,
         "Undergraduate",
       ),
-      academicDetails: data.academicDetails || "",
-      teachingSummary: data.teachingSummary || "",
-      studentResults: data.studentResults || "",
-      sellingPoints: data.sellingPoints || "",
+      academicDetails: trimText(data.academicDetails || "") as string,
+      teachingSummary: trimText(data.teachingSummary || "") as string,
+      studentResults: trimText(data.studentResults || "") as string,
+      sellingPoints: trimText(data.sellingPoints || "") as string,
       agreeTerms:
         typeof data.agreeTerms === "boolean" ? data.agreeTerms : undefined,
       agreeAssignmentInfo:
@@ -441,6 +442,34 @@ export function EditTutor({ id }: EditTutorProps) {
     },
     onBlur: (event) => {
       setValue("fullName", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+  const academicDetailsRegister = form.register("academicDetails", {
+    onBlur: (event) => {
+      setValue("academicDetails", trimText(event.target.value) as string, {
+        shouldValidate: true,
+      });
+    },
+  });
+  const teachingSummaryRegister = form.register("teachingSummary", {
+    onBlur: (event) => {
+      setValue("teachingSummary", trimText(event.target.value) as string, {
+        shouldValidate: true,
+      });
+    },
+  });
+  const studentResultsRegister = form.register("studentResults", {
+    onBlur: (event) => {
+      setValue("studentResults", trimText(event.target.value) as string, {
+        shouldValidate: true,
+      });
+    },
+  });
+  const sellingPointsRegister = form.register("sellingPoints", {
+    onBlur: (event) => {
+      setValue("sellingPoints", trimText(event.target.value) as string, {
         shouldValidate: true,
       });
     },
@@ -872,7 +901,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <Textarea
                 id="academicDetails"
                 placeholder="Academic Details"
-                {...form.register("academicDetails")}
+                {...academicDetailsRegister}
               />
               {formState.errors.academicDetails && (
                 <p className="text-sm text-red-500">
@@ -887,7 +916,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <Textarea
                 id="teachingSummary"
                 placeholder="Teaching Summary"
-                {...form.register("teachingSummary")}
+                {...teachingSummaryRegister}
               />
               {formState.errors.teachingSummary && (
                 <p className="text-sm text-red-500">
@@ -901,7 +930,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <Textarea
                 id="studentResults"
                 placeholder="Student Results"
-                {...form.register("studentResults")}
+                {...studentResultsRegister}
               />
               {formState.errors.studentResults && (
                 <p className="text-sm text-red-500">
@@ -915,7 +944,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <Textarea
                 id="sellingPoints"
                 placeholder="Selling Points"
-                {...form.register("sellingPoints")}
+                {...sellingPointsRegister}
               />
               {formState.errors.sellingPoints && (
                 <p className="text-sm text-red-500">

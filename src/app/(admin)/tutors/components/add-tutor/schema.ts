@@ -1,4 +1,4 @@
-import { normalizeTextSpaces } from "@/utils/form-normalizers";
+import { normalizeTextSpaces, trimText } from "@/utils/form-normalizers";
 import { z } from "zod";
 
 const tutorTypeValues = [
@@ -18,6 +18,10 @@ const classTypeValues = [
   "At Tutor's Place - Individual",
   "At Tutor's Place - Group",
 ] as const;
+
+const trimmedTextSchema = z
+  .string()
+  .transform((value) => trimText(value) as string);
 
 // Full form schema
 export const addTutorSchema = z.object({
@@ -153,12 +157,12 @@ export const addTutorSchema = z.object({
     "Poly",
     "Others",
   ]),
-  academicDetails: z.string().max(1000).optional(),
+  academicDetails: trimmedTextSchema.pipe(z.string().max(1000)).optional(),
 
   // Tutor's profile
-  teachingSummary: z.string().max(750),
-  studentResults: z.string().max(750),
-  sellingPoints: z.string().max(750),
+  teachingSummary: trimmedTextSchema.pipe(z.string().max(750)),
+  studentResults: trimmedTextSchema.pipe(z.string().max(750)),
+  sellingPoints: trimmedTextSchema.pipe(z.string().max(750)),
   certificatesAndQualifications: z
     .array(
       z.object({
