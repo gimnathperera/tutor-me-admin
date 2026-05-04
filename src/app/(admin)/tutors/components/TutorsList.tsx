@@ -9,6 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  TUTOR_STATUS_BADGE_CLASSES,
+  TUTOR_STATUS_FILTER_OPTIONS,
+} from "@/configs/app-constants";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
@@ -61,19 +65,10 @@ type TutorStatusFilter =
 
 // ─── Status badge ────────────────────────────────────────────────────────────
 
-const STATUS_BADGE: Record<string, string> = {
-  pending:
-    "bg-yellow-100 text-yellow-700 border-yellow-200",
-  approved:
-    "bg-green-100 text-green-700 border-green-200",
-  rejected:
-    "bg-red-100 text-red-700 border-red-200",
-  suspended:
-    "bg-gray-200 text-gray-600 border-gray-300",
-};
-
 function StatusBadge({ status }: { status: string }) {
-  const cls = STATUS_BADGE[status] ?? STATUS_BADGE["pending"];
+  const cls =
+    TUTOR_STATUS_BADGE_CLASSES[status] ??
+    TUTOR_STATUS_BADGE_CLASSES["pending"];
   return (
     <span
       className={`inline-block text-xs font-semibold capitalize rounded-full px-2.5 py-0.5 border ${cls}`}
@@ -620,11 +615,11 @@ export default function TutorsList() {
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="suspended">Suspended</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
+                  {TUTOR_STATUS_FILTER_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -1,10 +1,23 @@
 "use client";
 
 import {
-  classTypeOptions,
-  tutorTypeOptions,
+  CLASS_TYPE_OPTIONS,
+  CLASS_TYPE_VALUES,
+  EDUCATION_VALUES_EDIT,
+  TUTOR_MEDIUM_OPTIONS,
+  NATIONALITY_VALUES,
+  PREFERRED_LOCATION_OPTIONS,
+  PREFERRED_LOCATION_VALUES,
+  RACE_VALUES,
+  TUTOR_GENDER_VALUES,
+  TUTORING_LEVEL_OPTIONS,
+  TUTORING_LEVEL_VALUES,
+  TUTOR_STATUS_OPTIONS,
+  TUTOR_STATUS_VALUES,
+  TUTOR_TYPE_OPTIONS,
+  TUTOR_TYPE_VALUES,
   YEARS_EXPERIENCE_OPTIONS,
-} from "@/app/(admin)/tutors/constants";
+} from "@/configs/app-constants";
 import MultiSelect from "@/components/form/MultiSelect";
 import MultiFileUploader from "@/components/MultiFileUploader";
 import { Button } from "@/components/ui/button/Button";
@@ -53,107 +66,6 @@ interface EditTutorProps {
   id: string;
 }
 
-const genderOptions = ["Male", "Female"] as const;
-const nationalityOptions = ["Sri Lankan", "Others"] as const;
-const raceOptions = [
-  "Sinhalese",
-  "Tamil",
-  "Muslim",
-  "Burgher",
-  "Others",
-] as const;
-
-const educationOptions = [
-  "PhD",
-  "Diploma",
-  "Masters",
-  "Undergraduate",
-  "Bachelor Degree",
-  "Diploma and Professional",
-  "JC/A Levels",
-  "Poly",
-  "Others",
-] as const;
-
-const tutoringLevelsList = [
-  "Pre-School / Montessori",
-  "Primary School (Grades 1-5)",
-  "Ordinary Level (O/L) (Grades 6-11)",
-  "Advanced Level (A/L) (Grades 12-13)",
-  "International Syllabus (Cambridge, Edexcel, IB)",
-  "Undergraduate",
-  "Diploma / Degree",
-  "Language (e.g., English, French, Japanese)",
-  "Computing (e.g., Programming, Graphic Design)",
-  "Music & Arts",
-  "Special Skills",
-] as const;
-
-const locationOptions = [
-  "Kollupitiya (Colombo 3)",
-  "Bambalapitiya (Colombo 4)",
-  "Havelock Town (Colombo 5)",
-  "Wellawatte (Colombo 6)",
-  "Cinnamon Gardens (Colombo 7)",
-  "Borella (Colombo 8)",
-  "Dehiwala",
-  "Mount Lavinia",
-  "Nugegoda",
-  "Rajagiriya",
-  "Kotte",
-  "Battaramulla",
-  "Malabe",
-  "Moratuwa",
-  "Gampaha",
-  "Negombo",
-  "Kadawatha",
-  "Kiribathgoda",
-  "Kelaniya",
-  "Wattala",
-  "Ja-Ela",
-  "Kalutara",
-  "Panadura",
-  "Horana",
-  "Wadduwa",
-  "Kandy",
-  "Matale",
-  "Nuwara Eliya",
-  "Galle",
-  "Matara",
-  "Hambantota",
-  "Kurunegala",
-  "Puttalam",
-  "Chilaw",
-  "Ratnapura",
-  "Kegalle",
-  "Badulla",
-  "Bandarawela",
-  "Anuradhapura",
-  "Polonnaruwa",
-  "Jaffna",
-  "Vavuniya",
-  "Trincomalee",
-  "Batticaloa",
-  "No Preference",
-] as const;
-
-const tutorTypeValues = [
-  "Private Tutor",
-  "Government Teacher",
-  "International School Teacher",
-  "University Lecturer",
-  "Online Tutor",
-  "Others",
-] as const;
-
-const classTypeValues = [
-  "Online - Individual",
-  "Online - Group",
-  "Home Visit - Individual",
-  "Home Visit - Group",
-  "At Tutor's Place - Individual",
-  "At Tutor's Place - Group",
-] as const;
 
 export function EditTutor({ id }: EditTutorProps) {
   const [open, setOpen] = useState(false);
@@ -330,39 +242,35 @@ export function EditTutor({ id }: EditTutorProps) {
       contactNumber: data.contactNumber || "",
       email: data.email || "",
       dateOfBirth: formatDateForForm(data.dateOfBirth),
-      gender: safeEnumValue(data.gender, genderOptions, "Male"),
+      gender: safeEnumValue(data.gender, TUTOR_GENDER_VALUES, "Male"),
       age: data.age || 18,
       tutorMediums: data.tutorMediums || [],
       grades: data.grades || [],
       subjects: data.subjects || [],
       nationality: safeEnumValue(
         data.nationality,
-        nationalityOptions,
+        NATIONALITY_VALUES,
         "Sri Lankan",
       ),
-      race: safeEnumValue(data.race, raceOptions, "Sinhalese"),
-      status: safeEnumValue(
-        data.status,
-        ["pending", "approved", "rejected", "suspended"] as const,
-        "pending",
-      ),
-      classType: safeArrayEnumValue(data.classType, classTypeValues),
+      race: safeEnumValue(data.race, RACE_VALUES, "Sinhalese"),
+      status: safeEnumValue(data.status, TUTOR_STATUS_VALUES, "pending"),
+      classType: safeArrayEnumValue(data.classType, CLASS_TYPE_VALUES),
       tutoringLevels: safeArrayEnumValue(
         data.tutoringLevels,
-        tutoringLevelsList,
+        TUTORING_LEVEL_VALUES,
       ),
       preferredLocations: safeArrayEnumValue(
         data.preferredLocations,
-        locationOptions,
+        PREFERRED_LOCATION_VALUES,
       ),
       tutorType: safeArrayEnumValue(
         data.tutorType,
-        tutorTypeValues,
+        TUTOR_TYPE_VALUES,
       ) as UpdateTutorSchema["tutorType"],
       yearsExperience: data.yearsExperience || 0,
       highestEducation: safeEnumValue(
         data.highestEducation,
-        educationOptions,
+        EDUCATION_VALUES_EDIT,
         "Undergraduate",
       ),
       academicDetails: normalizeTextSpaces(
@@ -407,15 +315,6 @@ export function EditTutor({ id }: EditTutorProps) {
     });
   };
 
-  const preferredLocationOptions = locationOptions.map((v) => ({
-    value: v,
-    text: v,
-  }));
-
-  const tutoringLevelOptions = tutoringLevelsList.map((v) => ({
-    value: v,
-    text: v,
-  }));
 
   const onSubmit = async (data: UpdateTutorSchema) => {
     try {
@@ -544,10 +443,11 @@ export function EditTutor({ id }: EditTutorProps) {
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                    <SelectItem value="suspended">Suspended</SelectItem>
+                    {TUTOR_STATUS_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -655,8 +555,9 @@ export function EditTutor({ id }: EditTutorProps) {
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
+                      {TUTOR_GENDER_VALUES.map((v) => (
+                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {formState.errors.gender && (
@@ -681,8 +582,9 @@ export function EditTutor({ id }: EditTutorProps) {
                       <SelectValue placeholder="Select nationality" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
-                      <SelectItem value="Others">Others</SelectItem>
+                      {NATIONALITY_VALUES.map((v) => (
+                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {formState.errors.nationality && (
@@ -704,11 +606,9 @@ export function EditTutor({ id }: EditTutorProps) {
                       <SelectValue placeholder="Select race" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Sinhalese">Sinhalese</SelectItem>
-                      <SelectItem value="Tamil">Tamil</SelectItem>
-                      <SelectItem value="Muslim">Muslim</SelectItem>
-                      <SelectItem value="Burgher">Burgher</SelectItem>
-                      <SelectItem value="Others">Others</SelectItem>
+                      {RACE_VALUES.map((v) => (
+                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {formState.errors.race && (
@@ -723,7 +623,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 <div className="space-y-2">
                   <MultiSelect
                     label="Tutor Type *"
-                    options={tutorTypeOptions}
+                    options={TUTOR_TYPE_OPTIONS}
                     defaultSelected={watch("tutorType")}
                     onChange={(selected) =>
                       setValue(
@@ -743,7 +643,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 <div className="space-y-2">
                   <MultiSelect
                     label="Class Type *"
-                    options={classTypeOptions}
+                    options={CLASS_TYPE_OPTIONS}
                     defaultSelected={watch("classType")}
                     onChange={(selected) =>
                       setValue("classType", selected as string[], {
@@ -762,10 +662,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <div className="space-y-2">
                 <MultiSelect
                   label="Tutor Mediums *"
-                  options={["English", "Sinhala", "Tamil"].map((m) => ({
-                    value: m,
-                    text: m,
-                  }))}
+                  options={TUTOR_MEDIUM_OPTIONS}
                   defaultSelected={watch("tutorMediums")}
                   onChange={(selected) =>
                     setValue("tutorMediums", selected as string[], {
@@ -843,7 +740,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <div className="space-y-2">
                 <MultiSelect
                   label="Tutoring Levels"
-                  options={tutoringLevelOptions}
+                  options={TUTORING_LEVEL_OPTIONS}
                   defaultSelected={watch("tutoringLevels")}
                   onChange={(selected) =>
                     setValue(
@@ -858,7 +755,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <div className="space-y-2">
                 <MultiSelect
                   label="Preferred Locations"
-                  options={preferredLocationOptions}
+                  options={PREFERRED_LOCATION_OPTIONS}
                   defaultSelected={watch("preferredLocations")}
                   onChange={(selected) =>
                     setValue(
@@ -913,7 +810,7 @@ export function EditTutor({ id }: EditTutorProps) {
                       <SelectValue placeholder="Select education" />
                     </SelectTrigger>
                     <SelectContent>
-                      {educationOptions.map((option) => (
+                      {EDUCATION_VALUES_EDIT.map((option) => (
                         <SelectItem key={option} value={option}>
                           {option}
                         </SelectItem>

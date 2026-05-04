@@ -1,3 +1,4 @@
+import { MEDIUM_VALUES } from "@/configs/app-constants";
 import { z } from "zod";
 
 const noExtraSpaces = (field: string) =>
@@ -27,7 +28,7 @@ const paperTitle = () =>
 export const paperSchema = z.object({
   title: paperTitle(),
 
-  medium: z.enum(["Sinhala", "English", "Tamil"], {
+  medium: z.enum(MEDIUM_VALUES, {
     message: "Medium is required",
   }),
 

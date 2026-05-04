@@ -1,6 +1,17 @@
 "use client";
 
-import { YEARS_EXPERIENCE_OPTIONS } from "@/app/(admin)/tutors/constants";
+import {
+  CLASS_TYPE_OPTIONS,
+  EDUCATION_VALUES_ADD,
+  TUTOR_MEDIUM_OPTIONS,
+  NATIONALITY_VALUES,
+  PREFERRED_LOCATION_OPTIONS,
+  RACE_VALUES,
+  TUTOR_GENDER_VALUES,
+  TUTORING_LEVEL_OPTIONS,
+  TUTOR_TYPE_OPTIONS,
+  YEARS_EXPERIENCE_OPTIONS,
+} from "@/configs/app-constants";
 import MultiSelect from "@/components/form/MultiSelect";
 import MultiFileUploader from "@/components/MultiFileUploader";
 import { Button } from "@/components/ui/button/Button";
@@ -46,12 +57,6 @@ import {
   useWatch,
 } from "react-hook-form";
 import toast from "react-hot-toast";
-import {
-  classTypeOptions,
-  preferredLocationOptions,
-  tutoringLevelOptions,
-  tutorTypeOptions,
-} from "../../constants";
 import {
   AddTutorFormValues,
   addTutorSchema,
@@ -412,7 +417,7 @@ export function AddTutor() {
                   onChange={(val) =>
                     setValue("gender", val as AddTutorFormValues["gender"])
                   }
-                  options={["Male", "Female", "Other"]}
+                  options={[...TUTOR_GENDER_VALUES]}
                 />
 
                 <SelectField
@@ -426,7 +431,7 @@ export function AddTutor() {
                       val as AddTutorFormValues["nationality"],
                     )
                   }
-                  options={["Sri Lankan", "Others"]}
+                  options={[...NATIONALITY_VALUES]}
                 />
 
                 <SelectField
@@ -437,7 +442,7 @@ export function AddTutor() {
                   onChange={(val) =>
                     setValue("race", val as AddTutorFormValues["race"])
                   }
-                  options={["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"]}
+                  options={[...RACE_VALUES]}
                 />
               </div>
 
@@ -445,7 +450,7 @@ export function AddTutor() {
                 <div className="space-y-2">
                   <MultiSelect
                     label="Tutor Type *"
-                    options={tutorTypeOptions}
+                    options={TUTOR_TYPE_OPTIONS}
                     defaultSelected={watch("tutorType")}
                     onChange={(selected) =>
                       setValue(
@@ -465,7 +470,7 @@ export function AddTutor() {
                 <div className="space-y-2">
                   <MultiSelect
                     label="Class Type *"
-                    options={classTypeOptions}
+                    options={CLASS_TYPE_OPTIONS}
                     defaultSelected={watch("classType")}
                     onChange={(selected) =>
                       setValue(
@@ -486,10 +491,7 @@ export function AddTutor() {
               <div className="space-y-2">
                 <MultiSelect
                   label="Tutor Mediums *"
-                  options={["English", "Sinhala", "Tamil"].map((m) => ({
-                    value: m,
-                    text: m,
-                  }))}
+                  options={TUTOR_MEDIUM_OPTIONS}
                   defaultSelected={watch("tutorMediums")}
                   onChange={(selected) =>
                     setValue(
@@ -550,7 +552,7 @@ export function AddTutor() {
               <div className="space-y-2">
                 <MultiSelect
                   label="Tutoring Levels"
-                  options={tutoringLevelOptions}
+                  options={TUTORING_LEVEL_OPTIONS}
                   defaultSelected={watch("tutoringLevels")}
                   onChange={(selected) =>
                     setValue(
@@ -565,7 +567,7 @@ export function AddTutor() {
               <div className="space-y-2">
                 <MultiSelect
                   label="Preferred Locations"
-                  options={preferredLocationOptions}
+                  options={PREFERRED_LOCATION_OPTIONS}
                   defaultSelected={watch("preferredLocations")}
                   onChange={(selected) =>
                     setValue(
@@ -616,14 +618,7 @@ export function AddTutor() {
                       val as AddTutorFormValues["highestEducation"],
                     )
                   }
-                  options={[
-                    "PhD",
-                    "Masters Degree",
-                    "Undergraduate",
-                    "Bachelor Degree",
-                    "Diploma and Professional",
-                    "Advanced Level (A/L)",
-                  ]}
+                  options={[...EDUCATION_VALUES_ADD]}
                 />
               </div>
 
