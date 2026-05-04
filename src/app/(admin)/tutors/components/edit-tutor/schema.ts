@@ -20,21 +20,31 @@ export const updateTutorSchema = z.object({
     .optional(),
   contactNumber: z
     .string()
+    .trim()
     .min(1, "Contact Number is required")
-    .regex(/^\d+$/, "Contact number must contain only numbers")
-    .min(7, "Contact number must be at least 7 digits")
-    .max(15, "Contact number must be at most 15 digits")
+    .pipe(
+      z
+        .string()
+        .regex(/^\d+$/, "Contact number must contain only numbers")
+        .min(7, "Contact number must be at least 7 digits")
+        .max(15, "Contact number must be at most 15 digits"),
+    )
     .optional(),
   email: z
     .string()
     .trim()
     .min(1, "Email is required")
-    .email("Email must be valid")
+    .pipe(z.string().email("Email must be valid"))
     .optional(),
   dateOfBirth: z
     .string()
+    .trim()
     .min(1, "Date of Birth is required")
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD")
+    .pipe(
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
+    )
     .optional(),
   gender: z.enum(["Male", "Female"]).optional(),
   age: z.number().int().min(1, "Age must be at least 1").optional(),
@@ -154,11 +164,31 @@ export const updateTutorSchema = z.object({
     ])
     .optional(),
 
-  academicDetails: normalizedTextSchema.pipe(z.string().max(1000)).optional(),
+  academicDetails: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Academic Details is required")
+      .max(1000),
+  ),
 
-  teachingSummary: normalizedTextSchema.pipe(z.string().max(750)).optional(),
-  studentResults: normalizedTextSchema.pipe(z.string().max(750)).optional(),
-  sellingPoints: normalizedTextSchema.pipe(z.string().max(750)).optional(),
+  teachingSummary: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Teaching Summary is required")
+      .max(750),
+  ),
+  studentResults: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Student Results is required")
+      .max(750),
+  ),
+  sellingPoints: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Selling Points is required")
+      .max(750),
+  ),
 
   agreeTerms: z.boolean().optional(),
   agreeAssignmentInfo: z.boolean().optional(),
