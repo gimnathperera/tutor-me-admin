@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { MEDIUM_OPTIONS } from "@/configs/app-constants";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PaperSchema, paperSchema } from "@/schemas/paper.schema";
 import {
@@ -66,12 +67,6 @@ export function EditPaper({
 
   const gradeId = typeof grade === "string" ? grade : grade.id;
   const subjectId = typeof subject === "string" ? subject : subject.id;
-
-  const MEDIUM_OPTIONS = [
-    { label: "Sinhala", value: "Sinhala" },
-    { label: "English", value: "English" },
-    { label: "Tamil", value: "Tamil" },
-  ];
 
   const [selectedGradeId, setSelectedGradeId] = useState<string | null>(
     gradeId,

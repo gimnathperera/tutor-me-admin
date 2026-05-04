@@ -1,15 +1,28 @@
 "use client";
 
 import DataTable from "@/components/tables/DataTable";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  TUTOR_STATUS_BADGE_CLASSES,
+  TUTOR_STATUS_FILTER_OPTIONS,
+} from "@/configs/app-constants";
 import { TABLE_CONFIG } from "@/configs/table";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   useFetchTutorsQuery,
   useUpdateTutorStatusMutation,
 } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
 import { getAdminId } from "@/utils/auth";
-import { Loader2, CheckCircle, XCircle, ShieldOff } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import { CheckCircle, Loader2, Search, ShieldOff, XCircle } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { DeleteTutor } from "./DeleteTutor";
 import { EditTutor } from "./edit-tutor/EditTutor";
@@ -43,21 +56,19 @@ interface Tutor {
   createdAt?: string;
 }
 
+type TutorStatusFilter =
+  | "all"
+  | "pending"
+  | "approved"
+  | "suspended"
+  | "rejected";
+
 // ─── Status badge ────────────────────────────────────────────────────────────
 
-const STATUS_BADGE: Record<string, string> = {
-  pending:
-    "bg-yellow-100 text-yellow-700 border-yellow-200",
-  approved:
-    "bg-green-100 text-green-700 border-green-200",
-  rejected:
-    "bg-red-100 text-red-700 border-red-200",
-  suspended:
-    "bg-gray-200 text-gray-600 border-gray-300",
-};
-
 function StatusBadge({ status }: { status: string }) {
-  const cls = STATUS_BADGE[status] ?? STATUS_BADGE["pending"];
+  const cls =
+    TUTOR_STATUS_BADGE_CLASSES[status] ??
+    TUTOR_STATUS_BADGE_CLASSES["pending"];
   return (
     <span
       className={`inline-block text-xs font-semibold capitalize rounded-full px-2.5 py-0.5 border ${cls}`}
@@ -408,9 +419,29 @@ function TutorStatusActions({ tutor }: { tutor: Tutor }) {
 
 export default function TutorsList() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TutorStatusFilter>("all");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
 
-  const { data, isLoading } = useFetchTutorsQuery({ page, limit });
+  useEffect(() => {
+    setPage(TABLE_CONFIG.DEFAULT_PAGE);
+  }, [debouncedSearchTerm, statusFilter]);
+
+  const queryParams = useMemo(
+    () => ({
+      page,
+      limit,
+      sortBy: "createdAt:desc",
+      ...(debouncedSearchTerm.trim()
+        ? { search: debouncedSearchTerm.trim() }
+        : {}),
+      ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+    }),
+    [debouncedSearchTerm, limit, page, statusFilter],
+  );
+
+  const { data, isLoading } = useFetchTutorsQuery(queryParams);
 
   const tutors = data?.results || [];
   const totalPages = data?.totalPages || 1;
@@ -548,15 +579,65 @@ export default function TutorsList() {
   );
 
   return (
-    <DataTable
-      columns={columns}
-      data={tutors}
-      page={page}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-      totalResults={totalResults}
-      limit={limit}
-      isLoading={isLoading}
-    />
+    <div className="space-y-4">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-gray-900">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white/90">
+              Tutor filters
+            </h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-white/60">
+              Search by name, email, or contact number, then narrow results by
+              status.
+            </p>
+          </div>
+
+          <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:min-w-[32rem]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search by name, email, or contact number"
+                className="h-11 w-full pl-10 pr-4"
+              />
+            </div>
+
+            <div className="w-full">
+              <Select
+                value={statusFilter}
+                onValueChange={(value) =>
+                  setStatusFilter(value as TutorStatusFilter)
+                }
+              >
+                <SelectTrigger className="h-11 min-h-11 w-full">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TUTOR_STATUS_FILTER_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={tutors}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        totalResults={totalResults}
+        limit={limit}
+        isLoading={isLoading}
+        emptyMessage="No tutors found for the current search or status filter."
+      />
+    </div>
   );
 }

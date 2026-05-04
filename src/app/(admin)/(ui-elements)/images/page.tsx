@@ -6,7 +6,7 @@ import TwoColumnImageGrid from "@/components/ui/images/TwoColumnImageGrid";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Images | TuitionLanka - Next.js Dashboard Template",
+  title: "Admin | Tuition Lanka",
   description:
     "This is Next.js Images page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
   // other metadata

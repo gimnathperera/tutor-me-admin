@@ -3,7 +3,7 @@ import InquiryTable from "./components/InquiryTable";
 import { AddInquiry } from "./components/add-inquiry/AddInquiry";
 
 export const metadata: Metadata = {
-  title: "Inquiries | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is the Inquiries management page for TuitionLanka",
 };
 

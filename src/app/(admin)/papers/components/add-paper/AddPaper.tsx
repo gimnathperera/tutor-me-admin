@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MEDIUM_VALUES } from "@/configs/app-constants";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   initialFormValues,
@@ -158,7 +159,7 @@ export function AddPaper() {
               <Select
                 value={watch("medium")}
                 onValueChange={(value) =>
-                  setValue("medium", value as "Sinhala" | "English" | "Tamil", {
+                  setValue("medium", value as import("@/configs/app-constants").MediumValue, {
                     shouldDirty: true,
                     shouldValidate: true,
                     shouldTouch: true,
@@ -172,9 +173,9 @@ export function AddPaper() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Medium</SelectLabel>
-                    <SelectItem value="Sinhala">Sinhala</SelectItem>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Tamil">Tamil</SelectItem>
+                    {MEDIUM_VALUES.map((m) => (
+                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>

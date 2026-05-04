@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { CERTIFICATE_TYPE_VALUES } from "@/configs/app-constants";
 import { Loader2, Plus, X } from "lucide-react";
 import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -18,16 +19,7 @@ interface NewFileItem {
   type: string;
 }
 
-const CERTIFICATE_TYPE_OPTIONS = [
-  "NIC",
-  "Passport",
-  "Degree Certificate",
-  "A/L Certificate",
-  "O/L Certificate",
-  "Professional Certificate",
-  "Teaching Certificate",
-  "Others",
-];
+const CERTIFICATE_TYPE_OPTIONS = [...CERTIFICATE_TYPE_VALUES];
 
 interface SimpleUploadProps {
   mode?: "simple";

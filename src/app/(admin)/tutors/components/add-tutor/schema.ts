@@ -1,23 +1,15 @@
+import {
+  CLASS_TYPE_VALUES,
+  EDUCATION_VALUES_ADD,
+  NATIONALITY_VALUES,
+  PREFERRED_LOCATION_VALUES,
+  RACE_VALUES,
+  TUTOR_GENDER_VALUES,
+  TUTORING_LEVEL_VALUES,
+  TUTOR_TYPE_VALUES,
+} from "@/configs/app-constants";
 import { normalizeTextSpaces } from "@/utils/form-normalizers";
 import { z } from "zod";
-
-const tutorTypeValues = [
-  "Private Tutor",
-  "Government Teacher",
-  "International School Teacher",
-  "University Lecturer",
-  "Online Tutor",
-  "Others",
-] as const;
-
-const classTypeValues = [
-  "Online - Individual",
-  "Online - Group",
-  "Home Visit - Individual",
-  "Home Visit - Group",
-  "At Tutor's Place - Individual",
-  "At Tutor's Place - Group",
-] as const;
 
 const normalizedTextSchema = z
   .string()
@@ -58,7 +50,7 @@ export const addTutorSchema = z.object({
         .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
     ),
 
-  gender: z.enum(["Male", "Female"]),
+  gender: z.enum(TUTOR_GENDER_VALUES),
   age: z.number().int().min(1),
 
   tutorMediums: z
@@ -67,97 +59,28 @@ export const addTutorSchema = z.object({
 
   grades: z.array(z.string()).min(1, "Select at least one grade"),
   subjects: z.array(z.string()).min(1, "Select at least one subject"),
-  nationality: z.enum(["Sri Lankan", "Others"]),
-  race: z.enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"]),
+  nationality: z.enum(NATIONALITY_VALUES),
+  race: z.enum(RACE_VALUES),
 
   classType: z
-    .array(z.enum(classTypeValues))
+    .array(z.enum(CLASS_TYPE_VALUES))
     .min(1, "Select at least one class type"),
 
   tutoringLevels: z
-    .array(
-      z.enum([
-        "Pre-School / Montessori",
-        "Primary School (Grades 1-5)",
-        "Ordinary Level (O/L) (Grades 6-11)",
-        "Advanced Level (A/L) (Grades 12-13)",
-        "International Syllabus (Cambridge, Edexcel, IB)",
-        "Undergraduate",
-        "Diploma / Degree",
-        "Language (e.g., English, French, Japanese)",
-        "Computing (e.g., Programming, Graphic Design)",
-        "Music & Arts",
-        "Special Skills",
-      ]),
-    )
+    .array(z.enum(TUTORING_LEVEL_VALUES))
     .min(1, "Select at least one tutoring level"),
 
   preferredLocations: z
-    .array(
-      z.enum([
-        "Kollupitiya (Colombo 3)",
-        "Bambalapitiya (Colombo 4)",
-        "Havelock Town (Colombo 5)",
-        "Wellawatte (Colombo 6)",
-        "Cinnamon Gardens (Colombo 7)",
-        "Borella (Colombo 8)",
-        "Dehiwala",
-        "Mount Lavinia",
-        "Nugegoda",
-        "Rajagiriya",
-        "Kotte",
-        "Battaramulla",
-        "Malabe",
-        "Moratuwa",
-        "Gampaha",
-        "Negombo",
-        "Kadawatha",
-        "Kiribathgoda",
-        "Kelaniya",
-        "Wattala",
-        "Ja-Ela",
-        "Kalutara",
-        "Panadura",
-        "Horana",
-        "Wadduwa",
-        "Kandy",
-        "Matale",
-        "Nuwara Eliya",
-        "Galle",
-        "Matara",
-        "Hambantota",
-        "Kurunegala",
-        "Puttalam",
-        "Chilaw",
-        "Ratnapura",
-        "Kegalle",
-        "Badulla",
-        "Bandarawela",
-        "Anuradhapura",
-        "Polonnaruwa",
-        "Jaffna",
-        "Vavuniya",
-        "Trincomalee",
-        "Batticaloa",
-        "No Preference",
-      ]),
-    )
+    .array(z.enum(PREFERRED_LOCATION_VALUES))
     .min(1, "Select at least one preferred location"),
 
   tutorType: z
-    .array(z.enum(tutorTypeValues))
+    .array(z.enum(TUTOR_TYPE_VALUES))
     .min(1, "Select at least one tutor type"),
 
   yearsExperience: z.number().int().min(0).max(50),
 
-  highestEducation: z.enum([
-    "PhD",
-    "Masters Degree",
-    "Undergraduate",
-    "Bachelor Degree",
-    "Diploma and Professional",
-    "Advanced Level (A/L)",
-  ]),
+  highestEducation: z.enum(EDUCATION_VALUES_ADD),
 
   academicDetails: normalizedTextSchema.pipe(
     z

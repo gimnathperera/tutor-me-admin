@@ -1,3 +1,4 @@
+import { USER_ROLE_VALUES, USER_STATUS_VALUES } from "@/configs/app-constants";
 import { z } from "zod";
 
 export const createUserSchema = z.object({
@@ -7,11 +8,9 @@ export const createUserSchema = z.object({
     .min(8, "Password must be at least 8 characters long")
     .max(64, "Password must not exceed 64 characters"),
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
-  role: z.enum(["tutor", "admin"]).default("tutor"),
+  role: z.enum(USER_ROLE_VALUES).default("tutor"),
   phoneNumber: z.string().regex(/^\+?[0-9]{1,10}$/, "Phone number is required"),
-  status: z
-    .enum(["pending", "approved", "rejected", "suspended"])
-    .default("pending"),
+  status: z.enum(USER_STATUS_VALUES).default("pending"),
 });
 
 export type CreateUserSchema = z.infer<typeof createUserSchema>;
