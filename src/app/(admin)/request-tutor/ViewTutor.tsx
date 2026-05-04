@@ -11,9 +11,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { useFetchGradeByIdQuery } from "@/store/api/splits/grades";
 import { useFetchRequestForTutorsByIdQuery } from "@/store/api/splits/request-tutor";
+import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { Eye } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 interface ViewTutorProps {
   tutorId: string;
@@ -22,9 +24,40 @@ interface ViewTutorProps {
 export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
   const [open, setOpen] = useState(false);
 
-  const { data: tutor, isLoading } = useFetchRequestForTutorsByIdQuery(tutorId, {
-    skip: !open || !tutorId,
-  });
+  const { data: tutor, isLoading } = useFetchRequestForTutorsByIdQuery(
+    tutorId,
+    {
+      skip: !open || !tutorId,
+    },
+  );
+  const gradeId = typeof tutor?.grade === "string" ? tutor.grade.trim() : "";
+  const isGradeId = /^[a-f\d]{24}$/i.test(gradeId);
+  const { data: grade, isFetching: isFetchingGrade } = useFetchGradeByIdQuery(
+    gradeId,
+    {
+      skip: !open || !isGradeId,
+    },
+  );
+  const { data: subjectsData, isFetching: isFetchingSubjects } =
+    useFetchSubjectsQuery(
+      {
+        page: 1,
+        limit: 10000,
+      },
+      {
+        skip: !open,
+      },
+    );
+  const subjectTitleById = useMemo(
+    () =>
+      new Map(
+        (subjectsData?.results || []).map((subject) => [
+          subject.id,
+          subject.title,
+        ]),
+      ),
+    [subjectsData?.results],
+  );
 
   const displayFieldClass =
     "w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-700 dark:text-white/90 min-h-[2rem] overflow-auto scrollbar-thin";
@@ -74,6 +107,59 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
     return "";
   };
 
+  const getGradeDisplayValue = (value: unknown) => {
+    if (value && typeof value === "object") {
+      const gradeRecord = value as {
+        id?: string;
+        title?: string;
+        name?: string;
+      };
+      return getSafeValue(
+        gradeRecord.title || gradeRecord.name || gradeRecord.id,
+        "",
+      );
+    }
+
+    const safeGrade = getSafeValue(value, "");
+    if (!safeGrade) {
+      return "";
+    }
+
+    if (!isGradeId) {
+      return safeGrade;
+    }
+
+    return (
+      grade?.title || (isFetchingGrade ? "Loading grade..." : "Unknown grade")
+    );
+  };
+
+  const getSubjectDisplayValue = (value: unknown) => {
+    if (value && typeof value === "object") {
+      const subjectRecord = value as {
+        id?: string;
+        title?: string;
+        name?: string;
+      };
+      return getSafeValue(
+        subjectRecord.title || subjectRecord.name || subjectRecord.id,
+        "",
+      );
+    }
+
+    const subjectId = getSafeValue(value, "");
+    if (!subjectId) {
+      return "";
+    }
+
+    const subjectTitle = subjectTitleById.get(subjectId);
+    if (subjectTitle) {
+      return subjectTitle;
+    }
+
+    return isFetchingSubjects ? "Loading subject..." : "Unknown subject";
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -99,33 +185,41 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
 
           <div className="grid gap-3">
             <Label>Email</Label>
-            <div className={displayFieldClass}>{getSafeValue(tutor?.email)}</div>
+            <div className={displayFieldClass}>
+              {getSafeValue(tutor?.email)}
+            </div>
           </div>
 
           <div className="grid gap-3">
             <Label>Phone Number</Label>
-            <div className={displayFieldClass}>{getSafeValue(tutor?.phoneNumber)}</div>
+            <div className={displayFieldClass}>
+              {getSafeValue(tutor?.phoneNumber)}
+            </div>
           </div>
 
           <div className="grid gap-3">
             <Label>Medium</Label>
-            <div className={displayFieldClass}>{getSafeValue(tutor?.medium)}</div>
+            <div className={displayFieldClass}>
+              {getSafeValue(tutor?.medium)}
+            </div>
           </div>
 
           <div className="grid gap-3">
             <Label>District / City</Label>
             <div className={displayFieldClass}>
-              {[getSafeValue(tutor?.district, ""), getSafeValue(tutor?.city, "")]
+              {[
+                getSafeValue(tutor?.district, ""),
+                getSafeValue(tutor?.city, ""),
+              ]
                 .filter(Boolean)
-                .join(", ") ||
-                "N/A"}
+                .join(", ") || "N/A"}
             </div>
           </div>
 
           <div className="grid gap-3">
             <Label>Grade</Label>
             <div className={displayFieldClass}>
-              {getSafeValue(tutor?.grade, "") || (
+              {getGradeDisplayValue(tutor?.grade) || (
                 <span className="text-gray-400 italic">No grade</span>
               )}
             </div>
@@ -133,7 +227,9 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
 
           <div className="grid gap-3">
             <Label>Status</Label>
-            <div className={displayFieldClass}>{getSafeValue(tutor?.status)}</div>
+            <div className={displayFieldClass}>
+              {getSafeValue(tutor?.status)}
+            </div>
           </div>
 
           <div className="grid gap-3">
@@ -141,19 +237,28 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
             <div className="flex flex-col gap-2">
               {Array.isArray(tutor?.tutors) && tutor.tutors.length ? (
                 tutor.tutors.map((t, idx) => {
-                  const assignedTutorLabel = getAssignedTutorLabel(t.assignedTutor);
+                  const assignedTutorLabel = getAssignedTutorLabel(
+                    t.assignedTutor,
+                  );
 
                   return (
-                    <div key={t._id || idx} className="p-3 border rounded space-y-1 bg-gray-50 dark:bg-gray-700">
+                    <div
+                      key={t._id || idx}
+                      className="p-3 border rounded space-y-1 bg-gray-50 dark:bg-gray-700"
+                    >
                       <div>
                         Subject:{" "}
-                        <span className={tagClass}>{getSafeValue(t.subject)}</span>
+                        <span className={tagClass}>
+                          {getSubjectDisplayValue(t.subject)}
+                        </span>
                       </div>
 
                       {assignedTutorLabel && (
                         <div>
                           Assigned Tutor:{" "}
-                          <span className={`${tagClass} bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200`}>
+                          <span
+                            className={`${tagClass} bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200`}
+                          >
                             {assignedTutorLabel}
                           </span>
                         </div>
@@ -161,7 +266,8 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
 
                       {t.preferredTutorType && (
                         <div>
-                          Preferred Type: <strong>{getSafeValue(t.preferredTutorType)}</strong>
+                          Preferred Type:{" "}
+                          <strong>{getSafeValue(t.preferredTutorType)}</strong>
                         </div>
                       )}
                       <div>

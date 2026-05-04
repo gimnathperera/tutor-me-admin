@@ -46,7 +46,22 @@ export const preferredLocationOptions = [
   "No Preference",
 ].map((v) => ({ value: v, text: v }));
 
+export const tutoringLevelOptions = [
+  "Pre-School / Montessori",
+  "Primary School (Grades 1-5)",
+  "Ordinary Level (O/L) (Grades 6-11)",
+  "Advanced Level (A/L) (Grades 12-13)",
+  "International Syllabus (Cambridge, Edexcel, IB)",
+  "Undergraduate",
+  "Diploma / Degree",
+  "Language (e.g., English, French, Japanese)",
+  "Computing (e.g., Programming, Graphic Design)",
+  "Music & Arts",
+  "Special Skills",
+].map((v) => ({ value: v, text: v }));
+
 export const YEARS_EXPERIENCE_OPTIONS = [
+  { value: 0, label: "0" },
   { value: 1, label: "1" },
   { value: 2, label: "2" },
   { value: 3, label: "3" },
@@ -74,15 +89,19 @@ export function formatYearsExperience(value?: number | string | null): string {
 export const tutorTypeOptions = [
   "Private Tutor",
   "Government Teacher",
-  "University Student",
-  "Coach",
+  "International School Teacher",
+  "University Lecturer",
+  "Online Tutor",
+  "Others",
 ].map((v) => ({ value: v, text: v }));
 
 export const classTypeOptions = [
   "Online - Individual",
   "Online - Group",
-  "Physical - Individual",
-  "Physical - Group",
+  "Home Visit - Individual",
+  "Home Visit - Group",
+  "At Tutor's Place - Individual",
+  "At Tutor's Place - Group",
 ].map((v) => ({ value: v, text: v }));
 
 export const tutorStatusOptions = [

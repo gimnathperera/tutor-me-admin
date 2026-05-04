@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
 import { Calendar } from "lucide-react";
 import React, { forwardRef } from "react";
 import ReactDatePicker from "react-datepicker";
@@ -13,10 +14,8 @@ interface DatePickerProps {
   error?: string;
   placeholder?: string;
   className?: string;
-  maxDate?: string;
 }
 
-// Custom input component with calendar icon
 interface CustomInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string;
   onClick?: React.MouseEventHandler<HTMLInputElement>;
@@ -27,21 +26,17 @@ interface CustomInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
   ({ value, onClick, placeholder, error }, ref) => (
     <div className="relative">
-      <input
+      <Input
         ref={ref}
         value={value}
         onClick={onClick}
         placeholder={placeholder}
         readOnly
-        className={`w-full px-2 py-2 shadow-b-2 shadow-xs shadow-slate-900/20 pr-10 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-3 focus:text-gray-300 focus:border-text-gray-900 cursor-pointer transition-all duration-200 hover:bg-gray-100
-        ${
-          error
-            ? "border-red-500 focus:ring-red-500 focus:border-red-500 bg-red-50"
-            : ""
-        } 
-        placeholder-gray-500 text-sm`}
+        aria-invalid={!!error}
+        className="cursor-pointer pr-10"
       />
-      <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+
+      <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-white/40" />
     </div>
   ),
 );
@@ -54,21 +49,24 @@ const DatePicker: React.FC<DatePickerProps> = ({
   label,
   required,
   error,
-  placeholder = "Select your date of birth",
+  placeholder = "Select date",
   className = "",
-  maxDate,
 }) => {
   const handleDateChange = (date: Date | null): void => {
     onChange(date?.toISOString().split("T")[0] || "");
   };
 
   return (
-    <div className={`${className}`}>
+    <div className={className}>
       {label && (
-        <label className="block text-sm font-medium text-gray-900 mb-2">
-          {label} {required && <span className="text-gray-900">*</span>}
+        <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white/90">
+          {label}{" "}
+          {required && (
+            <span className="text-gray-900 dark:text-white/90">*</span>
+          )}
         </label>
       )}
+
       <ReactDatePicker
         selected={value ? new Date(value) : null}
         onChange={handleDateChange}
@@ -77,30 +75,48 @@ const DatePicker: React.FC<DatePickerProps> = ({
         showMonthDropdown
         dropdownMode="select"
         yearDropdownItemNumber={15}
-        maxDate={maxDate ? new Date(maxDate) : new Date()}
-        customInput={<CustomInput error={error} />}
-        placeholderText={placeholder}
-        calendarClassName="shadow-xl border-0 rounded-lg bg-white"
-        popperClassName="z-99"
+        maxDate={new Date()}
+        customInput={<CustomInput error={error} placeholder={placeholder} />}
         wrapperClassName="w-full"
+        popperClassName="z-[9999]"
+        calendarClassName="
+    !rounded-xl !border !border-gray-200 !bg-white !p-3 !text-gray-900 !shadow-xl
+    [&_.react-datepicker__header]:!bg-white
+    [&_.react-datepicker__header]:!border-gray-200
+    [&_.react-datepicker__current-month]:!text-gray-900
+    [&_.react-datepicker__day-name]:!text-gray-500
+    [&_.react-datepicker__day]:!text-gray-900
+    [&_.react-datepicker__day:hover]:!bg-gray-100
+    [&_.react-datepicker__day--selected]:!bg-brand-500
+    [&_.react-datepicker__day--selected]:!text-white
+    [&_.react-datepicker__day--keyboard-selected]:!bg-brand-500
+    [&_.react-datepicker__day--keyboard-selected]:!text-white
+    [&_.react-datepicker__month-select]:!bg-white
+    [&_.react-datepicker__month-select]:!text-gray-900
+    [&_.react-datepicker__year-select]:!bg-white
+    [&_.react-datepicker__year-select]:!text-gray-900
+  "
         dayClassName={(date) => {
           const today = new Date();
           const isToday = date.toDateString() === today.toDateString();
           const isSelected =
             value && date.toDateString() === new Date(value).toDateString();
 
-          return `hover:bg-blue-500 hover:text-white cursor-pointer rounded transition-colors text-sm
-            ${isToday ? "bg-blue-100 text-blue-600 font-medium" : ""}
-            ${isSelected ? "bg-blue-500 text-white font-medium" : ""}`;
+          return [
+            "!mx-0.5 !rounded-md !text-sm !transition-colors",
+            isToday ? "!bg-brand-50 !text-brand-600 !font-semibold" : "",
+            isSelected ? "!bg-brand-500 !text-white" : "",
+          ].join(" ");
         }}
         monthClassName={() =>
-          "hover:bg-blue-100 cursor-pointer rounded p-2 transition-colors text-sm"
+          "!rounded-md !p-2 !text-sm !text-gray-900 hover:!bg-gray-100"
         }
         yearClassName={() =>
-          "hover:bg-blue-100 cursor-pointer rounded p-2 transition-colors text-sm"
+          "!rounded-md !p-2 !text-sm !text-gray-900 hover:!bg-gray-100"
         }
       />
-      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>
   );
 };
