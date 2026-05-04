@@ -1,17 +1,50 @@
+import { normalizeTextSpaces } from "@/utils/form-normalizers";
 import { z } from "zod";
 
+const normalizedTextSchema = z
+  .string()
+  .transform((value) => normalizeTextSpaces(value) as string);
+
 export const updateTutorSchema = z.object({
-  fullName: z.string().optional(),
+  fullName: z
+    .string()
+    .transform((value) => normalizeTextSpaces(value) as string)
+    .pipe(
+      z
+        .string()
+        .regex(
+          /^[A-Za-z\s]*$/,
+          "Full Name can contain letters and spaces only",
+        ),
+    )
+    .optional(),
   contactNumber: z
     .string()
-    .regex(/^\d+$/, "Contact number must contain only numbers")
-    .min(7, "Contact number must be at least 7 digits")
-    .max(15, "Contact number must be at most 15 digits")
+    .trim()
+    .min(1, "Contact Number is required")
+    .pipe(
+      z
+        .string()
+        .regex(/^\d+$/, "Contact number must contain only numbers")
+        .min(7, "Contact number must be at least 7 digits")
+        .max(15, "Contact number must be at most 15 digits"),
+    )
     .optional(),
-  email: z.string().email("Email must be valid").optional(),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .pipe(z.string().email("Email must be valid"))
+    .optional(),
   dateOfBirth: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD")
+    .trim()
+    .min(1, "Date of Birth is required")
+    .pipe(
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
+    )
     .optional(),
   gender: z.enum(["Male", "Female"]).optional(),
   age: z.number().int().min(1, "Age must be at least 1").optional(),
@@ -24,9 +57,7 @@ export const updateTutorSchema = z.object({
     .enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"])
     .optional(),
 
-  status: z
-    .enum(["pending", "approved", "rejected", "suspended"])
-    .optional(),
+  status: z.enum(["pending", "approved", "rejected", "suspended"]).optional(),
 
   classType: z.array(z.string()).optional(),
 
@@ -133,11 +164,31 @@ export const updateTutorSchema = z.object({
     ])
     .optional(),
 
-  academicDetails: z.string().max(1000).optional(),
+  academicDetails: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Academic Details is required")
+      .max(1000),
+  ),
 
-  teachingSummary: z.string().max(750).optional(),
-  studentResults: z.string().max(750).optional(),
-  sellingPoints: z.string().max(750).optional(),
+  teachingSummary: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Teaching Summary is required")
+      .max(750),
+  ),
+  studentResults: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Student Results is required")
+      .max(750),
+  ),
+  sellingPoints: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Selling Points is required")
+      .max(750),
+  ),
 
   agreeTerms: z.boolean().optional(),
   agreeAssignmentInfo: z.boolean().optional(),

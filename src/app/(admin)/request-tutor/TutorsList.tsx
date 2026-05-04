@@ -2,9 +2,8 @@
 
 import DataTable, { Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
-import {
-  useFetchRequestForTutorsQuery,
-} from "@/store/api/splits/request-tutor";
+import { useFetchGradesQuery } from "@/store/api/splits/grades";
+import { useFetchRequestForTutorsQuery } from "@/store/api/splits/request-tutor";
 import { RequestTutors } from "@/types/response-types";
 import { useMemo, useState } from "react";
 import { AssignTutorDialog } from "./assignTutor";
@@ -21,10 +20,22 @@ export default function RequestForTutorsList() {
     limit,
     sortBy: "createdAt:desc",
   });
+  const { data: gradesData, isFetching: isFetchingGrades } =
+    useFetchGradesQuery({
+      page: 1,
+      limit: 10000,
+    });
 
   const tutors: RequestTutors[] = data?.results || [];
   const totalPages = data?.totalPages || 1;
   const totalResults = data?.totalResults || tutors.length;
+  const gradeTitleById = useMemo(
+    () =>
+      new Map(
+        (gradesData?.results || []).map((grade) => [grade.id, grade.title]),
+      ),
+    [gradesData?.results],
+  );
 
   const handlePageChange = (newPage: number) => setPage(newPage);
 
@@ -40,12 +51,39 @@ export default function RequestForTutorsList() {
   const getSafeTutorBlocks = (value: RequestTutors["tutors"]) =>
     Array.isArray(value) ? value : [];
 
+  const getGradeDisplayValue = (grade: unknown) => {
+    if (grade && typeof grade === "object") {
+      const gradeRecord = grade as {
+        id?: string;
+        title?: string;
+        name?: string;
+      };
+      return getSafeValue(
+        gradeRecord.title || gradeRecord.name || gradeRecord.id,
+        "",
+      );
+    }
+
+    const gradeId = getSafeValue(grade, "");
+    if (!gradeId) {
+      return "";
+    }
+
+    const gradeTitle = gradeTitleById.get(gradeId);
+    if (gradeTitle) {
+      return gradeTitle;
+    }
+
+    return isFetchingGrades ? "Loading grade..." : "Unknown grade";
+  };
+
   const columns = useMemo<Column<RequestTutors>[]>(
     () => [
       {
         key: "name",
         header: "Full Name",
-        className: "min-w-[150px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
+        className:
+          "min-w-[150px] max-w-[250px] truncate overflow-hidden sticky left-0 z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <span
             title={row.name || "No name"}
@@ -85,12 +123,17 @@ export default function RequestForTutorsList() {
       {
         key: "grade",
         header: "Grade",
-        className: "min-w-[120px] max-w-[200px] truncate overflow-hidden",
+        className: "min-w-[280px] max-w-[360px] whitespace-normal",
         render: (row: RequestTutors) => {
-          const safeGrade = getSafeValue(row.grade, "");
+          const safeGrade = getGradeDisplayValue(row.grade);
 
           return safeGrade ? (
-            <span title={safeGrade}>{safeGrade}</span>
+            <span
+              title={safeGrade}
+              className="block whitespace-normal break-words leading-5"
+            >
+              {safeGrade}
+            </span>
           ) : (
             <span className="text-gray-400 italic">No grade</span>
           );
@@ -100,14 +143,16 @@ export default function RequestForTutorsList() {
         key: "view",
         header: "View",
         align: "center",
-        className: "min-w-[80px] max-w-[80px] sticky right-[390px] z-20 bg-white dark:bg-gray-900",
+        className:
+          "min-w-[80px] max-w-[80px] sticky right-[390px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => <ViewTutorRequests tutorId={row.id} />,
       },
       {
         key: "status",
         header: "Change Status",
         align: "center",
-        className: "min-w-[140px] max-w-[140px] sticky right-[250px] z-20 bg-white dark:bg-gray-900",
+        className:
+          "min-w-[140px] max-w-[140px] sticky right-[250px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <ChangeStatusDialog
             requestId={row.id}
@@ -120,7 +165,8 @@ export default function RequestForTutorsList() {
         key: "assignTutor",
         header: "Assign Tutor",
         align: "center",
-        className: "min-w-[170px] max-w-[170px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
+        className:
+          "min-w-[170px] max-w-[170px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => (
           <AssignTutorDialog
             row={{
@@ -143,11 +189,12 @@ export default function RequestForTutorsList() {
         key: "delete",
         header: "Delete",
         align: "center",
-        className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
+        className:
+          "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
         render: (row: RequestTutors) => <DeleteTutorRequest tutorId={row.id} />,
       },
     ],
-    [refetch],
+    [gradeTitleById, isFetchingGrades, refetch],
   );
 
   return (
