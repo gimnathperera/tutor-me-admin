@@ -157,11 +157,8 @@ export const TUTOR_TYPE_VALUES = [
   "University Student",
   "A/L Student",
   "Diploma Holder",
-  "Degree Holder",
   "Part-time Tutor",
   "Full-time Tutor",
-  "International Retired Teacher",
-  "Government Retired Teacher",
 ] as const;
 export type TutorTypeValue = (typeof TUTOR_TYPE_VALUES)[number];
 
