@@ -246,11 +246,12 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
           <Eye className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[625px] max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-800 dark:text-white/90 scrollbar-thin">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[625px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-b">
             <DialogTitle>Tutor Details</DialogTitle>
           </DialogHeader>
 
+          <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
           <div className="grid gap-4">
             {/** Status */}
             {tutor.status && (
@@ -512,8 +513,9 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
               </div>
             </div>
           </div>
+          </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Close</Button>
             </DialogClose>

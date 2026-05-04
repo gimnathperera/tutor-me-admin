@@ -1,3 +1,4 @@
+import { normalizeTextSpaces } from "@/utils/form-normalizers";
 import { z } from "zod";
 
 const tutorTypeValues = [
@@ -18,31 +19,48 @@ const classTypeValues = [
   "At Tutor's Place - Group",
 ] as const;
 
-const cleanSentence = /^(?!\s)(?!.*\s{2,})(?!.*\s$)[A-Za-z0-9.,()\-\/&\s]+$/;
+const normalizedTextSchema = z
+  .string()
+  .transform((value) => normalizeTextSpaces(value) as string);
 
 export const addTutorSchema = z.object({
-  fullName: z
+  fullName: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Full Name is required")
+      .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
+  ),
+
+  contactNumber: z
     .string()
-    .min(1, "Full Name is required")
-    .regex(cleanSentence, "No leading, trailing, or multiple spaces allowed")
-    .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
+    .trim()
+    .min(1, "Contact Number is required")
+    .pipe(
+      z
+        .string()
+        .regex(/^[0-9]+$/, "Contact number must contain only numbers")
+        .length(10, "Contact number must be exactly 10 digits"),
+    ),
 
   email: z
     .string()
+    .trim()
     .min(1, "Email is required")
-    .regex(cleanSentence, "No leading, trailing, or multiple spaces allowed")
-    .email("Email must be valid"),
-  contactNumber: z
-    .string()
-    .regex(/^[0-9]+$/, "Contact number must contain only numbers")
-    .length(10, "Contact number must be exactly 10 digits"),
+    .pipe(z.string().email("Email must be valid")),
 
   dateOfBirth: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
+    .trim()
+    .min(1, "Date of Birth is required")
+    .pipe(
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
+    ),
 
   gender: z.enum(["Male", "Female"]),
   age: z.number().int().min(1),
+
   tutorMediums: z
     .array(z.string())
     .min(1, "Please select at least one medium."),
@@ -56,7 +74,6 @@ export const addTutorSchema = z.object({
     .array(z.enum(classTypeValues))
     .min(1, "Select at least one class type"),
 
-  // Tutoring preferences
   tutoringLevels: z
     .array(
       z.enum([
@@ -127,7 +144,6 @@ export const addTutorSchema = z.object({
     )
     .min(1, "Select at least one preferred location"),
 
-  // Academic qualifications
   tutorType: z
     .array(z.enum(tutorTypeValues))
     .min(1, "Select at least one tutor type"),
@@ -142,34 +158,32 @@ export const addTutorSchema = z.object({
     "Diploma and Professional",
     "Advanced Level (A/L)",
   ]),
-  academicDetails: z
-    .string()
-    .max(1000)
-    .optional()
-    .refine((val) => !val || cleanSentence.test(val), {
-      message: "No leading, trailing, or multiple spaces allowed",
-    }),
 
-  teachingSummary: z
-    .string()
-    .max(750)
-    .refine((val) => val === "" || cleanSentence.test(val), {
-      message: "No leading, trailing, or multiple spaces allowed",
-    }),
+  academicDetails: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Academic Details is required")
+      .max(1000),
+  ),
+  teachingSummary: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Teaching Summary is required")
+      .max(750),
+  ),
+  studentResults: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Student Results is required")
+      .max(750),
+  ),
+  sellingPoints: normalizedTextSchema.pipe(
+    z
+      .string()
+      .min(1, "Selling Points is required")
+      .max(750),
+  ),
 
-  studentResults: z
-    .string()
-    .max(750)
-    .refine((val) => val === "" || cleanSentence.test(val), {
-      message: "No leading, trailing, or multiple spaces allowed",
-    }),
-
-  sellingPoints: z
-    .string()
-    .max(750)
-    .refine((val) => val === "" || cleanSentence.test(val), {
-      message: "No leading, trailing, or multiple spaces allowed",
-    }),
   certificatesAndQualifications: z
     .array(
       z.object({
@@ -180,10 +194,10 @@ export const addTutorSchema = z.object({
     )
     .min(1, "At least one certificate or qualification is required"),
 
-  // Agreement
   agreeTerms: z
     .boolean()
     .refine((val) => val === true, "You must agree to Terms and Conditions"),
+
   agreeAssignmentInfo: z
     .boolean()
     .refine((val) => val === true, "You must agree to Assignment Info"),
@@ -191,14 +205,11 @@ export const addTutorSchema = z.object({
 
 export type AddTutorFormValues = z.infer<typeof addTutorSchema>;
 
-// Default initial values
 export const initialTutorFormValues: AddTutorFormValues = {
   fullName: "",
   contactNumber: "",
-
   email: "",
   dateOfBirth: "",
-
   gender: "Male",
   age: 18,
   tutorMediums: [],
@@ -206,7 +217,6 @@ export const initialTutorFormValues: AddTutorFormValues = {
   subjects: [],
   nationality: "Sri Lankan",
   race: "Sinhalese",
-
   classType: [],
   tutoringLevels: [],
   preferredLocations: [],

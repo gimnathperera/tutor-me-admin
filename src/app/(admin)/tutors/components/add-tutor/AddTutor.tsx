@@ -23,12 +23,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
 } from "@/store/api/splits/grades";
 import { useCreateTutorMutation } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
+import {
+  collapseTextSpaces,
+  normalizeTextSpaces,
+  stripLeadingSpaces,
+} from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -55,12 +61,12 @@ import {
 export function AddTutor() {
   const [open, setOpen] = useState(false);
   const [createTutor, { isLoading }] = useCreateTutorMutation();
+  const formId = "add-tutor-form";
 
   const form = useForm<AddTutorFormValues>({
     resolver: zodResolver(addTutorSchema),
     defaultValues: initialTutorFormValues,
-    mode: "onSubmit",
-    reValidateMode: "onChange",
+    mode: "onChange",
   });
 
   const { formState, reset, setValue, watch, control } = form;
@@ -122,6 +128,7 @@ export function AddTutor() {
 
       for (const gradeId of grades) {
         const res = await fetchGradeById(gradeId);
+
         if (res?.data?.subjects) {
           allSubjects.push(...res.data.subjects);
         }
@@ -144,7 +151,7 @@ export function AddTutor() {
         prevUniqueSubjectsRef.current = uniqueJson;
       }
 
-      const validSelected = (selectedSubjects || []).filter((sId: string) =>
+      const validSelected = (selectedSubjects || []).filter((sId) =>
         uniqueSubjects.some((us) => us.id === sId),
       );
 
@@ -161,8 +168,8 @@ export function AddTutor() {
   }, [
     fetchGradeById,
     selectedGradesJson,
-    setValue,
     selectedSubjects,
+    setValue,
     subjectOptions.length,
   ]);
 
@@ -211,16 +218,17 @@ export function AddTutor() {
   const onSubmit = async (data: AddTutorFormValues) => {
     const cleanedData = {
       ...data,
-      fullName: data.fullName.trim().replace(/\s+/g, " "),
-      academicDetails: data.academicDetails?.trim().replace(/\s+/g, " "),
-      teachingSummary: data.teachingSummary.trim().replace(/\s+/g, " "),
-      studentResults: data.studentResults.trim().replace(/\s+/g, " "),
-      sellingPoints: data.sellingPoints.trim().replace(/\s+/g, " "),
+      fullName: normalizeTextSpaces(data.fullName) as string,
+      academicDetails: normalizeTextSpaces(data.academicDetails || "") as string,
+      teachingSummary: normalizeTextSpaces(data.teachingSummary) as string,
+      studentResults: normalizeTextSpaces(data.studentResults) as string,
+      sellingPoints: normalizeTextSpaces(data.sellingPoints) as string,
     };
 
     const result = await createTutor(cleanedData);
 
     const error = getErrorInApiResult(result);
+
     if (error) {
       toast.error(error);
       return;
@@ -232,12 +240,74 @@ export function AddTutor() {
       setOpen(false);
     }
   };
-  const cleanTextInput = (value: string) =>
-    value.replace(/^\s+/, "").replace(/\s{2,}/g, " ");
+
+  const fullNameRegister = form.register("fullName", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("fullName", cleaned, { shouldValidate: formState.isSubmitted });
+      }
+    },
+    onBlur: (event) => {
+      setValue("fullName", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const emailRegister = form.register("email", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("email", cleaned, { shouldValidate: formState.isSubmitted });
+      }
+    },
+    onBlur: (event) => {
+      setValue("email", event.target.value.trim(), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const academicDetailsRegister = form.register("academicDetails", {
+    onBlur: (event) => {
+      setValue("academicDetails", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const teachingSummaryRegister = form.register("teachingSummary", {
+    onBlur: (event) => {
+      setValue("teachingSummary", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const studentResultsRegister = form.register("studentResults", {
+    onBlur: (event) => {
+      setValue("studentResults", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const sellingPointsRegister = form.register("sellingPoints", {
+    onBlur: (event) => {
+      setValue("sellingPoints", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
@@ -247,25 +317,16 @@ export function AddTutor() {
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden">
-          <DialogHeader className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-b">
+        <DialogContent className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-b">
             <DialogTitle>Add Tutor</DialogTitle>
           </DialogHeader>
 
-          <div className="max-h-[70vh] overflow-y-auto scrollbar-thin px-6 py-6">
+          <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name *</Label>
-                <Input
-                  id="fullName"
-                  value={watch("fullName")}
-                  onChange={(e) =>
-                    setValue("fullName", cleanTextInput(e.target.value), {
-                      shouldDirty: true,
-                      shouldValidate: formState.isSubmitted,
-                    })
-                  }
-                />
+                <Input id="fullName" {...fullNameRegister} />
                 {formState.errors.fullName && (
                   <p className="text-sm text-red-500">
                     {formState.errors.fullName.message}
@@ -303,7 +364,7 @@ export function AddTutor() {
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email *</Label>
-                <Input id="email" type="email" {...form.register("email")} />
+                <Input id="email" type="email" {...emailRegister} />
                 {formState.errors.email && (
                   <p className="text-sm text-red-500">
                     {formState.errors.email.message}
@@ -312,21 +373,19 @@ export function AddTutor() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <DatePicker
-                    label="Date of Birth"
-                    required
-                    value={watch("dateOfBirth")}
-                    onChange={(date) =>
-                      setValue("dateOfBirth", date, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      })
-                    }
-                    placeholder="Select your date of birth"
-                    error={formState.errors.dateOfBirth?.message}
-                  />
-                </div>
+                <DatePicker
+                  label="Date of Birth"
+                  required
+                  value={watch("dateOfBirth")}
+                  onChange={(date) =>
+                    setValue("dateOfBirth", date, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                  placeholder="Select your date of birth"
+                  error={formState.errors.dateOfBirth?.message}
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="age">Age *</Label>
@@ -345,81 +404,41 @@ export function AddTutor() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="space-y-2">
-                  <Label htmlFor="gender">Gender *</Label>
-                  <Select
-                    onValueChange={(val) =>
-                      setValue("gender", val as AddTutorFormValues["gender"])
-                    }
-                    value={watch("gender")}
-                  >
-                    <SelectTrigger id="gender">
-                      <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formState.errors.gender && (
-                    <p className="text-sm text-red-500">
-                      {formState.errors.gender.message}
-                    </p>
-                  )}
-                </div>
+                <SelectField
+                  label="Gender *"
+                  id="gender"
+                  value={watch("gender")}
+                  error={formState.errors.gender?.message}
+                  onChange={(val) =>
+                    setValue("gender", val as AddTutorFormValues["gender"])
+                  }
+                  options={["Male", "Female", "Other"]}
+                />
 
-                <div className="space-y-2">
-                  <Label htmlFor="nationality">Nationality *</Label>
-                  <Select
-                    onValueChange={(val) =>
-                      setValue(
-                        "nationality",
-                        val as AddTutorFormValues["nationality"],
-                      )
-                    }
-                    value={watch("nationality")}
-                  >
-                    <SelectTrigger id="nationality">
-                      <SelectValue placeholder="Select nationality" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
-                      <SelectItem value="Others">Others</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formState.errors.nationality && (
-                    <p className="text-sm text-red-500">
-                      {formState.errors.nationality.message}
-                    </p>
-                  )}
-                </div>
+                <SelectField
+                  label="Nationality *"
+                  id="nationality"
+                  value={watch("nationality")}
+                  error={formState.errors.nationality?.message}
+                  onChange={(val) =>
+                    setValue(
+                      "nationality",
+                      val as AddTutorFormValues["nationality"],
+                    )
+                  }
+                  options={["Sri Lankan", "Others"]}
+                />
 
-                <div className="space-y-2">
-                  <Label htmlFor="race">Race *</Label>
-                  <Select
-                    onValueChange={(val) =>
-                      setValue("race", val as AddTutorFormValues["race"])
-                    }
-                    value={watch("race")}
-                  >
-                    <SelectTrigger id="race">
-                      <SelectValue placeholder="Select race" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Sinhalese">Sinhalese</SelectItem>
-                      <SelectItem value="Tamil">Tamil</SelectItem>
-                      <SelectItem value="Muslim">Muslim</SelectItem>
-                      <SelectItem value="Burgher">Burgher</SelectItem>
-                      <SelectItem value="Others">Others</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formState.errors.race && (
-                    <p className="text-sm text-red-500">
-                      {formState.errors.race.message}
-                    </p>
-                  )}
-                </div>
+                <SelectField
+                  label="Race *"
+                  id="race"
+                  value={watch("race")}
+                  error={formState.errors.race?.message}
+                  onChange={(val) =>
+                    setValue("race", val as AddTutorFormValues["race"])
+                  }
+                  options={["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"]}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -562,7 +581,7 @@ export function AddTutor() {
                 <div className="space-y-2">
                   <Label htmlFor="yearsExperience">Years of Experience *</Label>
                   <Select
-                    onValueChange={(val) => handleYearsSelect(val)}
+                    onValueChange={handleYearsSelect}
                     value={String(watch("yearsExperience"))}
                   >
                     <SelectTrigger id="yearsExperience">
@@ -586,129 +605,64 @@ export function AddTutor() {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="highestEducation">Highest Education *</Label>
-                  <Select
-                    onValueChange={(val) =>
-                      setValue(
-                        "highestEducation",
-                        val as AddTutorFormValues["highestEducation"],
-                      )
-                    }
-                    value={watch("highestEducation")}
-                  >
-                    <SelectTrigger id="highestEducation">
-                      <SelectValue placeholder="Select education" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PhD">PhD</SelectItem>
-                      <SelectItem value="Masters Degree">
-                        Masters Degree
-                      </SelectItem>
-                      <SelectItem value="Undergraduate">
-                        Undergraduate
-                      </SelectItem>
-                      <SelectItem value="Bachelor Degree">
-                        Bachelor Degree
-                      </SelectItem>
-                      <SelectItem value="Diploma and Professional">
-                        Diploma and Professional
-                      </SelectItem>
-                      <SelectItem value="Advanced Level (A/L)">
-                        Advanced Level (A/L)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {formState.errors.highestEducation && (
-                    <p className="text-sm text-red-500">
-                      {formState.errors.highestEducation.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="academicDetails">Academic Details</Label>
-                <Input
-                  id="academicDetails"
-                  value={watch("academicDetails") || ""}
-                  onChange={(e) =>
+                <SelectField
+                  label="Highest Education *"
+                  id="highestEducation"
+                  value={watch("highestEducation")}
+                  error={formState.errors.highestEducation?.message}
+                  onChange={(val) =>
                     setValue(
-                      "academicDetails",
-                      cleanTextInput(e.target.value),
-                      {
-                        shouldDirty: true,
-                        shouldValidate: formState.isSubmitted,
-                      },
+                      "highestEducation",
+                      val as AddTutorFormValues["highestEducation"],
                     )
                   }
+                  options={[
+                    "PhD",
+                    "Masters Degree",
+                    "Undergraduate",
+                    "Bachelor Degree",
+                    "Diploma and Professional",
+                    "Advanced Level (A/L)",
+                  ]}
                 />
-                {formState.errors.academicDetails && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.academicDetails.message}
-                  </p>
-                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="teachingSummary">Teaching Summary *</Label>
-                <Input
-                  id="teachingSummary"
-                  value={watch("teachingSummary")}
-                  onChange={(e) =>
-                    setValue(
-                      "teachingSummary",
-                      cleanTextInput(e.target.value),
-                      {
-                        shouldDirty: true,
-                        shouldValidate: formState.isSubmitted,
-                      },
-                    )
-                  }
-                />
-                {formState.errors.teachingSummary && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.teachingSummary.message}
-                  </p>
-                )}
-              </div>
+              <TextareaField
+                label="Academic Details *"
+                id="academicDetails"
+                register={academicDetailsRegister}
+                error={formState.errors.academicDetails?.message}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="studentResults">Student Results *</Label>
-                <Input
-                  id="studentResults"
-                  value={watch("studentResults")}
-                  onChange={(e) =>
-                    setValue("studentResults", cleanTextInput(e.target.value), {
-                      shouldDirty: true,
-                      shouldValidate: formState.isSubmitted,
-                    })
-                  }
-                />
-                {formState.errors.studentResults && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.studentResults.message}
-                  </p>
-                )}
-              </div>
+              <TextareaField
+                label="Teaching Summary *"
+                id="teachingSummary"
+                register={teachingSummaryRegister}
+                error={formState.errors.teachingSummary?.message}
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="sellingPoints">Selling Points *</Label>
-                <Input id="sellingPoints" {...form.register("sellingPoints")} />
-                {formState.errors.sellingPoints && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.sellingPoints.message}
-                  </p>
-                )}
-              </div>
+              <TextareaField
+                label="Student Results *"
+                id="studentResults"
+                register={studentResultsRegister}
+                error={formState.errors.studentResults?.message}
+              />
+
+              <TextareaField
+                label="Selling Points *"
+                id="sellingPoints"
+                register={sellingPointsRegister}
+                error={formState.errors.sellingPoints?.message}
+              />
 
               <div className="space-y-3 rounded-md border p-4">
                 <Label>Certificates & Qualifications</Label>
                 <MultiFileUploader
+                  mode="certificate"
                   onUploaded={(items) =>
                     setValue("certificatesAndQualifications", items, {
                       shouldDirty: true,
-                      shouldValidate: formState.isSubmitted,
+                      shouldValidate: true,
                     })
                   }
                 />
@@ -735,16 +689,16 @@ export function AddTutor() {
             </div>
           </div>
 
-          <DialogFooter className="sticky bottom-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-t">
+          <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
 
             <Button
+              form={formId}
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isLoading}
-              onClick={form.handleSubmit(onSubmit)}
             >
               Create
             </Button>
@@ -752,6 +706,61 @@ export function AddTutor() {
         </DialogContent>
       </form>
     </Dialog>
+  );
+}
+
+function SelectField({
+  label,
+  id,
+  value,
+  error,
+  onChange,
+  options,
+}: {
+  label: string;
+  id: string;
+  value: string;
+  error?: string;
+  onChange: (value: string) => void;
+  options: string[];
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Select onValueChange={onChange} value={value}>
+        <SelectTrigger id={id}>
+          <SelectValue placeholder="Select option" />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option} value={option}>
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {error && <p className="text-sm text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+function TextareaField({
+  label,
+  id,
+  register,
+  error,
+}: {
+  label: string;
+  id: string;
+  register: ReturnType<UseFormReturn<AddTutorFormValues>["register"]>;
+  error?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Textarea id={id} placeholder={label.replace(" *", "")} {...register} />
+      {error && <p className="text-sm text-red-500">{error}</p>}
+    </div>
   );
 }
 

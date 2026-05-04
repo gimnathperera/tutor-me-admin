@@ -37,6 +37,11 @@ import {
   useUpdateTutorMutation,
 } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
+import {
+  collapseTextSpaces,
+  normalizeTextSpaces,
+  stripLeadingSpaces,
+} from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -152,6 +157,7 @@ const classTypeValues = [
 
 export function EditTutor({ id }: EditTutorProps) {
   const [open, setOpen] = useState(false);
+  const formId = `edit-tutor-form-${id}`;
   const { data: tutorData, isLoading: isFetching } = useFetchTutorByIdQuery(id);
   const [updateTutor, { isLoading: isUpdating }] = useUpdateTutorMutation();
 
@@ -320,7 +326,7 @@ export function EditTutor({ id }: EditTutorProps) {
     if (!data) return {};
 
     return {
-      fullName: data.fullName || "",
+      fullName: normalizeTextSpaces(data.fullName || "") as string,
       contactNumber: data.contactNumber || "",
       email: data.email || "",
       dateOfBirth: formatDateForForm(data.dateOfBirth),
@@ -359,10 +365,14 @@ export function EditTutor({ id }: EditTutorProps) {
         educationOptions,
         "Undergraduate",
       ),
-      academicDetails: data.academicDetails || "",
-      teachingSummary: data.teachingSummary || "",
-      studentResults: data.studentResults || "",
-      sellingPoints: data.sellingPoints || "",
+      academicDetails: normalizeTextSpaces(
+        data.academicDetails || "",
+      ) as string,
+      teachingSummary: normalizeTextSpaces(
+        data.teachingSummary || "",
+      ) as string,
+      studentResults: normalizeTextSpaces(data.studentResults || "") as string,
+      sellingPoints: normalizeTextSpaces(data.sellingPoints || "") as string,
       agreeTerms:
         typeof data.agreeTerms === "boolean" ? data.agreeTerms : undefined,
       agreeAssignmentInfo:
@@ -409,7 +419,19 @@ export function EditTutor({ id }: EditTutorProps) {
 
   const onSubmit = async (data: UpdateTutorSchema) => {
     try {
-      const result = await updateTutor({ id, ...data });
+      const cleanedData: UpdateTutorSchema = {
+        ...data,
+        academicDetails: normalizeTextSpaces(
+          data.academicDetails || "",
+        ) as string,
+        teachingSummary: normalizeTextSpaces(
+          data.teachingSummary || "",
+        ) as string,
+        studentResults: normalizeTextSpaces(data.studentResults || "") as string,
+        sellingPoints: normalizeTextSpaces(data.sellingPoints || "") as string,
+      };
+
+      const result = await updateTutor({ id, ...cleanedData });
       const error = getErrorInApiResult(result);
 
       if (error) {
@@ -418,8 +440,7 @@ export function EditTutor({ id }: EditTutorProps) {
       }
 
       if ("data" in result) {
-        const updatedValues = form.getValues();
-        reset(updatedValues);
+        reset(cleanedData);
         toast.success("Tutor updated successfully");
         setOpen(false);
       }
@@ -429,23 +450,87 @@ export function EditTutor({ id }: EditTutorProps) {
     }
   };
 
+  const fullNameRegister = form.register("fullName", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("fullName", cleaned, { shouldValidate: formState.isSubmitted });
+      }
+    },
+    onBlur: (event) => {
+      setValue("fullName", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const emailRegister = form.register("email", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("email", cleaned, { shouldValidate: formState.isSubmitted });
+      }
+    },
+    onBlur: (event) => {
+      setValue("email", event.target.value.trim(), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const academicDetailsRegister = form.register("academicDetails", {
+    onBlur: (event) => {
+      setValue("academicDetails", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const teachingSummaryRegister = form.register("teachingSummary", {
+    onBlur: (event) => {
+      setValue("teachingSummary", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const studentResultsRegister = form.register("studentResults", {
+    onBlur: (event) => {
+      setValue("studentResults", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const sellingPointsRegister = form.register("sellingPoints", {
+    onBlur: (event) => {
+      setValue("sellingPoints", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
   if (isFetching) {
     return <p>Loading tutor details...</p>;
   }
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form id={formId} onSubmit={handleSubmit(onSubmit)}>
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden">
-          <DialogHeader className="sticky top-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-b">
+        <DialogContent className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-b">
             <DialogTitle>Edit Tutor</DialogTitle>
           </DialogHeader>
 
-          <div className="max-h-[70vh] overflow-y-auto scrollbar-thin px-6 py-6">
+          <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
@@ -472,7 +557,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 <Input
                   id="fullName"
                   placeholder="Full Name"
-                  {...form.register("fullName")}
+                  {...fullNameRegister}
                 />
                 {formState.errors.fullName && (
                   <p className="text-sm text-red-500">
@@ -515,7 +600,7 @@ export function EditTutor({ id }: EditTutorProps) {
                   id="email"
                   type="email"
                   placeholder="Email"
-                  {...form.register("email")}
+                  {...emailRegister}
                 />
                 {formState.errors.email && (
                   <p className="text-sm text-red-500">
@@ -735,11 +820,12 @@ export function EditTutor({ id }: EditTutorProps) {
               <div className="space-y-3 rounded-md border p-4">
                 <Label>Certificates & Qualifications</Label>
                 <MultiFileUploader
+                  mode="certificate"
                   defaultFiles={tutorData?.certificatesAndQualifications || []}
                   onUploaded={(items) =>
                     setValue(
-                      "certificatesAndQualifications" as never,
-                      items as never,
+                      "certificatesAndQualifications",
+                      items as UpdateTutorSchema["certificatesAndQualifications"],
                       {
                         shouldDirty: true,
                         shouldValidate: true,
@@ -788,7 +874,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 <div className="space-y-2">
                   <Label htmlFor="yearsExperience">Years of Experience</Label>
                   <Select
-                    onValueChange={(val) => handleYearsSelect(val)}
+                    onValueChange={handleYearsSelect}
                     value={String(watch("yearsExperience"))}
                   >
                     <SelectTrigger id="yearsExperience">
@@ -827,21 +913,11 @@ export function EditTutor({ id }: EditTutorProps) {
                       <SelectValue placeholder="Select education" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="PhD">PhD</SelectItem>
-                      <SelectItem value="Diploma">Diploma</SelectItem>
-                      <SelectItem value="Masters">Masters</SelectItem>
-                      <SelectItem value="Undergraduate">
-                        Undergraduate
-                      </SelectItem>
-                      <SelectItem value="Bachelor Degree">
-                        Bachelor Degree
-                      </SelectItem>
-                      <SelectItem value="Diploma and Professional">
-                        Diploma and Professional
-                      </SelectItem>
-                      <SelectItem value="JC/A Levels">JC/A Levels</SelectItem>
-                      <SelectItem value="Poly">Poly</SelectItem>
-                      <SelectItem value="Others">Others</SelectItem>
+                      {educationOptions.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   {formState.errors.highestEducation && (
@@ -853,11 +929,11 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="academicDetails">Academic Details</Label>
+                <Label htmlFor="academicDetails">Academic Details *</Label>
                 <Textarea
                   id="academicDetails"
                   placeholder="Academic Details"
-                  {...form.register("academicDetails")}
+                  {...academicDetailsRegister}
                 />
                 {formState.errors.academicDetails && (
                   <p className="text-sm text-red-500">
@@ -867,11 +943,11 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="teachingSummary">Teaching Summary</Label>
+                <Label htmlFor="teachingSummary">Teaching Summary *</Label>
                 <Textarea
                   id="teachingSummary"
                   placeholder="Teaching Summary"
-                  {...form.register("teachingSummary")}
+                  {...teachingSummaryRegister}
                 />
                 {formState.errors.teachingSummary && (
                   <p className="text-sm text-red-500">
@@ -881,11 +957,11 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="studentResults">Student Results</Label>
+                <Label htmlFor="studentResults">Student Results *</Label>
                 <Textarea
                   id="studentResults"
                   placeholder="Student Results"
-                  {...form.register("studentResults")}
+                  {...studentResultsRegister}
                 />
                 {formState.errors.studentResults && (
                   <p className="text-sm text-red-500">
@@ -895,11 +971,11 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sellingPoints">Selling Points</Label>
+                <Label htmlFor="sellingPoints">Selling Points *</Label>
                 <Textarea
                   id="sellingPoints"
                   placeholder="Selling Points"
-                  {...form.register("sellingPoints")}
+                  {...sellingPointsRegister}
                 />
                 {formState.errors.sellingPoints && (
                   <p className="text-sm text-red-500">
@@ -910,16 +986,16 @@ export function EditTutor({ id }: EditTutorProps) {
             </div>
           </div>
 
-          <DialogFooter className="sticky bottom-0 z-10 bg-white dark:bg-gray-800 px-6 py-4 border-t">
+          <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
 
             <Button
+              form={formId}
               type="submit"
               className="bg-blue-700 text-white hover:bg-blue-500"
               isLoading={isUpdating}
-              onClick={handleSubmit(onSubmit)}
             >
               Update Tutor
             </Button>
