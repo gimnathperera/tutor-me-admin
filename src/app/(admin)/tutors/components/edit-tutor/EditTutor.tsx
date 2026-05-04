@@ -129,6 +129,8 @@ export function EditTutor({ id }: EditTutorProps) {
     defaultValue: [] as string[],
   }) as string[];
 
+  const dob = useWatch({ control, name: "dateOfBirth", defaultValue: "" }) as string;
+
   const safeEnumValue = <T extends string>(
     value: string | undefined,
     enumValues: readonly T[],
@@ -297,6 +299,18 @@ export function EditTutor({ id }: EditTutorProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorData, open, reset]);
+
+  useEffect(() => {
+    if (!dob) return;
+    const d = new Date(dob);
+    if (isNaN(d.getTime())) return;
+    const today = new Date();
+    let age = today.getFullYear() - d.getFullYear();
+    const m = today.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+    if (age < 0) age = 0;
+    setValue("age", age, { shouldValidate: true });
+  }, [dob, setValue]);
 
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -531,6 +545,7 @@ export function EditTutor({ id }: EditTutorProps) {
                     id="age"
                     type="number"
                     placeholder="Age"
+                    disabled
                     {...form.register("age", { valueAsNumber: true })}
                     min={1}
                   />
@@ -619,7 +634,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 z-62">
                 <div className="space-y-2">
                   <MultiSelect
                     label="Tutor Type *"

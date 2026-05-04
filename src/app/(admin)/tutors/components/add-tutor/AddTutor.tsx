@@ -446,7 +446,7 @@ export function AddTutor() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 z-62">
                 <div className="space-y-2">
                   <MultiSelect
                     label="Tutor Type *"
@@ -661,7 +661,7 @@ export function AddTutor() {
                     })
                   }
                 />
-                {formState.errors.certificatesAndQualifications && (
+                {formState.isSubmitted && formState.errors.certificatesAndQualifications && (
                   <p className="text-sm text-red-500">
                     {formState.errors.certificatesAndQualifications.message}
                   </p>

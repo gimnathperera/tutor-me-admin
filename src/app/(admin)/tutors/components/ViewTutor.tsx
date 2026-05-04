@@ -88,7 +88,10 @@ function CertificateViewer({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] h-[80vh] flex flex-col">
+      <DialogContent
+        className="sm:max-w-[800px] max-h-[90vh] h-[80vh] flex flex-col"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Certificate Viewer</DialogTitle>
         </DialogHeader>

@@ -14,6 +14,7 @@ interface MultiSelectProps {
   defaultSelected?: string[];
   onChange?: (selected: string[]) => void;
   disabled?: boolean;
+  isLoading?: boolean;
 }
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -22,6 +23,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   defaultSelected = [],
   onChange,
   disabled = false,
+  isLoading = false,
 }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>(
     defaultSelected.length > 0
@@ -128,7 +130,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
             }}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 dark:text-gray-400"
           >
-            {disabled ? (
+            {isLoading ? (
               <Spinner />
             ) : (
               <ChevronDown
