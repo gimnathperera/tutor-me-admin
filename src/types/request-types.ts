@@ -270,6 +270,8 @@ export type FetchUserRequest = {
 };
 
 export type FetchTutorsRequest = {
+  search?: string;
+  status?: "pending" | "approved" | "suspended" | "rejected";
   fullName?: string;
   contactNumber?: string;
   tutorMediums?: string;
