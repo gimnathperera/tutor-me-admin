@@ -172,6 +172,8 @@ export default function RequestForTutorsList() {
             row={{
               id: row.id,
               grade: getSafeValue(row.grade, ""),
+              district: getSafeValue(row.district, ""),
+              medium: getSafeValue(row.medium, ""),
               tutors: getSafeTutorBlocks(row.tutors).map((t) => ({
                 _id: t._id,
                 subject: t.subject,
