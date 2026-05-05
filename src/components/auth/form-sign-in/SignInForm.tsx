@@ -48,6 +48,7 @@ export default function SignInForm() {
   }, [isAuthError]);
 
   const onSubmit = (data: LoginSchema) => {
+    setIsAuthError(null);
     login(data);
   };
 
