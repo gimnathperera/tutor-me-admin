@@ -59,6 +59,10 @@ export type UserRegisterRequest = {
   name: string;
 };
 
+export type ForgotPasswordRequest = {
+  email: string;
+};
+
 export type CreateAdminRequest = {
   name: string;
   email: string;

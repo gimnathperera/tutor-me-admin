@@ -256,6 +256,10 @@ export type UpdatePasswordResponse = {
   message: string;
 };
 
+export type ForgotPasswordResponse = {
+  message: string;
+};
+
 export type TokenResponse = {
   access: {
     token: string;
