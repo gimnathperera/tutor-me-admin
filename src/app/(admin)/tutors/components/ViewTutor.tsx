@@ -2,6 +2,7 @@
 "use client";
 
 import { formatYearsExperience } from "@/app/(admin)/tutors/constants";
+import { TUTOR_STATUS_STYLE_CLASSES } from "@/configs/app-constants";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -69,12 +70,6 @@ interface ViewTutorProps {
   };
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
-  approved: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-  rejected: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-  suspended: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
-};
 
 function CertificateViewer({
   url,
@@ -93,7 +88,10 @@ function CertificateViewer({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] h-[80vh] flex flex-col">
+      <DialogContent
+        className="sm:max-w-[800px] max-h-[90vh] h-[80vh] flex flex-col"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Certificate Viewer</DialogTitle>
         </DialogHeader>
@@ -232,7 +230,9 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
   }, [tutor?.subjects, subjectIdToTitle, gradesData]);
 
   const statusKey = (tutor.status || "").toLowerCase();
-  const statusStyle = STATUS_STYLES[statusKey] || STATUS_STYLES["pending"];
+  const statusStyle =
+    TUTOR_STATUS_STYLE_CLASSES[statusKey] ||
+    TUTOR_STATUS_STYLE_CLASSES["pending"];
 
   return (
     <>

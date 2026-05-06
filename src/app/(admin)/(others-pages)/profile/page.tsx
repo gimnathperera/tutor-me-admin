@@ -3,7 +3,7 @@ import UserInfoCard from "./components/UserInfoCard";
 import UserMetaCard from "./components/UserMetaCard";
 
 export const metadata: Metadata = {
-  title: "Profile | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is Next.js Profile page for TuitionLanka",
 };
 

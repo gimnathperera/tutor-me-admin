@@ -14,8 +14,18 @@ const noExtraSpaces = (field: string) =>
       message: "Only one space is allowed between words",
     });
 
+const subjectTitle = () =>
+  noExtraSpaces("Title")
+    .refine((val) => /^[\p{L}\p{N} ()&-]+$/u.test(val), {
+      message:
+        "Title can only include letters, numbers, spaces, parentheses, hyphens, and ampersands",
+    })
+    .refine((val) => /\p{L}/u.test(val), {
+      message: "Title must include at least one letter",
+    });
+
 export const updateSubjectSchema = z.object({
-  title: noExtraSpaces("Title"),
+  title: subjectTitle(),
   description: noExtraSpaces("Description"),
 });
 

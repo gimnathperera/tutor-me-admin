@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Next.js Error 404 | TuitionLanka - Next.js Dashboard Template",
+  title: "Admin | Tuition Lanka",
   description:
     "This is Next.js Error 404 page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
 };

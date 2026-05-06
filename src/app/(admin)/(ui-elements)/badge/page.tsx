@@ -4,7 +4,7 @@ import { PlusIcon } from "@/icons";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Badge | TuitionLanka - Next.js Dashboard Template",
+  title: "Admin | Tuition Lanka",
   description:
     "This is Next.js Badge page for TuitionLanka - Next.js Tailwind CSS Admin Dashboard Template",
   // other metadata

@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { CERTIFICATE_TYPE_VALUES } from "@/configs/app-constants";
 import { Loader2, Plus, X } from "lucide-react";
 import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -18,16 +19,7 @@ interface NewFileItem {
   type: string;
 }
 
-const CERTIFICATE_TYPE_OPTIONS = [
-  "NIC",
-  "Passport",
-  "Degree Certificate",
-  "A/L Certificate",
-  "O/L Certificate",
-  "Professional Certificate",
-  "Teaching Certificate",
-  "Others",
-];
+const CERTIFICATE_TYPE_OPTIONS = [...CERTIFICATE_TYPE_VALUES];
 
 interface SimpleUploadProps {
   mode?: "simple";
@@ -172,7 +164,16 @@ export default function MultiFileUploadDropzone(
     onUploadedRef.current = props.onUploaded as any;
   }, [props.onUploaded]);
 
+  // Skip the initial mount call so forms don't receive an empty array
+  // before the user has interacted with the uploader (prevents premature validation errors)
+  const hasInteracted = useRef(false);
+
   useEffect(() => {
+    if (!hasInteracted.current) {
+      hasInteracted.current = true;
+      return;
+    }
+
     const uploadedNew: CertificateFileItem[] = newFiles
       .filter((file) => file.url)
       .map((file) => ({

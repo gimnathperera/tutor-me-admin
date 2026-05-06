@@ -3,7 +3,7 @@ import FAQTable from "./components/FAQTable";
 import { AddFAQ } from "./components/add-faq/AddFAQ.";
 
 export const metadata: Metadata = {
-  title: "FAQ | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is the FAQ management page for TuitionLanka",
 };
 

@@ -3,9 +3,19 @@
 "use client";
 
 import DataTable from "@/components/tables/DataTable";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { TABLE_CONFIG } from "@/configs/table";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useFetchUsersQuery } from "@/store/api/splits/users";
-import { useState } from "react";
+import { Search } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { DeleteUser } from "./DeleteUser";
 import { UpdateUser } from "./edit-user/UpdateUser";
 import { ResetPassword } from "./ResetPassword";
@@ -31,15 +41,33 @@ interface User {
   createdAt?: string;
 }
 
+type UserRoleFilter = "all" | "admin" | "tutor";
+
 export default function UsersTable() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [roleFilter, setRoleFilter] = useState<UserRoleFilter>("all");
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
 
-  const { data, isLoading } = useFetchUsersQuery({
-    page,
-    limit,
-    sortBy: "createdAt:desc",
-  });
+  useEffect(() => {
+    setPage(TABLE_CONFIG.DEFAULT_PAGE);
+  }, [debouncedSearchTerm, roleFilter]);
+
+  const queryParams = useMemo(
+    () => ({
+      page,
+      limit,
+      sortBy: "createdAt:desc",
+      ...(debouncedSearchTerm.trim()
+        ? { search: debouncedSearchTerm.trim() }
+        : {}),
+      ...(roleFilter !== "all" ? { role: roleFilter } : {}),
+    }),
+    [debouncedSearchTerm, limit, page, roleFilter],
+  );
+
+  const { data, isLoading } = useFetchUsersQuery(queryParams);
 
   const users = data?.results || [];
   const totalPages = data?.totalPages || 0;
@@ -218,15 +246,63 @@ export default function UsersTable() {
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={users}
-      page={page}
-      totalPages={totalPages}
-      onPageChange={handlePageChange}
-      totalResults={totalResults}
-      limit={limit}
-      isLoading={isLoading}
-    />
+    <div className="space-y-4">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-gray-900">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900 dark:text-white/90">
+              User filters
+            </h2>
+            <p className="mt-1 text-sm text-gray-500 dark:text-white/60">
+              Search by name or email, then narrow results by role.
+            </p>
+          </div>
+
+          <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:min-w-[32rem]">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search by name or email"
+                className="h-11 w-full pl-10 pr-4"
+              />
+            </div>
+
+            <div className="w-full">
+              <Select
+                value={roleFilter}
+                onValueChange={(value) =>
+                  setRoleFilter(value as UserRoleFilter)
+                }
+              >
+                <SelectTrigger className="h-11 min-h-11 w-full">
+                  <SelectValue placeholder="Filter by role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All roles</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="tutor">Tutor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={users}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        totalResults={totalResults}
+        limit={limit}
+        isLoading={isLoading}
+        emptyMessage="No users found for the current search or role filter."
+        className="w-full max-w-full"
+      />
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Next.js Calender | TuitionLanka - Next.js Dashboard Template",
+  title: "Admin | Tuition Lanka",
   description:
     "This is Next.js Calender page for TuitionLanka  Tailwind CSS Admin Dashboard Template",
   // other metadata

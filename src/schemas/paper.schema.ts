@@ -1,3 +1,4 @@
+import { MEDIUM_VALUES } from "@/configs/app-constants";
 import { z } from "zod";
 
 const noExtraSpaces = (field: string) =>
@@ -14,10 +15,20 @@ const noExtraSpaces = (field: string) =>
       message: "Only one space is allowed between words",
     });
 
-export const paperSchema = z.object({
-  title: noExtraSpaces("Title"),
+const paperTitle = () =>
+  noExtraSpaces("Title")
+    .refine((val) => /^[\p{L}\p{N} ()&-]+$/u.test(val), {
+      message:
+        "Title can only include letters, numbers, spaces, parentheses, hyphens, and ampersands",
+    })
+    .refine((val) => /\p{L}/u.test(val), {
+      message: "Title must include at least one letter",
+    });
 
-  medium: z.enum(["Sinhala", "English", "Tamil"], {
+export const paperSchema = z.object({
+  title: paperTitle(),
+
+  medium: z.enum(MEDIUM_VALUES, {
     message: "Medium is required",
   }),
 

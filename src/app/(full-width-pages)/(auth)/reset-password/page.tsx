@@ -2,7 +2,7 @@ import ResetPasswordForm from "@/components/auth/form-reset-password";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Reset Password | TuitionLanka Admin Panel",
+  title: "Admin | Tuition Lanka",
   description: "Set a new password from your admin invitation link.",
 };
 
