@@ -217,6 +217,12 @@ export function EditTutor({ id }: EditTutorProps) {
     defaultValue: [] as string[],
   }) as string[];
 
+  const dob = useWatch({
+    control,
+    name: "dateOfBirth",
+    defaultValue: "",
+  }) as string;
+
   const safeEnumValue = <T extends string>(
     value: string | undefined,
     enumValues: readonly T[],
@@ -397,6 +403,29 @@ export function EditTutor({ id }: EditTutorProps) {
       reset(buildResetValues(tutorData));
     }
   };
+
+  useEffect(() => {
+    if (!dob) return;
+
+    const dateOfBirth = new Date(dob);
+    if (isNaN(dateOfBirth.getTime())) return;
+
+    const today = new Date();
+    let age = today.getFullYear() - dateOfBirth.getFullYear();
+    const monthDifference = today.getMonth() - dateOfBirth.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < dateOfBirth.getDate())
+    ) {
+      age--;
+    }
+
+    setValue("age", Math.max(age, 0), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }, [dob, setValue]);
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
