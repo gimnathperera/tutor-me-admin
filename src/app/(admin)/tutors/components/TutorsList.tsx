@@ -67,8 +67,7 @@ type TutorStatusFilter =
 
 function StatusBadge({ status }: { status: string }) {
   const cls =
-    TUTOR_STATUS_BADGE_CLASSES[status] ??
-    TUTOR_STATUS_BADGE_CLASSES["pending"];
+    TUTOR_STATUS_BADGE_CLASSES[status] ?? TUTOR_STATUS_BADGE_CLASSES["pending"];
   return (
     <span
       className={`inline-block text-xs font-semibold capitalize rounded-full px-2.5 py-0.5 border ${cls}`}
@@ -130,7 +129,9 @@ function RejectDialog({
       toast.error(`Failed to reject: ${error}`);
       return;
     }
-    toast.success(`"${tutor.fullName}" has been rejected and notified by email.`);
+    toast.success(
+      `"${tutor.fullName}" has been rejected and notified by email.`,
+    );
     onClose();
   };
 
@@ -154,7 +155,9 @@ function RejectDialog({
       {/* Message */}
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
         Reason / Message{" "}
-        <span className="text-gray-400 font-normal">(optional — sent in the email)</span>
+        <span className="text-gray-400 font-normal">
+          (optional — sent in the email)
+        </span>
       </label>
       <textarea
         rows={4}
@@ -166,7 +169,9 @@ function RejectDialog({
                    text-sm text-gray-900 dark:text-gray-100 p-3 resize-none
                    focus:outline-none focus:ring-2 focus:ring-red-400 transition"
       />
-      <p className="text-xs text-gray-400 text-right mt-1">{message.length}/1000</p>
+      <p className="text-xs text-gray-400 text-right mt-1">
+        {message.length}/1000
+      </p>
 
       {/* Buttons */}
       <div className="flex justify-end gap-3 mt-5">
@@ -216,7 +221,9 @@ function SuspendDialog({
       toast.error(`Failed to suspend: ${error}`);
       return;
     }
-    toast.success(`"${tutor.fullName}" has been suspended and notified by email.`);
+    toast.success(
+      `"${tutor.fullName}" has been suspended and notified by email.`,
+    );
     onClose();
   };
 
@@ -239,7 +246,10 @@ function SuspendDialog({
 
       <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
         Are you sure you want to suspend{" "}
-        <strong className="text-gray-800 dark:text-gray-200">{tutor.fullName}</strong>?
+        <strong className="text-gray-800 dark:text-gray-200">
+          {tutor.fullName}
+        </strong>
+        ?
         <br />
         <span className="mt-1 block">
           They will receive an email notification and will no longer be able to
@@ -307,7 +317,9 @@ function TutorStatusActions({ tutor }: { tutor: Tutor }) {
       toast.error(`Failed to approve: ${error}`);
       return;
     }
-    toast.success(`"${tutor.fullName}" approved. Linked tutor user was created or updated.`);
+    toast.success(
+      `"${tutor.fullName}" approved. Linked tutor user was created or updated.`,
+    );
   };
 
   return (
@@ -338,7 +350,11 @@ function TutorStatusActions({ tutor }: { tutor: Tutor }) {
               stroke="currentColor"
               strokeWidth={2.5}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           )}
           Change
@@ -413,9 +429,7 @@ function TutorStatusActions({ tutor }: { tutor: Tutor }) {
   );
 }
 
-
 // ─── Main list ────────────────────────────────────────────────────────────────
-
 
 export default function TutorsList() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
@@ -451,7 +465,7 @@ export default function TutorsList() {
 
   const getSafeValue = (
     value: string | number | undefined | null,
-    fallback = "N/A"
+    fallback = "N/A",
   ) => {
     if (
       value === undefined ||
@@ -555,11 +569,24 @@ export default function TutorsList() {
         ),
         className:
           "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
-        render: (row: Tutor) => (
-          <div className="flex justify-center items-center w-full">
-            <ResetPassword userId={row.id} />
-          </div>
-        ),
+        render: (row: Tutor) => {
+          const isApproved = row.status?.toLowerCase() === "approved";
+
+          return (
+            <div className="flex justify-center items-center w-full">
+              <div
+                className={!isApproved ? "cursor-not-allowed opacity-50" : ""}
+                title={
+                  !isApproved
+                    ? "Password reset is only available for approved tutors"
+                    : ""
+                }
+              >
+                <ResetPassword userId={row.id} disabled={!isApproved} />
+              </div>
+            </div>
+          );
+        },
       },
 
       // Delete button
@@ -575,7 +602,7 @@ export default function TutorsList() {
         ),
       },
     ],
-    []
+    [],
   );
 
   return (
