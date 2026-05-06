@@ -129,7 +129,11 @@ export function EditTutor({ id }: EditTutorProps) {
     defaultValue: [] as string[],
   }) as string[];
 
-  const dob = useWatch({ control, name: "dateOfBirth", defaultValue: "" }) as string;
+  const dob = useWatch({
+    control,
+    name: "dateOfBirth",
+    defaultValue: "",
+  }) as string;
 
   const safeEnumValue = <T extends string>(
     value: string | undefined,
@@ -300,18 +304,6 @@ export function EditTutor({ id }: EditTutorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tutorData, open, reset]);
 
-  useEffect(() => {
-    if (!dob) return;
-    const d = new Date(dob);
-    if (isNaN(d.getTime())) return;
-    const today = new Date();
-    let age = today.getFullYear() - d.getFullYear();
-    const m = today.getMonth() - d.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
-    if (age < 0) age = 0;
-    setValue("age", age, { shouldValidate: true });
-  }, [dob, setValue]);
-
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
 
@@ -319,6 +311,29 @@ export function EditTutor({ id }: EditTutorProps) {
       reset(buildResetValues(tutorData));
     }
   };
+
+  useEffect(() => {
+    if (!dob) return;
+
+    const dateOfBirth = new Date(dob);
+    if (isNaN(dateOfBirth.getTime())) return;
+
+    const today = new Date();
+    let age = today.getFullYear() - dateOfBirth.getFullYear();
+    const monthDifference = today.getMonth() - dateOfBirth.getMonth();
+
+    if (
+      monthDifference < 0 ||
+      (monthDifference === 0 && today.getDate() < dateOfBirth.getDate())
+    ) {
+      age--;
+    }
+
+    setValue("age", Math.max(age, 0), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }, [dob, setValue]);
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
@@ -328,7 +343,6 @@ export function EditTutor({ id }: EditTutorProps) {
       shouldDirty: true,
     });
   };
-
 
   const onSubmit = async (data: UpdateTutorSchema) => {
     try {
@@ -526,6 +540,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <DatePicker
+                    id={`dateOfBirth-${id}`}
                     label="Date of Birth"
                     value={watch("dateOfBirth")}
                     onChange={(date) =>
