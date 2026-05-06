@@ -1,12 +1,15 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import { Calendar } from "lucide-react";
 import React, { forwardRef } from "react";
 import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 interface DatePickerProps {
+  id?: string;
   value?: string;
   onChange: (date: string) => void;
   label?: string;
@@ -24,16 +27,17 @@ interface CustomInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
-  ({ value, onClick, placeholder, error }, ref) => (
+  ({ value, onClick, placeholder, error, className, ...props }, ref) => (
     <div className="relative">
       <Input
+        {...props}
         ref={ref}
         value={value}
         onClick={onClick}
         placeholder={placeholder}
         readOnly
         aria-invalid={!!error}
-        className="cursor-pointer pr-10"
+        className={cn("cursor-pointer pr-10", className)}
       />
 
       <Calendar className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-white/40" />
@@ -44,6 +48,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
 CustomInput.displayName = "CustomInput";
 
 const DatePicker: React.FC<DatePickerProps> = ({
+  id,
   value,
   onChange,
   label,
@@ -57,14 +62,14 @@ const DatePicker: React.FC<DatePickerProps> = ({
   };
 
   return (
-    <div className={className}>
+    <div className={cn("space-y-2", className)}>
       {label && (
-        <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white/90">
+        <Label htmlFor={id}>
           {label}{" "}
           {required && (
             <span className="text-gray-900 dark:text-white/90">*</span>
           )}
-        </label>
+        </Label>
       )}
 
       <ReactDatePicker
@@ -76,7 +81,9 @@ const DatePicker: React.FC<DatePickerProps> = ({
         dropdownMode="select"
         yearDropdownItemNumber={15}
         maxDate={new Date()}
-        customInput={<CustomInput error={error} placeholder={placeholder} />}
+        customInput={
+          <CustomInput id={id} error={error} placeholder={placeholder} />
+        }
         wrapperClassName="w-full"
         popperClassName="z-[9999]"
         calendarClassName="

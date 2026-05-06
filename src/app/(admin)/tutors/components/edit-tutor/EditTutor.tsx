@@ -612,6 +612,7 @@ export function EditTutor({ id }: EditTutorProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <DatePicker
+                    id={`dateOfBirth-${id}`}
                     label="Date of Birth"
                     value={watch("dateOfBirth")}
                     onChange={(date) =>
