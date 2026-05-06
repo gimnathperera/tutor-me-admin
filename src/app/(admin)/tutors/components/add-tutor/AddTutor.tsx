@@ -2,13 +2,12 @@
 
 import {
   CLASS_TYPE_OPTIONS,
-  EDUCATION_VALUES_ADD,
+  EDUCATION_OPTIONS_ADD,
   TUTOR_MEDIUM_OPTIONS,
   NATIONALITY_VALUES,
   PREFERRED_LOCATION_OPTIONS,
   RACE_VALUES,
   TUTOR_GENDER_VALUES,
-  TUTORING_LEVEL_OPTIONS,
   TUTOR_TYPE_OPTIONS,
   YEARS_EXPERIENCE_OPTIONS,
 } from "@/configs/app-constants";
@@ -221,8 +220,9 @@ export function AddTutor() {
   };
 
   const onSubmit = async (data: AddTutorFormValues) => {
+    const { confirmPassword: _, ...rest } = data;
     const cleanedData = {
-      ...data,
+      ...rest,
       fullName: normalizeTextSpaces(data.fullName) as string,
       academicDetails: normalizeTextSpaces(data.academicDetails || "") as string,
       teachingSummary: normalizeTextSpaces(data.teachingSummary) as string,
@@ -331,7 +331,7 @@ export function AddTutor() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name *</Label>
-                <Input id="fullName" {...fullNameRegister} />
+                <Input id="fullName" placeholder="e.g Nimal Perera" {...fullNameRegister} />
                 {formState.errors.fullName && (
                   <p className="text-sm text-red-500">
                     {formState.errors.fullName.message}
@@ -348,7 +348,7 @@ export function AddTutor() {
                     <Input
                       id="contactNumber"
                       type="tel"
-                      placeholder="912345678"
+                      placeholder="e.g 0712345678"
                       maxLength={10}
                       value={field.value ?? ""}
                       onChange={(e) => {
@@ -369,7 +369,7 @@ export function AddTutor() {
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email *</Label>
-                <Input id="email" type="email" {...emailRegister} />
+                <Input id="email" type="email" placeholder="e.g johndoe@gmail.com" {...emailRegister} />
                 {formState.errors.email && (
                   <p className="text-sm text-red-500">
                     {formState.errors.email.message}
@@ -378,19 +378,67 @@ export function AddTutor() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <DatePicker
-                  label="Date of Birth"
-                  required
-                  value={watch("dateOfBirth")}
-                  onChange={(date) =>
-                    setValue("dateOfBirth", date, {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    })
-                  }
-                  placeholder="Select your date of birth"
-                  error={formState.errors.dateOfBirth?.message}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    autoComplete="new-password"
+                    {...form.register("password")}
+                  />
+                  {formState.errors.password && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    {...form.register("confirmPassword")}
+                  />
+                  {formState.errors.confirmPassword && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.confirmPassword.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <DatePicker
+                    label="Date of Birth"
+                    required
+                    value={watch("dateOfBirth")}
+                    maxDate={(() => { const d = new Date(); d.setFullYear(d.getFullYear() - 18); return d; })()}
+                    onChange={(date) => {
+                      setValue("dateOfBirth", date, {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+                      if (date) {
+                        const today = new Date();
+                        const dob = new Date(date);
+                        let age = today.getFullYear() - dob.getFullYear();
+                        const monthDiff = today.getMonth() - dob.getMonth();
+                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                          age--;
+                        }
+                        setValue("age", age, { shouldValidate: true });
+                      }
+                    }}
+                    placeholder="Select your date of birth"
+                    error={formState.errors.dateOfBirth?.message}
+                  />
+                  {watch("dateOfBirth") && !formState.errors.dateOfBirth && (
+                    <p className="text-sm text-red-400">You must be at least 18 years old</p>
+                  )}
+                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="age">Age *</Label>
@@ -398,13 +446,12 @@ export function AddTutor() {
                     id="age"
                     type="number"
                     {...form.register("age", { valueAsNumber: true })}
-                    min={1}
+                    readOnly
+                    disabled={!watch("dateOfBirth")}
                   />
-                  {formState.errors.age && (
-                    <p className="text-sm text-red-500">
-                      {formState.errors.age.message}
-                    </p>
-                  )}
+                  <p className="text-sm text-muted-foreground">
+                    Calculated from your date of birth
+                  </p>
                 </div>
               </div>
 
@@ -418,6 +465,7 @@ export function AddTutor() {
                     setValue("gender", val as AddTutorFormValues["gender"])
                   }
                   options={[...TUTOR_GENDER_VALUES]}
+                  placeholder="Select your gender"
                 />
 
                 <SelectField
@@ -432,6 +480,7 @@ export function AddTutor() {
                     )
                   }
                   options={[...NATIONALITY_VALUES]}
+                  placeholder="Select your nationality"
                 />
 
                 <SelectField
@@ -443,6 +492,7 @@ export function AddTutor() {
                     setValue("race", val as AddTutorFormValues["race"])
                   }
                   options={[...RACE_VALUES]}
+                  placeholder="Select your ethnicity"
                 />
               </div>
 
@@ -549,20 +599,6 @@ export function AddTutor() {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <MultiSelect
-                  label="Tutoring Levels"
-                  options={TUTORING_LEVEL_OPTIONS}
-                  defaultSelected={watch("tutoringLevels")}
-                  onChange={(selected) =>
-                    setValue(
-                      "tutoringLevels",
-                      selected as AddTutorFormValues["tutoringLevels"],
-                      { shouldValidate: true },
-                    )
-                  }
-                />
-              </div>
 
               <div className="space-y-2">
                 <MultiSelect
@@ -577,6 +613,11 @@ export function AddTutor() {
                     )
                   }
                 />
+                {formState.errors.preferredLocations && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.preferredLocations.message}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -618,7 +659,7 @@ export function AddTutor() {
                       val as AddTutorFormValues["highestEducation"],
                     )
                   }
-                  options={[...EDUCATION_VALUES_ADD]}
+                  options={[...EDUCATION_OPTIONS_ADD]}
                 />
               </div>
 
@@ -711,25 +752,30 @@ function SelectField({
   error,
   onChange,
   options,
+  placeholder = "Select option",
 }: {
   label: string;
   id: string;
   value: string;
   error?: string;
   onChange: (value: string) => void;
-  options: string[];
+  options: string[] | { value: string; text: string }[];
+  placeholder?: string;
 }) {
+  const normalised = (options as (string | { value: string; text: string })[]).map(
+    (o) => (typeof o === "string" ? { value: o, text: o } : o),
+  );
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
       <Select onValueChange={onChange} value={value}>
         <SelectTrigger id={id}>
-          <SelectValue placeholder="Select option" />
+          <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
+          {normalised.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.text}
             </SelectItem>
           ))}
         </SelectContent>

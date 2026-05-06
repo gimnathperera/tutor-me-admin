@@ -172,10 +172,8 @@ export const TUTOR_TYPE_OPTIONS = TUTOR_TYPE_VALUES.map((v) => ({
 export const CLASS_TYPE_VALUES = [
   "Online - Individual",
   "Online - Group",
-  "Home Visit - Individual",
-  "Home Visit - Group",
-  "At Tutor's Place - Individual",
-  "At Tutor's Place - Group",
+  "Physical - Individual",
+  "Physical - Group",
 ] as const;
 export type ClassTypeValue = (typeof CLASS_TYPE_VALUES)[number];
 
@@ -188,13 +186,22 @@ export const CLASS_TYPE_OPTIONS = CLASS_TYPE_VALUES.map((v) => ({
 
 export const EDUCATION_VALUES_ADD = [
   "PhD",
-  "Masters Degree",
-  "Undergraduate",
+  "Masters",
   "Bachelor Degree",
+  "Undergraduate",
   "Diploma and Professional",
-  "Advanced Level (A/L)",
+  "AL",
 ] as const;
 export type EducationAddValue = (typeof EDUCATION_VALUES_ADD)[number];
+
+export const EDUCATION_OPTIONS_ADD = [
+  { value: "PhD",                      text: "PhD" },
+  { value: "Masters",                  text: "Master's Degree" },
+  { value: "Bachelor Degree",          text: "Bachelor's Degree" },
+  { value: "Undergraduate",            text: "Undergraduate" },
+  { value: "Diploma and Professional", text: "Diploma and Professional" },
+  { value: "AL",                       text: "Advanced Level (A/L)" },
+] as const;
 
 // ─── Highest Education (Edit Tutor form) ─────────────────────────────────────
 

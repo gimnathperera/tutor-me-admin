@@ -14,6 +14,7 @@ interface DatePickerProps {
   error?: string;
   placeholder?: string;
   className?: string;
+  maxDate?: Date;
 }
 
 interface CustomInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -51,6 +52,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   error,
   placeholder = "Select date",
   className = "",
+  maxDate,
 }) => {
   const handleDateChange = (date: Date | null): void => {
     onChange(date?.toISOString().split("T")[0] || "");
@@ -75,7 +77,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         showMonthDropdown
         dropdownMode="select"
         yearDropdownItemNumber={15}
-        maxDate={new Date()}
+        maxDate={maxDate ?? new Date()}
         customInput={<CustomInput error={error} placeholder={placeholder} />}
         wrapperClassName="w-full"
         popperClassName="z-[9999]"

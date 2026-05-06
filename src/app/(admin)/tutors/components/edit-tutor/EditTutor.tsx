@@ -470,7 +470,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 <Label htmlFor="fullName">Full Name</Label>
                 <Input
                   id="fullName"
-                  placeholder="Full Name"
+                  placeholder="e.g Nimal Perera"
                   {...fullNameRegister}
                 />
                 {formState.errors.fullName && (
@@ -489,7 +489,7 @@ export function EditTutor({ id }: EditTutorProps) {
                     <Input
                       id="contactNumber"
                       type="tel"
-                      placeholder="912345678"
+                      placeholder="e.g 0712345678"
                       maxLength={15}
                       value={field.value ?? ""}
                       onChange={(e) => {
@@ -513,7 +513,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Email"
+                  placeholder="e.g johndoe@gmail.com"
                   {...emailRegister}
                 />
                 {formState.errors.email && (

@@ -5,40 +5,28 @@ import {
   PREFERRED_LOCATION_VALUES,
   RACE_VALUES,
   TUTOR_GENDER_VALUES,
-  TUTORING_LEVEL_VALUES,
   TUTOR_TYPE_VALUES,
 } from "@/configs/app-constants";
-import { normalizeTextSpaces } from "@/utils/form-normalizers";
 import { z } from "zod";
 
-const normalizedTextSchema = z
-  .string()
-  .transform((value) => normalizeTextSpaces(value) as string);
-
 export const addTutorSchema = z.object({
-  fullName: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Full Name is required")
-      .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
-  ),
+  fullName: z
+    .string()
+    .min(1, "Full Name is required")
+    .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
 
   contactNumber: z
     .string()
     .trim()
     .min(1, "Contact Number is required")
-    .pipe(
-      z
-        .string()
-        .regex(/^[0-9]+$/, "Contact number must contain only numbers")
-        .length(10, "Contact number must be exactly 10 digits"),
-    ),
+    .regex(/^[0-9]+$/, "Contact number must contain only numbers")
+    .length(10, "Contact number must be exactly 10 digits"),
 
   email: z
     .string()
     .trim()
     .min(1, "Email is required")
-    .pipe(z.string().email("Email must be valid")),
+    .email("Email must be valid"),
 
   dateOfBirth: z
     .string()
@@ -50,8 +38,8 @@ export const addTutorSchema = z.object({
         .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
     ),
 
-  gender: z.enum(TUTOR_GENDER_VALUES),
-  age: z.number().int().min(1),
+  gender: z.string().min(1, "Gender is required") as z.ZodType<typeof TUTOR_GENDER_VALUES[number]>,
+  age: z.number().int().min(18, "Must be at least 18 years old").max(80, "Must be 80 or under"),
 
   tutorMediums: z
     .array(z.string())
@@ -59,16 +47,12 @@ export const addTutorSchema = z.object({
 
   grades: z.array(z.string()).min(1, "Select at least one grade"),
   subjects: z.array(z.string()).min(1, "Select at least one subject"),
-  nationality: z.enum(NATIONALITY_VALUES),
-  race: z.enum(RACE_VALUES),
+  nationality: z.string().min(1, "Nationality is required") as z.ZodType<typeof NATIONALITY_VALUES[number]>,
+  race: z.string().min(1, "Race is required") as z.ZodType<typeof RACE_VALUES[number]>,
 
   classType: z
     .array(z.enum(CLASS_TYPE_VALUES))
     .min(1, "Select at least one class type"),
-
-  tutoringLevels: z
-    .array(z.enum(TUTORING_LEVEL_VALUES))
-    .min(1, "Select at least one tutoring level"),
 
   preferredLocations: z
     .array(z.enum(PREFERRED_LOCATION_VALUES))
@@ -78,34 +62,14 @@ export const addTutorSchema = z.object({
     .array(z.enum(TUTOR_TYPE_VALUES))
     .min(1, "Select at least one tutor type"),
 
-  yearsExperience: z.number().int().min(0).max(50),
+  yearsExperience: z.number().int().min(1, "Years of Experience are required").max(50),
 
   highestEducation: z.enum(EDUCATION_VALUES_ADD),
 
-  academicDetails: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Academic Details is required")
-      .max(1000),
-  ),
-  teachingSummary: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Teaching Summary is required")
-      .max(750),
-  ),
-  studentResults: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Student Results is required")
-      .max(750),
-  ),
-  sellingPoints: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Selling Points is required")
-      .max(750),
-  ),
+  academicDetails: z.string().min(1, "Academic Details are required").max(1000),
+  teachingSummary: z.string().min(1, "Teaching Summary is required").max(750),
+  studentResults: z.string().min(1, "Student Results are required").max(750),
+  sellingPoints: z.string().min(1, "Selling Points are required").max(750),
 
   certificatesAndQualifications: z
     .array(
@@ -117,6 +81,14 @@ export const addTutorSchema = z.object({
     )
     .min(1, "At least one certificate or qualification is required"),
 
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(12, "Password must be at most 12 characters")
+    .regex(/(?=.*[A-Za-z])(?=.*\d).+/, "Password must contain at least one letter and one number"),
+
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+
   agreeTerms: z
     .boolean()
     .refine((val) => val === true, "You must agree to Terms and Conditions"),
@@ -124,6 +96,14 @@ export const addTutorSchema = z.object({
   agreeAssignmentInfo: z
     .boolean()
     .refine((val) => val === true, "You must agree to Assignment Info"),
+}).superRefine((data, ctx) => {
+  if (data.confirmPassword !== data.password) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    });
+  }
 });
 
 export type AddTutorFormValues = z.infer<typeof addTutorSchema>;
@@ -133,15 +113,15 @@ export const initialTutorFormValues: AddTutorFormValues = {
   contactNumber: "",
   email: "",
   dateOfBirth: "",
-  gender: "Male",
-  age: 18,
+  gender: "" as AddTutorFormValues["gender"],
+  age: 0,
   tutorMediums: [],
   grades: [],
   subjects: [],
-  nationality: "Sri Lankan",
-  race: "Sinhalese",
+  nationality: "" as AddTutorFormValues["nationality"],
+  race: "" as AddTutorFormValues["race"],
+
   classType: [],
-  tutoringLevels: [],
   preferredLocations: [],
   tutorType: [],
   yearsExperience: 0,
@@ -151,6 +131,8 @@ export const initialTutorFormValues: AddTutorFormValues = {
   studentResults: "",
   sellingPoints: "",
   certificatesAndQualifications: [],
+  password: "",
+  confirmPassword: "",
   agreeTerms: false,
   agreeAssignmentInfo: false,
 };
