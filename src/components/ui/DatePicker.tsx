@@ -7,6 +7,7 @@ import ReactDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 interface DatePickerProps {
+  id?: string;
   value?: string;
   onChange: (date: string) => void;
   label?: string;
