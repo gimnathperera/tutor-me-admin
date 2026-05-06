@@ -1,16 +1,5 @@
 "use client";
 
-import {
-  CLASS_TYPE_OPTIONS,
-  EDUCATION_OPTIONS_ADD,
-  TUTOR_MEDIUM_OPTIONS,
-  NATIONALITY_VALUES,
-  PREFERRED_LOCATION_OPTIONS,
-  RACE_VALUES,
-  TUTOR_GENDER_VALUES,
-  TUTOR_TYPE_OPTIONS,
-  YEARS_EXPERIENCE_OPTIONS,
-} from "@/configs/app-constants";
 import MultiSelect from "@/components/form/MultiSelect";
 import MultiFileUploader from "@/components/MultiFileUploader";
 import { Button } from "@/components/ui/button/Button";
@@ -34,6 +23,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  CLASS_TYPE_OPTIONS,
+  EDUCATION_OPTIONS_ADD,
+  NATIONALITY_VALUES,
+  PREFERRED_LOCATION_OPTIONS,
+  RACE_VALUES,
+  TUTOR_GENDER_VALUES,
+  TUTOR_MEDIUM_OPTIONS,
+  TUTOR_TYPE_OPTIONS,
+  YEARS_EXPERIENCE_OPTIONS,
+} from "@/configs/app-constants";
 import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
@@ -224,7 +224,9 @@ export function AddTutor() {
     const cleanedData = {
       ...rest,
       fullName: normalizeTextSpaces(data.fullName) as string,
-      academicDetails: normalizeTextSpaces(data.academicDetails || "") as string,
+      academicDetails: normalizeTextSpaces(
+        data.academicDetails || "",
+      ) as string,
       teachingSummary: normalizeTextSpaces(data.teachingSummary) as string,
       studentResults: normalizeTextSpaces(data.studentResults) as string,
       sellingPoints: normalizeTextSpaces(data.sellingPoints) as string,
@@ -252,7 +254,9 @@ export function AddTutor() {
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
-        setValue("fullName", cleaned, { shouldValidate: formState.isSubmitted });
+        setValue("fullName", cleaned, {
+          shouldValidate: formState.isSubmitted,
+        });
       }
     },
     onBlur: (event) => {
@@ -331,7 +335,11 @@ export function AddTutor() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="fullName">Full Name *</Label>
-                <Input id="fullName" placeholder="e.g Nimal Perera" {...fullNameRegister} />
+                <Input
+                  id="fullName"
+                  placeholder="e.g Nimal Perera"
+                  {...fullNameRegister}
+                />
                 {formState.errors.fullName && (
                   <p className="text-sm text-red-500">
                     {formState.errors.fullName.message}
@@ -369,7 +377,12 @@ export function AddTutor() {
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email *</Label>
-                <Input id="email" type="email" placeholder="e.g johndoe@gmail.com" {...emailRegister} />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="e.g johndoe@gmail.com"
+                  {...emailRegister}
+                />
                 {formState.errors.email && (
                   <p className="text-sm text-red-500">
                     {formState.errors.email.message}
@@ -384,6 +397,7 @@ export function AddTutor() {
                     id="password"
                     type="password"
                     autoComplete="new-password"
+                    placeholder="Min 8 chars, letter & number"
                     {...form.register("password")}
                   />
                   {formState.errors.password && (
@@ -399,6 +413,7 @@ export function AddTutor() {
                     id="confirmPassword"
                     type="password"
                     autoComplete="new-password"
+                    placeholder="Re-enter your password"
                     {...form.register("confirmPassword")}
                   />
                   {formState.errors.confirmPassword && (
@@ -410,36 +425,21 @@ export function AddTutor() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2">
-                  <DatePicker
-                    id="dateOfBirth"
-                    label="Date of Birth"
-                    required
-                    value={watch("dateOfBirth")}
-                    maxDate={(() => { const d = new Date(); d.setFullYear(d.getFullYear() - 18); return d; })()}
-                    onChange={(date) => {
-                      setValue("dateOfBirth", date, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
-                      if (date) {
-                        const today = new Date();
-                        const dob = new Date(date);
-                        let age = today.getFullYear() - dob.getFullYear();
-                        const monthDiff = today.getMonth() - dob.getMonth();
-                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-                          age--;
-                        }
-                        setValue("age", age, { shouldValidate: true });
-                      }
-                    }}
-                    placeholder="Select your date of birth"
-                    error={formState.errors.dateOfBirth?.message}
-                  />
-                  {watch("dateOfBirth") && !formState.errors.dateOfBirth && (
-                    <p className="text-sm text-red-400">You must be at least 18 years old</p>
-                  )}
-                </div>
+                <DatePicker
+                  id="dateOfBirth"
+                  label="Date of Birth"
+                  required
+                  value={watch("dateOfBirth")}
+                  onChange={(date) =>
+                    setValue("dateOfBirth", date, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                  placeholder="Select your date of birth"
+                  error={formState.errors.dateOfBirth?.message}
+                  maxDate={new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate())}
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="age">Age *</Label>
@@ -450,9 +450,15 @@ export function AddTutor() {
                     readOnly
                     disabled={!watch("dateOfBirth")}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Calculated from your date of birth
-                  </p>
+                  {formState.errors.age ? (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.age.message}
+                    </p>
+                  ) : watch("dateOfBirth") && !formState.errors.dateOfBirth ? (
+                    <p className="text-sm text-muted-foreground">
+                      You must be at least 18 years old
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -463,7 +469,7 @@ export function AddTutor() {
                   value={watch("gender")}
                   error={formState.errors.gender?.message}
                   onChange={(val) =>
-                    setValue("gender", val as AddTutorFormValues["gender"])
+                    setValue("gender", val as AddTutorFormValues["gender"], { shouldValidate: true })
                   }
                   options={[...TUTOR_GENDER_VALUES]}
                   placeholder="Select your gender"
@@ -478,6 +484,7 @@ export function AddTutor() {
                     setValue(
                       "nationality",
                       val as AddTutorFormValues["nationality"],
+                      { shouldValidate: true },
                     )
                   }
                   options={[...NATIONALITY_VALUES]}
@@ -490,7 +497,7 @@ export function AddTutor() {
                   value={watch("race")}
                   error={formState.errors.race?.message}
                   onChange={(val) =>
-                    setValue("race", val as AddTutorFormValues["race"])
+                    setValue("race", val as AddTutorFormValues["race"], { shouldValidate: true })
                   }
                   options={[...RACE_VALUES]}
                   placeholder="Select your ethnicity"
@@ -600,7 +607,6 @@ export function AddTutor() {
                 )}
               </div>
 
-
               <div className="space-y-2">
                 <MultiSelect
                   label="Preferred Locations"
@@ -703,11 +709,12 @@ export function AddTutor() {
                     })
                   }
                 />
-                {formState.isSubmitted && formState.errors.certificatesAndQualifications && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.certificatesAndQualifications.message}
-                  </p>
-                )}
+                {formState.isSubmitted &&
+                  formState.errors.certificatesAndQualifications && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.certificatesAndQualifications.message}
+                    </p>
+                  )}
               </div>
 
               <div className="space-y-3 pt-2">
@@ -763,9 +770,9 @@ function SelectField({
   options: string[] | { value: string; text: string }[];
   placeholder?: string;
 }) {
-  const normalised = (options as (string | { value: string; text: string })[]).map(
-    (o) => (typeof o === "string" ? { value: o, text: o } : o),
-  );
+  const normalised = (
+    options as (string | { value: string; text: string })[]
+  ).map((o) => (typeof o === "string" ? { value: o, text: o } : o));
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>

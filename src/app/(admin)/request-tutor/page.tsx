@@ -3,7 +3,7 @@ import RequestForTutorsList from "./TutorsList";
 
 export const metadata: Metadata = {
   title: "Admin | Tuition Lanka",
-  description: "Manage tutors",
+  description: "Manage tutor requests",
 };
 
 export default function TutorsPage() {

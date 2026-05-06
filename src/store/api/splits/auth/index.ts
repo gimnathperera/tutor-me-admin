@@ -1,10 +1,12 @@
 import {
+  ForgotPasswordRequest,
   UserLoginRequest,
   UserLogoutRequest,
   UserRefreshTokenRequest,
   ResetPasswordRequest,
 } from "@/types/request-types";
 import {
+  ForgotPasswordResponse,
   TokenResponse,
   UpdatePasswordResponse,
   UserLoginResponse,
@@ -48,6 +50,13 @@ export const usersApi = baseApi.injectEndpoints({
         body: { password },
       }),
     }),
+    forgotPassword: build.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
+      query: (payload) => ({
+        url: Endpoints.ForgotPassword,
+        method: "POST",
+        body: payload,
+      }),
+    }),
   }),
 
   overrideExisting: false,
@@ -58,4 +67,5 @@ export const {
   useLogoutMutation,
   useFetchAccessTokenMutation,
   useResetPasswordMutation,
+  useForgotPasswordMutation,
 } = usersApi;
