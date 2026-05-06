@@ -23,6 +23,7 @@ interface DatePickerProps {
   error?: string;
   placeholder?: string;
   className?: string;
+  maxDate?: Date;
 }
 
 interface CustomInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -82,6 +83,7 @@ function DatePickerHeader({
   prevMonthButtonDisabled,
   nextMonthButtonDisabled,
   onVisibleMonthChange,
+  maxDate,
 }: {
   date: Date;
   changeMonth: (month: number) => void;
@@ -91,10 +93,13 @@ function DatePickerHeader({
   prevMonthButtonDisabled: boolean;
   nextMonthButtonDisabled: boolean;
   onVisibleMonthChange: (date: Date) => void;
+  maxDate?: Date;
 }) {
   const [openMenu, setOpenMenu] = useState<"month" | "year" | null>(null);
   const selectedMonth = date.getMonth();
   const selectedYear = date.getFullYear();
+  const maxYear = maxDate ? maxDate.getFullYear() : undefined;
+  const filteredYears = maxYear ? YEARS.filter((y) => Number(y) <= maxYear) : YEARS;
 
   const closeMenu = () => setOpenMenu(null);
 
@@ -181,7 +186,7 @@ function DatePickerHeader({
           {openMenu === "year" && (
             <div className="absolute left-1/2 top-9 z-[10000] w-28 -translate-x-1/2 rounded-lg border border-gray-200 bg-white p-1.5 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800">
               <div className="max-h-56 overflow-y-auto scrollbar-thin">
-                {YEARS.map((year) => {
+                {filteredYears.map((year) => {
                   const numericYear = Number(year);
                   const isSelected = numericYear === selectedYear;
 
@@ -237,6 +242,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   error,
   placeholder = "Select date",
   className = "",
+  maxDate,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [visibleMonth, setVisibleMonth] = useState(() =>
@@ -259,7 +265,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
   };
 
   const handleInputClick = () => {
-    setVisibleMonth(value ? new Date(value) : new Date());
+    setVisibleMonth(value ? new Date(value) : (maxDate ?? new Date()));
     setIsOpen(true);
   };
 
@@ -278,7 +284,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         selected={value ? new Date(value) : null}
         onChange={handleDateChange}
         dateFormat="dd/MM/yyyy"
-        maxDate={new Date()}
+        maxDate={maxDate ?? new Date()}
         open={isOpen}
         openToDate={visibleMonth}
         onInputClick={handleInputClick}
@@ -301,6 +307,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
             prevMonthButtonDisabled={prevMonthButtonDisabled}
             nextMonthButtonDisabled={nextMonthButtonDisabled}
             onVisibleMonthChange={setVisibleMonth}
+            maxDate={maxDate}
           />
         )}
         customInput={
