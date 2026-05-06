@@ -166,7 +166,8 @@ export default function UsersTable() {
     {
       key: "view",
       header: <div className="flex justify-center w-full">View</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[260px] z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-[260px] z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="w-full flex justify-center ">
           <UserDetails
@@ -193,28 +194,42 @@ export default function UsersTable() {
     {
       key: "edit",
       header: <div className="flex justify-center w-full">Edit</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[180px] z-20 bg-white dark:bg-gray-900",
-      render: (row: User) => (
-        <div className="flex justify-center items-center w-full ">
-          <UpdateUser
-            id={row.id}
-            email={row.email || ""}
-            name={row.name || ""}
-            phoneNumber={row.phoneNumber || ""}
-            birthday={row.birthday || ""}
-            status={row.status || "pending"}
-            country={row.country || ""}
-            city={row.city || ""}
-            zip={row.zip || ""}
-            address={row.address || ""}
-            state={row.state}
-            region={row.region}
-            gender={row.gender}
-            avatar={row.avatar}
-            role={row.role === "admin" ? "admin" : "tutor"}
-          />
-        </div>
-      ),
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-[180px] z-20 bg-white dark:bg-gray-900",
+      render: (row: User) => {
+        const isTutor = row.role === "tutor";
+
+        return (
+          <div className="flex justify-center items-center w-full">
+            {isTutor ? (
+              <span
+                title="Tutor details can be edited from the Tutor page"
+                className="cursor-not-allowed text-gray-300 dark:text-gray-600"
+              >
+                Disabled
+              </span>
+            ) : (
+              <UpdateUser
+                id={row.id}
+                email={row.email || ""}
+                name={row.name || ""}
+                phoneNumber={row.phoneNumber || ""}
+                birthday={row.birthday || ""}
+                status={row.status || "pending"}
+                country={row.country || ""}
+                city={row.city || ""}
+                zip={row.zip || ""}
+                address={row.address || ""}
+                state={row.state}
+                region={row.region}
+                gender={row.gender}
+                avatar={row.avatar}
+                role="admin"
+              />
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "resetPassword",
@@ -226,7 +241,8 @@ export default function UsersTable() {
           Reset Password
         </span>
       ),
-      className: "min-w-[80px] max-w-[100px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[100px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="w-full flex justify-center">
           <ResetPassword userId={row.id} />
@@ -236,7 +252,8 @@ export default function UsersTable() {
     {
       key: "delete",
       header: <div className="text-center w-full">Delete</div>,
-      className: "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="flex justify-center  w-full ">
           <DeleteUser userId={row.id} userStatus={row.status ?? "pending"} />
