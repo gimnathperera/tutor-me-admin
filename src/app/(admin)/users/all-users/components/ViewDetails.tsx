@@ -2,6 +2,7 @@
 "use client";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Eye } from "lucide-react";
+import { Eye, X } from "lucide-react";
 import { useState } from "react";
 
 interface SubjectDetailsProps {
@@ -59,12 +60,27 @@ export function UserDetails({
       <DialogTrigger asChild>
         <Eye cursor="pointer" className="text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
-        <DialogHeader>
-          <DialogTitle>Details</DialogTitle>
-          <DialogDescription>User Details</DialogDescription>
+      <DialogContent
+        showCloseButton={false}
+        className="sm:max-w-[625px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0"
+      >
+        <DialogHeader className="shrink-0 flex-row items-start justify-between bg-white dark:bg-gray-800 px-6 py-4 border-b z-40">
+          <div className="space-y-2 text-left">
+            <DialogTitle>Details</DialogTitle>
+            <DialogDescription>User Details</DialogDescription>
+          </div>
+          <DialogClose asChild>
+            <button
+              type="button"
+              className="flex size-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
+              aria-label="Close"
+            >
+              <X className="size-4" />
+            </button>
+          </DialogClose>
         </DialogHeader>
-        <div className="grid gap-4">
+        <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
+          <div className="grid gap-4">
           <div className="grid gap-3">
             <Label>Avatar</Label>
             <div className="w-full flex justify-center">
@@ -229,6 +245,7 @@ export function UserDetails({
             >
               {displayValue(status)}
             </div>
+          </div>
           </div>
         </div>
       </DialogContent>

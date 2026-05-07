@@ -29,7 +29,7 @@ import {
 } from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SquarePen } from "lucide-react";
+import { SquarePen, X } from "lucide-react";
 import NextImage from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -141,13 +141,28 @@ export function UpdateUser(props: UpdateUserProps) {
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>Edit the user details.</DialogDescription>
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0"
+        >
+          <DialogHeader className="shrink-0 flex-row items-start justify-between bg-white dark:bg-gray-800 px-6 py-4 border-b z-40">
+            <div className="space-y-2 text-left">
+              <DialogTitle>Edit User</DialogTitle>
+              <DialogDescription>Edit the user details.</DialogDescription>
+            </div>
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="flex size-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </button>
+            </DialogClose>
           </DialogHeader>
 
-          <div className="grid gap-4">
+          <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
+            <div className="grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               <Input id="name" {...register("name")} />
@@ -341,9 +356,10 @@ export function UpdateUser(props: UpdateUserProps) {
                 </p>
               )}
             </div>
+            </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
