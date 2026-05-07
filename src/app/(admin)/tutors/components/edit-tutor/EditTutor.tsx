@@ -3,6 +3,7 @@
 import {
   CLASS_TYPE_OPTIONS,
   CLASS_TYPE_VALUES,
+  type EducationEditValue,
   EDUCATION_VALUES_EDIT,
   TUTOR_MEDIUM_OPTIONS,
   NATIONALITY_VALUES,
@@ -66,6 +67,16 @@ interface EditTutorProps {
   id: string;
 }
 
+const LEGACY_EDUCATION_VALUE_MAP: Partial<Record<string, EducationEditValue>> = {
+  Masters: "Masters Degree",
+  "Master's Degree": "Masters Degree",
+  AL: "Advanced Level (A/L)",
+  "A/L": "Advanced Level (A/L)",
+  "Advanced Level": "Advanced Level (A/L)",
+  "JC/A Levels": "Advanced Level (A/L)",
+  Diploma: "Diploma and Professional",
+  Poly: "Diploma and Professional",
+};
 
 export function EditTutor({ id }: EditTutorProps) {
   const [open, setOpen] = useState(false);
@@ -142,6 +153,20 @@ export function EditTutor({ id }: EditTutorProps) {
   ): T => {
     if (!value) return fallback;
     return enumValues.includes(value as T) ? (value as T) : fallback;
+  };
+
+  const normalizeHighestEducation = (
+    value: string | undefined,
+  ): EducationEditValue => {
+    const normalizedValue = value
+      ? (LEGACY_EDUCATION_VALUE_MAP[value] ?? value)
+      : value;
+
+    return safeEnumValue(
+      normalizedValue,
+      EDUCATION_VALUES_EDIT,
+      "Undergraduate",
+    );
   };
 
   const formatDateForForm = (isoDate: string | undefined): string => {
@@ -274,11 +299,7 @@ export function EditTutor({ id }: EditTutorProps) {
         TUTOR_TYPE_VALUES,
       ) as UpdateTutorSchema["tutorType"],
       yearsExperience: data.yearsExperience || 0,
-      highestEducation: safeEnumValue(
-        data.highestEducation,
-        EDUCATION_VALUES_EDIT,
-        "Undergraduate",
-      ),
+      highestEducation: normalizeHighestEducation(data.highestEducation),
       academicDetails: normalizeTextSpaces(
         data.academicDetails || "",
       ) as string,
