@@ -313,6 +313,7 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <Label htmlFor="avatar">Profile Picture</Label>
               <FileUploadDropzone
+                imageOnly
                 onUploaded={(url) => {
                   setValue("avatar", url);
                   setPreviewUrl(url);
