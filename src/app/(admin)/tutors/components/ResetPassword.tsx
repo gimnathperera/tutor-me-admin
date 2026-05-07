@@ -18,36 +18,64 @@ import toast from "react-hot-toast";
 
 interface ResetPasswordProps {
   userId: string;
+  disabled?: boolean;
 }
 
-export function ResetPassword({ userId }: ResetPasswordProps) {
+export function ResetPassword({
+  userId,
+  disabled = false,
+}: ResetPasswordProps) {
   const [open, setOpen] = useState(false);
+
   const [resendPassword, { isLoading }] = useSendTempPasswordTutorMutation();
 
   const handleResend = async () => {
+    if (disabled) return;
+
     try {
-      // unwrap() throws error if mutation fails
       await resendPassword(userId).unwrap();
 
       toast.success("Temporary password sent successfully!");
-      setOpen(false); // close dialog on success
+      setOpen(false);
     } catch (error) {
-      // handle backend or network errors
-      //const message =getErrorInApiResult({ error }) || "Failed to send temporary password";
       const message = `Failed to send temporary password : ${error}`;
       toast.error(message);
     }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (disabled) return;
+        setOpen(nextOpen);
+      }}
+    >
       <AlertDialogTrigger asChild>
-        <Send className="cursor-pointer text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-white" />
+        <button
+          type="button"
+          disabled={disabled}
+          title={
+            disabled
+              ? "Password reset is only available for approved tutors"
+              : "Reset password"
+          }
+          className="disabled:cursor-not-allowed"
+        >
+          <Send
+            className={
+              disabled
+                ? "text-gray-300 dark:text-gray-600"
+                : "cursor-pointer text-gray-400 hover:text-gray-500 dark:text-gray-300 dark:hover:text-white"
+            }
+          />
+        </button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="bg-white dark:bg-gray-800 dark:text-white/90 z-50">
+      <AlertDialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>
           <AlertDialogTitle>Send Temporary Password?</AlertDialogTitle>
+
           <AlertDialogDescription>
             This action will send a temporary password to the user via email.
             This cannot be undone.
@@ -56,10 +84,11 @@ export function ResetPassword({ userId }: ResetPasswordProps) {
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
+
           <AlertDialogAction
             onClick={handleResend}
-            disabled={isLoading}
-            className="bg-red-500 text-white disabled:opacity-50"
+            disabled={isLoading || disabled}
+            className="bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
           >
             {isLoading ? "Sending..." : "Resend Password"}
           </AlertDialogAction>

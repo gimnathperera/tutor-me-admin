@@ -153,6 +153,7 @@ export function AddGrade() {
                     defaultSelected={field.value || []}
                     onChange={(values) => field.onChange(values)}
                     disabled={subjectsLoading}
+                    isLoading={subjectsLoading}
                   />
                 )}
               />

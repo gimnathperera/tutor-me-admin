@@ -11,10 +11,9 @@ export type WithTitleDescription = {
 
 // Reusable response wrapper
 export type PaginatedResponse<T> = {
-  count: number;
-  next: string | null;
-  previous: string | null;
   results: T[];
+  page: number;
+  limit: number;
   totalResults: number;
   totalPages: number;
 };
@@ -68,9 +67,10 @@ export type TuitionRateItem = {
   grade: Grade;
   subject: Subject;
   level: Level;
-  govTuitionRate: Rate[];
-  partTimeTuitionRate: Rate[];
-  fullTimeTuitionRate: Rate[];
+  universityStudentsRate: Rate;
+  partTimeTutorRate: Rate;
+  fullTimeTutorRate: Rate;
+  moeTeacherRate: Rate;
 };
 export type Rate = {
   minimumRate: string;
@@ -132,9 +132,10 @@ export type TuitionRates = BaseEntity &
   WithTitleDescription & {
     subject: EntityRef;
     grade: EntityRef;
-    fullTimeTuitionRate: TuitionRate[];
-    govTuitionRate: TuitionRate[];
-    partTimeTuitionRate: TuitionRate[];
+    universityStudentsRate: TuitionRate;
+    partTimeTutorRate: TuitionRate;
+    fullTimeTutorRate: TuitionRate;
+    moeTeacherRate: TuitionRate;
   };
 
 // Paper
@@ -255,6 +256,10 @@ export type UpdatePasswordResponse = {
   message: string;
 };
 
+export type ForgotPasswordResponse = {
+  message: string;
+};
+
 export type TokenResponse = {
   access: {
     token: string;
@@ -296,13 +301,21 @@ type TutorTypeInfo = {
   genderPreference: string;
 };
 
+export type CertificateItem = {
+  id?: string;
+  type: string;
+  url: string;
+};
+
 export type Tutor = BaseEntity & {
+  status: string;
   fullName: string;
   name: string;
   contactNumber: string;
   tutorMediums: string[];
   grades: string[];
   subjects: string[];
+  classType: string[];
   email: string;
   dateOfBirth: string;
   gender: string;
@@ -321,46 +334,28 @@ export type Tutor = BaseEntity & {
   preferredLocations: string[];
   agreeTerms: boolean;
   agreeAssignmentInfo: boolean;
-  certificatesAndQualifications: string[];
+  certificatesAndQualifications: CertificateItem[];
+};
+
+export type RequestTutorTutor = {
+  _id: string;
+  subject: string;
+  preferredTutorType: string;
+  duration: string;
+  frequency: string;
+  assignedTutor: string | null;
 };
 
 export type RequestTutors = BaseEntity & {
-  _id: string;
   name: string;
-  medium: string;
-  district: string;
   email: string;
-  phoneNumber: string;
   city: string;
-  state: string;
-  region: string;
-  zip: string;
-  studentSchool: string;
-  status: "Approved" | "Pending" | "Tutor Assigned";
-  genderPreference: string;
-  bilingual: string;
-  grade: {
-    id: string;
-    title: string;
-    description: string;
-    subjects: string[];
-    createdAt: string;
-    updatedAt: string;
-  }[];
-  tutors: {
-    createdAt: string;
-    subjects: { title: string }[] | string[];
-    duration: string;
-    assignedTutor: {
-      _id: string;
-      id: string;
-      fullName: string;
-    }[];
-    _id: string;
-    preferredTutorType: string;
-    frequency: string;
-  }[];
-
+  district: string;
+  phoneNumber: string;
+  medium: string;
+  status: "Pending" | "Rejected";
+  grade: string;
+  tutors: RequestTutorTutor[];
   createdAt: string;
   updatedAt: string;
 };

@@ -1,17 +1,14 @@
+import { BLOG_STATUS_VALUES } from "@/configs/app-constants";
 import { z } from "zod";
 
 export const updateArticleSchema = z.object({
   title: z.string().min(1, "Title is required"),
   author: z.object({
     name: z.string().min(1, "Author name is required"),
-    avatar: z.string().url("Avatar must be a valid URL"),
+    avatar: z.string().url("Avatar is required"),
     role: z.string().min(1, "Author role is required"),
   }),
-  image: z
-    .string()
-    .url("Image must be a valid URL")
-    .optional()
-    .or(z.literal("")), // allow empty string
+  image: z.string().url("Image is required").optional().or(z.literal("")), // allow empty string
   content: z
     .array(
       z.union([
@@ -26,7 +23,7 @@ export const updateArticleSchema = z.object({
         }),
         z.object({
           type: z.literal("image"),
-          src: z.string().url("Image source must be a valid URL"),
+          src: z.string().url("Image source is required"),
           caption: z.string().optional(),
         }),
       ]),
@@ -35,7 +32,7 @@ export const updateArticleSchema = z.object({
   relatedArticles: z
     .array(z.string().min(1, "Related article ID is required"))
     .nonempty("At least one related article is required"),
-  status: z.enum(["pending", "published", "draft", "rejected"]),
+  status: z.enum(BLOG_STATUS_VALUES),
 });
 
 export type UpdateArticleSchema = z.infer<typeof updateArticleSchema>;

@@ -2,6 +2,7 @@
 "use client";
 
 import { formatYearsExperience } from "@/app/(admin)/tutors/constants";
+import { TUTOR_STATUS_STYLE_CLASSES } from "@/configs/app-constants";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -30,6 +31,12 @@ interface Grade {
   subjects?: { id: string; title: string }[];
 }
 
+interface CertificateItem {
+  id?: string;
+  type: string;
+  url: string;
+}
+
 interface ViewTutorProps {
   tutor: {
     fullName?: string;
@@ -40,6 +47,8 @@ interface ViewTutorProps {
     age?: number;
     nationality?: string;
     race?: string;
+    status?: string;
+    classType?: string[];
 
     tutorType?: string[];
     yearsExperience?: number;
@@ -57,8 +66,10 @@ interface ViewTutorProps {
     tutorMediums?: string[] | { id?: string; title?: string }[];
     grades?: string[] | { id?: string; title?: string }[];
     subjects?: string[] | { id?: string; title?: string }[];
+    certificatesAndQualifications?: CertificateItem[] | string[];
   };
 }
+
 
 function CertificateViewer({
   url,
@@ -77,7 +88,10 @@ function CertificateViewer({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] h-[80vh] flex flex-col">
+      <DialogContent
+        className="sm:max-w-[800px] max-h-[90vh] h-[80vh] flex flex-col"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Certificate Viewer</DialogTitle>
         </DialogHeader>
@@ -146,8 +160,17 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
   const mediumList = normalizeArrayToStrings(tutor.tutorMediums);
   const levels = normalizeArrayToStrings(tutor.tutoringLevels);
   const locations = normalizeArrayToStrings(tutor.preferredLocations);
-  const certificates =
-    ((tutor as any).certificatesAndQualifications as string[]) || [];
+  const classTypeList: string[] = tutor.classType || [];
+
+  // Normalize certificates: support both old string[] and new {type, url}[]
+  const certificates: CertificateItem[] = useMemo(() => {
+    const raw = (tutor as any).certificatesAndQualifications;
+    if (!Array.isArray(raw)) return [];
+    return raw.map((item: any) => {
+      if (typeof item === "string") return { type: "Certificate", url: item };
+      return { type: item.type || "Certificate", url: item.url || "" };
+    });
+  }, [tutor]);
 
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 200 });
 
@@ -206,6 +229,11 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
     });
   }, [tutor?.subjects, subjectIdToTitle, gradesData]);
 
+  const statusKey = (tutor.status || "").toLowerCase();
+  const statusStyle =
+    TUTOR_STATUS_STYLE_CLASSES[statusKey] ||
+    TUTOR_STATUS_STYLE_CLASSES["pending"];
+
   return (
     <>
       <CertificateViewer
@@ -218,12 +246,27 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
           <Eye className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[625px] max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-800 dark:text-white/90 scrollbar-thin">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[625px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-b">
             <DialogTitle>Tutor Details</DialogTitle>
           </DialogHeader>
 
+          <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
           <div className="grid gap-4">
+            {/** Status */}
+            {tutor.status && (
+              <div className="grid gap-3">
+                <Label>Status</Label>
+                <div>
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize ${statusStyle}`}
+                  >
+                    {tutor.status}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/** General Info */}
             <div className="grid gap-3">
               <Label>Full Name</Label>
@@ -299,12 +342,25 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
                 <Label>Years of Experience</Label>
                 <div className={displayFieldClass}>
                   {(() => {
-                    const formatted = formatYearsExperience(
-                      tutor.yearsExperience,
-                    );
+                    const formatted = formatYearsExperience(tutor.yearsExperience);
                     return formatted === "" ? "N/A" : formatted;
                   })()}
                 </div>
+              </div>
+            </div>
+
+            <div className="grid gap-3">
+              <Label>Class Type</Label>
+              <div className="flex flex-wrap">
+                {classTypeList.length === 0 ? (
+                  <span className={tagClass}>N/A</span>
+                ) : (
+                  classTypeList.map((ct, i) => (
+                    <span key={i} className={tagClass}>
+                      {ct}
+                    </span>
+                  ))
+                )}
               </div>
             </div>
 
@@ -444,17 +500,22 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
                       key={idx}
                       size="sm"
                       variant="outline"
-                      onClick={() => setSelectedCert(cert)}
+                      onClick={() => setSelectedCert(cert.url)}
+                      className="flex items-center gap-1"
                     >
-                      View Certificate {idx + 1}
+                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                        {cert.type}
+                      </span>
+                      <span>View</span>
                     </Button>
                   ))
                 )}
               </div>
             </div>
           </div>
+          </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Close</Button>
             </DialogClose>

@@ -16,28 +16,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
+import { useFetchSubjectByIdQuery } from "@/store/api/splits/subjects";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-export interface AssignedTutor {
-  _id: string;
-  fullName: string;
-}
-
 export interface TutorRequestBlock {
   _id: string;
-  subjects: { title: string }[] | string[];
-  assignedTutor?: AssignedTutor[];
+  subject: string;
+  assignedTutor?:
+    | string
+    | null
+    | { id?: string; fullName?: string }
+    | Array<{ id?: string; fullName?: string }>;
   preferredTutorType?: string;
   duration: string;
   frequency: string;
-  createdAt: string;
 }
 
 export interface AssignTutorRow {
   id: string;
+  grade?: string;
+  district?: string;
+  medium?: string;
   tutors?: TutorRequestBlock[];
 }
 
@@ -46,137 +48,252 @@ interface Props {
   onUpdated?: () => void;
 }
 
-const page = 1;
-const limit = 10000;
+const LARGE_LIMIT = 10000;
+
+const getAssignedTutorId = (assignedTutor: TutorRequestBlock["assignedTutor"]) => {
+  if (!assignedTutor) {
+    return "";
+  }
+
+  if (typeof assignedTutor === "string") {
+    return assignedTutor;
+  }
+
+  if (Array.isArray(assignedTutor)) {
+    return assignedTutor[0]?.id ?? "";
+  }
+
+  return assignedTutor.id ?? "";
+};
 
 function TutorBlockItem({
   tutorBlock,
+  gradeId,
+  district,
+  medium,
   index,
-  handleUpdate,
+  selectedTutorId,
+  onSelect,
 }: {
   tutorBlock: TutorRequestBlock;
+  gradeId?: string;
+  district?: string;
+  medium?: string;
   index: number;
-  handleUpdate: (index: number, tutorId: string) => void;
+  selectedTutorId: string;
+  onSelect: (index: number, tutorId: string) => void;
 }) {
-  const { data, isLoading } = useFetchTutorsQuery({
-    page,
-    limit,
+  const isObjectId = /^[a-f\d]{24}$/i.test(tutorBlock.subject || "");
+
+  const { data: subjectData } = useFetchSubjectByIdQuery(tutorBlock.subject, {
+    skip: !isObjectId,
   });
 
+  const subjectDisplay = isObjectId
+    ? (subjectData?.title ?? tutorBlock.subject)
+    : (tutorBlock.subject || "N/A");
+
+  const { data, isLoading } = useFetchTutorsQuery({
+    page: 1,
+    limit: LARGE_LIMIT,
+    gradeId: gradeId || undefined,
+    subjectId: isObjectId ? tutorBlock.subject : undefined,
+  });
+
+  const tutors = (data?.results ?? []).filter((tutor) => {
+    const mediumMatch =
+      !medium || tutor.tutorMediums.some((m) => m.toLowerCase() === medium.toLowerCase());
+
+    const tutorTypeMatch =
+      !tutorBlock.preferredTutorType ||
+      tutor.tutorType.some((t) => t.toLowerCase() === (tutorBlock.preferredTutorType ?? "").toLowerCase());
+
+    const hasOnline = tutor.classType.some((ct) => ct.toLowerCase().includes("online"));
+    const hasPhysical = tutor.classType.some((ct) => ct.toLowerCase().includes("physical"));
+    const districtMatch =
+      !district ||
+      tutor.preferredLocations.some((loc) => loc.toLowerCase().includes(district.toLowerCase()));
+
+    const classTypePass = hasOnline || (hasPhysical && districtMatch);
+
+    return mediumMatch && tutorTypeMatch && classTypePass;
+  });
+
+  const noResults = !isLoading && tutors.length === 0;
+
+  const currentValue =
+    selectedTutorId && selectedTutorId !== "" ? selectedTutorId : "placeholder";
+
+  // Display name for the currently selected tutor
+  const selectedTutorName = tutors.find(
+    (t) => t.id === selectedTutorId
+  )?.fullName;
+
   return (
-    <div key={tutorBlock._id} className="border rounded-md p-4">
+    <div key={tutorBlock._id} className="border rounded-md p-4 space-y-2">
       <p className="font-medium">Tutor Request #{index + 1}</p>
+      <div className="text-sm text-gray-500 space-y-1">
+        <div>
+          Subject:{" "}
+          <span className="font-medium text-gray-800 dark:text-white">
+            {subjectDisplay}
+          </span>
+        </div>
+        {tutorBlock.preferredTutorType && (
+          <div>
+            Preferred Type:{" "}
+            <span className="font-medium text-gray-800 dark:text-white">
+              {tutorBlock.preferredTutorType}
+            </span>
+          </div>
+        )}
+        <div>
+          Duration:{" "}
+          <span className="font-medium text-gray-800 dark:text-white">
+            {tutorBlock.duration}
+          </span>
+        </div>
+        <div>
+          Frequency:{" "}
+          <span className="font-medium text-gray-800 dark:text-white">
+            {tutorBlock.frequency}
+          </span>
+        </div>
+      </div>
 
-      <Select
-        value={tutorBlock.assignedTutor?.[0]?._id || "placeholder"}
-        onValueChange={(val) => handleUpdate(index, val)}
-        disabled={isLoading}
-      >
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select a tutor" />
-        </SelectTrigger>
+      {selectedTutorName && (
+        <p className="text-xs text-green-600 font-medium">
+          Currently Assigned: {selectedTutorName}
+        </p>
+      )}
 
-        <SelectContent>
-          <SelectItem value="placeholder" disabled>
-            {isLoading ? "Loading tutors..." : "Select a tutor"}
-          </SelectItem>
+      {noResults ? (
+        <p className="text-sm text-red-500 font-medium py-2">
+          Cannot find matched tutors
+        </p>
+      ) : (
+        <Select
+          value={currentValue}
+          onValueChange={(val) => onSelect(index, val)}
+          disabled={isLoading}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a tutor" />
+          </SelectTrigger>
 
-          {data?.results.map((tutor) => (
-            <SelectItem key={tutor.id} value={tutor.id}>
-              {tutor.fullName}
+          <SelectContent>
+            <SelectItem value="placeholder" disabled>
+              {isLoading ? "Loading tutors..." : "Select a tutor"}
             </SelectItem>
-          ))}
 
-          {!isLoading && data?.results.length === 0 && (
-            <SelectItem value="none" disabled>
-              No matching tutors
-            </SelectItem>
-          )}
-        </SelectContent>
-      </Select>
+            {tutors.map((tutor) => (
+              <SelectItem key={tutor.id} value={tutor.id}>
+                {tutor.fullName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 }
 
 export function AssignTutorDialog({ row, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
-  const [updateAssignedTutor] = useUpdateAssignedTutorMutation();
-  const [tutorBlocks, setTutorBlocks] = useState<TutorRequestBlock[]>([]);
+  const [updateAssignedTutor, { isLoading: isSubmitting }] =
+    useUpdateAssignedTutorMutation();
 
-  const { data: tutorsData } = useFetchTutorsQuery({});
+  // Local selection state: index → tutorId
+  const [selections, setSelections] = useState<Record<number, string>>({});
+  const [initialSelections, setInitialSelections] = useState<Record<number, string>>({});
 
-  const tutors =
-    row.tutors?.map((t) => ({
-      ...t,
-      // make sure assignedTutor has _id
-      assignedTutor: t.assignedTutor?.map((a) => ({
-        _id: a._id,
-        fullName: a.fullName,
-      })),
-    })) || [];
-
+  // Initialise selections from existing assignments whenever the dialog opens
   useEffect(() => {
-    setTutorBlocks(
-      row.tutors?.map((t) => ({
-        ...t,
-        assignedTutor: t.assignedTutor?.map((a) => ({
-          _id: a._id,
-          fullName: a.fullName,
-        })),
-      })) || [],
-    );
-  }, [row.tutors]);
-
-  const handleUpdate = async (index: number, tutorId: string) => {
-    if (!tutorId || tutorId === "placeholder") return;
-
-    const tutorBlockId = tutorBlocks[index]._id;
-    if (!tutorBlockId) {
-      toast.error("Tutor block ID not found");
-      return;
+    if (open && row.tutors) {
+      const initial: Record<number, string> = {};
+      row.tutors.forEach((block, i) => {
+        const assignedTutorId = getAssignedTutorId(block.assignedTutor);
+        if (assignedTutorId) {
+          initial[i] = assignedTutorId;
+        }
+      });
+      setInitialSelections(initial);
+      setSelections(initial);
     }
+  }, [open, row.tutors]);
+
+  const totalParts = row.tutors?.length ?? 0;
+
+  // Enable Assign only if at least one block has changed from its initial assignment
+  const hasChanges =
+    totalParts > 0 &&
+    Array.from({ length: totalParts }, (_, i) => i).some(
+      (i) => selections[i] && selections[i] !== "" && selections[i] !== initialSelections[i]
+    );
+
+  const handleSelect = (index: number, tutorId: string) => {
+    if (!tutorId || tutorId === "placeholder") return;
+    setSelections((prev) => ({ ...prev, [index]: tutorId }));
+  };
+
+  const handleAssign = async () => {
+    if (!hasChanges || !row.tutors) return;
+
+    // Only send blocks where the selection has changed from the initial assignment
+    const blocksToAssign = row.tutors
+      .map((block, i) => ({ block, tutorId: selections[i] }))
+      .filter(({ tutorId }, i) => !!tutorId && tutorId !== "" && tutorId !== initialSelections[i]);
 
     try {
-      const newTutorBlocks = [...tutorBlocks];
-      const selectedTutor = tutorsData?.results.find((t) => t.id === tutorId);
-      if (selectedTutor) {
-        newTutorBlocks[index].assignedTutor = [
-          { _id: selectedTutor.id, fullName: selectedTutor.fullName },
-        ];
-        setTutorBlocks(newTutorBlocks);
+      for (const { block, tutorId } of blocksToAssign) {
+        await updateAssignedTutor({
+          requestId: row.id,
+          tutorBlockId: block._id,
+          assignedTutor: tutorId,
+        }).unwrap();
       }
 
-      await updateAssignedTutor({
-        requestId: row.id,
-        tutorBlockId,
-        assignedTutor: [tutorId],
-      }).unwrap();
-
-      toast.success("Tutor updated successfully");
+      toast.success("Tutors assigned successfully");
       onUpdated?.();
+      setOpen(false);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update tutor");
+      toast.error("Failed to assign tutors");
     }
   };
 
-  const isAssigned = row.tutors?.some(
-    (t) => t.assignedTutor && t.assignedTutor.length > 0,
-  );
+  const handleCancel = () => {
+    setOpen(false);
+  };
+
+  const assignedCount =
+    row.tutors?.filter((t) => Boolean(getAssignedTutorId(t.assignedTutor)))
+      .length ?? 0;
+  const totalCount = row.tutors?.length ?? 0;
+  const isPartial = assignedCount > 0 && assignedCount < totalCount;
+  const isFullyAssigned = assignedCount > 0 && assignedCount === totalCount;
 
   return (
     <div className="flex items-center gap-2">
-      {isAssigned && (
+      {isPartial && (
         <Button
           size="sm"
-          className="bg-green-600 hover:bg-green-700 text-white cursor-default"
+          className="bg-yellow-500 hover:bg-yellow-600 text-white cursor-default text-xs px-2"
         >
-          Assigned
+          {assignedCount}/{totalCount} Assigned
+        </Button>
+      )}
+      {isFullyAssigned && (
+        <Button
+          size="sm"
+          className="bg-green-600 hover:bg-green-700 text-white cursor-default text-xs px-2"
+        >
+          {assignedCount}/{totalCount} Assigned
         </Button>
       )}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          {isAssigned ? (
+          {isPartial || isFullyAssigned ? (
             <Button size="icon" variant="ghost" className="h-8 w-8">
               <Edit size={16} />
             </Button>
@@ -198,14 +315,36 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
           </DialogHeader>
 
           <div className="flex flex-col gap-6 mt-4">
-            {tutors.map((tutorBlock, index) => (
+            {(row.tutors ?? []).map((tutorBlock, index) => (
               <TutorBlockItem
                 key={tutorBlock._id}
                 tutorBlock={tutorBlock}
+                gradeId={row.grade}
+                district={row.district}
+                medium={row.medium}
                 index={index}
-                handleUpdate={handleUpdate}
+                selectedTutorId={selections[index] ?? ""}
+                onSelect={handleSelect}
               />
             ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAssign}
+              disabled={!hasChanges || isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+            >
+              {isSubmitting ? "Assigning..." : "Assign"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -18,15 +18,15 @@ import toast from "react-hot-toast";
 
 interface DeleteUserProps {
   userId: string;
-  userStatus: "active" | "inactive";
+  userStatus: "pending" | "approved" | "rejected" | "suspended";
 }
 
 export function DeleteUser({ userId, userStatus }: DeleteUserProps) {
   const [deleteUser, { isLoading }] = useDeleteUserMutation();
 
   const handleDelete = async () => {
-    if (userStatus !== "inactive") {
-      toast.error("User must be inactive before deletion");
+    if (userStatus !== "suspended") {
+      toast.error("User must be suspended before deletion");
       return;
     }
 
@@ -50,7 +50,7 @@ export function DeleteUser({ userId, userStatus }: DeleteUserProps) {
       <AlertDialogTrigger asChild>
         <Trash2
           className={`cursor-pointer ${
-            userStatus !== "inactive" ? "text-gray-400" : "text-red-500"
+            userStatus !== "suspended" ? "text-gray-400" : "text-red-500"
           }`}
         />
       </AlertDialogTrigger>
@@ -66,7 +66,7 @@ export function DeleteUser({ userId, userStatus }: DeleteUserProps) {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isLoading || userStatus !== "inactive"}
+            disabled={isLoading || userStatus !== "suspended"}
             className="bg-red-500 text-white disabled:opacity-50"
           >
             {isLoading ? "Deleting..." : "Continue"}

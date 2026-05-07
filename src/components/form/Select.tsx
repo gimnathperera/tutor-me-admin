@@ -66,13 +66,13 @@ const Select: React.FC<SelectProps> = ({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          `border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground
-          text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20
-          dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 
-          flex w-full items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap 
-          shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed 
-          disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 text-left font-medium`,
-          selectedOption ? "text-foreground" : "text-muted-foreground",
+          `border-gray-300 data-[placeholder]:text-gray-400 [&_svg:not([class*='text-'])]:text-gray-400
+          focus-visible:border-brand-300 focus-visible:ring-brand-500/10 aria-invalid:ring-destructive/20
+          dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:hover:bg-gray-900/90
+          dark:data-[placeholder]:text-white/30 flex w-full items-center justify-between gap-2 rounded-md border bg-white px-3 py-2 text-sm whitespace-nowrap
+          text-left font-medium text-gray-800 shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed
+          disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8`,
+          selectedOption ? "text-gray-800 dark:text-white/90" : "text-gray-400 dark:text-white/30",
         )}
         data-size={size}
         data-placeholder={!selectedOption}
@@ -95,9 +95,9 @@ const Select: React.FC<SelectProps> = ({
         <div className="absolute top-full left-0 z-50 w-full mt-1">
           <div
             className={`
-            bg-popover text-popover-foreground animate-in fade-in-0 zoom-in-95 slide-in-from-top-2
-            relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border shadow-md
-            dark:bg-gray-800 dark:border-gray-700
+            bg-white text-gray-800 animate-in fade-in-0 zoom-in-95 slide-in-from-top-2
+            relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-gray-200 shadow-md
+            dark:bg-gray-800 dark:border-gray-700 dark:text-white/90
           `}
           >
             <div className="overflow-x-hidden overflow-y-auto p-1 max-h-[300px]">
@@ -106,11 +106,11 @@ const Select: React.FC<SelectProps> = ({
                   key={option.value}
                   onClick={() => handleSelect(option.value)}
                   className={cn(
-                    "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground",
+                    "focus:bg-gray-100 focus:text-gray-900 dark:focus:bg-gray-700 dark:focus:text-white/90 [&_svg:not([class*='text-'])]:text-gray-400 dark:[&_svg:not([class*='text-'])]:text-white/50",
                     "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2",
-                    "text-sm outline-hidden select-none hover:bg-accent hover:text-accent-foreground",
+                    "text-sm outline-hidden select-none hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white/90",
                     "transition-colors duration-150 text-left",
-                    value === option.value && "bg-accent/50",
+                    value === option.value && "bg-gray-100 dark:bg-gray-700",
                   )}
                   type="button"
                 >

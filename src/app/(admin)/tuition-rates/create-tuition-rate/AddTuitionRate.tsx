@@ -136,7 +136,10 @@ export function AddTuitionRate() {
               <Label htmlFor="grade">Grade</Label>
               <Select
                 onValueChange={(value) =>
-                  createTuitionRateForm.setValue("grade", value)
+                  createTuitionRateForm.setValue("grade", value, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
                 }
                 value={createTuitionRateForm.watch("grade")}
                 disabled={isGradesLoading}
@@ -165,7 +168,12 @@ export function AddTuitionRate() {
             <div className="grid gap-3">
               <Label htmlFor="subject">Subject</Label>
               <Select
-                onValueChange={(value) => setValue("subject", value)}
+                onValueChange={(value) =>
+                  setValue("subject", value, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
                 value={watch("subject")}
                 disabled={!selectedGradeId || isGradeDetailsLoading}
               >
@@ -194,41 +202,54 @@ export function AddTuitionRate() {
             {/* RATES */}
             {(
               [
-                "fullTimeTuitionRate",
-                "govTuitionRate",
-                "partTimeTuitionRate",
+                "universityStudentsRate",
+                "partTimeTutorRate",
+                "fullTimeTutorRate",
+                "moeTeacherRate",
               ] as const
             ).map((key) => (
               <div key={key} className="grid gap-2">
                 <Label>
-                  {key === "fullTimeTuitionRate"
-                    ? "Full-Time Tuition Rate"
-                    : key === "govTuitionRate"
-                      ? "Government Tuition Rate"
-                      : "Part-Time Tuition Rate"}
+                  {key === "universityStudentsRate"
+                    ? "University Students Rate"
+                    : key === "partTimeTutorRate"
+                      ? "Part-Time Tutor Rate"
+                      : key === "fullTimeTutorRate"
+                        ? "Full-Time Tutor Rate"
+                        : "Ex/Current MOE Teacher Rate"}
                 </Label>
 
                 <Input
                   placeholder="Minimum Rate"
-                  {...createTuitionRateForm.register(
-                    `${key}.0.minimumRate` as const,
-                  )}
+                  {...createTuitionRateForm.register(`${key}.minimumRate`, {
+                    onChange: () => {
+                      createTuitionRateForm.trigger([
+                        `${key}.minimumRate`,
+                        `${key}.maximumRate`,
+                      ]);
+                    },
+                  })}
                 />
-                {formState.errors[key]?.[0]?.minimumRate && (
+                {formState.errors[key]?.minimumRate && (
                   <p className="text-red-500 text-sm">
-                    {formState.errors[key][0].minimumRate?.message}
+                    {formState.errors[key]?.minimumRate?.message}
                   </p>
                 )}
 
                 <Input
                   placeholder="Maximum Rate"
-                  {...createTuitionRateForm.register(
-                    `${key}.0.maximumRate` as const,
-                  )}
+                  {...createTuitionRateForm.register(`${key}.maximumRate`, {
+                    onChange: () => {
+                      createTuitionRateForm.trigger([
+                        `${key}.minimumRate`,
+                        `${key}.maximumRate`,
+                      ]);
+                    },
+                  })}
                 />
-                {formState.errors[key]?.[0]?.maximumRate && (
+                {formState.errors[key]?.maximumRate && (
                   <p className="text-red-500 text-sm">
-                    {formState.errors[key][0].maximumRate?.message}
+                    {formState.errors[key]?.maximumRate?.message}
                   </p>
                 )}
               </div>

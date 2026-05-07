@@ -3,7 +3,7 @@ import { AddPaper } from "./components/add-paper/AddPaper";
 import PapersTable from "./components/PapersList";
 
 export const metadata: Metadata = {
-  title: "Papers | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is the Papers management page for TuitionLanka",
 };
 

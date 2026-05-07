@@ -52,6 +52,7 @@ export const UsersApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [
         { type: "Users", id },
         { type: "Users", id: "LIST" },
+        "FindATutor",
       ],
     }),
 
@@ -71,7 +72,7 @@ export const UsersApi = baseApi.injectEndpoints({
         url: `${Endpoints.Users}/temp-password/${id}`,
         method: "POST",
       }),
-      invalidatesTags: (result, error, id) => [{ type: "Users", id }],
+      invalidatesTags: (result, error, id) => [{ type: "Users", id }, "FindATutor"],
     }),
   }),
   overrideExisting: false,

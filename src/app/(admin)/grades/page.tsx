@@ -3,7 +3,7 @@ import { AddGrade } from "./create-grade/AddGrade";
 import GradesTable from "./GradesList";
 
 export const metadata: Metadata = {
-  title: "Grades | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is the Grades management page for TuitionLanka",
 };
 

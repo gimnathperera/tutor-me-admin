@@ -6,7 +6,7 @@ export const testimonialSchema = z.object({
   owner: z.object({
     name: z.string().min(1, "Owner name is required"),
     role: z.string().min(1, "Owner role is required"),
-    avatar: z.string().url("Avatar must be a valid URL"),
+    avatar: z.string().url("Avatar is required."),
   }),
 });
 

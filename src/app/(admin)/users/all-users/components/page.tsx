@@ -1,4 +1,3 @@
-import AddUser from "./add-user/AddUser";
 import SubjectsTable from "./UserList";
 
 export default function Profile() {
@@ -9,7 +8,6 @@ export default function Profile() {
           <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-800 dark:text-white/90">
             Users
           </h3>
-          <AddUser />
         </div>
 
         <div className="space-y-6">

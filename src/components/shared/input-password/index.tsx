@@ -33,35 +33,43 @@ const InputPassword: React.FC<InputPasswordProps> = ({
         name={name}
         control={control}
         render={({ field }) => (
-          <div className="relative">
-            <input
-              {...field}
-              type={showPassword ? "text" : "password"}
-              className={`relative block w-full appearance-none rounded-md border px-3 py-[0.625rem] text-gray-900 dark:text-white/90 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${
-                error ? "border-red-500" : "border-gray-300"
-              } ${className}`}
-              {...props}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className={`absolute inset-y-0 right-0 px-3 text-gray-500 dark:text-white/90 hover:text-gray-700 focus:outline-none ${
-                error ? "mb-5" : ""
-              }`}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? <Icon name="Eye" /> : <Icon name="EyeClosed" />}
-            </button>
+          <>
+            <div className="relative">
+              <input
+                {...field}
+                {...props}
+                value={field.value ?? ""}
+                type={showPassword ? "text" : "password"}
+                className={`block w-full appearance-none rounded-md border px-3 py-[0.625rem] pr-10 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm dark:text-white/90 ${
+                  error ? "border-red-500" : "border-gray-300"
+                } ${className}`}
+              />
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPassword((prev) => !prev);
+                }}
+                className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 focus:outline-none dark:text-white/90"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                tabIndex={0}
+              >
+                {showPassword ? <Icon name="Eye" /> : <Icon name="EyeClosed" />}
+              </button>
+            </div>
+
             {(error || helperText) && (
               <span
                 className={`text-xs ${
                   error ? "text-red-500" : "text-gray-500 dark:text-white/90"
                 }`}
               >
-                {error || helperText}
+                {String(error || helperText)}
               </span>
             )}
-          </div>
+          </>
         )}
       />
     </div>

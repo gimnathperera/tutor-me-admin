@@ -3,7 +3,7 @@ import { AddTestimonial } from "./components/add-testimonial/AddTestimonial";
 import TestimonialsTable from "./components/TestimonialsList";
 
 export const metadata: Metadata = {
-  title: "Testimonials | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is the Testimonials management page for TuitionLanka",
 };
 

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import {
   Pagination,
   PaginationContent,
@@ -18,13 +19,14 @@ import {
   TableRow,
 } from "../ui/table";
 
-interface Column<T> {
+export interface Column<T> {
   key: string;
   header: ReactNode;
   render?: (row: T) => ReactNode;
   className?: string;
   headClassName?: string;
   bodyClassName?: string;
+  align?: "start" | "center" | "end";
 }
 
 interface DataTableProps<T> {
@@ -36,6 +38,8 @@ interface DataTableProps<T> {
   totalResults?: number;
   limit?: number;
   isLoading?: boolean;
+  emptyMessage?: string;
+  className?: string;
 }
 
 function getPaginationRange({
@@ -96,6 +100,8 @@ export default function DataTable<T extends { id: string | number }>({
   totalResults = 0,
   limit = 10,
   isLoading = false,
+  emptyMessage = "This is empty. Please create a new one.",
+  className,
 }: DataTableProps<T>) {
   const showPagination = totalResults > limit;
   const isFirstPage = page === 1;
@@ -109,15 +115,15 @@ export default function DataTable<T extends { id: string | number }>({
 
   const rowsToRender = isLoading
     ? Array.from({ length: limit }).map((_, currentPage) => ({
-        id: `skeleton-${currentPage}`,
-      }))
+      id: `skeleton-${currentPage}`,
+    }))
     : data;
 
   if (!isLoading && (!data || data.length === 0)) {
     return (
       <div className="flex justify-center items-center h-48 rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90">
         <p className="text-gray-500 dark:text-white/70">
-          This is empty. Please create a new one.
+          {emptyMessage}
         </p>
       </div>
     );
@@ -125,9 +131,10 @@ export default function DataTable<T extends { id: string | number }>({
 
   return (
     <div
-      className={
-        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90 max-w-[73.5vw]"
-      }
+      className={cn(
+        "overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90 max-w-[73.5vw]",
+        className,
+      )}
     >
       <div className="max-w-full overflow-x-auto">
         <div className="min-w-[600px]">
@@ -139,7 +146,7 @@ export default function DataTable<T extends { id: string | number }>({
                   <TableCell
                     key={col.key}
                     isHeader
-                    className={`px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-white/90 ${col.className ?? ""} ${col.headClassName ?? ""}`}
+                    className={`px-5 py-3 font-medium text-gray-500 text-theme-xs dark:text-white/90 ${col.align ? `text-${col.align}` : "text-start"} ${col.className ?? ""} ${col.headClassName ?? ""}`}
                   >
                     {col.header}
                   </TableCell>
@@ -154,12 +161,14 @@ export default function DataTable<T extends { id: string | number }>({
                   {columns.map((col) => (
                     <TableCell
                       key={col.key}
-                      className={`px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-white/90 max-w-[15.5vw] ${col.className ?? ""} ${col.bodyClassName ?? ""}`}
+                      className={`px-4 py-3 text-gray-500 text-theme-sm dark:text-white/90 max-w-[15.5vw] ${col.align ? `text-${col.align}` : "text-start"} ${col.className ?? ""} ${col.bodyClassName ?? ""}`}
                     >
                       {isLoading ? (
                         <Skeleton className="h-4 w-[120px]" />
                       ) : col.render ? (
-                        <div className="flex justify-start items-center">
+                        <div
+                          className={`flex items-center ${col.align ? `justify-${col.align}` : "justify-start"}`}
+                        >
                           {col.render(row)}
                         </div>
                       ) : (

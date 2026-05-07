@@ -65,7 +65,6 @@ export default function FileUploadDropzone({
       }
 
       const publicUrl = uploadUrl.split("?")[0];
-
       onUploaded(publicUrl);
     },
     [onUploaded],
@@ -85,43 +84,45 @@ export default function FileUploadDropzone({
   return (
     <div
       {...getRootProps()}
-      className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 sm:p-6 text-center cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-700"
+      className={`rounded-md border-2 border-dashed p-5 sm:p-6 text-center transition-colors cursor-pointer
+        ${
+          isDragActive
+            ? "border-brand-300 bg-brand-50/40 dark:border-brand-500 dark:bg-gray-800/80"
+            : "border-gray-300 bg-white hover:border-brand-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-brand-500 dark:hover:bg-gray-800/80"
+        }`}
     >
       <input {...getInputProps()} />
       {uploading ? (
         <div className="flex flex-col items-center justify-center space-y-2">
-          <Loader2 className="animate-spin h-6 w-6 text-blue-500" />
-          <p className="text-gray-500 text-sm">Uploading...</p>
+          <Loader2 className="h-6 w-6 animate-spin text-brand-500" />
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Uploading...
+          </p>
         </div>
       ) : isDragActive ? (
-        <p className="text-gray-700 dark:text-gray-200 font-medium text-sm sm:text-base">
+        <p className="text-sm font-medium text-gray-800 dark:text-white/90">
           Drop the file here...
         </p>
       ) : (
         <>
-          <p className="text-gray-700 dark:text-gray-200 font-medium text-sm sm:text-base">
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
             Drag & drop or tap to upload
           </p>
 
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Click or drag a file here to upload
+          </p>
+
           {fileName && (
-            <div className="mt-2 flex items-center justify-center gap-2 w-full px-2">
-              <p
-                className="
-      text-sm text-gray-500 dark:text-gray-400
-      w-auto
-      max-w-full
-      min-w-[120px]
-      truncate
-      break-all
-    "
-              >
+            <div className="mt-3 flex items-center justify-center gap-2 w-full px-2">
+              <p className="w-auto min-w-[120px] max-w-full truncate break-all text-sm text-gray-500 dark:text-gray-400">
                 {fileName}
               </p>
 
               <button
                 type="button"
                 onClick={removeFile}
-                className="text-red-500 hover:text-red-700 shrink-0"
+                className="shrink-0 text-gray-400 hover:text-red-500"
               >
                 <X size={16} />
               </button>
@@ -135,7 +136,7 @@ export default function FileUploadDropzone({
                 alt="Preview"
                 width={112}
                 height={112}
-                className="h-24 w-24 sm:h-28 sm:w-28 object-cover rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
+                className="h-24 w-24 rounded-lg border border-gray-200 object-cover shadow-sm dark:border-gray-700 sm:h-28 sm:w-28"
               />
             </div>
           )}
