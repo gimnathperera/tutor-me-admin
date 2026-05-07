@@ -625,6 +625,7 @@ export function AddTutor() {
                       { shouldValidate: true },
                     )
                   }
+                  searchable
                 />
                 {formState.errors.preferredLocations && (
                   <p className="text-sm text-red-500">

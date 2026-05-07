@@ -814,6 +814,7 @@ export function EditTutor({ id }: EditTutorProps) {
                       { shouldValidate: true },
                     )
                   }
+                  searchable
                 />
               </div>
 

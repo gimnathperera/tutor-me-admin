@@ -15,6 +15,7 @@ interface MultiSelectProps {
   onChange?: (selected: string[]) => void;
   disabled?: boolean;
   isLoading?: boolean;
+  searchable?: boolean;
 }
 
 const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -24,6 +25,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   onChange,
   disabled = false,
   isLoading = false,
+  searchable = false,
 }) => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>(
     defaultSelected.length > 0
@@ -32,6 +34,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   );
 
   const [isOpen, setIsOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -42,9 +45,18 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     );
   }, [defaultSelected, options]);
 
+  const filteredOptions = searchable && searchText
+    ? options.filter((o) =>
+        o.text.toLowerCase().includes(searchText.toLowerCase()),
+      )
+    : options;
+
   const toggleDropdown = () => {
     if (disabled) return;
-    setIsOpen((prev) => !prev);
+    setIsOpen((prev) => {
+      if (prev) setSearchText("");
+      return !prev;
+    });
   };
 
   const handleSelect = (optionValue: string) => {
@@ -73,6 +85,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setSearchText("");
       }
     };
 
@@ -146,30 +159,48 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 
         {isOpen && (
           <div
-            className="absolute left-0 top-full z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
+            className="absolute left-0 top-full z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex flex-col">
-              {options.map((option, index) => (
-                <div
-                  key={index}
-                  className="w-full cursor-pointer border-b border-gray-200 hover:bg-primary/5 dark:border-gray-800"
-                  onClick={() => handleSelect(option.value)}
-                >
+            {searchable && (
+              <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+                <input
+                  type="text"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  placeholder="Search..."
+                  className="w-full rounded border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-brand-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            )}
+            <div className="flex max-h-60 flex-col overflow-y-auto">
+              {filteredOptions.length === 0 ? (
+                <p className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                  No results found
+                </p>
+              ) : (
+                filteredOptions.map((option, index) => (
                   <div
-                    className={`relative flex w-full items-center p-2 pl-2 ${
-                      selectedOptions.includes(option.value)
-                        ? "bg-primary/10"
-                        : ""
-                    }`}
+                    key={index}
+                    className="w-full cursor-pointer border-b border-gray-200 hover:bg-primary/5 dark:border-gray-800"
+                    onClick={() => handleSelect(option.value)}
                   >
-                    <div className="mx-2 flex w-full justify-between leading-6 text-gray-800 dark:text-white/90">
-                      <span>{option.text}</span>
-                      {selectedOptions.includes(option.value) && <Check />}
+                    <div
+                      className={`relative flex w-full items-center p-2 pl-2 ${
+                        selectedOptions.includes(option.value)
+                          ? "bg-primary/10"
+                          : ""
+                      }`}
+                    >
+                      <div className="mx-2 flex w-full justify-between leading-6 text-gray-800 dark:text-white/90">
+                        <span>{option.text}</span>
+                        {selectedOptions.includes(option.value) && <Check />}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         )}
