@@ -275,7 +275,7 @@ export function UpdateUser(props: UpdateUserProps) {
             <div className="grid gap-3">
               <DatePicker
                 id="birthday"
-                label="Birthday"
+                label="Date of Birth"
                 value={form.watch("birthday")}
                 onChange={(date) =>
                   setValue("birthday", date, {
@@ -311,7 +311,7 @@ export function UpdateUser(props: UpdateUserProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="avatar">Avatar</Label>
+              <Label htmlFor="avatar">Profile Picture</Label>
               <FileUploadDropzone
                 onUploaded={(url) => {
                   setValue("avatar", url);
