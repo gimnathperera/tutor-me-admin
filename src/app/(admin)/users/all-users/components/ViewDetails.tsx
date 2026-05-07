@@ -23,13 +23,7 @@ interface SubjectDetailsProps {
   phoneNumber?: string;
   birthday?: string;
   status: "pending" | "approved" | "rejected" | "suspended";
-  country?: string;
-  city?: string;
-  zip?: string;
-  address?: string;
-  state?: string;
-  region?: string;
-  gender?: "male" | "female" | "other";
+  gender?: "male" | "female";
   avatar?: string;
 }
 
@@ -40,12 +34,6 @@ export function UserDetails({
   phoneNumber,
   birthday,
   status,
-  country,
-  city,
-  zip,
-  address,
-  state,
-  region,
   gender,
   avatar,
 }: SubjectDetailsProps) {
@@ -150,78 +138,6 @@ export function UserDetails({
             </div>
           </div>
 
-          <div className="grid gap-3">
-            <Label>Country</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(country)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>City</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(city)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>State</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(state)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Region</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(region)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Zip</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(zip)}
-            </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Address</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(address)}
-            </div>
-          </div>
           <div className="grid gap-3">
             <Label>Gender</Label>
             <div
