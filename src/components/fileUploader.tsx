@@ -41,10 +41,7 @@ export default function FileUploadDropzone({
       if (!file) return;
 
       if (imageOnly && !isAllowedImageFile(file)) {
-        setFileName("");
-        setPreviewUrl(null);
         setUploadError(IMAGE_UPLOAD_ERROR);
-        onUploaded("");
         return;
       }
 
@@ -109,11 +106,7 @@ export default function FileUploadDropzone({
     onDrop,
     onDropRejected: () => {
       if (!imageOnly) return;
-
-      setFileName("");
-      setPreviewUrl(null);
       setUploadError(IMAGE_UPLOAD_ERROR);
-      onUploaded("");
     },
     accept: imageOnly ? IMAGE_ACCEPT_CONFIG : undefined,
     multiple: false,
