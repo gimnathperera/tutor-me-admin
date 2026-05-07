@@ -31,12 +31,6 @@ export const updateUserSchema = z.object({
       );
     }, "User must be at least 18 years old"),
   status: z.enum(USER_STATUS_VALUES).default("pending"),
-  country: z.string().max(56, "Country too long").optional(),
-  city: z.string().max(85, "City too long").optional(),
-  state: z.string().max(85, "State too long").optional(),
-  region: z.string().max(85, "Region too long").optional(),
-  zip: z.string().max(20, "ZIP code too long").optional(),
-  address: z.string().max(200, "Address too long").optional(),
   gender: z.enum(USER_GENDER_VALUES).optional(),
   avatar: z
     .union([
@@ -55,12 +49,6 @@ export const initialFormValues: UpdateUserSchema = {
   phoneNumber: "",
   birthday: "",
   status: "pending",
-  country: "",
-  city: "",
-  state: "",
-  region: "",
-  zip: "",
-  address: "",
   gender: "male",
   avatar: "",
 };

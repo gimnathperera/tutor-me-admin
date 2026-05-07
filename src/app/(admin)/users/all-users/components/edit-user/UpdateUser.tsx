@@ -60,13 +60,7 @@ interface UpdateUserProps {
   phoneNumber?: string;
   birthday?: string;
   status: UserStatus;
-  country?: string;
-  city?: string;
-  zip?: string;
-  address?: string;
-  state?: string;
-  region?: string;
-  gender?: "male" | "female" | "other";
+  gender?: "male" | "female";
   avatar?: string;
 }
 
@@ -114,16 +108,7 @@ export function UpdateUser(props: UpdateUserProps) {
 
   const onSubmit = async (data: UpdateUserSchema) => {
     try {
-      const {
-        email: _immutableEmail,
-        country: _country,
-        city: _city,
-        state: _state,
-        region: _region,
-        zip: _zip,
-        address: _address,
-        ...editableData
-      } = data;
+      const { email: _immutableEmail, ...editableData } = data;
       const payload = {
         id: props.id,
         role: editableData.role,
