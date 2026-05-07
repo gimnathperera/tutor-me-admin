@@ -11,8 +11,6 @@ import {
   PREFERRED_LOCATION_VALUES,
   RACE_VALUES,
   TUTOR_GENDER_VALUES,
-  TUTORING_LEVEL_OPTIONS,
-  TUTORING_LEVEL_VALUES,
   TUTOR_STATUS_OPTIONS,
   TUTOR_STATUS_VALUES,
   TUTOR_TYPE_OPTIONS,
@@ -115,7 +113,6 @@ export function EditTutor({ id }: EditTutorProps) {
       race: "Sinhalese",
       status: "pending",
       classType: [],
-      tutoringLevels: [],
       preferredLocations: [],
       tutorType: [],
       yearsExperience: 0,
@@ -289,10 +286,6 @@ export function EditTutor({ id }: EditTutorProps) {
       race: safeEnumValue(data.race, RACE_VALUES, "Sinhalese"),
       status: safeEnumValue(data.status, TUTOR_STATUS_VALUES, "pending"),
       classType: safeArrayEnumValue(data.classType, CLASS_TYPE_VALUES),
-      tutoringLevels: safeArrayEnumValue(
-        data.tutoringLevels,
-        TUTORING_LEVEL_VALUES,
-      ),
       preferredLocations: safeArrayEnumValue(
         data.preferredLocations,
         PREFERRED_LOCATION_VALUES,
@@ -800,21 +793,6 @@ export function EditTutor({ id }: EditTutorProps) {
                     {formState.errors.certificatesAndQualifications.message}
                   </p>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <MultiSelect
-                  label="Tutoring Levels"
-                  options={TUTORING_LEVEL_OPTIONS}
-                  defaultSelected={watch("tutoringLevels")}
-                  onChange={(selected) =>
-                    setValue(
-                      "tutoringLevels",
-                      selected as UpdateTutorSchema["tutoringLevels"],
-                      { shouldValidate: true },
-                    )
-                  }
-                />
               </div>
 
               <div className="space-y-2">
