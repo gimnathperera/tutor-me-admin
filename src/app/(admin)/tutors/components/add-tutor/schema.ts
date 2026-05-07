@@ -38,7 +38,7 @@ export const addTutorSchema = z.object({
         .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
     ),
 
-  gender: z.string().min(1, "Gender is required") as z.ZodType<typeof TUTOR_GENDER_VALUES[number]>,
+  gender: z.enum(TUTOR_GENDER_VALUES, { message: "Gender is required" }),
   age: z.number().int().min(18, "Must be at least 18 years old").max(80, "Must be 80 or under"),
 
   tutorMediums: z
@@ -47,8 +47,8 @@ export const addTutorSchema = z.object({
 
   grades: z.array(z.string()).min(1, "Select at least one grade"),
   subjects: z.array(z.string()).min(1, "Select at least one subject"),
-  nationality: z.string().min(1, "Nationality is required") as z.ZodType<typeof NATIONALITY_VALUES[number]>,
-  race: z.string().min(1, "Race is required") as z.ZodType<typeof RACE_VALUES[number]>,
+  nationality: z.enum(NATIONALITY_VALUES, { message: "Nationality is required" }),
+  race: z.enum(RACE_VALUES, { message: "Race is required" }),
 
   classType: z
     .array(z.enum(CLASS_TYPE_VALUES))
