@@ -78,6 +78,9 @@ const LEGACY_EDUCATION_VALUE_MAP: Partial<Record<string, EducationEditValue>> = 
   Poly: "Diploma and Professional",
 };
 
+const EMAIL_IMMUTABLE_MESSAGE =
+  "Email cannot be modified after tutor creation.";
+
 export function EditTutor({ id }: EditTutorProps) {
   const [open, setOpen] = useState(false);
   const formId = `edit-tutor-form-${id}`;
@@ -367,8 +370,9 @@ export function EditTutor({ id }: EditTutorProps) {
 
   const onSubmit = async (data: UpdateTutorSchema) => {
     try {
-      const cleanedData: UpdateTutorSchema = {
-        ...data,
+      const { email: immutableEmail, ...editableData } = data;
+      const cleanedData: Omit<UpdateTutorSchema, "email"> = {
+        ...editableData,
         academicDetails: normalizeTextSpaces(
           data.academicDetails || "",
         ) as string,
@@ -388,7 +392,10 @@ export function EditTutor({ id }: EditTutorProps) {
       }
 
       if ("data" in result) {
-        reset(cleanedData);
+        reset({
+          ...cleanedData,
+          email: tutorData?.email || immutableEmail || "",
+        });
         toast.success("Tutor updated successfully");
         setOpen(false);
       }
@@ -409,22 +416,6 @@ export function EditTutor({ id }: EditTutorProps) {
     },
     onBlur: (event) => {
       setValue("fullName", collapseTextSpaces(event.target.value), {
-        shouldValidate: true,
-      });
-    },
-  });
-
-  const emailRegister = form.register("email", {
-    onChange: (event) => {
-      const cleaned = stripLeadingSpaces(event.target.value);
-
-      if (cleaned !== event.target.value) {
-        event.target.value = cleaned;
-        setValue("email", cleaned, { shouldValidate: formState.isSubmitted });
-      }
-    },
-    onBlur: (event) => {
-      setValue("email", event.target.value.trim(), {
         shouldValidate: true,
       });
     },
@@ -543,14 +534,25 @@ export function EditTutor({ id }: EditTutorProps) {
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div
+                className="space-y-2 cursor-not-allowed"
+                title={EMAIL_IMMUTABLE_MESSAGE}
+              >
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="e.g johndoe@gmail.com"
-                  {...emailRegister}
+                  value={watch("email") || ""}
+                  className="cursor-not-allowed"
+                  disabled
+                  readOnly
+                  aria-readonly="true"
+                  aria-describedby={`email-immutable-help-${id}`}
                 />
+                <p id={`email-immutable-help-${id}`} className="sr-only">
+                  {EMAIL_IMMUTABLE_MESSAGE}
+                </p>
                 {formState.errors.email && (
                   <p className="text-sm text-red-500">
                     {formState.errors.email.message}

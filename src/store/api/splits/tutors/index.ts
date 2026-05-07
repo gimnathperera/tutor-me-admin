@@ -39,7 +39,10 @@ export const TutorsApi = baseApi.injectEndpoints({
       invalidatesTags: ["FindATutor", "Users"],
     }),
 
-    updateTutor: build.mutation<Tutor, { id: string } & UpdateTutorSchema>({
+    updateTutor: build.mutation<
+      Tutor,
+      { id: string } & Omit<UpdateTutorSchema, "email">
+    >({
       query: ({ id, ...payload }) => {
         return {
           url: `${Endpoints.FindATutor}/${id}`,
