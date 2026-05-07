@@ -52,7 +52,7 @@ export type UserStatusValue = (typeof USER_STATUS_VALUES)[number];
 export const USER_ROLE_VALUES = ["tutor", "admin"] as const;
 export type UserRoleValue = (typeof USER_ROLE_VALUES)[number];
 
-export const USER_GENDER_VALUES = ["male", "female", "other"] as const;
+export const USER_GENDER_VALUES = ["male", "female"] as const;
 export type UserGenderValue = (typeof USER_GENDER_VALUES)[number];
 
 // ─── Tutor Demographics ───────────────────────────────────────────────────────

@@ -131,7 +131,7 @@ export function UpdateUser(props: UpdateUserProps) {
         status: editableData.status || "pending",
         phoneNumber: editableData.phoneNumber || "",
         birthday: editableData.birthday || "",
-        gender: editableData.gender || "other",
+        gender: editableData.gender || "male",
         avatar: editableData.avatar || "",
       };
 
@@ -301,7 +301,6 @@ export function UpdateUser(props: UpdateUserProps) {
                 <SelectContent>
                   <SelectItem value="male">Male</SelectItem>
                   <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
               {formState.errors.gender && (
