@@ -14,8 +14,18 @@ const noExtraSpaces = (field: string) =>
       message: `Only one space is allowed between words`,
     });
 
+const gradeTitle = () =>
+  noExtraSpaces("Title")
+    .refine((val) => /^[\p{L}\p{N} ()&.\-]+$/u.test(val), {
+      message:
+        "Title can only include letters, numbers, spaces, parentheses, hyphens, ampersands, and periods",
+    })
+    .refine((val) => /\p{L}/u.test(val), {
+      message: "Title must include at least one letter",
+    });
+
 export const createGradeSchema = z.object({
-  title: noExtraSpaces("Title"),
+  title: gradeTitle(),
   description: noExtraSpaces("Description"),
 
   subjects: z

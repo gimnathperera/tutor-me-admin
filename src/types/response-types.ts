@@ -67,9 +67,10 @@ export type TuitionRateItem = {
   grade: Grade;
   subject: Subject;
   level: Level;
-  govTuitionRate: Rate[];
-  partTimeTuitionRate: Rate[];
-  fullTimeTuitionRate: Rate[];
+  universityStudentsRate: Rate;
+  partTimeTutorRate: Rate;
+  fullTimeTutorRate: Rate;
+  moeTeacherRate: Rate;
 };
 export type Rate = {
   minimumRate: string;
@@ -131,9 +132,10 @@ export type TuitionRates = BaseEntity &
   WithTitleDescription & {
     subject: EntityRef;
     grade: EntityRef;
-    fullTimeTuitionRate: TuitionRate[];
-    govTuitionRate: TuitionRate[];
-    partTimeTuitionRate: TuitionRate[];
+    universityStudentsRate: TuitionRate;
+    partTimeTutorRate: TuitionRate;
+    fullTimeTutorRate: TuitionRate;
+    moeTeacherRate: TuitionRate;
   };
 
 // Paper
@@ -254,6 +256,10 @@ export type UpdatePasswordResponse = {
   message: string;
 };
 
+export type ForgotPasswordResponse = {
+  message: string;
+};
+
 export type TokenResponse = {
   access: {
     token: string;
@@ -347,7 +353,7 @@ export type RequestTutors = BaseEntity & {
   district: string;
   phoneNumber: string;
   medium: string;
-  status: "Approved" | "Pending" | "Tutor Assigned";
+  status: "Pending" | "Rejected";
   grade: string;
   tutors: RequestTutorTutor[];
   createdAt: string;

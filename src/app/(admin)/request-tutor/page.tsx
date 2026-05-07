@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import RequestForTutorsList from "./TutorsList";
 
 export const metadata: Metadata = {
-  title: "Requests For Tutors | TuitionLanka - Admin Dashboard",
-  description: "Manage tutors",
+  title: "Admin | Tuition Lanka",
+  description: "Manage tutor requests",
 };
 
 export default function TutorsPage() {

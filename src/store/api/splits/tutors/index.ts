@@ -28,7 +28,7 @@ export const TutorsApi = baseApi.injectEndpoints({
       providesTags: ["FindATutor"],
     }),
 
-    createTutor: build.mutation<Tutor, AddTutorFormValues>({
+    createTutor: build.mutation<Tutor, Omit<AddTutorFormValues, "confirmPassword">>({
       query: (payload) => {
         return {
           url: Endpoints.FindATutor,

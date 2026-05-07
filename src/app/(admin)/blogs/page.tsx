@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { BlogsTabs } from "./components";
 
 export const metadata: Metadata = {
-  title: "Grades | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is the Grades management page for TuitionLanka",
 };
 

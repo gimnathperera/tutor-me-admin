@@ -1,149 +1,76 @@
+import {
+  CLASS_TYPE_VALUES,
+  EDUCATION_VALUES_ADD,
+  NATIONALITY_VALUES,
+  PREFERRED_LOCATION_VALUES,
+  RACE_VALUES,
+  TUTOR_GENDER_VALUES,
+  TUTOR_TYPE_VALUES,
+} from "@/configs/app-constants";
 import { z } from "zod";
 
-const tutorTypeValues = [
-  "Private Tutor",
-  "Government Teacher",
-  "International School Teacher",
-  "University Lecturer",
-  "Online Tutor",
-  "Others",
-] as const;
-
-const classTypeValues = [
-  "Online - Individual",
-  "Online - Group",
-  "Home Visit - Individual",
-  "Home Visit - Group",
-  "At Tutor's Place - Individual",
-  "At Tutor's Place - Group",
-] as const;
-
-// Full form schema
 export const addTutorSchema = z.object({
   fullName: z
     .string()
     .min(1, "Full Name is required")
     .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
+
   contactNumber: z
     .string()
+    .trim()
+    .min(1, "Contact Number is required")
     .regex(/^[0-9]+$/, "Contact number must contain only numbers")
     .length(10, "Contact number must be exactly 10 digits"),
 
-  email: z.string().email("Email must be valid"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Email must be valid"),
+
   dateOfBirth: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
+    .trim()
+    .min(1, "Date of Birth is required")
+    .pipe(
+      z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
+    ),
 
-  gender: z.enum(["Male", "Female"]),
-  age: z.number().int().min(1),
+  gender: z.string().min(1, "Gender is required") as z.ZodType<typeof TUTOR_GENDER_VALUES[number]>,
+  age: z.number().int().min(18, "Must be at least 18 years old").max(80, "Must be 80 or under"),
+
   tutorMediums: z
     .array(z.string())
     .min(1, "Please select at least one medium."),
 
   grades: z.array(z.string()).min(1, "Select at least one grade"),
   subjects: z.array(z.string()).min(1, "Select at least one subject"),
-  nationality: z.enum(["Sri Lankan", "Others"]),
-  race: z.enum(["Sinhalese", "Tamil", "Muslim", "Burgher", "Others"]),
+  nationality: z.string().min(1, "Nationality is required") as z.ZodType<typeof NATIONALITY_VALUES[number]>,
+  race: z.string().min(1, "Race is required") as z.ZodType<typeof RACE_VALUES[number]>,
 
   classType: z
-    .array(z.enum(classTypeValues))
+    .array(z.enum(CLASS_TYPE_VALUES))
     .min(1, "Select at least one class type"),
 
-  // Tutoring preferences
-  tutoringLevels: z
-    .array(
-      z.enum([
-        "Pre-School / Montessori",
-        "Primary School (Grades 1-5)",
-        "Ordinary Level (O/L) (Grades 6-11)",
-        "Advanced Level (A/L) (Grades 12-13)",
-        "International Syllabus (Cambridge, Edexcel, IB)",
-        "Undergraduate",
-        "Diploma / Degree",
-        "Language (e.g., English, French, Japanese)",
-        "Computing (e.g., Programming, Graphic Design)",
-        "Music & Arts",
-        "Special Skills",
-      ]),
-    )
-    .min(1, "Select at least one tutoring level"),
-
   preferredLocations: z
-    .array(
-      z.enum([
-        "Kollupitiya (Colombo 3)",
-        "Bambalapitiya (Colombo 4)",
-        "Havelock Town (Colombo 5)",
-        "Wellawatte (Colombo 6)",
-        "Cinnamon Gardens (Colombo 7)",
-        "Borella (Colombo 8)",
-        "Dehiwala",
-        "Mount Lavinia",
-        "Nugegoda",
-        "Rajagiriya",
-        "Kotte",
-        "Battaramulla",
-        "Malabe",
-        "Moratuwa",
-        "Gampaha",
-        "Negombo",
-        "Kadawatha",
-        "Kiribathgoda",
-        "Kelaniya",
-        "Wattala",
-        "Ja-Ela",
-        "Kalutara",
-        "Panadura",
-        "Horana",
-        "Wadduwa",
-        "Kandy",
-        "Matale",
-        "Nuwara Eliya",
-        "Galle",
-        "Matara",
-        "Hambantota",
-        "Kurunegala",
-        "Puttalam",
-        "Chilaw",
-        "Ratnapura",
-        "Kegalle",
-        "Badulla",
-        "Bandarawela",
-        "Anuradhapura",
-        "Polonnaruwa",
-        "Jaffna",
-        "Vavuniya",
-        "Trincomalee",
-        "Batticaloa",
-        "No Preference",
-      ]),
-    )
+    .array(z.enum(PREFERRED_LOCATION_VALUES))
     .min(1, "Select at least one preferred location"),
 
-  // Academic qualifications
   tutorType: z
-    .array(z.enum(tutorTypeValues))
+    .array(z.enum(TUTOR_TYPE_VALUES))
     .min(1, "Select at least one tutor type"),
 
-  yearsExperience: z.number().int().min(0).max(50),
+  yearsExperience: z.number().int().min(1, "Years of Experience are required").max(50),
 
-  highestEducation: z.enum([
-    "PhD",
-    "Diploma",
-    "Masters",
-    "Undergraduate",
-    "Bachelor Degree",
-    "Diploma and Professional",
-    "JC/A Levels",
-    "Poly",
-    "Others",
-  ]),
-  academicDetails: z.string().max(1000).optional(),
+  highestEducation: z.enum(EDUCATION_VALUES_ADD),
 
-  // Tutor's profile
-  teachingSummary: z.string().max(750),
-  studentResults: z.string().max(750),
-  sellingPoints: z.string().max(750),
+  academicDetails: z.string().min(1, "Academic Details are required").max(1000),
+  teachingSummary: z.string().min(1, "Teaching Summary is required").max(750),
+  studentResults: z.string().min(1, "Student Results are required").max(750),
+  sellingPoints: z.string().min(1, "Selling Points are required").max(750),
+
   certificatesAndQualifications: z
     .array(
       z.object({
@@ -154,35 +81,47 @@ export const addTutorSchema = z.object({
     )
     .min(1, "At least one certificate or qualification is required"),
 
-  // Agreement
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(12, "Password must be at most 12 characters")
+    .regex(/(?=.*[A-Za-z])(?=.*\d).+/, "Password must contain at least one letter and one number"),
+
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+
   agreeTerms: z
     .boolean()
     .refine((val) => val === true, "You must agree to Terms and Conditions"),
+
   agreeAssignmentInfo: z
     .boolean()
     .refine((val) => val === true, "You must agree to Assignment Info"),
+}).superRefine((data, ctx) => {
+  if (data.confirmPassword !== data.password) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    });
+  }
 });
 
 export type AddTutorFormValues = z.infer<typeof addTutorSchema>;
 
-// Default initial values
 export const initialTutorFormValues: AddTutorFormValues = {
   fullName: "",
   contactNumber: "",
-
   email: "",
   dateOfBirth: "",
-
-  gender: "Male",
-  age: 18,
+  gender: "" as AddTutorFormValues["gender"],
+  age: 0,
   tutorMediums: [],
   grades: [],
   subjects: [],
-  nationality: "Sri Lankan",
-  race: "Sinhalese",
+  nationality: "" as AddTutorFormValues["nationality"],
+  race: "" as AddTutorFormValues["race"],
 
   classType: [],
-  tutoringLevels: [],
   preferredLocations: [],
   tutorType: [],
   yearsExperience: 0,
@@ -192,6 +131,8 @@ export const initialTutorFormValues: AddTutorFormValues = {
   studentResults: "",
   sellingPoints: "",
   certificatesAndQualifications: [],
+  password: "",
+  confirmPassword: "",
   agreeTerms: false,
   agreeAssignmentInfo: false,
 };

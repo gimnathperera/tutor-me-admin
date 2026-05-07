@@ -4,7 +4,7 @@ import { useAuthContext } from "@/context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-const publicRoutes = ["/signin", "/signup", "/reset-password"];
+const publicRoutes = ["/signin", "/signup", "/forgot-password", "/reset-password"];
 
 export default function ProtectedRoute({
   children,

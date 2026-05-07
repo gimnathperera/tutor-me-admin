@@ -2,6 +2,7 @@
 "use client";
 
 import { formatYearsExperience } from "@/app/(admin)/tutors/constants";
+import { TUTOR_STATUS_STYLE_CLASSES } from "@/configs/app-constants";
 import { Button } from "@/components/ui/button/Button";
 import {
   Dialog,
@@ -69,12 +70,6 @@ interface ViewTutorProps {
   };
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
-  approved: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-  rejected: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-  suspended: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
-};
 
 function CertificateViewer({
   url,
@@ -93,7 +88,10 @@ function CertificateViewer({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] h-[80vh] flex flex-col">
+      <DialogContent
+        className="sm:max-w-[800px] max-h-[90vh] h-[80vh] flex flex-col"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Certificate Viewer</DialogTitle>
         </DialogHeader>
@@ -232,7 +230,9 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
   }, [tutor?.subjects, subjectIdToTitle, gradesData]);
 
   const statusKey = (tutor.status || "").toLowerCase();
-  const statusStyle = STATUS_STYLES[statusKey] || STATUS_STYLES["pending"];
+  const statusStyle =
+    TUTOR_STATUS_STYLE_CLASSES[statusKey] ||
+    TUTOR_STATUS_STYLE_CLASSES["pending"];
 
   return (
     <>
@@ -246,11 +246,12 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
           <Eye className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[625px] max-h-[80vh] overflow-y-auto bg-white dark:bg-gray-800 dark:text-white/90 scrollbar-thin">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[625px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-b">
             <DialogTitle>Tutor Details</DialogTitle>
           </DialogHeader>
 
+          <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
           <div className="grid gap-4">
             {/** Status */}
             {tutor.status && (
@@ -512,8 +513,9 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
               </div>
             </div>
           </div>
+          </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Close</Button>
             </DialogClose>

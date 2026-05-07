@@ -2,7 +2,7 @@ import DashboardOverview from "@/components/dashboard/DashboardOverview";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "TuitionLanka Admin Panel | Softvil Technologies",
+  title: "Admin | Tuition Lanka",
   description:
     "Admin dashboard for managing tutors, students, and sessions efficiently.",
 };

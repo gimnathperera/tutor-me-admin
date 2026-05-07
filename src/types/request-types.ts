@@ -37,7 +37,8 @@ export type UpdateBlogStatusRequest = {
 };
 export type UpdateTutorRequestsRequest = {
   requestId: string;
-  status?: "Approved" | "Pending" | "Tutor Assigned";
+  status?: "Pending" | "Rejected";
+  rejectionReason?: string;
 };
 
 export type UserLoginRequest = {
@@ -57,6 +58,10 @@ export type UserRegisterRequest = {
   email: string;
   password: string;
   name: string;
+};
+
+export type ForgotPasswordRequest = {
+  email: string;
 };
 
 export type CreateAdminRequest = {
@@ -213,17 +218,19 @@ export type UpdateTuitionRateRequest = {
   id: string;
   subject: string;
   grade: string;
-  fullTimeTuitionRate?: TuitionRate[];
-  govTuitionRate?: TuitionRate[];
-  partTimeTuitionRate?: TuitionRate[];
+  universityStudentsRate?: TuitionRate;
+  partTimeTutorRate?: TuitionRate;
+  fullTimeTutorRate?: TuitionRate;
+  moeTeacherRate?: TuitionRate;
 };
 
 export type FetchTuitionRatesRequest = {
   subject?: string[];
   grade?: string[];
-  fullTimeTuitionRate?: TuitionRate[];
-  govTuitionRate?: TuitionRate[];
-  partTimeTuitionRate?: TuitionRate[];
+  universityStudentsRate?: TuitionRate;
+  partTimeTutorRate?: TuitionRate;
+  fullTimeTutorRate?: TuitionRate;
+  moeTeacherRate?: TuitionRate;
   page?: number;
   sortBy?: string;
   limit?: number;
@@ -240,6 +247,7 @@ export type FetchSubjectsRequest = {
 };
 
 export type FetchUserRequest = {
+  search?: string;
   email?: string;
   password?: string;
   name?: string;
@@ -267,6 +275,8 @@ export type FetchUserRequest = {
 };
 
 export type FetchTutorsRequest = {
+  search?: string;
+  status?: "pending" | "approved" | "suspended" | "rejected";
   fullName?: string;
   contactNumber?: string;
   tutorMediums?: string;
@@ -286,26 +296,30 @@ export type FetchTutorsRequest = {
   subjectId?: string;
 };
 export type FetchRequestForTutor = {
+  search?: string;
   page?: number;
   limit?: number;
   sortBy?: string;
   requestTutorId?: string;
   name?: string;
-  medium?: string;
-  district?: string;
   email?: string;
-  grade?: string[];
-  phoneNumber?: string;
   city?: string;
-  state?: string;
+  district?: string;
+  grade?: string;
+  medium?: string;
   status?: string;
+  phoneNumber?: string;
+  subject?: string;
+  assignedTutor?: string;
+  preferredTutorType?: string;
+  preferredClassType?: string;
+  duration?: string;
+  frequency?: string;
+  state?: string;
   region?: string;
   zip?: string;
   tutors?: string[];
   subjects?: string[];
-  duration?: string;
-  frequency?: string;
-  assignedTutor?: { id: string; fullName: string }[];
 };
 export type CreateTutorRequest = {
   fullName: string;

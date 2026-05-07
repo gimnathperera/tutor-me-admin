@@ -38,6 +38,8 @@ export interface TutorRequestBlock {
 export interface AssignTutorRow {
   id: string;
   grade?: string;
+  district?: string;
+  medium?: string;
   tutors?: TutorRequestBlock[];
 }
 
@@ -67,12 +69,16 @@ const getAssignedTutorId = (assignedTutor: TutorRequestBlock["assignedTutor"]) =
 function TutorBlockItem({
   tutorBlock,
   gradeId,
+  district,
+  medium,
   index,
   selectedTutorId,
   onSelect,
 }: {
   tutorBlock: TutorRequestBlock;
   gradeId?: string;
+  district?: string;
+  medium?: string;
   index: number;
   selectedTutorId: string;
   onSelect: (index: number, tutorId: string) => void;
@@ -87,7 +93,6 @@ function TutorBlockItem({
     ? (subjectData?.title ?? tutorBlock.subject)
     : (tutorBlock.subject || "N/A");
 
-  // Fetch only tutors that match the request's grade AND this block's subject
   const { data, isLoading } = useFetchTutorsQuery({
     page: 1,
     limit: LARGE_LIMIT,
@@ -95,7 +100,25 @@ function TutorBlockItem({
     subjectId: isObjectId ? tutorBlock.subject : undefined,
   });
 
-  const tutors = data?.results ?? [];
+  const tutors = (data?.results ?? []).filter((tutor) => {
+    const mediumMatch =
+      !medium || tutor.tutorMediums.some((m) => m.toLowerCase() === medium.toLowerCase());
+
+    const tutorTypeMatch =
+      !tutorBlock.preferredTutorType ||
+      tutor.tutorType.some((t) => t.toLowerCase() === (tutorBlock.preferredTutorType ?? "").toLowerCase());
+
+    const hasOnline = tutor.classType.some((ct) => ct.toLowerCase().includes("online"));
+    const hasPhysical = tutor.classType.some((ct) => ct.toLowerCase().includes("physical"));
+    const districtMatch =
+      !district ||
+      tutor.preferredLocations.some((loc) => loc.toLowerCase().includes(district.toLowerCase()));
+
+    const classTypePass = hasOnline || (hasPhysical && districtMatch);
+
+    return mediumMatch && tutorTypeMatch && classTypePass;
+  });
+
   const noResults = !isLoading && tutors.length === 0;
 
   const currentValue =
@@ -297,6 +320,8 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
                 key={tutorBlock._id}
                 tutorBlock={tutorBlock}
                 gradeId={row.grade}
+                district={row.district}
+                medium={row.medium}
                 index={index}
                 selectedTutorId={selections[index] ?? ""}
                 onSelect={handleSelect}

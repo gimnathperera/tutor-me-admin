@@ -3,7 +3,7 @@ import { AddTuitionRate } from "./create-tuition-rate/AddTuitionRate";
 import TuitionRatesTable from "./RatesList";
 
 export const metadata: Metadata = {
-  title: "Tuition Rates | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is the Tuition Rates management page for TuitionLanka",
 };
 

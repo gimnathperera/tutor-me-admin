@@ -1,3 +1,4 @@
+import { BLOG_STATUS_VALUES } from "@/configs/app-constants";
 import { z } from "zod";
 
 export const updateArticleSchema = z.object({
@@ -31,7 +32,7 @@ export const updateArticleSchema = z.object({
   relatedArticles: z
     .array(z.string().min(1, "Related article ID is required"))
     .nonempty("At least one related article is required"),
-  status: z.enum(["pending", "published", "draft", "rejected"]),
+  status: z.enum(BLOG_STATUS_VALUES),
 });
 
 export type UpdateArticleSchema = z.infer<typeof updateArticleSchema>;

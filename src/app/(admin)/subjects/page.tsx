@@ -3,7 +3,7 @@ import SubjectsTable from "./components/SubjectsList";
 import { AddSubject } from "./components/add-subject/AddSubject";
 
 export const metadata: Metadata = {
-  title: "Subjects | TuitionLanka",
+  title: "Admin | Tuition Lanka",
   description: "This is the Subjects management page for TuitionLanka",
 };
 

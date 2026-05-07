@@ -4,6 +4,7 @@ export const Endpoints = {
   Logout: "/v1/auth/logout",
   RefreshToken: "/v1/auth/refresh-tokens",
   ResetPassword: "/v1/auth/reset-password",
+  ForgotPassword: "/v1/auth/forgot-password",
   ContactUs: "/v1/inquiries",
   Testimonials: "/v1/testimonials",
   Faqs: "/v1/faqs",
