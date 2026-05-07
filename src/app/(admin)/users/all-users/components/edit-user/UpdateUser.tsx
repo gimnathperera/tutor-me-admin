@@ -43,6 +43,9 @@ import {
 type UserRole = "tutor" | "admin";
 type UserStatus = "pending" | "approved" | "rejected" | "suspended";
 
+const EMAIL_IMMUTABLE_MESSAGE =
+  "Email cannot be modified after user creation.";
+
 interface UpdateUserProps {
   id: string;
   email: string;
@@ -104,22 +107,22 @@ export function UpdateUser(props: UpdateUserProps) {
 
   const onSubmit = async (data: UpdateUserSchema) => {
     try {
+      const { email: _immutableEmail, ...editableData } = data;
       const payload = {
         id: props.id,
-        email: data.email,
-        role: data.role,
-        name: data.name,
-        status: data.status || "pending",
-        phoneNumber: data.phoneNumber || "",
-        birthday: data.birthday || "",
-        country: data.country || "",
-        city: data.city || "",
-        state: data.state || "",
-        region: data.region || "",
-        zip: data.zip || "",
-        address: data.address || "",
-        gender: data.gender || "other",
-        avatar: data.avatar || "",
+        role: editableData.role,
+        name: editableData.name,
+        status: editableData.status || "pending",
+        phoneNumber: editableData.phoneNumber || "",
+        birthday: editableData.birthday || "",
+        country: editableData.country || "",
+        city: editableData.city || "",
+        state: editableData.state || "",
+        region: editableData.region || "",
+        zip: editableData.zip || "",
+        address: editableData.address || "",
+        gender: editableData.gender || "other",
+        avatar: editableData.avatar || "",
       };
 
       const result = await updateUser(payload);
@@ -173,9 +176,27 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            <div className="grid gap-3">
+            <div
+              className="grid cursor-not-allowed gap-3"
+              title={EMAIL_IMMUTABLE_MESSAGE}
+            >
               <Label htmlFor="email">Email</Label>
-              <Input id="email" {...register("email")} />
+              <Input
+                id="email"
+                type="email"
+                value={props.email || ""}
+                className="cursor-not-allowed"
+                disabled
+                readOnly
+                aria-readonly="true"
+                aria-describedby={`user-email-immutable-help-${props.id}`}
+              />
+              <p
+                id={`user-email-immutable-help-${props.id}`}
+                className="sr-only"
+              >
+                {EMAIL_IMMUTABLE_MESSAGE}
+              </p>
               {formState.errors.email && (
                 <p className="text-sm text-red-500">
                   {formState.errors.email.message}
