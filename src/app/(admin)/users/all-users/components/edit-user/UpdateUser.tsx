@@ -236,7 +236,7 @@ export function UpdateUser(props: UpdateUserProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Label htmlFor="phoneNumber">Contact Number</Label>
               <Input
                 id="phoneNumber"
                 placeholder="ex: 0712345678"
