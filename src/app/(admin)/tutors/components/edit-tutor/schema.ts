@@ -4,9 +4,9 @@ import {
   PREFERRED_LOCATION_VALUES,
   RACE_VALUES,
   TUTOR_GENDER_VALUES,
-  TUTORING_LEVEL_VALUES,
   TUTOR_STATUS_VALUES,
   TUTOR_TYPE_VALUES,
+  TUTORING_LEVEL_VALUES,
 } from "@/configs/app-constants";
 import { normalizeTextSpaces } from "@/utils/form-normalizers";
 import { z } from "zod";

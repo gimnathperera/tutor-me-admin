@@ -142,8 +142,8 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
     fallback = "N/A",
   ) =>
     value === undefined ||
-      value === null ||
-      (typeof value === "string" && value.trim() === "")
+    value === null ||
+    (typeof value === "string" && value.trim() === "")
       ? fallback
       : value;
 
@@ -292,8 +292,8 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
                 <div className={displayFieldClass}>
                   {tutor.dateOfBirth
                     ? new Date(tutor.dateOfBirth)
-                      .toLocaleDateString("en-CA")
-                      .replace(/-/g, "/")
+                        .toLocaleDateString("en-CA")
+                        .replace(/-/g, "/")
                     : "N/A"}
                 </div>
               </div>
