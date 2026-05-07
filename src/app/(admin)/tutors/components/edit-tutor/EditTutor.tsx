@@ -79,9 +79,15 @@ const LEGACY_EDUCATION_VALUE_MAP: Partial<Record<string, EducationEditValue>> = 
 const EMAIL_IMMUTABLE_MESSAGE =
   "Email cannot be modified after tutor creation.";
 
+const getMinimumAdultBirthDate = () => {
+  const today = new Date();
+  return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+};
+
 export function EditTutor({ id }: EditTutorProps) {
   const [open, setOpen] = useState(false);
   const formId = `edit-tutor-form-${id}`;
+  const maxTutorDateOfBirth = getMinimumAdultBirthDate();
   const { data: tutorData, isLoading: isFetching } = useFetchTutorByIdQuery(id);
   const [updateTutor, { isLoading: isUpdating }] = useUpdateTutorMutation();
 
@@ -579,6 +585,7 @@ export function EditTutor({ id }: EditTutorProps) {
                     }
                     placeholder="Select your date of birth"
                     error={formState.errors.dateOfBirth?.message}
+                    maxDate={maxTutorDateOfBirth}
                   />
                 </div>
 
@@ -590,7 +597,7 @@ export function EditTutor({ id }: EditTutorProps) {
                     placeholder="Age"
                     disabled
                     {...form.register("age", { valueAsNumber: true })}
-                    min={1}
+                    min={18}
                   />
                   {formState.errors.age && (
                     <p className="text-sm text-red-500">

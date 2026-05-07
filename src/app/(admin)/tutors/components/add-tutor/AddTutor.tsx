@@ -62,10 +62,16 @@ import {
   initialTutorFormValues,
 } from "./schema";
 
+const getMinimumAdultBirthDate = () => {
+  const today = new Date();
+  return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+};
+
 export function AddTutor() {
   const [open, setOpen] = useState(false);
   const [createTutor, { isLoading }] = useCreateTutorMutation();
   const formId = "add-tutor-form";
+  const maxTutorDateOfBirth = getMinimumAdultBirthDate();
 
   const form = useForm<AddTutorFormValues>({
     resolver: zodResolver(addTutorSchema),
@@ -438,7 +444,7 @@ export function AddTutor() {
                   }
                   placeholder="Select your date of birth"
                   error={formState.errors.dateOfBirth?.message}
-                  maxDate={new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate())}
+                  maxDate={maxTutorDateOfBirth}
                 />
 
                 <div className="space-y-2">

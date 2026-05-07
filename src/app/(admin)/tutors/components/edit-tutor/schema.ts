@@ -56,7 +56,7 @@ export const updateTutorSchema = z.object({
     )
     .optional(),
   gender: z.enum(TUTOR_GENDER_VALUES).optional(),
-  age: z.number().int().min(1, "Age must be at least 1").optional(),
+  age: z.number().int().min(18, "Must be at least 18 years old").optional(),
   tutorMediums: z.array(z.string()).optional(),
   grades: z.array(z.string()).optional(),
   subjects: z.array(z.string()).optional(),

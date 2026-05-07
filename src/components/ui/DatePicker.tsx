@@ -3,7 +3,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { offset } from "@floating-ui/react";
 import {
   Calendar,
   Check,
@@ -317,7 +316,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
         wrapperClassName="w-full"
         showPopperArrow={false}
         popperPlacement="bottom-start"
-        popperProps={{ middleware: [offset(10)] }}
         popperClassName="tm-datepicker-popper z-30 [&_.react-datepicker__triangle]:!hidden"
         calendarClassName="
           tm-datepicker-calendar !w-auto !rounded-xl !border !border-gray-200 !bg-white !p-3 !font-outfit !text-gray-900 !shadow-theme-lg dark:!border-gray-700 dark:!bg-gray-800 dark:!text-white
