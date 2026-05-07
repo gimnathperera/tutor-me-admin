@@ -85,7 +85,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
   return (
     <div className="w-full" ref={dropdownRef}>
       {label ? (
-        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-white">
           {label}
         </label>
       ) : null}

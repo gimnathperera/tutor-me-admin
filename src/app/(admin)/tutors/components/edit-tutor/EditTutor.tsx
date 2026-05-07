@@ -1,23 +1,5 @@
 "use client";
 
-import {
-  CLASS_TYPE_OPTIONS,
-  CLASS_TYPE_VALUES,
-  EDUCATION_VALUES_EDIT,
-  TUTOR_MEDIUM_OPTIONS,
-  NATIONALITY_VALUES,
-  PREFERRED_LOCATION_OPTIONS,
-  PREFERRED_LOCATION_VALUES,
-  RACE_VALUES,
-  TUTOR_GENDER_VALUES,
-  TUTORING_LEVEL_OPTIONS,
-  TUTORING_LEVEL_VALUES,
-  TUTOR_STATUS_OPTIONS,
-  TUTOR_STATUS_VALUES,
-  TUTOR_TYPE_OPTIONS,
-  TUTOR_TYPE_VALUES,
-  YEARS_EXPERIENCE_OPTIONS,
-} from "@/configs/app-constants";
 import MultiSelect from "@/components/form/MultiSelect";
 import MultiFileUploader from "@/components/MultiFileUploader";
 import { Button } from "@/components/ui/button/Button";
@@ -42,6 +24,24 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  CLASS_TYPE_OPTIONS,
+  CLASS_TYPE_VALUES,
+  EDUCATION_VALUES_EDIT,
+  NATIONALITY_VALUES,
+  PREFERRED_LOCATION_OPTIONS,
+  PREFERRED_LOCATION_VALUES,
+  RACE_VALUES,
+  TUTOR_GENDER_VALUES,
+  TUTOR_MEDIUM_OPTIONS,
+  TUTOR_STATUS_OPTIONS,
+  TUTOR_STATUS_VALUES,
+  TUTOR_TYPE_OPTIONS,
+  TUTOR_TYPE_VALUES,
+  TUTORING_LEVEL_OPTIONS,
+  TUTORING_LEVEL_VALUES,
+  YEARS_EXPERIENCE_OPTIONS,
+} from "@/configs/app-constants";
+import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
 } from "@/store/api/splits/grades";
@@ -65,7 +65,6 @@ import { UpdateTutorSchema, updateTutorSchema } from "./schema";
 interface EditTutorProps {
   id: string;
 }
-
 
 export function EditTutor({ id }: EditTutorProps) {
   const [open, setOpen] = useState(false);
@@ -354,7 +353,9 @@ export function EditTutor({ id }: EditTutorProps) {
         teachingSummary: normalizeTextSpaces(
           data.teachingSummary || "",
         ) as string,
-        studentResults: normalizeTextSpaces(data.studentResults || "") as string,
+        studentResults: normalizeTextSpaces(
+          data.studentResults || "",
+        ) as string,
         sellingPoints: normalizeTextSpaces(data.sellingPoints || "") as string,
       };
 
@@ -383,7 +384,9 @@ export function EditTutor({ id }: EditTutorProps) {
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
-        setValue("fullName", cleaned, { shouldValidate: formState.isSubmitted });
+        setValue("fullName", cleaned, {
+          shouldValidate: formState.isSubmitted,
+        });
       }
     },
     onBlur: (event) => {
@@ -481,7 +484,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName">Full Name *</Label>
                 <Input
                   id="fullName"
                   placeholder="Full Name"
@@ -495,7 +498,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contactNumber">Contact Number</Label>
+                <Label htmlFor="contactNumber">Contact Number *</Label>
                 <Controller
                   name="contactNumber"
                   control={control}
@@ -523,7 +526,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -541,7 +544,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 <div className="space-y-2">
                   <DatePicker
                     id={`dateOfBirth-${id}`}
-                    label="Date of Birth"
+                    label="Date of Birth *"
                     value={watch("dateOfBirth")}
                     onChange={(date) =>
                       setValue("dateOfBirth", date, {
@@ -555,7 +558,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="age">Age</Label>
+                  <Label htmlFor="age">Age *</Label>
                   <Input
                     id="age"
                     type="number"
@@ -574,7 +577,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Gender</Label>
+                  <Label htmlFor="gender">Gender *</Label>
                   <Select
                     onValueChange={(val) =>
                       setValue("gender", val as UpdateTutorSchema["gender"])
@@ -586,7 +589,9 @@ export function EditTutor({ id }: EditTutorProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {TUTOR_GENDER_VALUES.map((v) => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -598,7 +603,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="nationality">Nationality</Label>
+                  <Label htmlFor="nationality">Nationality *</Label>
                   <Select
                     onValueChange={(val) =>
                       setValue(
@@ -613,7 +618,9 @@ export function EditTutor({ id }: EditTutorProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {NATIONALITY_VALUES.map((v) => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -625,7 +632,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="race">Race</Label>
+                  <Label htmlFor="race">Race *</Label>
                   <Select
                     onValueChange={(val) =>
                       setValue("race", val as UpdateTutorSchema["race"])
@@ -637,7 +644,9 @@ export function EditTutor({ id }: EditTutorProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {RACE_VALUES.map((v) => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -745,7 +754,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-3 rounded-md border p-4">
-                <Label>Certificates & Qualifications</Label>
+                <Label>Certificates & Qualifications *</Label>
                 <MultiFileUploader
                   mode="certificate"
                   defaultFiles={tutorData?.certificatesAndQualifications || []}
@@ -769,7 +778,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
               <div className="space-y-2">
                 <MultiSelect
-                  label="Tutoring Levels"
+                  label="Tutoring Levels *"
                   options={TUTORING_LEVEL_OPTIONS}
                   defaultSelected={watch("tutoringLevels")}
                   onChange={(selected) =>
@@ -784,7 +793,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
               <div className="space-y-2">
                 <MultiSelect
-                  label="Preferred Locations"
+                  label="Preferred Locations *"
                   options={PREFERRED_LOCATION_OPTIONS}
                   defaultSelected={watch("preferredLocations")}
                   onChange={(selected) =>
@@ -799,7 +808,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <Label htmlFor="yearsExperience">Years of Experience</Label>
+                  <Label htmlFor="yearsExperience">Years of Experience *</Label>
                   <Select
                     onValueChange={handleYearsSelect}
                     value={String(watch("yearsExperience"))}
@@ -826,7 +835,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="highestEducation">Highest Education</Label>
+                  <Label htmlFor="highestEducation">Highest Education *</Label>
                   <Select
                     onValueChange={(val) =>
                       setValue(

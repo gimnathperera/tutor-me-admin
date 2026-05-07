@@ -1,17 +1,5 @@
 "use client";
 
-import {
-  CLASS_TYPE_OPTIONS,
-  EDUCATION_VALUES_ADD,
-  TUTOR_MEDIUM_OPTIONS,
-  NATIONALITY_VALUES,
-  PREFERRED_LOCATION_OPTIONS,
-  RACE_VALUES,
-  TUTOR_GENDER_VALUES,
-  TUTORING_LEVEL_OPTIONS,
-  TUTOR_TYPE_OPTIONS,
-  YEARS_EXPERIENCE_OPTIONS,
-} from "@/configs/app-constants";
 import MultiSelect from "@/components/form/MultiSelect";
 import MultiFileUploader from "@/components/MultiFileUploader";
 import { Button } from "@/components/ui/button/Button";
@@ -35,6 +23,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  CLASS_TYPE_OPTIONS,
+  EDUCATION_VALUES_ADD,
+  NATIONALITY_VALUES,
+  PREFERRED_LOCATION_OPTIONS,
+  RACE_VALUES,
+  TUTOR_GENDER_VALUES,
+  TUTOR_MEDIUM_OPTIONS,
+  TUTOR_TYPE_OPTIONS,
+  TUTORING_LEVEL_OPTIONS,
+  YEARS_EXPERIENCE_OPTIONS,
+} from "@/configs/app-constants";
 import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
@@ -224,7 +224,9 @@ export function AddTutor() {
     const cleanedData = {
       ...data,
       fullName: normalizeTextSpaces(data.fullName) as string,
-      academicDetails: normalizeTextSpaces(data.academicDetails || "") as string,
+      academicDetails: normalizeTextSpaces(
+        data.academicDetails || "",
+      ) as string,
       teachingSummary: normalizeTextSpaces(data.teachingSummary) as string,
       studentResults: normalizeTextSpaces(data.studentResults) as string,
       sellingPoints: normalizeTextSpaces(data.sellingPoints) as string,
@@ -252,7 +254,9 @@ export function AddTutor() {
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
-        setValue("fullName", cleaned, { shouldValidate: formState.isSubmitted });
+        setValue("fullName", cleaned, {
+          shouldValidate: formState.isSubmitted,
+        });
       }
     },
     onBlur: (event) => {
@@ -552,7 +556,7 @@ export function AddTutor() {
 
               <div className="space-y-2">
                 <MultiSelect
-                  label="Tutoring Levels"
+                  label="Tutoring Levels *"
                   options={TUTORING_LEVEL_OPTIONS}
                   defaultSelected={watch("tutoringLevels")}
                   onChange={(selected) =>
@@ -567,7 +571,7 @@ export function AddTutor() {
 
               <div className="space-y-2">
                 <MultiSelect
-                  label="Preferred Locations"
+                  label="Preferred Locations *"
                   options={PREFERRED_LOCATION_OPTIONS}
                   defaultSelected={watch("preferredLocations")}
                   onChange={(selected) =>
@@ -652,7 +656,7 @@ export function AddTutor() {
               />
 
               <div className="space-y-3 rounded-md border p-4">
-                <Label>Certificates & Qualifications</Label>
+                <Label>Certificates & Qualifications *</Label>
                 <MultiFileUploader
                   mode="certificate"
                   onUploaded={(items) =>
@@ -662,11 +666,12 @@ export function AddTutor() {
                     })
                   }
                 />
-                {formState.isSubmitted && formState.errors.certificatesAndQualifications && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.certificatesAndQualifications.message}
-                  </p>
-                )}
+                {formState.isSubmitted &&
+                  formState.errors.certificatesAndQualifications && (
+                    <p className="text-sm text-red-500">
+                      {formState.errors.certificatesAndQualifications.message}
+                    </p>
+                  )}
               </div>
 
               <div className="space-y-3 pt-2">
