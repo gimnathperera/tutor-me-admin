@@ -57,7 +57,7 @@ import {
   stripLeadingSpaces,
 } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SquarePen } from "lucide-react";
+import { SquarePen, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -464,9 +464,21 @@ export function EditTutor({ id }: EditTutorProps) {
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
-          <DialogHeader className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-b">
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0"
+        >
+          <DialogHeader className="shrink-0 flex-row items-center justify-between bg-white dark:bg-gray-800 px-6 py-4 border-b z-40">
             <DialogTitle>Edit Tutor</DialogTitle>
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="flex size-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </button>
+            </DialogClose>
           </DialogHeader>
 
           <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">

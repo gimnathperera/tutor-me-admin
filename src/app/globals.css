@@ -336,6 +336,10 @@
   color: #101828 !important;
 }
 
+.tm-datepicker-popper.react-datepicker-popper {
+  z-index: 30 !important;
+}
+
 .tm-datepicker-calendar .react-datepicker__header {
   background: #ffffff !important;
 }
