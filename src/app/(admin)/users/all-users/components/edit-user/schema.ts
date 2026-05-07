@@ -5,6 +5,11 @@ import {
 } from "@/configs/app-constants";
 import { z } from "zod";
 
+const getMinimumAdultBirthDate = () => {
+  const today = new Date();
+  return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+};
+
 export const updateUserSchema = z.object({
   email: z.string().email("Invalid email address").max(100, "Email too long"),
   name: z.string().min(1, "Name is required").max(100, "Name too long"),
@@ -17,7 +22,14 @@ export const updateUserSchema = z.object({
       if (!val) return "";
       const date = new Date(val);
       return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
-    }),
+    })
+    .refine((val) => {
+      if (!val) return true;
+      const birthday = new Date(val);
+      return (
+        !isNaN(birthday.getTime()) && birthday <= getMinimumAdultBirthDate()
+      );
+    }, "User must be at least 18 years old"),
   status: z.enum(USER_STATUS_VALUES).default("pending"),
   country: z.string().max(56, "Country too long").optional(),
   city: z.string().max(85, "City too long").optional(),

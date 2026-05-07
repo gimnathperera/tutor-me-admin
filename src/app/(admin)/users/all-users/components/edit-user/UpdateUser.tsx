@@ -4,6 +4,7 @@
 
 import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
+import DatePicker from "@/components/ui/DatePicker";
 import {
   Dialog,
   DialogClose,
@@ -46,6 +47,11 @@ type UserStatus = "pending" | "approved" | "rejected" | "suspended";
 const EMAIL_IMMUTABLE_MESSAGE =
   "Email cannot be modified after user creation.";
 
+const getMinimumAdultBirthDate = () => {
+  const today = new Date();
+  return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+};
+
 interface UpdateUserProps {
   id: string;
   email: string;
@@ -66,6 +72,7 @@ interface UpdateUserProps {
 
 export function UpdateUser(props: UpdateUserProps) {
   const [open, setOpen] = useState(false);
+  const maxUserBirthday = getMinimumAdultBirthDate();
   const [updateUser, { isLoading }] = useUpdateUserMutation();
   const { refetch } = useFetchUsersQuery({
     page: 1,
@@ -107,7 +114,16 @@ export function UpdateUser(props: UpdateUserProps) {
 
   const onSubmit = async (data: UpdateUserSchema) => {
     try {
-      const { email: _immutableEmail, ...editableData } = data;
+      const {
+        email: _immutableEmail,
+        country: _country,
+        city: _city,
+        state: _state,
+        region: _region,
+        zip: _zip,
+        address: _address,
+        ...editableData
+      } = data;
       const payload = {
         id: props.id,
         role: editableData.role,
@@ -115,12 +131,6 @@ export function UpdateUser(props: UpdateUserProps) {
         status: editableData.status || "pending",
         phoneNumber: editableData.phoneNumber || "",
         birthday: editableData.birthday || "",
-        country: editableData.country || "",
-        city: editableData.city || "",
-        state: editableData.state || "",
-        region: editableData.region || "",
-        zip: editableData.zip || "",
-        address: editableData.address || "",
         gender: editableData.gender || "other",
         avatar: editableData.avatar || "",
       };
@@ -263,73 +273,20 @@ export function UpdateUser(props: UpdateUserProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="country">Country</Label>
-              <Input id="country" {...register("country")} />
-              {formState.errors.country && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.country.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="city">City</Label>
-              <Input id="city" {...register("city")} />
-              {formState.errors.city && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.city.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="state">State</Label>
-              <Input id="state" {...register("state")} />
-              {formState.errors.state && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.state.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="region">Region</Label>
-              <Input id="region" {...register("region")} />
-              {formState.errors.region && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.region.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="zip">Zip</Label>
-              <Input id="zip" {...register("zip")} />
-              {formState.errors.zip && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.zip.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="address">Address</Label>
-              <Input id="address" {...register("address")} />
-              {formState.errors.address && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.address.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="birthday">Birthday</Label>
-              <Input id="birthday" type="date" {...register("birthday")} />
-              {formState.errors.birthday && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.birthday.message}
-                </p>
-              )}
+              <DatePicker
+                id="birthday"
+                label="Birthday"
+                value={form.watch("birthday")}
+                onChange={(date) =>
+                  setValue("birthday", date, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                placeholder="Select birthday"
+                error={formState.errors.birthday?.message}
+                maxDate={maxUserBirthday}
+              />
             </div>
 
             <div className="grid gap-3">
