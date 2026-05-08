@@ -51,7 +51,7 @@ export default function UserMetaCard() {
               <div
                 className={cn(
                   "flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
-                  user.status === "active"
+                  user.status === "approved"
                     ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
                     : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",
                 )}
@@ -59,7 +59,7 @@ export default function UserMetaCard() {
                 <span
                   className={cn(
                     "h-2 w-2 rounded-full",
-                    user.status === "active" ? "bg-green-500" : "bg-red-500",
+                    user.status === "approved" ? "bg-green-500" : "bg-red-500",
                   )}
                 ></span>
                 <span>
