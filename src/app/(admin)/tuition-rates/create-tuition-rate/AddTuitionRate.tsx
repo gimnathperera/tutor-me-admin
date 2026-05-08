@@ -123,15 +123,15 @@ export function AddTuitionRate() {
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[500px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[500px] bg-white z-9999 dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
             <DialogTitle>Add Tuition Rate</DialogTitle>
             <DialogDescription>
               Add a new tuition rate to the list.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-6 grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="grade">Grade</Label>
               <Select
@@ -256,7 +256,7 @@ export function AddTuitionRate() {
             ))}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 px-6 py-4 border-t bg-white dark:bg-gray-800">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
