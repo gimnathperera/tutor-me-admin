@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Select,
   SelectContent,
@@ -38,14 +39,19 @@ import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
 } from "@/store/api/splits/grades";
-import { useCreateTutorMutation } from "@/store/api/splits/tutors";
+import {
+  useCreateTutorMutation,
+  useLazyGetTutorEmailAvailabilityQuery,
+} from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
 import {
   collapseTextSpaces,
   normalizeTextSpaces,
+  removeWhitespace,
   stripLeadingSpaces,
 } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleCheck, CircleX, Eye, EyeOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   Controller,
@@ -67,9 +73,32 @@ const getMinimumAdultBirthDate = () => {
   return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
 };
 
+const EMAIL_CHECK_DELAY_MS = 500;
+const DUPLICATE_EMAIL_MESSAGE = "Email already exists";
+const EMAIL_FORMAT_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const isDuplicateEmailError = (error: string) => {
+  const normalizedError = error.toLowerCase();
+
+  return (
+    normalizedError.includes("email") &&
+    (normalizedError.includes("already exists") ||
+      normalizedError.includes("already in use") ||
+      normalizedError.includes("already taken"))
+  );
+};
+
+type EmailAvailabilityState = "available" | "unavailable" | null;
+
 export function AddTutor() {
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailAvailability, setEmailAvailability] =
+    useState<EmailAvailabilityState>(null);
   const [createTutor, { isLoading }] = useCreateTutorMutation();
+  const [checkTutorEmailAvailability, { isFetching: isCheckingEmail }] =
+    useLazyGetTutorEmailAvailabilityQuery();
   const formId = "add-tutor-form";
   const maxTutorDateOfBirth = getMinimumAdultBirthDate();
 
@@ -79,7 +108,16 @@ export function AddTutor() {
     mode: "onChange",
   });
 
-  const { formState, reset, setValue, watch, control } = form;
+  const {
+    clearErrors,
+    control,
+    formState,
+    reset,
+    setError,
+    setFocus,
+    setValue,
+    watch,
+  } = form;
 
   const selectedGrades = useWatch({
     control,
@@ -99,6 +137,12 @@ export function AddTutor() {
     defaultValue: "",
   }) as string;
 
+  const email = useWatch({
+    control,
+    name: "email",
+    defaultValue: "",
+  }) as string;
+
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();
 
@@ -110,6 +154,7 @@ export function AddTutor() {
   >([]);
 
   const prevUniqueSubjectsRef = useRef<string | null>(null);
+  const latestEmailRef = useRef("");
   const selectedGradesJson = JSON.stringify(selectedGrades || []);
 
   useEffect(() => {
@@ -186,6 +231,9 @@ export function AddTutor() {
   useEffect(() => {
     if (!open) {
       reset(initialTutorFormValues);
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+      setEmailAvailability(null);
     }
   }, [open, reset]);
 
@@ -194,8 +242,51 @@ export function AddTutor() {
 
     if (!isOpen) {
       reset(initialTutorFormValues);
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+      setEmailAvailability(null);
     }
   };
+
+  useEffect(() => {
+    const normalizedEmail =
+      typeof email === "string" ? removeWhitespace(email).toLowerCase() : "";
+
+    latestEmailRef.current = normalizedEmail;
+
+    if (!open || !normalizedEmail || !EMAIL_FORMAT_PATTERN.test(normalizedEmail)) {
+      setEmailAvailability(null);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      const result = await checkTutorEmailAvailability(normalizedEmail, true);
+
+      if (latestEmailRef.current !== normalizedEmail) return;
+
+      if (!result.data) return;
+
+      if (!result.data.available) {
+        setEmailAvailability("unavailable");
+        setError("email", {
+          type: "server",
+          message: result.data.message || DUPLICATE_EMAIL_MESSAGE,
+        });
+        return;
+      }
+
+      setEmailAvailability("available");
+      clearErrors("email");
+    }, EMAIL_CHECK_DELAY_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [
+    checkTutorEmailAvailability,
+    clearErrors,
+    email,
+    open,
+    setError,
+  ]);
 
   useEffect(() => {
     if (!dob) return;
@@ -214,7 +305,8 @@ export function AddTutor() {
     if (age < 0) age = 0;
 
     setValue("age", age, { shouldValidate: true });
-  }, [dob, setValue]);
+    form.trigger("age");
+  }, [dob, form, setValue]);
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
@@ -226,9 +318,29 @@ export function AddTutor() {
   };
 
   const onSubmit = async (data: AddTutorFormValues) => {
+    const normalizedEmail = removeWhitespace(data.email).toLowerCase();
+    setValue("email", normalizedEmail, { shouldValidate: true });
+
+    const emailAvailabilityResult =
+      await checkTutorEmailAvailability(normalizedEmail);
+
+    if (
+      emailAvailabilityResult.data &&
+      !emailAvailabilityResult.data.available
+    ) {
+      setEmailAvailability("unavailable");
+      setError("email", {
+        type: "server",
+        message: emailAvailabilityResult.data.message || DUPLICATE_EMAIL_MESSAGE,
+      });
+      setFocus("email");
+      return;
+    }
+
     const { confirmPassword: _, ...rest } = data;
     const cleanedData = {
       ...rest,
+      email: normalizedEmail,
       fullName: normalizeTextSpaces(data.fullName) as string,
       academicDetails: normalizeTextSpaces(
         data.academicDetails || "",
@@ -243,12 +355,24 @@ export function AddTutor() {
     const error = getErrorInApiResult(result);
 
     if (error) {
+      if (isDuplicateEmailError(error)) {
+        setError("email", {
+          type: "server",
+          message: DUPLICATE_EMAIL_MESSAGE,
+        });
+        setFocus("email");
+        return;
+      }
+
       toast.error(error);
       return;
     }
 
     if ("data" in result) {
       reset(initialTutorFormValues);
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+      setEmailAvailability(null);
       toast.success("Tutor added successfully");
       setOpen(false);
     }
@@ -274,7 +398,15 @@ export function AddTutor() {
 
   const emailRegister = form.register("email", {
     onChange: (event) => {
-      const cleaned = stripLeadingSpaces(event.target.value);
+      const cleaned = removeWhitespace(event.target.value);
+      setEmailAvailability(null);
+
+      if (
+        (formState.errors.email as { type?: string } | undefined)?.type ===
+        "server"
+      ) {
+        clearErrors("email");
+      }
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
@@ -282,7 +414,7 @@ export function AddTutor() {
       }
     },
     onBlur: (event) => {
-      setValue("email", event.target.value.trim(), {
+      setValue("email", removeWhitespace(event.target.value).toLowerCase(), {
         shouldValidate: true,
       });
     },
@@ -383,15 +515,49 @@ export function AddTutor() {
 
               <div className="space-y-2">
                 <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="e.g johndoe@gmail.com"
-                  {...emailRegister}
-                />
-                {formState.errors.email && (
-                  <p className="text-sm text-red-500">
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="e.g johndoe@gmail.com"
+                    autoComplete="email"
+                    className={`pr-10 ${
+                      formState.errors.email ? "border-red-500" : ""
+                    }`}
+                    {...emailRegister}
+                  />
+                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                    {isCheckingEmail ? (
+                      <Spinner className="text-gray-400" />
+                    ) : formState.errors.email ||
+                      emailAvailability === "unavailable" ? (
+                      <CircleX
+                        className="h-4 w-4 text-red-500"
+                        aria-hidden="true"
+                      />
+                    ) : emailAvailability === "available" ? (
+                      <CircleCheck
+                        className="h-4 w-4 text-green-600"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                  </span>
+                </div>
+                {formState.errors.email ? (
+                  <p className="min-h-4 text-sm leading-4 text-red-500">
                     {formState.errors.email.message}
+                  </p>
+                ) : isCheckingEmail ? (
+                  <p className="min-h-4 text-sm leading-4 text-gray-500">
+                    Checking email availability...
+                  </p>
+                ) : emailAvailability === "available" ? (
+                  <p className="min-h-4 text-sm leading-4 text-green-600">
+                    Email is available
+                  </p>
+                ) : (
+                  <p className="min-h-4 text-sm leading-4 text-muted-foreground">
+                    Enter a valid email address
                   </p>
                 )}
               </div>
@@ -399,13 +565,32 @@ export function AddTutor() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <Label htmlFor="password">Password *</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder="Min 8 chars, letter & number"
-                    {...form.register("password")}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      placeholder="Min 8 chars, letter & number"
+                      className="pr-10"
+                      {...form.register("password")}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30 dark:text-gray-400 dark:hover:text-gray-200"
+                      onClick={() => setShowPassword((value) => !value)}
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      aria-controls="password"
+                      aria-pressed={showPassword}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
                   {formState.errors.password && (
                     <p className="text-sm text-red-500">
                       {formState.errors.password.message}
@@ -415,13 +600,36 @@ export function AddTutor() {
 
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder="Re-enter your password"
-                    {...form.register("confirmPassword")}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      placeholder="Re-enter your password"
+                      className="pr-10"
+                      {...form.register("confirmPassword")}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30 dark:text-gray-400 dark:hover:text-gray-200"
+                      onClick={() =>
+                        setShowConfirmPassword((value) => !value)
+                      }
+                      aria-label={
+                        showConfirmPassword
+                          ? "Hide confirm password"
+                          : "Show confirm password"
+                      }
+                      aria-controls="confirmPassword"
+                      aria-pressed={showConfirmPassword}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
                   {formState.errors.confirmPassword && (
                     <p className="text-sm text-red-500">
                       {formState.errors.confirmPassword.message}
@@ -453,8 +661,7 @@ export function AddTutor() {
                     id="age"
                     type="number"
                     {...form.register("age", { valueAsNumber: true })}
-                    readOnly
-                    disabled={!watch("dateOfBirth")}
+                    disabled
                   />
                   {formState.errors.age ? (
                     <p className="text-sm text-red-500">
@@ -462,7 +669,7 @@ export function AddTutor() {
                     </p>
                   ) : watch("dateOfBirth") && !formState.errors.dateOfBirth ? (
                     <p className="text-sm text-muted-foreground">
-                      You must be at least 18 years old
+                      Calculated from your date of birth
                     </p>
                   ) : null}
                 </div>
@@ -678,6 +885,7 @@ export function AddTutor() {
                     )
                   }
                   options={[...EDUCATION_OPTIONS_ADD]}
+                  placeholder="Select highest education"
                 />
               </div>
 

@@ -357,7 +357,8 @@ export function EditTutor({ id }: EditTutorProps) {
       shouldDirty: true,
       shouldValidate: true,
     });
-  }, [dob, setValue]);
+    form.trigger("age");
+  }, [dob, form, setValue]);
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);
@@ -609,6 +610,13 @@ export function EditTutor({ id }: EditTutorProps) {
                       {formState.errors.age.message}
                     </p>
                   )}
+                  {!formState.errors.age &&
+                  watch("dateOfBirth") &&
+                  !formState.errors.dateOfBirth ? (
+                    <p className="text-sm text-muted-foreground">
+                      Calculated from your date of birth
+                    </p>
+                  ) : null}
                 </div>
               </div>
 

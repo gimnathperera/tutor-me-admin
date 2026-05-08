@@ -337,6 +337,11 @@ export type Tutor = BaseEntity & {
   certificatesAndQualifications: CertificateItem[];
 };
 
+export type TutorEmailAvailabilityResponse = {
+  available: boolean;
+  message: string;
+};
+
 export type RequestTutorTutor = {
   _id: string;
   subject: string;

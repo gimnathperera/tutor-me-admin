@@ -14,7 +14,7 @@ import {
 import { TABLE_CONFIG } from "@/configs/table";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useFetchUsersQuery } from "@/store/api/splits/users";
-import { Search } from "lucide-react";
+import { Search, SquarePen, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { DeleteUser } from "./DeleteUser";
 import { UpdateUser } from "./edit-user/UpdateUser";
@@ -202,12 +202,11 @@ export default function UsersTable() {
         return (
           <div className="flex justify-center items-center w-full">
             {isTutor ? (
-              <span
+              <SquarePen
+                aria-disabled="true"
                 title="Tutor details can be edited from the Tutor page"
-                className="cursor-not-allowed text-gray-300 dark:text-gray-600"
-              >
-                Disabled
-              </span>
+                className="text-gray-300 dark:text-gray-600 cursor-not-allowed opacity-50"
+              />
             ) : (
               <UpdateUser
                 id={row.id}
@@ -278,13 +277,25 @@ export default function UsersTable() {
           <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:min-w-[32rem]">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+
               <Input
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search by name or email"
-                className="h-11 w-full pl-10 pr-4"
+                className="h-11 w-full pl-10 pr-10"
               />
+
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             <div className="w-full">
