@@ -509,7 +509,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName">Full Name *</Label>
                 <Input
                   id="fullName"
                   placeholder="e.g Nimal Perera"
@@ -523,7 +523,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contactNumber">Contact Number</Label>
+                <Label htmlFor="contactNumber">Contact Number *</Label>
                 <Controller
                   name="contactNumber"
                   control={control}
@@ -554,7 +554,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 className="space-y-2 cursor-not-allowed"
                 title={EMAIL_IMMUTABLE_MESSAGE}
               >
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -580,7 +580,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 <div className="space-y-2">
                   <DatePicker
                     id={`dateOfBirth-${id}`}
-                    label="Date of Birth"
+                    label="Date of Birth *"
                     value={watch("dateOfBirth")}
                     onChange={(date) =>
                       setValue("dateOfBirth", date, {
@@ -588,14 +588,14 @@ export function EditTutor({ id }: EditTutorProps) {
                         shouldDirty: true,
                       })
                     }
-                    placeholder="Select your date of birth"
+                    placeholder="dd/mm/yyyy"
                     error={formState.errors.dateOfBirth?.message}
                     maxDate={maxTutorDateOfBirth}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="age">Age</Label>
+                  <Label htmlFor="age">Age *</Label>
                   <Input
                     id="age"
                     type="number"
@@ -614,7 +614,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Gender</Label>
+                  <Label htmlFor="gender">Gender *</Label>
                   <Select
                     onValueChange={(val) =>
                       setValue("gender", val as UpdateTutorSchema["gender"])
@@ -640,7 +640,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="nationality">Nationality</Label>
+                  <Label htmlFor="nationality">Nationality *</Label>
                   <Select
                     onValueChange={(val) =>
                       setValue(
@@ -669,7 +669,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="race">Race</Label>
+                  <Label htmlFor="race">Race *</Label>
                   <Select
                     onValueChange={(val) =>
                       setValue("race", val as UpdateTutorSchema["race"])
@@ -791,7 +791,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-3 rounded-md border p-4">
-                <Label>Certificates & Qualifications</Label>
+                <Label>Certificates & Qualifications *</Label>
                 <MultiFileUploader
                   mode="certificate"
                   defaultFiles={tutorData?.certificatesAndQualifications || []}
@@ -815,7 +815,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
               <div className="space-y-2">
                 <MultiSelect
-                  label="Preferred Locations"
+                  label="Preferred Locations *"
                   options={PREFERRED_LOCATION_OPTIONS}
                   defaultSelected={watch("preferredLocations")}
                   onChange={(selected) =>
@@ -831,7 +831,7 @@ export function EditTutor({ id }: EditTutorProps) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
-                  <Label htmlFor="yearsExperience">Years of Experience</Label>
+                  <Label htmlFor="yearsExperience">Years of Experience *</Label>
                   <Select
                     onValueChange={handleYearsSelect}
                     value={String(watch("yearsExperience"))}
@@ -858,7 +858,7 @@ export function EditTutor({ id }: EditTutorProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="highestEducation">Highest Education</Label>
+                  <Label htmlFor="highestEducation">Highest Education *</Label>
                   <Select
                     onValueChange={(val) =>
                       setValue(

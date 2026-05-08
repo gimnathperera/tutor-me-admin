@@ -395,14 +395,16 @@ export default function RequestForTutorsList() {
         header: "Grade",
         className: "min-w-[280px] max-w-[360px] whitespace-normal",
         render: (row: RequestTutors) => {
-          const safeGrade = getGradeDisplayValue(row.grade);
+          const gradeName =
+            gradeOptions.find((grade) => grade.value === row.grade)?.label ||
+            "No grade";
 
-          return safeGrade ? (
+          return gradeName !== "No grade" ? (
             <span
-              title={safeGrade}
+              title={gradeName}
               className="block whitespace-normal break-words leading-5"
             >
-              {safeGrade}
+              {gradeName}
             </span>
           ) : (
             <span className="text-gray-400 italic">No grade</span>
@@ -448,7 +450,7 @@ export default function RequestForTutorsList() {
           <AssignTutorDialog
             row={{
               id: row.id,
-              grade: getSafeValue(row.grade, ""),
+              grade: getGradeDisplayValue(row.grade),
               district: getSafeValue(row.district, ""),
               medium: getSafeValue(row.medium, ""),
               tutors: getSafeTutorBlocks(row.tutors).map((t) => ({

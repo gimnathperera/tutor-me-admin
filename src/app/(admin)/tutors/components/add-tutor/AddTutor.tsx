@@ -442,7 +442,7 @@ export function AddTutor() {
                       shouldDirty: true,
                     })
                   }
-                  placeholder="Select your date of birth"
+                  placeholder="dd/mm/yyyy"
                   error={formState.errors.dateOfBirth?.message}
                   maxDate={maxTutorDateOfBirth}
                 />
@@ -475,7 +475,9 @@ export function AddTutor() {
                   value={watch("gender")}
                   error={formState.errors.gender?.message}
                   onChange={(val) =>
-                    setValue("gender", val as AddTutorFormValues["gender"], { shouldValidate: true })
+                    setValue("gender", val as AddTutorFormValues["gender"], {
+                      shouldValidate: true,
+                    })
                   }
                   options={[...TUTOR_GENDER_VALUES]}
                   placeholder="Select your gender"
@@ -503,7 +505,9 @@ export function AddTutor() {
                   value={watch("race")}
                   error={formState.errors.race?.message}
                   onChange={(val) =>
-                    setValue("race", val as AddTutorFormValues["race"], { shouldValidate: true })
+                    setValue("race", val as AddTutorFormValues["race"], {
+                      shouldValidate: true,
+                    })
                   }
                   options={[...RACE_VALUES]}
                   placeholder="Select your ethnicity"
@@ -615,7 +619,7 @@ export function AddTutor() {
 
               <div className="space-y-2">
                 <MultiSelect
-                  label="Preferred Locations"
+                  label="Preferred Locations *"
                   options={PREFERRED_LOCATION_OPTIONS}
                   defaultSelected={watch("preferredLocations")}
                   onChange={(selected) =>
@@ -706,7 +710,7 @@ export function AddTutor() {
               />
 
               <div className="space-y-3 rounded-md border p-4">
-                <Label>Certificates & Qualifications</Label>
+                <Label>Certificates & Qualifications *</Label>
                 <MultiFileUploader
                   mode="certificate"
                   onUploaded={(items) =>

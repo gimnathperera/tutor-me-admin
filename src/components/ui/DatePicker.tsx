@@ -39,7 +39,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
       <Input
         {...props}
         ref={ref}
-        value={value}
+        value={value ?? ""}
         onClick={onClick}
         placeholder={placeholder}
         readOnly
@@ -284,6 +284,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         selected={value ? new Date(value) : null}
         onChange={handleDateChange}
         dateFormat="dd/MM/yyyy"
+        placeholderText={placeholder}
         maxDate={maxDate ?? new Date()}
         open={isOpen}
         openToDate={visibleMonth}
