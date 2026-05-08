@@ -660,8 +660,7 @@ export function AddTutor() {
                     id="age"
                     type="number"
                     {...form.register("age", { valueAsNumber: true })}
-                    readOnly
-                    disabled={!watch("dateOfBirth")}
+                    disabled
                   />
                   {formState.errors.age ? (
                     <p className="text-sm text-red-500">
