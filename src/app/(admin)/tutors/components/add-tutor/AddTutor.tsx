@@ -729,6 +729,7 @@ export function AddTutor() {
                     )
                   }
                   options={[...EDUCATION_OPTIONS_ADD]}
+                  placeholder="Select highest education"
                 />
               </div>
 

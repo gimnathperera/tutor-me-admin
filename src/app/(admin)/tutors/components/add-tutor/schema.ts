@@ -38,7 +38,7 @@ export const addTutorSchema = z.object({
         .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
     ),
 
-  gender: z.enum(TUTOR_GENDER_VALUES),
+  gender: z.enum(TUTOR_GENDER_VALUES, "Gender is required"),
   age: z
     .number()
     .int()
@@ -51,8 +51,8 @@ export const addTutorSchema = z.object({
 
   grades: z.array(z.string()).min(1, "Select at least one grade"),
   subjects: z.array(z.string()).min(1, "Select at least one subject"),
-  nationality: z.enum(NATIONALITY_VALUES),
-  race: z.enum(RACE_VALUES),
+  nationality: z.enum(NATIONALITY_VALUES, "Nationality is required"),
+  race: z.enum(RACE_VALUES, "Race is required"),
 
   classType: z
     .array(z.enum(CLASS_TYPE_VALUES))
@@ -68,7 +68,7 @@ export const addTutorSchema = z.object({
 
   yearsExperience: z.number().int().min(1, "Years of Experience are required").max(50),
 
-  highestEducation: z.enum(EDUCATION_VALUES_ADD),
+  highestEducation: z.enum(EDUCATION_VALUES_ADD, "Highest Education is required"),
 
   academicDetails: z.string().min(1, "Academic Details are required").max(1000),
   teachingSummary: z.string().min(1, "Teaching Summary is required").max(750),
@@ -132,7 +132,7 @@ export const initialTutorFormValues: AddTutorFormValues = {
   preferredLocations: [],
   tutorType: [],
   yearsExperience: 0,
-  highestEducation: "Undergraduate",
+  highestEducation: "" as AddTutorFormValues["highestEducation"],
   academicDetails: "",
   teachingSummary: "",
   studentResults: "",
