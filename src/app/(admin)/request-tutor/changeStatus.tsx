@@ -89,15 +89,15 @@ export function ChangeStatusDialog({
         <Edit className="text-blue-500 cursor-pointer hover:text-blue-700" />
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+        <DialogHeader className="shrink-0 px-6 py-4 border-b">
           <DialogTitle>Change Request Status</DialogTitle>
           <DialogDescription>
             Leave the request pending or reject it with a reason that will be emailed to the requester.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 mt-4">
+        <div className="px-6 py-6 flex flex-col gap-4">
           <label>Status</label>
           <Select
             value={status}
