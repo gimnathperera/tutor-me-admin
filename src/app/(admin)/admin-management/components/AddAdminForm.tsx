@@ -116,7 +116,7 @@ export default function AddAdminForm() {
 
   const phoneNumberRegister = form.register("phoneNumber", {
     onChange: (event) => {
-      const cleaned = stripLeadingSpaces(event.target.value);
+      const cleaned = event.target.value.replace(/\D/g, "").slice(0, 10);
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
@@ -126,9 +126,13 @@ export default function AddAdminForm() {
       }
     },
     onBlur: (event) => {
-      setValue("phoneNumber", event.target.value.trim(), {
-        shouldValidate: true,
-      });
+      setValue(
+        "phoneNumber",
+        event.target.value.replace(/\D/g, "").slice(0, 10),
+        {
+          shouldValidate: true,
+        },
+      );
     },
   });
 
@@ -183,7 +187,7 @@ export default function AddAdminForm() {
                   htmlFor="email"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Email Address
+                  Email
                 </label>
                 <Input
                   id="email"
@@ -203,11 +207,13 @@ export default function AddAdminForm() {
                   htmlFor="phoneNumber"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Phone Number
+                  Contact Number
                 </label>
                 <Input
                   id="phoneNumber"
                   type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
                   {...phoneNumberRegister}
                 />
                 {errors.phoneNumber && (
