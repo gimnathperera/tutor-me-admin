@@ -69,7 +69,7 @@ export function DeleteUser({ userId, userStatus }: DeleteUserProps) {
             disabled={isLoading || userStatus !== "suspended"}
             className="bg-red-500 text-white disabled:opacity-50"
           >
-            {isLoading ? "Deleting..." : "Continue"}
+            {isLoading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
