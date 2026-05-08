@@ -669,7 +669,7 @@ export function AddTutor() {
                     </p>
                   ) : watch("dateOfBirth") && !formState.errors.dateOfBirth ? (
                     <p className="text-sm text-muted-foreground">
-                      You must be at least 18 years old
+                      Calculated from your date of birth
                     </p>
                   ) : null}
                 </div>
