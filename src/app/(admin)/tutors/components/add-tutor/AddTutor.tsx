@@ -436,7 +436,7 @@ export function AddTutor() {
                       shouldDirty: true,
                     })
                   }
-                  placeholder="Select your date of birth"
+                  placeholder="dd/mm/yyyy"
                   error={formState.errors.dateOfBirth?.message}
                   maxDate={new Date(new Date().getFullYear() - 18, new Date().getMonth(), new Date().getDate())}
                 />
