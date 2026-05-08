@@ -41,13 +41,13 @@ export function PaperDetails({
         <Eye cursor="pointer" className="text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
-      <DialogContent className="w-[95vw] max-w-[500px] max-h-[80vh] overflow-x-hidden overflow-y-auto scrollbar-thin bg-white z-50 dark:bg-gray-800 dark:text-white/90">
-        <DialogHeader>
+      <DialogContent className="w-[95vw] max-w-[500px] max-h-[80vh] overflow-hidden bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+        <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
           <DialogTitle>Paper Details</DialogTitle>
           <DialogDescription>Information about this paper</DialogDescription>
         </DialogHeader>
 
-        <div className="grid min-w-0 gap-4">
+        <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto scrollbar-thin px-6 py-4 grid min-w-0 gap-4">
           <div className="grid min-w-0 gap-3">
             <Label>Title</Label>
             <div className={cn(displayFieldClass)}>{title}</div>
