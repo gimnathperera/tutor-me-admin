@@ -26,8 +26,6 @@ const AZURE_ACCOUNT   = "tutormeuploads";
 const AZURE_CONTAINER = "uploads";
 const AZURE_KEY       = process.env.AZURE_STORAGE_KEY ?? "";
 
-const OL_GRADE_ID = "69d791dec6b695cea3b179e5"; // G.C.E. Ordinary Level (Grade 10-11)
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function prompt(question) {
@@ -137,8 +135,7 @@ function normalizeSubject(name) {
     .trim();
 }
 
-function findSubjectId(grades, subjectName) {
-  const grade = grades.find((g) => g.id === OL_GRADE_ID);
+function findSubjectId(grade, subjectName) {
   if (!grade?.subjects) return null;
   const normalized = normalizeSubject(subjectName);
   const match = grade.subjects.find((s) => {
@@ -186,8 +183,8 @@ async function main() {
 
   console.log("Fetching grades from API...");
   const grades = await fetchGrades(token);
-  const olGrade = grades.find((g) => g.id === OL_GRADE_ID);
-  if (!olGrade) throw new Error("O/L grade not found in API");
+  const olGrade = grades.find((g) => /ordinary level/i.test(g.title));
+  if (!olGrade) throw new Error("O/L grade not found in API — no grade with 'Ordinary Level' in title");
   console.log(`✓ Found O/L grade: ${olGrade.title} (${(olGrade.subjects ?? []).length} subjects)\n`);
 
   const folders = fs.readdirSync(PAPERS_DIR).filter((name) => {
@@ -212,7 +209,7 @@ async function main() {
     }
 
     const { subject, medium } = parsed;
-    const subjectId = findSubjectId(grades, subject);
+    const subjectId = findSubjectId(olGrade, subject);
 
     if (!subjectId) {
       const available = (olGrade.subjects ?? []).map((s) => s.title).join(", ") || "none";
@@ -252,7 +249,7 @@ async function main() {
           title,
           medium,
           subject: subjectId,
-          grade:   OL_GRADE_ID,
+          grade:   olGrade.id,
           year,
           url:     publicUrl,
         });

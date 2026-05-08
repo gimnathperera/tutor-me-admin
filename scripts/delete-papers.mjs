@@ -13,19 +13,7 @@ import readline from "readline";
 const API_BASE = "https://tutorme-backend-api-d7a6cjdkgnedbxf0.southeastasia-01.azurewebsites.net";
 const PAPERS_DIR = "D:/Download/2026.04.07";
 
-const GRADE_MAP = {
-  1: "69d79165c6b6954ecfb179bf",
-  2: "69d79165c6b6954ecfb179bf",
-  3: "69d79165c6b6954ecfb179bf",
-  4: "69d79165c6b6954ecfb179bf",
-  5: "69d79186c6b6952f1ab179cf",
-  6: "69d7918fc6b69553a3b179d3",
-  7: "69d7918fc6b69553a3b179d3",
-  8: "69d7918fc6b69553a3b179d3",
-  9: "69d7918fc6b69553a3b179d3",
-  10: "69d791dec6b695cea3b179e5",
-  11: "69d791dec6b695cea3b179e5",
-};
+const SUPPORTED_GRADES = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
 
 function prompt(question) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -114,7 +102,7 @@ function buildTargetTitles() {
     if (!parsed) continue;
 
     const { gradeNumber, subject, medium } = parsed;
-    if (!GRADE_MAP[gradeNumber]) continue;
+    if (!SUPPORTED_GRADES.has(gradeNumber)) continue;
 
     const folderPath = path.join(PAPERS_DIR, folder);
     const pdfs = fs.readdirSync(folderPath).filter((f) => f.toLowerCase().endsWith(".pdf"));

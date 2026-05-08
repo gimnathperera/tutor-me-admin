@@ -26,15 +26,6 @@ const AZURE_ACCOUNT   = "tutormeuploads";
 const AZURE_CONTAINER = "uploads";
 const AZURE_KEY       = process.env.AZURE_STORAGE_KEY ?? "";
 
-// All 5 A/L stream grade IDs — script searches all of them for each subject
-const AL_GRADE_IDS = [
-  "69d791efc6b695098cb179ed", // Physical Science Stream
-  "69d89ac2c6b69532eeb1822f", // Biological Science Stream
-  "69d89bc4c6b695a234b18239", // Commerce Stream
-  "69d89cd8c6b6953cc7b1826b", // Art Stream
-  "69d89d88c6b6955072b18280", // Technology Stream
-];
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function prompt(question) {
@@ -145,8 +136,7 @@ function normalizeSubject(name) {
 }
 
 // Search all A/L grades to find which stream has this subject
-function findSubjectInAlGrades(grades, subjectName) {
-  const alGrades = grades.filter((g) => AL_GRADE_IDS.includes(g.id));
+function findSubjectInAlGrades(alGrades, subjectName) {
   const normalized = normalizeSubject(subjectName);
 
   for (const grade of alGrades) {
@@ -198,7 +188,8 @@ async function main() {
 
   console.log("Fetching grades from API...");
   const grades = await fetchGrades(token);
-  const alGrades = grades.filter((g) => AL_GRADE_IDS.includes(g.id));
+  const alGrades = grades.filter((g) => /advanced level/i.test(g.title));
+  if (alGrades.length === 0) throw new Error("No A/L stream grades found in API — no grade with 'Advanced Level' in title");
   console.log(`✓ Found ${alGrades.length} A/L stream grades\n`);
 
   const folders = fs.readdirSync(PAPERS_DIR).filter((name) => {
@@ -225,7 +216,7 @@ async function main() {
     }
 
     const { subject, medium } = parsed;
-    const found = findSubjectInAlGrades(grades, subject);
+    const found = findSubjectInAlGrades(alGrades, subject);
 
     if (!found) {
       const alGradeSubjects = alGrades

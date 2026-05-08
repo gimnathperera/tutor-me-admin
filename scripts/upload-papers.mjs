@@ -19,20 +19,24 @@ const AZURE_ACCOUNT   = "tutormeuploads";
 const AZURE_CONTAINER = "uploads";
 const AZURE_KEY       = process.env.AZURE_STORAGE_KEY ?? "";
 
-// Grade folder number → DB grade ID
-const GRADE_MAP = {
-  1: "69d79165c6b6954ecfb179bf",  // Grade 1–4 (Primary)
-  2: "69d79165c6b6954ecfb179bf",
-  3: "69d79165c6b6954ecfb179bf",
-  4: "69d79165c6b6954ecfb179bf",
-  5: "69d79186c6b6952f1ab179cf",  // Grade 5 Scholarship
-  6: "69d7918fc6b69553a3b179d3",  // Grade 6-9 (Secondary)
-  7: "69d7918fc6b69553a3b179d3",
-  8: "69d7918fc6b69553a3b179d3",
-  9: "69d7918fc6b69553a3b179d3",
-  10: "69d791dec6b695cea3b179e5", // G.C.E Ordinary Level (Grade 10-11)
-  11: "69d791dec6b695cea3b179e5",
-};
+// Build grade number → DB grade ID map from API grades by title matching
+function buildGradeMap(grades) {
+  const map = {};
+  for (const grade of grades) {
+    const title = grade.title.toLowerCase();
+    if (/primary/i.test(title)) {
+      for (const n of [1, 2, 3, 4]) map[n] ??= grade.id;
+    } else if (/grade 5|scholarship/i.test(title)) {
+      map[5] ??= grade.id;
+    } else if (/secondary/i.test(title)) {
+      for (const n of [6, 7, 8, 9]) map[n] ??= grade.id;
+    } else if (/ordinary level/i.test(title)) {
+      map[10] ??= grade.id;
+      map[11] ??= grade.id;
+    }
+  }
+  return map;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -257,7 +261,8 @@ async function main() {
 
   console.log("Fetching grades from API...");
   const grades = await fetchGrades(token);
-  console.log(`✓ Fetched ${grades.length} grades\n`);
+  const gradeMap = buildGradeMap(grades);
+  console.log(`✓ Fetched ${grades.length} grades, mapped to grade numbers: ${Object.keys(gradeMap).join(", ") || "none"}\n`);
 
   const folders = fs.readdirSync(PAPERS_DIR).filter((name) => {
     const full = path.join(PAPERS_DIR, name);
@@ -286,7 +291,7 @@ async function main() {
     }
 
     const { gradeNumber, subject, medium } = parsed;
-    const gradeId = GRADE_MAP[gradeNumber];
+    const gradeId = gradeMap[gradeNumber];
 
     if (!gradeId) {
       console.log(`  SKIP (no grade mapping for Grade ${gradeNumber}): ${folder}`);
