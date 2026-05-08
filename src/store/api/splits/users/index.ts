@@ -16,7 +16,16 @@ export const UsersApi = baseApi.injectEndpoints({
           params: rest,
         };
       },
-      providesTags: ["Users"],
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.results.map(({ id }) => ({
+                type: "Users" as const,
+                id,
+              })),
+              { type: "Users" as const, id: "LIST" },
+            ]
+          : [{ type: "Users" as const, id: "LIST" }],
     }),
 
     fetchUserById: build.query<Users, string | number>({
@@ -72,7 +81,10 @@ export const UsersApi = baseApi.injectEndpoints({
         url: `${Endpoints.Users}/temp-password/${id}`,
         method: "POST",
       }),
-      invalidatesTags: (result, error, id) => [{ type: "Users", id }, "FindATutor"],
+      invalidatesTags: (result, error, id) => [
+        { type: "Users", id },
+        "FindATutor",
+      ],
     }),
   }),
   overrideExisting: false,
