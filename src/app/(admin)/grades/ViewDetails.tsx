@@ -38,15 +38,15 @@ export function GradeDetails({
       <DialogTrigger asChild>
         <Eye cursor="pointer " className="text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] max-h-[75vh] overflow-y-auto bg-white z-[50] dark:bg-gray-800 dark:text-white/90">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] max-h-[75vh] overflow-hidden bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+        <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
           <DialogTitle>Grade Details</DialogTitle>
           <DialogDescription>
             View the title, description, and subjects of this grade.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4">
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-4 grid gap-4">
           {/* Title */}
           <div className="grid gap-3">
             <Label>Title</Label>
@@ -56,7 +56,7 @@ export function GradeDetails({
           {/* Description */}
           <div className="grid gap-3">
             <Label>Description</Label>
-            <div className={`${displayFieldClass} min-h-[5rem] overflow-auto`}>
+            <div className={`${displayFieldClass} min-h-20 overflow-auto`}>
               {description}
             </div>
           </div>
