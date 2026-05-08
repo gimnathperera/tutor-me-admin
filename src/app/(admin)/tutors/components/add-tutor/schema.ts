@@ -132,7 +132,7 @@ export const initialTutorFormValues: AddTutorFormValues = {
   preferredLocations: [],
   tutorType: [],
   yearsExperience: 0,
-  highestEducation: "Undergraduate",
+  highestEducation: "" as AddTutorFormValues["highestEducation"],
   academicDetails: "",
   teachingSummary: "",
   studentResults: "",

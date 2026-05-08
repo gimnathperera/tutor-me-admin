@@ -610,6 +610,13 @@ export function EditTutor({ id }: EditTutorProps) {
                       {formState.errors.age.message}
                     </p>
                   )}
+                  {!formState.errors.age &&
+                  watch("dateOfBirth") &&
+                  !formState.errors.dateOfBirth ? (
+                    <p className="text-sm text-muted-foreground">
+                      Calculated from your date of birth
+                    </p>
+                  ) : null}
                 </div>
               </div>
 

@@ -30,6 +30,36 @@ export default function UserMetaCard() {
 
   const avatarSrc =
     isImageError || !user.avatar ? "/images/user/user.png" : user.avatar;
+  const status = user.status?.toLowerCase();
+  const statusStyles =
+    status === "approved" || status === "active"
+      ? {
+          badge: "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
+          dot: "bg-green-500",
+        }
+      : status === "pending"
+        ? {
+            badge:
+              "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100",
+            dot: "bg-yellow-500",
+          }
+        : status === "suspended"
+          ? {
+              badge:
+                "bg-orange-100 text-orange-800 dark:bg-orange-900/60 dark:text-orange-100",
+              dot: "bg-orange-500",
+            }
+          : status === "rejected"
+            ? {
+                badge:
+                  "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",
+                dot: "bg-red-500",
+              }
+            : {
+                badge:
+                  "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200",
+                dot: "bg-gray-500",
+              };
 
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -51,16 +81,11 @@ export default function UserMetaCard() {
               <div
                 className={cn(
                   "flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
-                  user.status === "active"
-                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                    : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",
+                  statusStyles.badge,
                 )}
               >
                 <span
-                  className={cn(
-                    "h-2 w-2 rounded-full",
-                    user.status === "active" ? "bg-green-500" : "bg-red-500",
-                  )}
+                  className={cn("h-2 w-2 rounded-full", statusStyles.dot)}
                 ></span>
                 <span>
                   {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
