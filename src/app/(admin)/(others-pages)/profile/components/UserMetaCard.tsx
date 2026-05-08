@@ -30,6 +30,19 @@ export default function UserMetaCard() {
 
   const avatarSrc =
     isImageError || !user.avatar ? "/images/user/user.png" : user.avatar;
+  const status = user.status?.toLowerCase();
+  const statusBadgeClass =
+    status === "approved"
+      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+      : status === "pending"
+        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+        : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100";
+  const statusDotClass =
+    status === "approved"
+      ? "bg-green-500"
+      : status === "pending"
+        ? "bg-yellow-500"
+        : "bg-red-500";
 
   return (
     <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
@@ -51,16 +64,11 @@ export default function UserMetaCard() {
               <div
                 className={cn(
                   "flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
-                  user.status === "approved"
-                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                    : "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100",
+                  statusBadgeClass,
                 )}
               >
                 <span
-                  className={cn(
-                    "h-2 w-2 rounded-full",
-                    user.status === "approved" ? "bg-green-500" : "bg-red-500",
-                  )}
+                  className={cn("h-2 w-2 rounded-full", statusDotClass)}
                 ></span>
                 <span>
                   {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
