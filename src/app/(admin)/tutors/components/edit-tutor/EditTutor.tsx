@@ -1,22 +1,5 @@
 "use client";
 
-import {
-  CLASS_TYPE_OPTIONS,
-  CLASS_TYPE_VALUES,
-  type EducationEditValue,
-  EDUCATION_VALUES_EDIT,
-  TUTOR_MEDIUM_OPTIONS,
-  NATIONALITY_VALUES,
-  PREFERRED_LOCATION_OPTIONS,
-  PREFERRED_LOCATION_VALUES,
-  RACE_VALUES,
-  TUTOR_GENDER_VALUES,
-  TUTOR_STATUS_OPTIONS,
-  TUTOR_STATUS_VALUES,
-  TUTOR_TYPE_OPTIONS,
-  TUTOR_TYPE_VALUES,
-  YEARS_EXPERIENCE_OPTIONS,
-} from "@/configs/app-constants";
 import MultiSelect from "@/components/form/MultiSelect";
 import MultiFileUploader from "@/components/MultiFileUploader";
 import { Button } from "@/components/ui/button/Button";
@@ -40,6 +23,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  CLASS_TYPE_OPTIONS,
+  CLASS_TYPE_VALUES,
+  EDUCATION_VALUES_EDIT,
+  NATIONALITY_VALUES,
+  PREFERRED_LOCATION_OPTIONS,
+  PREFERRED_LOCATION_VALUES,
+  RACE_VALUES,
+  TUTOR_GENDER_VALUES,
+  TUTOR_MEDIUM_OPTIONS,
+  TUTOR_STATUS_OPTIONS,
+  TUTOR_STATUS_VALUES,
+  TUTOR_TYPE_OPTIONS,
+  TUTOR_TYPE_VALUES,
+  YEARS_EXPERIENCE_OPTIONS,
+  type EducationEditValue,
+} from "@/configs/app-constants";
 import {
   useFetchGradesQuery,
   useLazyFetchGradeByIdQuery,
@@ -65,16 +65,17 @@ interface EditTutorProps {
   id: string;
 }
 
-const LEGACY_EDUCATION_VALUE_MAP: Partial<Record<string, EducationEditValue>> = {
-  Masters: "Masters Degree",
-  "Master's Degree": "Masters Degree",
-  AL: "Advanced Level (A/L)",
-  "A/L": "Advanced Level (A/L)",
-  "Advanced Level": "Advanced Level (A/L)",
-  "JC/A Levels": "Advanced Level (A/L)",
-  Diploma: "Diploma and Professional",
-  Poly: "Diploma and Professional",
-};
+const LEGACY_EDUCATION_VALUE_MAP: Partial<Record<string, EducationEditValue>> =
+  {
+    Masters: "Masters Degree",
+    "Master's Degree": "Masters Degree",
+    AL: "Advanced Level (A/L)",
+    "A/L": "Advanced Level (A/L)",
+    "Advanced Level": "Advanced Level (A/L)",
+    "JC/A Levels": "Advanced Level (A/L)",
+    Diploma: "Diploma and Professional",
+    Poly: "Diploma and Professional",
+  };
 
 const EMAIL_IMMUTABLE_MESSAGE =
   "Email cannot be modified after tutor creation.";
@@ -378,7 +379,9 @@ export function EditTutor({ id }: EditTutorProps) {
         teachingSummary: normalizeTextSpaces(
           data.teachingSummary || "",
         ) as string,
-        studentResults: normalizeTextSpaces(data.studentResults || "") as string,
+        studentResults: normalizeTextSpaces(
+          data.studentResults || "",
+        ) as string,
         sellingPoints: normalizeTextSpaces(data.sellingPoints || "") as string,
       };
 
@@ -410,7 +413,9 @@ export function EditTutor({ id }: EditTutorProps) {
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
-        setValue("fullName", cleaned, { shouldValidate: formState.isSubmitted });
+        setValue("fullName", cleaned, {
+          shouldValidate: formState.isSubmitted,
+        });
       }
     },
     onBlur: (event) => {
@@ -621,7 +626,9 @@ export function EditTutor({ id }: EditTutorProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {TUTOR_GENDER_VALUES.map((v) => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -648,7 +655,9 @@ export function EditTutor({ id }: EditTutorProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {NATIONALITY_VALUES.map((v) => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -672,7 +681,9 @@ export function EditTutor({ id }: EditTutorProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {RACE_VALUES.map((v) => (
-                        <SelectItem key={v} value={v}>{v}</SelectItem>
+                        <SelectItem key={v} value={v}>
+                          {v}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
