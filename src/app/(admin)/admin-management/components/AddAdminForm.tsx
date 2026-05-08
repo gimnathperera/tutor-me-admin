@@ -174,7 +174,7 @@ export default function AddAdminForm() {
                   htmlFor="name"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Admin Name
+                  Admin Name*
                 </label>
                 <Input id="name" {...nameRegister} />
                 {errors.name && (
@@ -187,7 +187,7 @@ export default function AddAdminForm() {
                   htmlFor="email"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Email
+                  Email*
                 </label>
                 <Input
                   id="email"
@@ -207,7 +207,7 @@ export default function AddAdminForm() {
                   htmlFor="phoneNumber"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Contact Number
+                  Contact Number*
                 </label>
                 <Input
                   id="phoneNumber"
@@ -228,7 +228,7 @@ export default function AddAdminForm() {
                   htmlFor="password"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Initial Password
+                  Initial Password*
                 </label>
                 <div className="relative">
                   <Input

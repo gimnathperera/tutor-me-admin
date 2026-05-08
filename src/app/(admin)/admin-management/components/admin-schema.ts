@@ -17,9 +17,9 @@ export const createAdminSchema = z.object({
   phoneNumber: z
     .string()
     .trim()
-    .min(1, "Phone number is required")
-    .regex(/^\d+$/, "Phone number must contain numeric values only")
-    .length(10, "Phone number should be exactly 10 digits"),
+    .min(1, "Contact number is required")
+    .regex(/^\d+$/, "Contact number must contain numeric values only")
+    .length(10, "Contact number should be exactly 10 digits"),
 
   password: z
     .string()
