@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { useCreateAdminMutation } from "@/store/api/splits/admins";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -30,6 +30,7 @@ const workflowSteps = [
 
 export default function AddAdminForm() {
   const [inviteEmail, setInviteEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [createAdmin, { isLoading }] = useCreateAdminMutation();
 
   const form = useForm<CreateAdminSchema>({
@@ -55,6 +56,7 @@ export default function AddAdminForm() {
     setInviteEmail(values.email);
     toast.success("Admin created successfully");
     reset(initialAdminValues);
+    setShowPassword(false);
   };
 
   return (
@@ -126,11 +128,28 @@ export default function AddAdminForm() {
                 >
                   Initial Password
                 </label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...form.register("password")}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    className="pr-10"
+                    {...form.register("password")}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30 dark:text-gray-400 dark:hover:text-gray-200"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-controls="password"
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <Eye className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-red-500">
                     {errors.password.message}
@@ -161,7 +180,10 @@ export default function AddAdminForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => reset(initialAdminValues)}
+                onClick={() => {
+                  reset(initialAdminValues);
+                  setShowPassword(false);
+                }}
               >
                 Clear Form
               </Button>
