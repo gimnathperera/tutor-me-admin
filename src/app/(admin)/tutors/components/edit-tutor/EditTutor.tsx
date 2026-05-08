@@ -37,9 +37,8 @@ import {
   TUTOR_STATUS_VALUES,
   TUTOR_TYPE_OPTIONS,
   TUTOR_TYPE_VALUES,
-  TUTORING_LEVEL_OPTIONS,
-  TUTORING_LEVEL_VALUES,
   YEARS_EXPERIENCE_OPTIONS,
+  type EducationEditValue,
 } from "@/configs/app-constants";
 import {
   useFetchGradesQuery,
@@ -56,7 +55,7 @@ import {
   stripLeadingSpaces,
 } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SquarePen } from "lucide-react";
+import { SquarePen, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -66,9 +65,30 @@ interface EditTutorProps {
   id: string;
 }
 
+const LEGACY_EDUCATION_VALUE_MAP: Partial<Record<string, EducationEditValue>> =
+  {
+    Masters: "Masters Degree",
+    "Master's Degree": "Masters Degree",
+    AL: "Advanced Level (A/L)",
+    "A/L": "Advanced Level (A/L)",
+    "Advanced Level": "Advanced Level (A/L)",
+    "JC/A Levels": "Advanced Level (A/L)",
+    Diploma: "Diploma and Professional",
+    Poly: "Diploma and Professional",
+  };
+
+const EMAIL_IMMUTABLE_MESSAGE =
+  "Email cannot be modified after tutor creation.";
+
+const getMinimumAdultBirthDate = () => {
+  const today = new Date();
+  return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+};
+
 export function EditTutor({ id }: EditTutorProps) {
   const [open, setOpen] = useState(false);
   const formId = `edit-tutor-form-${id}`;
+  const maxTutorDateOfBirth = getMinimumAdultBirthDate();
   const { data: tutorData, isLoading: isFetching } = useFetchTutorByIdQuery(id);
   const [updateTutor, { isLoading: isUpdating }] = useUpdateTutorMutation();
 
@@ -100,7 +120,6 @@ export function EditTutor({ id }: EditTutorProps) {
       race: "Sinhalese",
       status: "pending",
       classType: [],
-      tutoringLevels: [],
       preferredLocations: [],
       tutorType: [],
       yearsExperience: 0,
@@ -141,6 +160,20 @@ export function EditTutor({ id }: EditTutorProps) {
   ): T => {
     if (!value) return fallback;
     return enumValues.includes(value as T) ? (value as T) : fallback;
+  };
+
+  const normalizeHighestEducation = (
+    value: string | undefined,
+  ): EducationEditValue => {
+    const normalizedValue = value
+      ? (LEGACY_EDUCATION_VALUE_MAP[value] ?? value)
+      : value;
+
+    return safeEnumValue(
+      normalizedValue,
+      EDUCATION_VALUES_EDIT,
+      "Undergraduate",
+    );
   };
 
   const formatDateForForm = (isoDate: string | undefined): string => {
@@ -260,10 +293,6 @@ export function EditTutor({ id }: EditTutorProps) {
       race: safeEnumValue(data.race, RACE_VALUES, "Sinhalese"),
       status: safeEnumValue(data.status, TUTOR_STATUS_VALUES, "pending"),
       classType: safeArrayEnumValue(data.classType, CLASS_TYPE_VALUES),
-      tutoringLevels: safeArrayEnumValue(
-        data.tutoringLevels,
-        TUTORING_LEVEL_VALUES,
-      ),
       preferredLocations: safeArrayEnumValue(
         data.preferredLocations,
         PREFERRED_LOCATION_VALUES,
@@ -273,11 +302,7 @@ export function EditTutor({ id }: EditTutorProps) {
         TUTOR_TYPE_VALUES,
       ) as UpdateTutorSchema["tutorType"],
       yearsExperience: data.yearsExperience || 0,
-      highestEducation: safeEnumValue(
-        data.highestEducation,
-        EDUCATION_VALUES_EDIT,
-        "Undergraduate",
-      ),
+      highestEducation: normalizeHighestEducation(data.highestEducation),
       academicDetails: normalizeTextSpaces(
         data.academicDetails || "",
       ) as string,
@@ -345,8 +370,9 @@ export function EditTutor({ id }: EditTutorProps) {
 
   const onSubmit = async (data: UpdateTutorSchema) => {
     try {
-      const cleanedData: UpdateTutorSchema = {
-        ...data,
+      const { email: immutableEmail, ...editableData } = data;
+      const cleanedData: Omit<UpdateTutorSchema, "email"> = {
+        ...editableData,
         academicDetails: normalizeTextSpaces(
           data.academicDetails || "",
         ) as string,
@@ -368,7 +394,10 @@ export function EditTutor({ id }: EditTutorProps) {
       }
 
       if ("data" in result) {
-        reset(cleanedData);
+        reset({
+          ...cleanedData,
+          email: tutorData?.email || immutableEmail || "",
+        });
         toast.success("Tutor updated successfully");
         setOpen(false);
       }
@@ -391,22 +420,6 @@ export function EditTutor({ id }: EditTutorProps) {
     },
     onBlur: (event) => {
       setValue("fullName", collapseTextSpaces(event.target.value), {
-        shouldValidate: true,
-      });
-    },
-  });
-
-  const emailRegister = form.register("email", {
-    onChange: (event) => {
-      const cleaned = stripLeadingSpaces(event.target.value);
-
-      if (cleaned !== event.target.value) {
-        event.target.value = cleaned;
-        setValue("email", cleaned, { shouldValidate: formState.isSubmitted });
-      }
-    },
-    onBlur: (event) => {
-      setValue("email", event.target.value.trim(), {
         shouldValidate: true,
       });
     },
@@ -455,9 +468,21 @@ export function EditTutor({ id }: EditTutorProps) {
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
-          <DialogHeader className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-b">
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-[700px] bg-white dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0"
+        >
+          <DialogHeader className="shrink-0 flex-row items-center justify-between bg-white dark:bg-gray-800 px-6 py-4 border-b z-40">
             <DialogTitle>Edit Tutor</DialogTitle>
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="flex size-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </button>
+            </DialogClose>
           </DialogHeader>
 
           <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
@@ -525,14 +550,25 @@ export function EditTutor({ id }: EditTutorProps) {
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div
+                className="space-y-2 cursor-not-allowed"
+                title={EMAIL_IMMUTABLE_MESSAGE}
+              >
                 <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="e.g johndoe@gmail.com"
-                  {...emailRegister}
+                  value={watch("email") || ""}
+                  className="cursor-not-allowed"
+                  disabled
+                  readOnly
+                  aria-readonly="true"
+                  aria-describedby={`email-immutable-help-${id}`}
                 />
+                <p id={`email-immutable-help-${id}`} className="sr-only">
+                  {EMAIL_IMMUTABLE_MESSAGE}
+                </p>
                 {formState.errors.email && (
                   <p className="text-sm text-red-500">
                     {formState.errors.email.message}
@@ -554,6 +590,7 @@ export function EditTutor({ id }: EditTutorProps) {
                     }
                     placeholder="dd/mm/yyyy"
                     error={formState.errors.dateOfBirth?.message}
+                    maxDate={maxTutorDateOfBirth}
                   />
                 </div>
 
@@ -565,7 +602,7 @@ export function EditTutor({ id }: EditTutorProps) {
                     placeholder="Age"
                     disabled
                     {...form.register("age", { valueAsNumber: true })}
-                    min={1}
+                    min={18}
                   />
                   {formState.errors.age && (
                     <p className="text-sm text-red-500">
@@ -774,21 +811,6 @@ export function EditTutor({ id }: EditTutorProps) {
                     {formState.errors.certificatesAndQualifications.message}
                   </p>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <MultiSelect
-                  label="Tutoring Levels *"
-                  options={TUTORING_LEVEL_OPTIONS}
-                  defaultSelected={watch("tutoringLevels")}
-                  onChange={(selected) =>
-                    setValue(
-                      "tutoringLevels",
-                      selected as UpdateTutorSchema["tutoringLevels"],
-                      { shouldValidate: true },
-                    )
-                  }
-                />
               </div>
 
               <div className="space-y-2">

@@ -240,6 +240,7 @@ export default function UpdateUser() {
               <Label className="font-semibold">Profile Image *</Label>
 
               <FileUploadDropzone
+                imageOnly
                 onUploaded={(url) => {
                   setValue("avatar", url, { shouldValidate: true });
                   setImageSrc(url);

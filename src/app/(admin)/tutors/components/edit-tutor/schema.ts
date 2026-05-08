@@ -4,7 +4,6 @@ import {
   PREFERRED_LOCATION_VALUES,
   RACE_VALUES,
   TUTOR_GENDER_VALUES,
-  TUTORING_LEVEL_VALUES,
   TUTOR_STATUS_VALUES,
   TUTOR_TYPE_VALUES,
 } from "@/configs/app-constants";
@@ -57,7 +56,7 @@ export const updateTutorSchema = z.object({
     )
     .optional(),
   gender: z.enum(TUTOR_GENDER_VALUES).optional(),
-  age: z.number().int().min(1, "Age must be at least 1").optional(),
+  age: z.number().int().min(18, "Must be at least 18 years old").optional(),
   tutorMediums: z.array(z.string()).optional(),
   grades: z.array(z.string()).optional(),
   subjects: z.array(z.string()).optional(),
@@ -68,11 +67,6 @@ export const updateTutorSchema = z.object({
   status: z.enum(TUTOR_STATUS_VALUES).optional(),
 
   classType: z.array(z.string()).optional(),
-
-  tutoringLevels: z
-    .array(z.enum(TUTORING_LEVEL_VALUES))
-    .min(1, "Select at least one tutoring level")
-    .optional(),
 
   preferredLocations: z
     .array(z.enum(PREFERRED_LOCATION_VALUES))
