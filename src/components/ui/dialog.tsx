@@ -70,8 +70,8 @@ function DialogContent({
         )}
         {...props}
       >
-        <div className="sticky top-0 z-25 px-6 pt-4 pb-3 ">
-          {showCloseButton && (
+        {showCloseButton && (
+          <div className="sticky top-0 z-25 px-6 pt-4 pb-3 ">
             <DialogPrimitive.Close
               data-slot="dialog-close"
               className="absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 [&_svg]:size-4"
@@ -79,8 +79,8 @@ function DialogContent({
               <XIcon />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
-          )}
-        </div>
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto px-6 pb-5 scrollbar-thin">
           {children}
         </div>

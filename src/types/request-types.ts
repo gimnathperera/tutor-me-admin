@@ -176,18 +176,11 @@ export type UpdateSubjectRequest = {
 };
 export type UpdateUserRequest = {
   id: string;
-  email?: string;
   name?: string;
   role?: "tutor" | "admin";
   phoneNumber?: string;
   birthday?: string;
   status?: "pending" | "approved" | "rejected" | "suspended";
-  country?: string;
-  city?: string;
-  state?: string;
-  region?: string;
-  zip?: string;
-  address?: string;
   gender?: string;
   avatar?: string;
 };

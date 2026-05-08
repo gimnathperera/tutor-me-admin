@@ -309,12 +309,12 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
           )}
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[550px] max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[550px] max-h-[80vh] overflow-hidden p-0 [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 px-6 py-4 border-b">
             <DialogTitle>Assign Tutors</DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-6 mt-4">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-6 flex flex-col gap-6">
             {(row.tutors ?? []).map((tutorBlock, index) => (
               <TutorBlockItem
                 key={tutorBlock._id}
@@ -328,9 +328,8 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
               />
             ))}
           </div>
-
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+          <div className="shrink-0 flex justify-end gap-3 px-6 py-4 border-t">
             <Button
               variant="outline"
               onClick={handleCancel}

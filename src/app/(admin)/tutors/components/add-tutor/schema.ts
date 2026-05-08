@@ -38,8 +38,12 @@ export const addTutorSchema = z.object({
         .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
     ),
 
-  gender: z.enum(TUTOR_GENDER_VALUES, { message: "Gender is required" }),
-  age: z.number().int().min(18, "Must be at least 18 years old").max(80, "Must be 80 or under"),
+  gender: z.enum(TUTOR_GENDER_VALUES),
+  age: z
+    .number()
+    .int()
+    .min(18, "Must be at least 18 years old")
+    .max(80, "Must be 80 or under"),
 
   tutorMediums: z
     .array(z.string())
@@ -47,8 +51,8 @@ export const addTutorSchema = z.object({
 
   grades: z.array(z.string()).min(1, "Select at least one grade"),
   subjects: z.array(z.string()).min(1, "Select at least one subject"),
-  nationality: z.enum(NATIONALITY_VALUES, { message: "Nationality is required" }),
-  race: z.enum(RACE_VALUES, { message: "Race is required" }),
+  nationality: z.enum(NATIONALITY_VALUES),
+  race: z.enum(RACE_VALUES),
 
   classType: z
     .array(z.enum(CLASS_TYPE_VALUES))
@@ -85,7 +89,10 @@ export const addTutorSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters")
     .max(12, "Password must be at most 12 characters")
-    .regex(/(?=.*[A-Za-z])(?=.*\d).+/, "Password must contain at least one letter and one number"),
+    .regex(
+      /(?=.*[A-Za-z])(?=.*\d).+/,
+      "Password must contain at least one letter and one number",
+    ),
 
   confirmPassword: z.string().min(1, "Please confirm your password"),
 

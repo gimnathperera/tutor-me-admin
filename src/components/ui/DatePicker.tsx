@@ -39,7 +39,7 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
       <Input
         {...props}
         ref={ref}
-        value={value}
+        value={value ?? ""}
         onClick={onClick}
         placeholder={placeholder}
         readOnly
@@ -108,7 +108,7 @@ function DatePickerHeader({
   }, [onVisibleMonthChange, selectedMonth, selectedYear]);
 
   return (
-    <div className="relative mb-3 flex h-8 items-center justify-center">
+    <div className="relative mb-3 flex h-10 items-center justify-center rounded-lg bg-gray-50 px-1 dark:bg-gray-900">
       <button
         type="button"
         onClick={() => {
@@ -116,7 +116,7 @@ function DatePickerHeader({
           decreaseMonth();
         }}
         disabled={prevMonthButtonDisabled}
-        className="absolute left-0 flex size-8 shrink-0 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-50 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-35 dark:text-gray-500 dark:hover:bg-white/5 dark:hover:text-white/90"
+        className="absolute left-1 flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-white hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
         aria-label="Previous month"
       >
         <ChevronLeft className="size-4" />
@@ -129,12 +129,12 @@ function DatePickerHeader({
             onClick={() =>
               setOpenMenu((current) => (current === "month" ? null : "month"))
             }
-            className="flex h-8 items-center gap-1 rounded-md px-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-50 focus:bg-gray-50 focus:outline-none dark:text-white/90 dark:hover:bg-white/5 dark:focus:bg-white/5"
+            className="flex h-8 items-center gap-1 rounded-md px-2 text-sm font-semibold text-gray-900 transition hover:bg-white focus:bg-white focus:outline-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10"
             aria-expanded={openMenu === "month"}
             aria-haspopup="listbox"
           >
             {MONTHS[selectedMonth]}
-            <ChevronDown className="size-3.5 text-gray-400" />
+            <ChevronDown className="size-3.5 text-gray-500 dark:text-gray-300" />
           </button>
 
           {openMenu === "month" && (
@@ -175,12 +175,12 @@ function DatePickerHeader({
             onClick={() =>
               setOpenMenu((current) => (current === "year" ? null : "year"))
             }
-            className="flex h-8 items-center gap-1 rounded-md px-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-50 focus:bg-gray-50 focus:outline-none dark:text-white/90 dark:hover:bg-white/5 dark:focus:bg-white/5"
+            className="flex h-8 items-center gap-1 rounded-md px-2 text-sm font-semibold text-gray-900 transition hover:bg-white focus:bg-white focus:outline-none dark:text-white dark:hover:bg-white/10 dark:focus:bg-white/10"
             aria-expanded={openMenu === "year"}
             aria-haspopup="listbox"
           >
             {selectedYear}
-            <ChevronDown className="size-3.5 text-gray-400" />
+            <ChevronDown className="size-3.5 text-gray-500 dark:text-gray-300" />
           </button>
 
           {openMenu === "year" && (
@@ -224,7 +224,7 @@ function DatePickerHeader({
           increaseMonth();
         }}
         disabled={nextMonthButtonDisabled}
-        className="absolute right-0 flex size-8 shrink-0 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-50 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-35 dark:text-gray-500 dark:hover:bg-white/5 dark:hover:text-white/90"
+        className="absolute right-1 flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-white hover:text-gray-800 disabled:cursor-not-allowed disabled:opacity-35 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
         aria-label="Next month"
       >
         <ChevronRight className="size-4" />
@@ -284,6 +284,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         selected={value ? new Date(value) : null}
         onChange={handleDateChange}
         dateFormat="dd/MM/yyyy"
+        placeholderText={placeholder}
         maxDate={maxDate ?? new Date()}
         open={isOpen}
         openToDate={visibleMonth}
@@ -316,19 +317,20 @@ const DatePicker: React.FC<DatePickerProps> = ({
         wrapperClassName="w-full"
         showPopperArrow={false}
         popperPlacement="bottom-start"
-        popperClassName="z-10 [&_.react-datepicker__triangle]:!hidden"
+        popperClassName="tm-datepicker-popper z-30 [&_.react-datepicker__triangle]:!hidden"
         calendarClassName="
-          !w-auto !rounded-xl !border !border-gray-200 !bg-white !p-3 !font-outfit !text-gray-900 !shadow-theme-lg dark:!border-gray-700 dark:!bg-gray-800 dark:!text-white/90
-          [&_.react-datepicker__header]:!border-0 [&_.react-datepicker__header]:!bg-transparent [&_.react-datepicker__header]:!p-0
+          tm-datepicker-calendar !w-auto !rounded-xl !border !border-gray-200 !bg-white !p-3 !font-outfit !text-gray-900 !shadow-theme-lg dark:!border-gray-700 dark:!bg-gray-800 dark:!text-white
+          [&_.react-datepicker__header]:!border-0 [&_.react-datepicker__header]:!bg-white [&_.react-datepicker__header]:!p-0 dark:[&_.react-datepicker__header]:!bg-gray-800
+          [&_.react-datepicker__current-month]:!text-gray-900 dark:[&_.react-datepicker__current-month]:!text-white
           [&_.react-datepicker__month-container]:!float-none [&_.react-datepicker__month-container]:!w-[14.75rem]
           [&_.react-datepicker__month]:!m-0 [&_.react-datepicker__month]:!w-full
           [&_.react-datepicker__week]:!grid [&_.react-datepicker__week]:!grid-cols-7 [&_.react-datepicker__week]:!gap-0.5
           [&_.react-datepicker__day-names]:!mb-1.5 [&_.react-datepicker__day-names]:!grid [&_.react-datepicker__day-names]:!grid-cols-7 [&_.react-datepicker__day-names]:!gap-0.5 [&_.react-datepicker__day-names]:!w-full
-          [&_.react-datepicker__day-name]:!m-0 [&_.react-datepicker__day-name]:!flex [&_.react-datepicker__day-name]:!h-7 [&_.react-datepicker__day-name]:!w-auto [&_.react-datepicker__day-name]:!items-center [&_.react-datepicker__day-name]:!justify-center [&_.react-datepicker__day-name]:!text-[11px] [&_.react-datepicker__day-name]:!font-medium [&_.react-datepicker__day-name]:!text-gray-400 dark:[&_.react-datepicker__day-name]:!text-gray-500
-          [&_.react-datepicker__day]:!m-0 [&_.react-datepicker__day]:!flex [&_.react-datepicker__day]:!size-8 [&_.react-datepicker__day]:!items-center [&_.react-datepicker__day]:!justify-center [&_.react-datepicker__day]:!rounded-md [&_.react-datepicker__day]:!border [&_.react-datepicker__day]:!border-transparent [&_.react-datepicker__day]:!text-sm [&_.react-datepicker__day]:!font-medium [&_.react-datepicker__day]:!leading-none [&_.react-datepicker__day]:!text-gray-700 [&_.react-datepicker__day]:!transition-colors dark:[&_.react-datepicker__day]:!text-white/90
-          [&_.react-datepicker__day:hover]:!bg-gray-50 [&_.react-datepicker__day:hover]:!text-gray-900 dark:[&_.react-datepicker__day:hover]:!bg-white/5 dark:[&_.react-datepicker__day:hover]:!text-white
-          [&_.react-datepicker__day--outside-month]:!text-gray-300 dark:[&_.react-datepicker__day--outside-month]:!text-white/20
-          [&_.react-datepicker__day--disabled]:!cursor-not-allowed [&_.react-datepicker__day--disabled]:!text-gray-300 dark:[&_.react-datepicker__day--disabled]:!text-white/20
+          [&_.react-datepicker__day-name]:!m-0 [&_.react-datepicker__day-name]:!flex [&_.react-datepicker__day-name]:!h-7 [&_.react-datepicker__day-name]:!w-auto [&_.react-datepicker__day-name]:!items-center [&_.react-datepicker__day-name]:!justify-center [&_.react-datepicker__day-name]:!text-[11px] [&_.react-datepicker__day-name]:!font-medium [&_.react-datepicker__day-name]:!text-gray-600 dark:[&_.react-datepicker__day-name]:!text-gray-300
+          [&_.react-datepicker__day]:!m-0 [&_.react-datepicker__day]:!flex [&_.react-datepicker__day]:!size-8 [&_.react-datepicker__day]:!items-center [&_.react-datepicker__day]:!justify-center [&_.react-datepicker__day]:!rounded-md [&_.react-datepicker__day]:!border [&_.react-datepicker__day]:!border-transparent [&_.react-datepicker__day]:!text-sm [&_.react-datepicker__day]:!font-medium [&_.react-datepicker__day]:!leading-none [&_.react-datepicker__day]:!text-gray-800 [&_.react-datepicker__day]:!transition-colors dark:[&_.react-datepicker__day]:!text-gray-100
+          [&_.react-datepicker__day:hover]:!bg-gray-100 [&_.react-datepicker__day:hover]:!text-gray-900 dark:[&_.react-datepicker__day:hover]:!bg-white/10 dark:[&_.react-datepicker__day:hover]:!text-white
+          [&_.react-datepicker__day--outside-month]:!text-gray-400 dark:[&_.react-datepicker__day--outside-month]:!text-gray-500
+          [&_.react-datepicker__day--disabled]:!cursor-not-allowed [&_.react-datepicker__day--disabled]:!text-gray-300 dark:[&_.react-datepicker__day--disabled]:!text-gray-600
           [&_.react-datepicker__day--selected]:!border-brand-500 [&_.react-datepicker__day--selected]:!bg-brand-500 [&_.react-datepicker__day--selected]:!text-white [&_.react-datepicker__day--selected]:!shadow-theme-xs
           [&_.react-datepicker__day--keyboard-selected]:!border-brand-500 [&_.react-datepicker__day--keyboard-selected]:!bg-brand-500 [&_.react-datepicker__day--keyboard-selected]:!text-white
         "
