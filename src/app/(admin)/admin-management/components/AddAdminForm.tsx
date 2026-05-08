@@ -11,10 +11,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { useCreateAdminMutation } from "@/store/api/splits/admins";
 import { getErrorInApiResult } from "@/utils/api";
-import { stripLeadingSpaces } from "@/utils/form-normalizers";
+import {
+  collapseTextSpaces,
+  removeWhitespace,
+  stripLeadingSpaces,
+} from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { type KeyboardEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
@@ -28,6 +32,12 @@ const workflowSteps = [
   "Backend creates the admin with role: admin.",
   "New admin opens the link, sets a new password, and then logs in normally.",
 ];
+
+const preventWhitespaceKey = (event: KeyboardEvent<HTMLInputElement>) => {
+  if (/\s/.test(event.key)) {
+    event.preventDefault();
+  }
+};
 
 export default function AddAdminForm() {
   const [inviteEmail, setInviteEmail] = useState("");
@@ -48,8 +58,8 @@ export default function AddAdminForm() {
 
   const onSubmit = async (values: CreateAdminSchema) => {
     const cleanedValues: CreateAdminSchema = {
-      name: values.name.trim(),
-      email: values.email.trim(),
+      name: collapseTextSpaces(values.name),
+      email: removeWhitespace(values.email),
       phoneNumber: values.phoneNumber.trim(),
       password: values.password.trim(),
     };
@@ -74,17 +84,21 @@ export default function AddAdminForm() {
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
-        setValue("name", cleaned, { shouldValidate: form.formState.isSubmitted });
+        setValue("name", cleaned, {
+          shouldValidate: form.formState.isSubmitted,
+        });
       }
     },
     onBlur: (event) => {
-      setValue("name", event.target.value.trim(), { shouldValidate: true });
+      setValue("name", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
     },
   });
 
   const emailRegister = form.register("email", {
     onChange: (event) => {
-      const cleaned = stripLeadingSpaces(event.target.value);
+      const cleaned = removeWhitespace(event.target.value);
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
@@ -94,7 +108,9 @@ export default function AddAdminForm() {
       }
     },
     onBlur: (event) => {
-      setValue("email", event.target.value.trim(), { shouldValidate: true });
+      setValue("email", removeWhitespace(event.target.value), {
+        shouldValidate: true,
+      });
     },
   });
 
@@ -169,7 +185,12 @@ export default function AddAdminForm() {
                 >
                   Email Address
                 </label>
-                <Input id="email" type="email" {...emailRegister} />
+                <Input
+                  id="email"
+                  type="email"
+                  onKeyDown={preventWhitespaceKey}
+                  {...emailRegister}
+                />
                 {errors.email && (
                   <p className="text-sm text-red-500">{errors.email.message}</p>
                 )}
