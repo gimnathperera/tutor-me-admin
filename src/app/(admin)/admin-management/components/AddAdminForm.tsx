@@ -138,7 +138,7 @@ export default function AddAdminForm() {
 
   const passwordRegister = form.register("password", {
     onChange: (event) => {
-      const cleaned = stripLeadingSpaces(event.target.value);
+      const cleaned = removeWhitespace(event.target.value);
 
       if (cleaned !== event.target.value) {
         event.target.value = cleaned;
@@ -148,7 +148,7 @@ export default function AddAdminForm() {
       }
     },
     onBlur: (event) => {
-      setValue("password", event.target.value.trim(), {
+      setValue("password", removeWhitespace(event.target.value), {
         shouldValidate: true,
       });
     },
@@ -174,7 +174,7 @@ export default function AddAdminForm() {
                   htmlFor="name"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Admin Name*
+                  Admin Name *
                 </label>
                 <Input id="name" {...nameRegister} />
                 {errors.name && (
@@ -187,7 +187,7 @@ export default function AddAdminForm() {
                   htmlFor="email"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Email*
+                  Email *
                 </label>
                 <Input
                   id="email"
@@ -207,7 +207,7 @@ export default function AddAdminForm() {
                   htmlFor="phoneNumber"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Contact Number*
+                  Contact Number *
                 </label>
                 <Input
                   id="phoneNumber"
@@ -228,12 +228,13 @@ export default function AddAdminForm() {
                   htmlFor="password"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Initial Password*
+                  Password *
                 </label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
+                    onKeyDown={preventWhitespaceKey}
                     className="pr-10"
                     {...passwordRegister}
                   />
