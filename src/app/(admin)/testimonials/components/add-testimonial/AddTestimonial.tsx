@@ -93,15 +93,15 @@ export function AddTestimonial() {
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90 sm:max-w-[425px]">
-          <DialogHeader>
+        <DialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90 sm:max-w-[425px] p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
             <DialogTitle>Add Testimonial</DialogTitle>
             <DialogDescription>
               Fill in the details to create a new testimonial.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-4 grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="content">Content</Label>
               <Input
@@ -189,7 +189,7 @@ export function AddTestimonial() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 px-6 py-4 border-t bg-white dark:bg-gray-800">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>

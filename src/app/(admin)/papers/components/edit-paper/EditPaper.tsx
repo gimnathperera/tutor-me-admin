@@ -201,17 +201,17 @@ export function EditPaper({
         <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
-      <DialogContent className="w-[95vw] max-w-[425px] max-h-[85vh] overflow-x-hidden bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+      <DialogContent className="w-[95vw] max-w-[425px] max-h-[85vh] overflow-hidden bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
         <form
           onSubmit={updatePaperForm.handleSubmit(onSubmit)}
-          className="min-w-0"
+          className="flex flex-col flex-1 min-h-0 overflow-hidden min-w-0"
         >
-          <DialogHeader>
+          <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
             <DialogTitle>Edit Paper</DialogTitle>
             <DialogDescription>Edit the paper details.</DialogDescription>
           </DialogHeader>
 
-          <div className="grid min-w-0 gap-4 max-h-[67vh] overflow-x-hidden overflow-y-auto pr-1">
+          <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto scrollbar-thin px-6 py-4 grid min-w-0 gap-4">
             <div className="grid min-w-0 gap-3">
               <Label>Title</Label>
               <Input {...register("title")} className="w-full min-w-0" />
@@ -416,7 +416,7 @@ export function EditPaper({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 px-6 py-4 border-t bg-white dark:bg-gray-800">
             <DialogClose asChild>
               <Button variant="outline" onClick={handleCancel}>
                 Cancel

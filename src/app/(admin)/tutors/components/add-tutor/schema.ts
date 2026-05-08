@@ -38,12 +38,12 @@ export const addTutorSchema = z.object({
         .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
     ),
 
-  gender: z.enum(TUTOR_GENDER_VALUES, "Gender is required"),
+  gender: z.enum(TUTOR_GENDER_VALUES, { message: "Gender is required" }),
   age: z
     .number()
     .int()
     .min(18, "Must be at least 18 years old")
-    .max(80, "Must be 80 or under"),
+    .max(80, "Age must be below 80"),
 
   tutorMediums: z
     .array(z.string())
@@ -51,8 +51,8 @@ export const addTutorSchema = z.object({
 
   grades: z.array(z.string()).min(1, "Select at least one grade"),
   subjects: z.array(z.string()).min(1, "Select at least one subject"),
-  nationality: z.enum(NATIONALITY_VALUES, "Nationality is required"),
-  race: z.enum(RACE_VALUES, "Race is required"),
+  nationality: z.enum(NATIONALITY_VALUES, { message: "Nationality is required" }),
+  race: z.enum(RACE_VALUES, { message: "Race is required" }),
 
   classType: z
     .array(z.enum(CLASS_TYPE_VALUES))
@@ -68,7 +68,7 @@ export const addTutorSchema = z.object({
 
   yearsExperience: z.number().int().min(1, "Years of Experience are required").max(50),
 
-  highestEducation: z.enum(EDUCATION_VALUES_ADD, "Highest Education is required"),
+  highestEducation: z.enum(EDUCATION_VALUES_ADD, { message: "Highest Education is required" }),
 
   academicDetails: z.string().min(1, "Academic Details are required").max(1000),
   teachingSummary: z.string().min(1, "Teaching Summary is required").max(750),

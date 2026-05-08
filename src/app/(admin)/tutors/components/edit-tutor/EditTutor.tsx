@@ -357,7 +357,8 @@ export function EditTutor({ id }: EditTutorProps) {
       shouldDirty: true,
       shouldValidate: true,
     });
-  }, [dob, setValue]);
+    form.trigger("age");
+  }, [dob, form, setValue]);
 
   const handleYearsSelect = (val: string) => {
     const parsed = val === "10+" ? 10 : parseInt(val || "0", 10);

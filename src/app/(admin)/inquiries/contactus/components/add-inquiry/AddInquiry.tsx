@@ -82,16 +82,16 @@ export function AddInquiry() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogHeader>
+      <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
             <DialogTitle>Add Inquiry (Manually)</DialogTitle>
-            <DialogDescription className="mb-2 ">
+            <DialogDescription>
               Add a new inquiry with sender name, email, and inquiry.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-4 grid gap-4">
             {/* Sender Name */}
             <div className="grid gap-3">
               <Label htmlFor="senderName">Sender Name</Label>
@@ -145,7 +145,7 @@ export function AddInquiry() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 px-6 py-4 border-t bg-white dark:bg-gray-800">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
