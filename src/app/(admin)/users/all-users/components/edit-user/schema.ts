@@ -12,7 +12,14 @@ const getMinimumAdultBirthDate = () => {
 
 export const updateUserSchema = z.object({
   email: z.string().email("Invalid email address").max(100, "Email too long"),
-  name: z.string().min(1, "Name is required").max(100, "Name too long"),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(100, "Name too long")
+    .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/, {
+      message: "Name can contain letters and spaces only",
+    }),
   role: z.enum(USER_ROLE_VALUES).optional(),
   phoneNumber: z.string().regex(/^\+?[0-9]{1,10}$/, "Phone number is required"),
   birthday: z
@@ -34,7 +41,10 @@ export const updateUserSchema = z.object({
   gender: z.enum(USER_GENDER_VALUES).optional(),
   avatar: z
     .union([
-      z.string().url("Profile image is required").max(255, "Avatar URL too long"),
+      z
+        .string()
+        .url("Profile image is required")
+        .max(255, "Avatar URL too long"),
       z.literal(""),
     ])
     .optional(),
