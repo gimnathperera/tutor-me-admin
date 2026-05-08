@@ -256,15 +256,25 @@ export default function RequestForTutorsList() {
       })),
     [gradesData?.results],
   );
-
-  const subjectOptions = useMemo(
+  const selectedGrade = useMemo(
     () =>
-      (subjectsData?.results || []).map((subject) => ({
+      (gradesData?.results || []).find((grade) => grade.id === filters.grade),
+    [gradesData?.results, filters.grade],
+  );
+
+  const subjectOptions = useMemo(() => {
+    if (filters.grade === "all") {
+      return (subjectsData?.results || []).map((subject) => ({
         value: subject.id,
         label: subject.title,
-      })),
-    [subjectsData?.results],
-  );
+      }));
+    }
+
+    return (selectedGrade?.subjects || []).map((subject) => ({
+      value: subject.id,
+      label: subject.title,
+    }));
+  }, [filters.grade, selectedGrade?.subjects, subjectsData?.results]);
 
   useEffect(() => {
     setPage(TABLE_CONFIG.DEFAULT_PAGE);
@@ -287,7 +297,11 @@ export default function RequestForTutorsList() {
     key: K,
     value: RequestTutorFilters[K],
   ) => {
-    setFilters((current) => ({ ...current, [key]: value }));
+    setFilters((current) => ({
+      ...current,
+      [key]: value,
+      ...(key === "grade" ? { subject: "all" } : {}),
+    }));
   };
 
   const handleResetFilters = () => {
@@ -395,9 +409,7 @@ export default function RequestForTutorsList() {
         header: "Grade",
         className: "min-w-[280px] max-w-[360px] whitespace-normal",
         render: (row: RequestTutors) => {
-          const gradeName =
-            gradeOptions.find((grade) => grade.value === row.grade)?.label ||
-            "No grade";
+          const gradeName = getSafeValue(row.grade, "No grade");
 
           return gradeName !== "No grade" ? (
             <span

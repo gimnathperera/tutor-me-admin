@@ -33,7 +33,9 @@ export default function ResetPasswordForm({ token }: Props) {
 
   const onSubmit = async (values: ResetPasswordSchema) => {
     if (!token) {
-      toast.error("Reset token is missing. Please use the link from your email.");
+      toast.error(
+        "Reset token is missing. Please use the link from your email.",
+      );
       return;
     }
 
@@ -81,7 +83,10 @@ export default function ResetPasswordForm({ token }: Props) {
             </div>
           ) : (
             <FormProvider {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <div className="rounded-xl border border-blue-100 bg-blue-50/70 p-4 text-sm text-blue-900 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-100">
                   Your account has already been created. Set a new password
                   below, then sign in with your email.
@@ -90,7 +95,7 @@ export default function ResetPasswordForm({ token }: Props) {
                 <InputPassword
                   label="New Password"
                   name="password"
-                  placeholder="NewStrongPass123"
+                  placeholder="Enter new password"
                 />
 
                 <InputPassword
