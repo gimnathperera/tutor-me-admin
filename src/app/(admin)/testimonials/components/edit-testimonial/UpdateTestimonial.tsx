@@ -23,7 +23,6 @@ import { useUpdateTestimonialMutation } from "@/store/api/splits/testimonials";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -112,13 +111,13 @@ export function UpdateTestimonial({
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
 
-        <DialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90 sm:max-w-[425px]">
-          <DialogHeader>
+        <DialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90 sm:max-w-[425px] p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
             <DialogTitle>Edit Testimonial</DialogTitle>
             <DialogDescription>Edit the testimonial details.</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-4 grid gap-4">
             {/* Content */}
             <div className="grid gap-3">
               <Label htmlFor="content">Content</Label>
@@ -198,7 +197,8 @@ export function UpdateTestimonial({
               />
 
               {avatarUrl && (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={avatarUrl}
                   alt="Avatar preview"
                   width={64}
@@ -215,7 +215,7 @@ export function UpdateTestimonial({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 px-6 py-4 border-t bg-white dark:bg-gray-800">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>

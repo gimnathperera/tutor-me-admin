@@ -136,13 +136,13 @@ export function AddPaper() {
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+          <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
             <DialogTitle>Add Paper</DialogTitle>
             <DialogDescription>Add a new paper to the list.</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 max-h-[67vh] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-4 grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="title">Title</Label>
               <Input id="title" placeholder="Title" {...register("title")} />
@@ -343,7 +343,7 @@ export function AddPaper() {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 px-6 py-4 border-t bg-white dark:bg-gray-800">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
