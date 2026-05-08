@@ -330,6 +330,87 @@
 .flatpickr-wrapper {
   @apply w-full;
 }
+
+.tm-datepicker-calendar.react-datepicker {
+  background: #ffffff !important;
+  color: #101828 !important;
+}
+
+.tm-datepicker-popper.react-datepicker-popper {
+  z-index: 30 !important;
+}
+
+.tm-datepicker-calendar .react-datepicker__header {
+  background: #ffffff !important;
+}
+
+.tm-datepicker-calendar .react-datepicker__day-name {
+  color: #475467 !important;
+}
+
+.tm-datepicker-calendar .react-datepicker__day {
+  color: #1d2939 !important;
+}
+
+.tm-datepicker-calendar .react-datepicker__day:hover {
+  background: #f2f4f7 !important;
+  color: #101828 !important;
+}
+
+.tm-datepicker-calendar .react-datepicker__day--outside-month {
+  color: #98a2b3 !important;
+}
+
+.tm-datepicker-calendar .react-datepicker__day--disabled {
+  color: #d0d5dd !important;
+}
+
+.tm-datepicker-calendar .react-datepicker__day--selected,
+.tm-datepicker-calendar .react-datepicker__day--keyboard-selected {
+  background: #465fff !important;
+  border-color: #465fff !important;
+  color: #ffffff !important;
+}
+
+.dark .tm-datepicker-calendar.react-datepicker {
+  background: #1d2939 !important;
+  border-color: #344054 !important;
+  color: #f9fafb !important;
+}
+
+.dark .tm-datepicker-calendar .react-datepicker__header {
+  background: #1d2939 !important;
+}
+
+.dark .tm-datepicker-calendar .react-datepicker__day-name {
+  color: #d0d5dd !important;
+}
+
+.dark .tm-datepicker-calendar .react-datepicker__day {
+  color: #f2f4f7 !important;
+}
+
+.dark .tm-datepicker-calendar .react-datepicker__day:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.dark .tm-datepicker-calendar .react-datepicker__day--outside-month {
+  color: #667085 !important;
+}
+
+.dark .tm-datepicker-calendar .react-datepicker__day--disabled {
+  background: transparent !important;
+  color: #475467 !important;
+}
+
+.dark .tm-datepicker-calendar .react-datepicker__day--selected,
+.dark .tm-datepicker-calendar .react-datepicker__day--keyboard-selected {
+  background: #465fff !important;
+  border-color: #465fff !important;
+  color: #ffffff !important;
+}
+
 .flatpickr-calendar {
   @apply mt-2 !bg-white !rounded-xl !p-5 !border !border-gray-200 dark:!border-gray-800 !text-gray-500 dark:!bg-gray-dark dark:!text-gray-400 dark:!shadow-theme-xl 2xsm:!w-auto;
 }

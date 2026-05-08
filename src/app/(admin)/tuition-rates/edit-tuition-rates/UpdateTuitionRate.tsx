@@ -132,15 +132,15 @@ export function UpdateTuitionRate({
         <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[500px] bg-white z-[9999] dark:bg-gray-800 dark:text-white/90">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] bg-white z-9999 dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
+        <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
           <DialogTitle>Edit Tuition Rate</DialogTitle>
           <DialogDescription>
             Update the tuition rate information.
           </DialogDescription>
         </DialogHeader>
 
-        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-6 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-1">
             <Label>Grade</Label>
             <Controller
@@ -222,7 +222,7 @@ export function UpdateTuitionRate({
             </div>
           ))}
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 px-6 py-4 border-t bg-white dark:bg-gray-800">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>

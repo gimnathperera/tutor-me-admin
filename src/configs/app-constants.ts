@@ -54,7 +54,7 @@ export type UserStatusValue = (typeof USER_STATUS_VALUES)[number];
 export const USER_ROLE_VALUES = ["tutor", "admin"] as const;
 export type UserRoleValue = (typeof USER_ROLE_VALUES)[number];
 
-export const USER_GENDER_VALUES = ["male", "female", "other"] as const;
+export const USER_GENDER_VALUES = ["male", "female"] as const;
 export type UserGenderValue = (typeof USER_GENDER_VALUES)[number];
 
 // ─── Tutor Demographics ───────────────────────────────────────────────────────
@@ -141,36 +141,22 @@ export const CLASS_TYPE_OPTIONS = CLASS_TYPE_VALUES.map((v) => ({
 
 export const EDUCATION_VALUES_ADD = [
   "PhD",
-  "Masters",
-  "Bachelor Degree",
+  "Masters Degree",
   "Undergraduate",
+  "Bachelor Degree",
   "Diploma and Professional",
-  "AL",
+  "Advanced Level (A/L)",
 ] as const;
 export type EducationAddValue = (typeof EDUCATION_VALUES_ADD)[number];
 
-export const EDUCATION_OPTIONS_ADD = [
-  { value: "PhD",                      text: "PhD" },
-  { value: "Masters",                  text: "Master's Degree" },
-  { value: "Bachelor Degree",          text: "Bachelor's Degree" },
-  { value: "Undergraduate",            text: "Undergraduate" },
-  { value: "Diploma and Professional", text: "Diploma and Professional" },
-  { value: "AL",                       text: "Advanced Level (A/L)" },
-] as const;
+export const EDUCATION_OPTIONS_ADD = EDUCATION_VALUES_ADD.map((v) => ({
+  value: v,
+  text: v,
+}));
 
 // ─── Highest Education (Edit Tutor form) ─────────────────────────────────────
 
-export const EDUCATION_VALUES_EDIT = [
-  "PhD",
-  "Diploma",
-  "Masters",
-  "Undergraduate",
-  "Bachelor Degree",
-  "Diploma and Professional",
-  "JC/A Levels",
-  "Poly",
-  "Others",
-] as const;
+export const EDUCATION_VALUES_EDIT = EDUCATION_VALUES_ADD;
 export type EducationEditValue = (typeof EDUCATION_VALUES_EDIT)[number];
 
 // ─── Years of Experience ──────────────────────────────────────────────────────

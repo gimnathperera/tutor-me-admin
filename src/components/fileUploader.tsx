@@ -7,22 +7,47 @@ import { useDropzone } from "react-dropzone";
 
 interface FileUploadDropzoneProps {
   onUploaded: (url: string) => void;
+  imageOnly?: boolean;
 }
+
+const IMAGE_ACCEPT_CONFIG = {
+  "image/png": [".png"],
+  "image/jpeg": [".jpg", ".jpeg"],
+};
+
+const IMAGE_EXTENSION_PATTERN = /\.(png|jpe?g)$/i;
+const IMAGE_UPLOAD_ERROR =
+  "Only PNG, JPG, or JPEG image files are allowed.";
+
+const isAllowedImageFile = (file: File) => {
+  const hasAllowedMimeType = file.type === "image/png" || file.type === "image/jpeg";
+  const hasAllowedExtension = IMAGE_EXTENSION_PATTERN.test(file.name);
+
+  return hasAllowedMimeType && hasAllowedExtension;
+};
 
 export default function FileUploadDropzone({
   onUploaded,
+  imageOnly = false,
 }: FileUploadDropzoneProps) {
   const [uploading, setUploading] = useState(false);
   const [fileName, setFileName] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState("");
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
       if (!file) return;
 
+      if (imageOnly && !isAllowedImageFile(file)) {
+        setUploadError(IMAGE_UPLOAD_ERROR);
+        return;
+      }
+
       setUploading(true);
       setFileName(file.name);
+      setUploadError("");
 
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
@@ -67,17 +92,23 @@ export default function FileUploadDropzone({
       const publicUrl = uploadUrl.split("?")[0];
       onUploaded(publicUrl);
     },
-    [onUploaded],
+    [imageOnly, onUploaded],
   );
 
   const removeFile = () => {
     setFileName("");
     setPreviewUrl(null);
+    setUploadError("");
     onUploaded("");
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected: () => {
+      if (!imageOnly) return;
+      setUploadError(IMAGE_UPLOAD_ERROR);
+    },
+    accept: imageOnly ? IMAGE_ACCEPT_CONFIG : undefined,
     multiple: false,
   });
 
@@ -110,8 +141,14 @@ export default function FileUploadDropzone({
           </p>
 
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Click or drag a file here to upload
+            {imageOnly
+              ? "Only PNG, JPG, or JPEG files are allowed"
+              : "Click or drag a file here to upload"}
           </p>
+
+          {uploadError && (
+            <p className="mt-2 text-sm text-red-500">{uploadError}</p>
+          )}
 
           {fileName && (
             <div className="mt-3 flex items-center justify-center gap-2 w-full px-2">

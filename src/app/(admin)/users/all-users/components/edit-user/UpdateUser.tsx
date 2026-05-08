@@ -4,6 +4,7 @@
 
 import FileUploadDropzone from "@/components/fileUploader";
 import { Button } from "@/components/ui/button/Button";
+import DatePicker from "@/components/ui/DatePicker";
 import {
   Dialog,
   DialogClose,
@@ -29,7 +30,7 @@ import {
 } from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SquarePen } from "lucide-react";
+import { SquarePen, X } from "lucide-react";
 import NextImage from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -43,6 +44,14 @@ import {
 type UserRole = "tutor" | "admin";
 type UserStatus = "pending" | "approved" | "rejected" | "suspended";
 
+const EMAIL_IMMUTABLE_MESSAGE =
+  "Email cannot be modified after user creation.";
+
+const getMinimumAdultBirthDate = () => {
+  const today = new Date();
+  return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+};
+
 interface UpdateUserProps {
   id: string;
   email: string;
@@ -51,18 +60,13 @@ interface UpdateUserProps {
   phoneNumber?: string;
   birthday?: string;
   status: UserStatus;
-  country?: string;
-  city?: string;
-  zip?: string;
-  address?: string;
-  state?: string;
-  region?: string;
-  gender?: "male" | "female" | "other";
+  gender?: "male" | "female";
   avatar?: string;
 }
 
 export function UpdateUser(props: UpdateUserProps) {
   const [open, setOpen] = useState(false);
+  const maxUserBirthday = getMinimumAdultBirthDate();
   const [updateUser, { isLoading }] = useUpdateUserMutation();
   const { refetch } = useFetchUsersQuery({
     page: 1,
@@ -104,22 +108,16 @@ export function UpdateUser(props: UpdateUserProps) {
 
   const onSubmit = async (data: UpdateUserSchema) => {
     try {
+      const { email: _immutableEmail, ...editableData } = data;
       const payload = {
         id: props.id,
-        email: data.email,
-        role: data.role,
-        name: data.name,
-        status: data.status || "pending",
-        phoneNumber: data.phoneNumber || "",
-        birthday: data.birthday || "",
-        country: data.country || "",
-        city: data.city || "",
-        state: data.state || "",
-        region: data.region || "",
-        zip: data.zip || "",
-        address: data.address || "",
-        gender: data.gender || "other",
-        avatar: data.avatar || "",
+        role: editableData.role,
+        name: editableData.name,
+        status: editableData.status || "pending",
+        phoneNumber: editableData.phoneNumber || "",
+        birthday: editableData.birthday || "",
+        gender: editableData.gender || "male",
+        avatar: editableData.avatar || "",
       };
 
       const result = await updateUser(payload);
@@ -141,13 +139,28 @@ export function UpdateUser(props: UpdateUserProps) {
         <DialogTrigger asChild>
           <SquarePen className="cursor-pointer text-blue-500 hover:text-blue-700" />
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px] max-h-[80vh] scrollbar-thin overflow-y-auto bg-white z-50 dark:bg-gray-800 dark:text-white/90">
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>Edit the user details.</DialogDescription>
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0"
+        >
+          <DialogHeader className="shrink-0 flex-row items-start justify-between bg-white dark:bg-gray-800 px-6 py-4 border-b z-40">
+            <div className="space-y-2 text-left">
+              <DialogTitle>Edit User</DialogTitle>
+              <DialogDescription>Edit the user details.</DialogDescription>
+            </div>
+            <DialogClose asChild>
+              <button
+                type="button"
+                className="flex size-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
+                aria-label="Close"
+              >
+                <X className="size-4" />
+              </button>
+            </DialogClose>
           </DialogHeader>
 
-          <div className="grid gap-4">
+          <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
+            <div className="grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
               <Input id="name" {...register("name")} />
@@ -158,9 +171,27 @@ export function UpdateUser(props: UpdateUserProps) {
               )}
             </div>
 
-            <div className="grid gap-3">
+            <div
+              className="grid cursor-not-allowed gap-3"
+              title={EMAIL_IMMUTABLE_MESSAGE}
+            >
               <Label htmlFor="email">Email</Label>
-              <Input id="email" {...register("email")} />
+              <Input
+                id="email"
+                type="email"
+                value={props.email || ""}
+                className="cursor-not-allowed"
+                disabled
+                readOnly
+                aria-readonly="true"
+                aria-describedby={`user-email-immutable-help-${props.id}`}
+              />
+              <p
+                id={`user-email-immutable-help-${props.id}`}
+                className="sr-only"
+              >
+                {EMAIL_IMMUTABLE_MESSAGE}
+              </p>
               {formState.errors.email && (
                 <p className="text-sm text-red-500">
                   {formState.errors.email.message}
@@ -190,7 +221,7 @@ export function UpdateUser(props: UpdateUserProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Label htmlFor="phoneNumber">Contact Number</Label>
               <Input
                 id="phoneNumber"
                 placeholder="ex: 0712345678"
@@ -227,73 +258,20 @@ export function UpdateUser(props: UpdateUserProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="country">Country</Label>
-              <Input id="country" {...register("country")} />
-              {formState.errors.country && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.country.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="city">City</Label>
-              <Input id="city" {...register("city")} />
-              {formState.errors.city && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.city.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="state">State</Label>
-              <Input id="state" {...register("state")} />
-              {formState.errors.state && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.state.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="region">Region</Label>
-              <Input id="region" {...register("region")} />
-              {formState.errors.region && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.region.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="zip">Zip</Label>
-              <Input id="zip" {...register("zip")} />
-              {formState.errors.zip && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.zip.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="address">Address</Label>
-              <Input id="address" {...register("address")} />
-              {formState.errors.address && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.address.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-3">
-              <Label htmlFor="birthday">Birthday</Label>
-              <Input id="birthday" type="date" {...register("birthday")} />
-              {formState.errors.birthday && (
-                <p className="text-sm text-red-500">
-                  {formState.errors.birthday.message}
-                </p>
-              )}
+              <DatePicker
+                id="birthday"
+                label="Date of Birth"
+                value={form.watch("birthday")}
+                onChange={(date) =>
+                  setValue("birthday", date, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                placeholder="Select birthday"
+                error={formState.errors.birthday?.message}
+                maxDate={maxUserBirthday}
+              />
             </div>
 
             <div className="grid gap-3">
@@ -308,7 +286,6 @@ export function UpdateUser(props: UpdateUserProps) {
                 <SelectContent>
                   <SelectItem value="male">Male</SelectItem>
                   <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
               {formState.errors.gender && (
@@ -319,8 +296,9 @@ export function UpdateUser(props: UpdateUserProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="avatar">Avatar</Label>
+              <Label htmlFor="avatar">Profile Picture</Label>
               <FileUploadDropzone
+                imageOnly
                 onUploaded={(url) => {
                   setValue("avatar", url);
                   setPreviewUrl(url);
@@ -341,9 +319,10 @@ export function UpdateUser(props: UpdateUserProps) {
                 </p>
               )}
             </div>
+            </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
