@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useCreateAdminMutation } from "@/store/api/splits/admins";
 import { getErrorInApiResult } from "@/utils/api";
+import { stripLeadingSpaces } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { useState } from "react";
@@ -42,10 +43,18 @@ export default function AddAdminForm() {
   const {
     formState: { errors },
     reset,
+    setValue,
   } = form;
 
   const onSubmit = async (values: CreateAdminSchema) => {
-    const result = await createAdmin(values);
+    const cleanedValues: CreateAdminSchema = {
+      name: values.name.trim(),
+      email: values.email.trim(),
+      phoneNumber: values.phoneNumber.trim(),
+      password: values.password.trim(),
+    };
+
+    const result = await createAdmin(cleanedValues);
     const error = getErrorInApiResult(result);
 
     if (error) {
@@ -53,11 +62,77 @@ export default function AddAdminForm() {
       return;
     }
 
-    setInviteEmail(values.email);
+    setInviteEmail(cleanedValues.email);
     toast.success("Admin created successfully");
     reset(initialAdminValues);
     setShowPassword(false);
   };
+
+  const nameRegister = form.register("name", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("name", cleaned, { shouldValidate: form.formState.isSubmitted });
+      }
+    },
+    onBlur: (event) => {
+      setValue("name", event.target.value.trim(), { shouldValidate: true });
+    },
+  });
+
+  const emailRegister = form.register("email", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("email", cleaned, {
+          shouldValidate: form.formState.isSubmitted,
+        });
+      }
+    },
+    onBlur: (event) => {
+      setValue("email", event.target.value.trim(), { shouldValidate: true });
+    },
+  });
+
+  const phoneNumberRegister = form.register("phoneNumber", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("phoneNumber", cleaned, {
+          shouldValidate: form.formState.isSubmitted,
+        });
+      }
+    },
+    onBlur: (event) => {
+      setValue("phoneNumber", event.target.value.trim(), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const passwordRegister = form.register("password", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("password", cleaned, {
+          shouldValidate: form.formState.isSubmitted,
+        });
+      }
+    },
+    onBlur: (event) => {
+      setValue("password", event.target.value.trim(), {
+        shouldValidate: true,
+      });
+    },
+  });
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.6fr)]">
@@ -81,7 +156,7 @@ export default function AddAdminForm() {
                 >
                   Admin Name
                 </label>
-                <Input id="name" {...form.register("name")} />
+                <Input id="name" {...nameRegister} />
                 {errors.name && (
                   <p className="text-sm text-red-500">{errors.name.message}</p>
                 )}
@@ -94,7 +169,7 @@ export default function AddAdminForm() {
                 >
                   Email Address
                 </label>
-                <Input id="email" type="email" {...form.register("email")} />
+                <Input id="email" type="email" {...emailRegister} />
                 {errors.email && (
                   <p className="text-sm text-red-500">{errors.email.message}</p>
                 )}
@@ -112,7 +187,7 @@ export default function AddAdminForm() {
                 <Input
                   id="phoneNumber"
                   type="tel"
-                  {...form.register("phoneNumber")}
+                  {...phoneNumberRegister}
                 />
                 {errors.phoneNumber && (
                   <p className="text-sm text-red-500">
@@ -133,7 +208,7 @@ export default function AddAdminForm() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     className="pr-10"
-                    {...form.register("password")}
+                    {...passwordRegister}
                   />
                   <button
                     type="button"
