@@ -73,6 +73,7 @@ export const UsersApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, id) => [
         { type: "Users", id },
         { type: "Users", id: "LIST" },
+        "FindATutor",
       ],
     }),
 
