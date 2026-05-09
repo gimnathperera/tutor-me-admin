@@ -20,9 +20,6 @@ import {
 } from "../form-forgot-password/schema";
 import { initialFormValues, LoginSchema, loginSchema } from "./schema";
 
-const ACCESS_DENIED_MESSAGE =
-  "Access denied: You do not have permission to view this panel";
-
 export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
   const { login, isAuthError, setIsAuthError, isLoading } = useAuthContext();
@@ -55,15 +52,7 @@ export default function SignInForm() {
 
   useEffect(() => {
     if (isAuthError) {
-      if (
-        isAuthError === ACCESS_DENIED_MESSAGE ||
-        isAuthError === `${ACCESS_DENIED_MESSAGE}.`
-      ) {
-        toast.error(ACCESS_DENIED_MESSAGE);
-        return;
-      }
-
-      toast.error("Invalid credentials. Email or password wrong.");
+      toast.error(isAuthError);
     }
   }, [isAuthError]);
 
