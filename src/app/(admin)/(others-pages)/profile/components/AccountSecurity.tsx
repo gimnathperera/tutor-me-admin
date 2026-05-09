@@ -2,7 +2,6 @@
 
 import InputPassword from "@/components/shared/input-password";
 import { Button } from "@/components/ui/button";
-import { useAuthContext } from "@/context";
 import {
   PASSWORD_LETTER_NUMBER_MSG,
   PASSWORD_LETTER_NUMBER_REGEX,
@@ -11,6 +10,7 @@ import {
   PASSWORD_TOO_LONG,
   PASSWORD_TOO_SHORT,
 } from "@/configs/password";
+import { useAuthContext } from "@/context";
 import { useUpdateUserPasswordMutation } from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
 import { removeWhitespace } from "@/utils/form-normalizers";
@@ -22,22 +22,13 @@ import { z } from "zod";
 
 const passwordSchema = z
   .object({
-    currentPassword: z.preprocess(
-      removeWhitespace,
-      z.string().min(1, { message: "Current password is required" }),
-    ),
-    newPassword: z.preprocess(
-      removeWhitespace,
-      z
-        .string()
-        .min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT })
-        .max(PASSWORD_MAX, { message: PASSWORD_TOO_LONG })
-        .regex(PASSWORD_LETTER_NUMBER_REGEX, { message: PASSWORD_LETTER_NUMBER_MSG }),
-    ),
-    confirmPassword: z.preprocess(
-      removeWhitespace,
-      z.string().min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT }),
-    ),
+    currentPassword: z.string().min(1, { message: "Current password is required" }),
+    newPassword: z
+      .string()
+      .min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT })
+      .max(PASSWORD_MAX, { message: PASSWORD_TOO_LONG })
+      .regex(PASSWORD_LETTER_NUMBER_REGEX, { message: PASSWORD_LETTER_NUMBER_MSG }),
+    confirmPassword: z.string().min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT }),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Confirm Password must match New Password",
@@ -87,7 +78,7 @@ export default function AccountSecurity() {
     if (!authUser?.id) return;
 
     const result = await updateUserPassword({
-      id: authUser.id,
+      id: String(authUser.id),
       payload: {
         currentPassword: data.currentPassword,
         newPassword: data.newPassword,
@@ -140,10 +131,9 @@ export default function AccountSecurity() {
             <Button
               type="submit"
               disabled={isButtonDisabled}
-              isLoading={isLoading}
               className="bg-blue-700 text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Change Password
+              {isLoading ? "Updating..." : "Change Password"}
             </Button>
           </div>
         </form>
