@@ -21,7 +21,12 @@ export const updateUserSchema = z.object({
       message: "Name can contain letters and spaces only",
     }),
   role: z.enum(USER_ROLE_VALUES).optional(),
-  phoneNumber: z.string().regex(/^\+?[0-9]{1,10}$/, "Phone number is required"),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(1, "Phone number is required")
+    .regex(/^\d+$/, "Phone number must contain only numbers")
+    .length(10, "Phone number must be exactly 10 digits"),
   birthday: z
     .string()
     .optional()

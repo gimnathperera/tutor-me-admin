@@ -19,18 +19,22 @@ import toast from "react-hot-toast";
 interface DeleteUserProps {
   userId: string;
   userRole?: "admin" | "user" | "tutor";
+  userStatus?: string;
 }
 
-export function DeleteUser({
-  userId,
-  userRole,
-}: DeleteUserProps) {
+export function DeleteUser({ userId, userRole, userStatus }: DeleteUserProps) {
   const [deleteUser, { isLoading }] = useDeleteUserMutation();
-  const canDelete = userRole === "tutor";
+  const canDelete = userRole === "tutor" && userStatus === "rejected";
+
+  const getDisabledTitle = () => {
+    if (userRole !== "tutor") return "Only tutor accounts can be deleted";
+    if (userStatus !== "rejected") return "User must be rejected before deletion";
+    return "Delete tutor account";
+  };
 
   const handleDelete = async () => {
     if (!canDelete) {
-      toast.error("Only tutor accounts can be deleted");
+      toast.error(getDisabledTitle());
       return;
     }
 
@@ -56,11 +60,7 @@ export function DeleteUser({
           type="button"
           disabled={!canDelete}
           className="inline-flex items-center justify-center border-0 bg-transparent p-0 disabled:cursor-not-allowed"
-          title={
-            canDelete
-              ? "Delete tutor account"
-              : "Only tutor accounts can be deleted"
-          }
+          title={getDisabledTitle()}
         >
           <Trash2
             className={`cursor-pointer ${

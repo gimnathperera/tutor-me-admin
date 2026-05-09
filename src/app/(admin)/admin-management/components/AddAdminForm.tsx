@@ -11,9 +11,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { useCreateAdminMutation } from "@/store/api/splits/admins";
 import { getErrorInApiResult } from "@/utils/api";
+import {
+  collapseTextSpaces,
+  removeWhitespace,
+  stripLeadingSpaces,
+} from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { type KeyboardEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
@@ -28,8 +33,15 @@ const workflowSteps = [
   "New admin opens the link, sets a new password, and then logs in normally.",
 ];
 
+const preventWhitespaceKey = (event: KeyboardEvent<HTMLInputElement>) => {
+  if (/\s/.test(event.key)) {
+    event.preventDefault();
+  }
+};
+
 export default function AddAdminForm() {
   const [inviteEmail, setInviteEmail] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [createAdmin, { isLoading }] = useCreateAdminMutation();
 
   const form = useForm<CreateAdminSchema>({
@@ -41,10 +53,18 @@ export default function AddAdminForm() {
   const {
     formState: { errors },
     reset,
+    setValue,
   } = form;
 
   const onSubmit = async (values: CreateAdminSchema) => {
-    const result = await createAdmin(values);
+    const cleanedValues: CreateAdminSchema = {
+      name: collapseTextSpaces(values.name),
+      email: removeWhitespace(values.email),
+      phoneNumber: values.phoneNumber.trim(),
+      password: values.password.trim(),
+    };
+
+    const result = await createAdmin(cleanedValues);
     const error = getErrorInApiResult(result);
 
     if (error) {
@@ -52,10 +72,87 @@ export default function AddAdminForm() {
       return;
     }
 
-    setInviteEmail(values.email);
+    setInviteEmail(cleanedValues.email);
     toast.success("Admin created successfully");
     reset(initialAdminValues);
+    setShowPassword(false);
   };
+
+  const nameRegister = form.register("name", {
+    onChange: (event) => {
+      const cleaned = stripLeadingSpaces(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("name", cleaned, {
+          shouldValidate: form.formState.isSubmitted,
+        });
+      }
+    },
+    onBlur: (event) => {
+      setValue("name", collapseTextSpaces(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const emailRegister = form.register("email", {
+    onChange: (event) => {
+      const cleaned = removeWhitespace(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("email", cleaned, {
+          shouldValidate: form.formState.isSubmitted,
+        });
+      }
+    },
+    onBlur: (event) => {
+      setValue("email", removeWhitespace(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
+
+  const phoneNumberRegister = form.register("phoneNumber", {
+    onChange: (event) => {
+      const cleaned = event.target.value.replace(/\D/g, "").slice(0, 10);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("phoneNumber", cleaned, {
+          shouldValidate: form.formState.isSubmitted,
+        });
+      }
+    },
+    onBlur: (event) => {
+      setValue(
+        "phoneNumber",
+        event.target.value.replace(/\D/g, "").slice(0, 10),
+        {
+          shouldValidate: true,
+        },
+      );
+    },
+  });
+
+  const passwordRegister = form.register("password", {
+    onChange: (event) => {
+      const cleaned = removeWhitespace(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("password", cleaned, {
+          shouldValidate: form.formState.isSubmitted,
+        });
+      }
+    },
+    onBlur: (event) => {
+      setValue("password", removeWhitespace(event.target.value), {
+        shouldValidate: true,
+      });
+    },
+  });
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.6fr)]">
@@ -77,9 +174,9 @@ export default function AddAdminForm() {
                   htmlFor="name"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Admin Name
+                  Admin Name *
                 </label>
-                <Input id="name" {...form.register("name")} />
+                <Input id="name" {...nameRegister} />
                 {errors.name && (
                   <p className="text-sm text-red-500">{errors.name.message}</p>
                 )}
@@ -90,9 +187,14 @@ export default function AddAdminForm() {
                   htmlFor="email"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Email Address
+                  Email *
                 </label>
-                <Input id="email" type="email" {...form.register("email")} />
+                <Input
+                  id="email"
+                  type="email"
+                  onKeyDown={preventWhitespaceKey}
+                  {...emailRegister}
+                />
                 {errors.email && (
                   <p className="text-sm text-red-500">{errors.email.message}</p>
                 )}
@@ -105,12 +207,14 @@ export default function AddAdminForm() {
                   htmlFor="phoneNumber"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Phone Number
+                  Contact Number *
                 </label>
                 <Input
                   id="phoneNumber"
                   type="tel"
-                  {...form.register("phoneNumber")}
+                  inputMode="numeric"
+                  maxLength={10}
+                  {...phoneNumberRegister}
                 />
                 {errors.phoneNumber && (
                   <p className="text-sm text-red-500">
@@ -124,13 +228,31 @@ export default function AddAdminForm() {
                   htmlFor="password"
                   className="text-sm font-medium text-gray-700 dark:text-gray-200"
                 >
-                  Initial Password
+                  Password *
                 </label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...form.register("password")}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    onKeyDown={preventWhitespaceKey}
+                    className="pr-10"
+                    {...passwordRegister}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30 dark:text-gray-400 dark:hover:text-gray-200"
+                    onClick={() => setShowPassword((value) => !value)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-controls="password"
+                    aria-pressed={showPassword}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <Eye className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-sm text-red-500">
                     {errors.password.message}
@@ -161,7 +283,10 @@ export default function AddAdminForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => reset(initialAdminValues)}
+                onClick={() => {
+                  reset(initialAdminValues);
+                  setShowPassword(false);
+                }}
               >
                 Clear Form
               </Button>
