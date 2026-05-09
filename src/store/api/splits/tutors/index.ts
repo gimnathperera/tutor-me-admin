@@ -2,7 +2,11 @@
 import { AddTutorFormValues } from "@/app/(admin)/tutors/components/add-tutor/schema";
 import { UpdateTutorSchema } from "@/app/(admin)/tutors/components/edit-tutor/schema";
 import { FetchTutorsRequest } from "@/types/request-types";
-import { PaginatedResponse, Tutor } from "@/types/response-types";
+import {
+  PaginatedResponse,
+  Tutor,
+  TutorEmailAvailabilityResponse,
+} from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
@@ -26,6 +30,16 @@ export const TutorsApi = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["FindATutor"],
+    }),
+
+    getTutorEmailAvailability: build.query<
+      TutorEmailAvailabilityResponse,
+      string
+    >({
+      query: (email) => ({
+        url: `${Endpoints.FindATutorEmailAvailability}?email=${encodeURIComponent(email)}`,
+        method: "GET",
+      }),
     }),
 
     createTutor: build.mutation<Tutor, Omit<AddTutorFormValues, "confirmPassword">>({
@@ -103,6 +117,7 @@ export const {
   useFetchTutorsQuery,
   useFetchTutorByIdQuery,
   useLazyFetchTutorByIdQuery,
+  useLazyGetTutorEmailAvailabilityQuery,
   useCreateTutorMutation,
   useUpdateTutorMutation,
   useUpdateTutorStatusMutation,

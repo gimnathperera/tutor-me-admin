@@ -69,99 +69,109 @@ export function UserDetails({
         </DialogHeader>
         <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
           <div className="grid gap-4">
-          <div className="grid gap-3">
-            <Label>Avatar</Label>
-            <div className="w-full flex justify-center">
-              <div className="w-35 h-35 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-                <img
-                  src={avatar || "/images/user/user.png"}
-                  alt={"avatar Image"}
-                  className="h-full w-full object-cover"
-                />
+            <div className="grid gap-3">
+              <Label>Avatar</Label>
+              <div className="w-full flex justify-center">
+                <div className="w-35 h-35 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
+                  <img
+                    src={avatar || "/images/user/user.png"}
+                    alt={"avatar Image"}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Name</Label>
-            <div className={cn(displayFieldClass)}>{displayValue(name)}</div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Email</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(email)}
+            <div className="grid gap-3">
+              <Label>Name</Label>
+              <div className={cn(displayFieldClass)}>{displayValue(name)}</div>
             </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Role</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(role)}
+            <div className="grid gap-3">
+              <Label>Email</Label>
+              <div
+                className={cn(
+                  displayFieldClass,
+                  "min-h-[2.5rem]",
+                  "overflow-auto",
+                )}
+              >
+                {displayValue(email)}
+              </div>
             </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Phone Number</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(phoneNumber)}
+            <div className="grid gap-3">
+              <Label>Role</Label>
+              <div
+                className={cn(
+                  displayFieldClass,
+                  "min-h-[2.5rem]",
+                  "overflow-auto",
+                )}
+              >
+                {displayValue(
+                  role ? role.charAt(0).toUpperCase() + role.slice(1) : "-",
+                )}
+              </div>
             </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Birthday</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {birthday
-                ? new Date(birthday)
-                    .toLocaleDateString("en-CA")
-                    .replace(/-/g, "/")
-                : "-"}
+            <div className="grid gap-3">
+              <Label>Phone Number</Label>
+              <div
+                className={cn(
+                  displayFieldClass,
+                  "min-h-[2.5rem]",
+                  "overflow-auto",
+                )}
+              >
+                {displayValue(phoneNumber)}
+              </div>
             </div>
-          </div>
+            <div className="grid gap-3">
+              <Label>Birthday</Label>
+              <div
+                className={cn(
+                  displayFieldClass,
+                  "min-h-[2.5rem]",
+                  "overflow-auto",
+                )}
+              >
+                {birthday
+                  ? new Date(birthday)
+                      .toLocaleDateString("en-CA")
+                      .replace(/-/g, "/")
+                  : "-"}
+              </div>
+            </div>
 
-          <div className="grid gap-3">
-            <Label>Gender</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(gender)}
+            <div className="grid gap-3">
+              <Label>Gender</Label>
+              <div
+                className={cn(
+                  displayFieldClass,
+                  "min-h-[2.5rem]",
+                  "overflow-auto",
+                )}
+              >
+                {displayValue(
+                  gender
+                    ? gender.charAt(0).toUpperCase() + gender.slice(1)
+                    : "-",
+                )}
+              </div>
             </div>
-          </div>
-          <div className="grid gap-3">
-            <Label>Status</Label>
-            <div
-              className={cn(
-                displayFieldClass,
-                "min-h-[2.5rem]",
-                "overflow-auto",
-              )}
-            >
-              {displayValue(status)}
+            <div className="grid gap-3">
+              <Label>Status</Label>
+              <div
+                className={cn(
+                  displayFieldClass,
+                  "min-h-[2.5rem]",
+                  "overflow-auto",
+                )}
+              >
+                {displayValue(
+                  status
+                    ? status.charAt(0).toUpperCase() + status.slice(1)
+                    : "-",
+                )}
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </DialogContent>

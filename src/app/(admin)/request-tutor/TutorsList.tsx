@@ -463,7 +463,7 @@ export default function RequestForTutorsList() {
             row={{
               id: row.id,
               grade: getGradeDisplayValue(row.grade),
-              district: getSafeValue(row.district, ""),
+              district: getSafeValue(row.city, ""),
               medium: getSafeValue(row.medium, ""),
               tutors: getSafeTutorBlocks(row.tutors).map((t) => ({
                 _id: t._id,

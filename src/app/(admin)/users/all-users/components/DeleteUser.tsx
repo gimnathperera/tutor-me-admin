@@ -25,8 +25,8 @@ export function DeleteUser({ userId, userStatus }: DeleteUserProps) {
   const [deleteUser, { isLoading }] = useDeleteUserMutation();
 
   const handleDelete = async () => {
-    if (userStatus !== "suspended") {
-      toast.error("User must be suspended before deletion");
+    if (userStatus !== "rejected") {
+      toast.error("User must be rejected before deletion");
       return;
     }
 
@@ -50,7 +50,7 @@ export function DeleteUser({ userId, userStatus }: DeleteUserProps) {
       <AlertDialogTrigger asChild>
         <Trash2
           className={`cursor-pointer ${
-            userStatus !== "suspended" ? "text-gray-400" : "text-red-500"
+            userStatus !== "rejected" ? "text-gray-400" : "text-red-500"
           }`}
         />
       </AlertDialogTrigger>
@@ -66,7 +66,7 @@ export function DeleteUser({ userId, userStatus }: DeleteUserProps) {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isLoading || userStatus !== "suspended"}
+            disabled={isLoading || userStatus !== "rejected"}
             className="bg-red-500 text-white disabled:opacity-50"
           >
             {isLoading ? "Deleting..." : "Delete"}

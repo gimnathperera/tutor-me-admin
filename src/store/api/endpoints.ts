@@ -18,6 +18,7 @@ export const Endpoints = {
   Admins: "/v1/users/admins",
   ChangePassword: "/v1/users/change-password",
   FindATutor: "/v1/tutors",
+  FindATutorEmailAvailability: "/v1/tutors/email-availability",
   TuitionRates: "/v1/tuitionRates",
   Levels: "/v1/levels",
   TuitionAssignments: "/v1/tuition-assignments",

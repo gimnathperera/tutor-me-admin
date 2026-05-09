@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CreateUserSchema } from "@/app/(admin)/users/all-users/components/add-user/schema";
-import { FetchUserRequest, UpdateUserRequest } from "@/types/request-types";
-import { PaginatedResponse, Users } from "@/types/response-types";
+import { FetchUserRequest, UpdatePasswordRequest, UpdateUserRequest } from "@/types/request-types";
+import { PaginatedResponse, UpdatePasswordResponse, Users } from "@/types/response-types";
 import { baseApi } from "../..";
 import { Endpoints } from "../../endpoints";
 
@@ -86,6 +86,14 @@ export const UsersApi = baseApi.injectEndpoints({
         "FindATutor",
       ],
     }),
+
+    updateUserPassword: build.mutation<UpdatePasswordResponse, UpdatePasswordRequest>({
+      query: ({ id, payload }) => ({
+        url: `${Endpoints.ChangePassword}/${id}`,
+        method: "PATCH",
+        body: payload,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -98,4 +106,5 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useSendUserTempPasswordMutation,
+  useUpdateUserPasswordMutation,
 } = UsersApi;
