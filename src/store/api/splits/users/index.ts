@@ -74,6 +74,7 @@ export const UsersApi = baseApi.injectEndpoints({
         { type: "Users", id },
         { type: "Users", id: "LIST" },
         "FindATutor",
+        "Admins",
       ],
     }),
 

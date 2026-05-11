@@ -27,6 +27,7 @@ interface DeleteUserProps {
   tutorId?: string;
   userEmail?: string;
   userRole?: "admin" | "user" | "tutor";
+  userStatus?: string;
 }
 
 type ApiError = FetchBaseQueryError | SerializedError;
@@ -48,17 +49,28 @@ export function DeleteUser({
   tutorId,
   userEmail,
   userRole,
+  userStatus,
 }: DeleteUserProps) {
   const [deleteUser, { isLoading }] = useDeleteUserMutation();
   const [deleteTutor, { isLoading: isDeletingTutor }] =
     useDeleteTutorMutation();
   const [fetchTutors, { isFetching: isFindingTutor }] =
     useLazyFetchTutorsQuery();
-  const canDelete = userRole === "tutor";
+  const normalizedStatus = userStatus?.toLowerCase();
+  const isTutor = userRole === "tutor";
+  const isRejectedAdmin =
+    userRole === "admin" && normalizedStatus === "rejected";
+  const canDelete = isTutor || isRejectedAdmin;
   const isDeleting = isLoading || isDeletingTutor || isFindingTutor;
+  const accountType = isTutor ? "tutor" : "admin";
 
   const getDisabledTitle = () => {
-    if (userRole !== "tutor") return "Only tutor accounts can be deleted";
+    if (userRole === "admin") {
+      return "Admin accounts can only be deleted when rejected";
+    }
+    if (userRole !== "tutor") {
+      return "Only tutor accounts and rejected admin accounts can be deleted";
+    }
     return "Delete tutor account";
   };
 
@@ -93,6 +105,12 @@ export function DeleteUser({
     }
 
     try {
+      if (isRejectedAdmin) {
+        await deleteUser(userId).unwrap();
+        toast.success("Admin account deleted successfully");
+        return;
+      }
+
       const tutorId = await resolveTutorId();
 
       await deleteTutor(tutorId).unwrap();
@@ -135,7 +153,7 @@ export function DeleteUser({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
-            tutor account.
+            {` ${accountType} account.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

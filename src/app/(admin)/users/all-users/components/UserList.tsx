@@ -265,6 +265,7 @@ export default function UsersTable() {
             tutorId={row.tutorId ?? row.tutor?.id ?? row.tutor?._id}
             userEmail={row.email}
             userRole={row.role}
+            userStatus={row.status}
           />
         </div>
       ),
