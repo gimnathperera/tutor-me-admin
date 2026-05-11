@@ -40,6 +40,7 @@ function DialogOverlay({
       className={cn(
         "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
         className,
+        "z-[900000]",
       )}
       {...props}
     />
@@ -67,6 +68,7 @@ function DialogContent({
             "translate-x-[-50%] translate-y-[-50%] flex-col rounded-lg border shadow-lg duration-200 " +
             "sm:w-auto sm:min-w-[450px] sm:max-w-[700px] max-h-[80vh]",
           className,
+          "z-[900001]",
         )}
         {...props}
       >
