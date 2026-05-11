@@ -14,32 +14,51 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DEFAULT_FAQ_CATEGORY,
+  FAQ_CATEGORY_OPTIONS,
+  type FaqCategory,
+} from "@/lib/faq-categories";
 import { useUpdateFaqMutation } from "@/store/api/splits/faqs";
 import { getErrorInApiResult } from "@/utils/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquarePen } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { UpdateFaqSchema, updateFaqSchema } from "./schema";
 
 interface UpdateFAQProps {
   id: string;
+  category?: FaqCategory;
   question: string;
   answer: string;
 }
 
-export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
+export function UpdateFAQ({
+  id,
+  category = DEFAULT_FAQ_CATEGORY,
+  question,
+  answer,
+}: UpdateFAQProps) {
   const [open, setOpen] = useState(false);
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isDirty },
   } = useForm<UpdateFaqSchema>({
     resolver: zodResolver(updateFaqSchema),
-    defaultValues: { question, answer },
+    defaultValues: { category, question, answer },
     mode: "onChange",
   });
 
@@ -73,7 +92,7 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
       onOpenChange={(isOpen) => {
         setOpen(isOpen);
         if (!isOpen) {
-          reset({ question, answer });
+          reset({ category, question, answer });
         }
       }}
     >
@@ -87,6 +106,32 @@ export function UpdateFAQ({ id, question, answer }: UpdateFAQProps) {
             <DialogDescription>Edit the question and answer.</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
+            <div className="grid gap-3">
+              <Label htmlFor={`category-${id}`}>Category</Label>
+              <Controller
+                name="category"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id={`category-${id}`} className="w-full">
+                      <SelectValue placeholder="Select FAQ category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FAQ_CATEGORY_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.category && (
+                <p className="text-sm text-red-500 dark:text-red-500/90">
+                  {errors.category.message}
+                </p>
+              )}
+            </div>
             <div className="grid gap-3">
               <Label htmlFor="question">Question</Label>
               <Input

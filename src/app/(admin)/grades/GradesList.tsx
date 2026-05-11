@@ -146,6 +146,7 @@ export default function GradesTable() {
     {
       key: "view",
       header: <div className="text-center">View</div>,
+      align: "center",
       render: (row: Grade) => (
         <div className="flex justify-center">
           <GradeDetails
@@ -159,6 +160,7 @@ export default function GradesTable() {
     {
       key: "edit",
       header: <div className="text-center">Edit</div>,
+      align: "center",
       render: (row: Grade) => (
         <div className="flex justify-center">
           <UpdateGrade
@@ -173,6 +175,7 @@ export default function GradesTable() {
     {
       key: "delete",
       header: <div className="text-center">Delete</div>,
+      align: "center",
       render: (row: Grade) => (
         <div className="flex justify-center">
           <DeleteGrade gradeId={row.id} />

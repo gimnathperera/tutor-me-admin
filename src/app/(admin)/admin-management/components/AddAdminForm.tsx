@@ -242,7 +242,9 @@ export default function AddAdminForm() {
                     type="button"
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30 dark:text-gray-400 dark:hover:text-gray-200"
                     onClick={() => setShowPassword((value) => !value)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     aria-controls="password"
                     aria-pressed={showPassword}
                   >

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { FaqCategory } from "@/lib/faq-categories";
+
 export type Id = { id: string };
 export type Timestamp = { createdAt: string; updatedAt: string };
 
@@ -37,6 +39,7 @@ export type Blogs = BaseEntity &
   };
 // FAQ
 export type Faq = BaseEntity & {
+  category?: FaqCategory;
   question: string;
   answer: string;
 };
@@ -345,7 +348,10 @@ export type TutorEmailAvailabilityResponse = {
 export type RequestTutorTutor = {
   _id: string;
   subject: string;
+  classType?: string | string[];
+  preferredClassType?: string | string[];
   preferredTutorType: string;
+  preferredClassType?: string;
   duration: string;
   frequency: string;
   assignedTutor: string | null;

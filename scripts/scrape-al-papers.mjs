@@ -15,20 +15,22 @@ import path from "path";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const BASE_URL   = "https://govdoc.lk";
-const START_URL  = "https://govdoc.lk/category/past-papers/gce-advance-level-exam";
+const BASE_URL = "https://govdoc.lk";
+const START_URL =
+  "https://govdoc.lk/category/past-papers/gce-advance-level-exam";
 const OUTPUT_DIR = "D:/Download/AL-Papers";
-const DELAY_MS   = 1500; // polite delay between requests
+const DELAY_MS = 1500; // polite delay between requests
 
 // ─── HTTP helpers ─────────────────────────────────────────────────────────────
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const HEADERS = {
-  "User-Agent":      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124",
-  "Accept":          "text/html,application/xhtml+xml,*/*;q=0.8",
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124",
+  Accept: "text/html,application/xhtml+xml,*/*;q=0.8",
   "Accept-Language": "en-US,en;q=0.5",
-  "Referer":         BASE_URL,
+  Referer: BASE_URL,
 };
 
 async function fetchHtml(url, attempt = 1) {
@@ -75,13 +77,13 @@ async function downloadBinary(url, destPath, attempt = 1) {
 function extractPaperLinks(html) {
   // Extract hrefs from custom-card anchors (unquoted href attribute)
   const hrefRe = /class=custom-card\s+href=(https:\/\/govdoc\.lk\/[^\s>]+)/gi;
-  const urls   = [];
+  const urls = [];
   let m;
   while ((m = hrefRe.exec(html)) !== null) urls.push(m[1]);
 
   // Extract titles from cate-title h5 elements
   const titleRe = /<h5[^>]*class=cate-title[^>]*>([\s\S]*?)<\/h5>/gi;
-  const titles  = [];
+  const titles = [];
   while ((m = titleRe.exec(html)) !== null) {
     titles.push(m[1].replace(/<[^>]+>/g, "").trim());
   }
@@ -89,22 +91,21 @@ function extractPaperLinks(html) {
   // Zip them together by position
   const results = [];
   for (let i = 0; i < Math.min(urls.length, titles.length); i++) {
-    if (urls[i] && titles[i]) results.push({ url: urls[i], title: decodeHtml(titles[i]) });
+    if (urls[i] && titles[i])
+      results.push({ url: urls[i], title: decodeHtml(titles[i]) });
   }
   return [...new Map(results.map((r) => [r.url, r])).values()];
 }
 
 // Pagination uses ?page=N query param
 function buildPageUrl(pageNum) {
-  return pageNum === 1
-    ? START_URL
-    : `${START_URL}?page=${pageNum}`;
+  return pageNum === 1 ? START_URL : `${START_URL}?page=${pageNum}`;
 }
 
 // Parse title → {subject, year}
 // "G.C.E. Advance Level Exam 2025 History Past Papers"
 function parsePaperTitle(title) {
-  const yearMatch    = title.match(/(\d{4})/);
+  const yearMatch = title.match(/(\d{4})/);
   const subjectMatch = title.match(/Exam\s+\d{4}\s+(.+?)\s+Past Papers?/i);
   if (!yearMatch || !subjectMatch) return null;
   return { year: yearMatch[1], subject: subjectMatch[1].trim() };
@@ -115,16 +116,17 @@ function parsePaperTitle(title) {
 function extractMediaLinks(html) {
   const entries = [];
   // <a href="/view?id=X&amp;fid=Y">Sinhala</a>  or  href="https://govdoc.lk/view?..."
-  const re = /<a[^>]*href="(?:https:\/\/govdoc\.lk)?\/view\?id=(\d+)&(?:amp;)?fid=([^"&\s]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+  const re =
+    /<a[^>]*href="(?:https:\/\/govdoc\.lk)?\/view\?id=(\d+)&(?:amp;)?fid=([^"&\s]+)"[^>]*>([\s\S]*?)<\/a>/gi;
   let m;
   while ((m = re.exec(html)) !== null) {
     const rawLabel = m[3].replace(/<[^>]+>/g, "").trim();
     if (!rawLabel) continue;
 
     let medium = null;
-    if (/sinhala/i.test(rawLabel))      medium = "Sinhala";
+    if (/sinhala/i.test(rawLabel)) medium = "Sinhala";
     else if (/english/i.test(rawLabel)) medium = "English";
-    else if (/tamil/i.test(rawLabel))   medium = "Tamil";
+    else if (/tamil/i.test(rawLabel)) medium = "Tamil";
 
     if (!medium) continue;
 
@@ -135,8 +137,9 @@ function extractMediaLinks(html) {
 
 // If /downloadFile/{id} returns HTML, parse the real file URL from the download page
 function extractFileUrl(html) {
-  const m = html.match(/href="([^"]+\/downloadFile\/[^"]+)"/i)
-         ?? html.match(/href="([^"]+\/download\/[^"]+)"/i);
+  const m =
+    html.match(/href="([^"]+\/downloadFile\/[^"]+)"/i) ??
+    html.match(/href="([^"]+\/download\/[^"]+)"/i);
   return m ? m[1] : null;
 }
 
@@ -150,7 +153,10 @@ function decodeHtml(str) {
 }
 
 function slugify(str) {
-  return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 // Build PDF filename — consistent with upload-papers.mjs parseFileName expectations
@@ -169,7 +175,7 @@ async function main() {
 
   // ── Step 1: walk all listing pages and collect detail page URLs ────────────
   const paperMap = new Map(); // detailUrl → title
-  let pageNum    = 1;
+  let pageNum = 1;
 
   while (true) {
     const listUrl = buildPageUrl(pageNum);
@@ -210,8 +216,8 @@ async function main() {
   }
 
   let downloaded = 0;
-  let skipped    = 0;
-  let errors     = 0;
+  let skipped = 0;
+  let errors = 0;
 
   // ── Step 2: process each detail page ──────────────────────────────────────
   for (const [detailUrl, rawTitle] of paperMap) {
@@ -242,7 +248,9 @@ async function main() {
       continue;
     }
 
-    console.log(`  Mediums: ${[...new Set(mediaLinks.map((l) => l.medium))].join(", ")}`);
+    console.log(
+      `  Mediums: ${[...new Set(mediaLinks.map((l) => l.medium))].join(", ")}`,
+    );
 
     // ── Step 3: download each PDF ────────────────────────────────────────────
     const downloadedThisEntry = new Set();
@@ -281,8 +289,11 @@ async function main() {
           const dlPage = await fetchHtml(`${BASE_URL}/download/${id}`);
           await sleep(DELAY_MS);
           const fileUrl = extractFileUrl(dlPage);
-          if (!fileUrl) throw new Error("cannot find file URL on download page");
-          const fullUrl = fileUrl.startsWith("http") ? fileUrl : `${BASE_URL}${fileUrl}`;
+          if (!fileUrl)
+            throw new Error("cannot find file URL on download page");
+          const fullUrl = fileUrl.startsWith("http")
+            ? fileUrl
+            : `${BASE_URL}${fileUrl}`;
           ok = await downloadBinary(fullUrl, filePath);
           if (!ok) throw new Error("download page also returned HTML");
         }

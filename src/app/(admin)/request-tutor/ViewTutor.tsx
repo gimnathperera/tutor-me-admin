@@ -18,6 +18,10 @@ import {
   useGenerateTutorMatchReportMutation,
 } from "@/store/api/splits/request-tutor";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
+import {
+  useFetchTutorByIdQuery,
+  useFetchTutorsQuery,
+} from "@/store/api/splits/tutors";
 import { CheckCircle2, Eye, Loader2, Mail } from "lucide-react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -29,6 +33,119 @@ import {
 
 interface ViewTutorProps {
   tutorId: string;
+}
+
+type AssignedTutorDisplayItem = {
+  id?: string;
+  name?: string;
+};
+
+const getAssignedTutorIds = (assignedTutor: unknown): string[] => {
+  if (!assignedTutor) {
+    return [];
+  }
+
+  if (typeof assignedTutor === "string") {
+    const tutorId = assignedTutor.trim();
+    return tutorId ? [tutorId] : [];
+  }
+
+  if (Array.isArray(assignedTutor)) {
+    return assignedTutor.flatMap((item) => getAssignedTutorIds(item));
+  }
+
+  if (typeof assignedTutor === "object") {
+    const tutorRecord = assignedTutor as { id?: unknown; _id?: unknown };
+    const tutorId =
+      typeof tutorRecord.id === "string"
+        ? tutorRecord.id.trim()
+        : typeof tutorRecord._id === "string"
+          ? tutorRecord._id.trim()
+          : "";
+
+    return tutorId ? [tutorId] : [];
+  }
+
+  return [];
+};
+
+const getAssignedTutorDisplayItems = (
+  assignedTutor: unknown,
+): AssignedTutorDisplayItem[] => {
+  if (!assignedTutor) {
+    return [];
+  }
+
+  if (typeof assignedTutor === "string") {
+    const tutorId = assignedTutor.trim();
+    return tutorId ? [{ id: tutorId }] : [];
+  }
+
+  if (Array.isArray(assignedTutor)) {
+    return assignedTutor.flatMap((item) => getAssignedTutorDisplayItems(item));
+  }
+
+  if (typeof assignedTutor === "object") {
+    const tutorRecord = assignedTutor as {
+      id?: unknown;
+      _id?: unknown;
+      fullName?: unknown;
+      name?: unknown;
+    };
+    const tutorId =
+      typeof tutorRecord.id === "string"
+        ? tutorRecord.id.trim()
+        : typeof tutorRecord._id === "string"
+          ? tutorRecord._id.trim()
+          : "";
+    const tutorName =
+      typeof tutorRecord.fullName === "string" && tutorRecord.fullName.trim()
+        ? tutorRecord.fullName.trim()
+        : typeof tutorRecord.name === "string" && tutorRecord.name.trim()
+          ? tutorRecord.name.trim()
+          : "";
+
+    return tutorId || tutorName ? [{ id: tutorId, name: tutorName }] : [];
+  }
+
+  return [];
+};
+
+function AssignedTutorBadge({
+  item,
+  tutorNameById,
+  isFetchingTutorList,
+  tagClass,
+}: {
+  item: AssignedTutorDisplayItem;
+  tutorNameById: Map<string, string>;
+  isFetchingTutorList: boolean;
+  tagClass: string;
+}) {
+  const listName = item.id ? tutorNameById.get(item.id) : "";
+  const shouldFetchTutorById = Boolean(
+    item.id && !item.name && !listName && !isFetchingTutorList,
+  );
+  const { data: tutorById, isFetching: isFetchingTutorById } =
+    useFetchTutorByIdQuery(item.id || "", {
+      skip: !shouldFetchTutorById,
+    });
+  const fetchedName = tutorById?.fullName || tutorById?.name || "";
+  const label =
+    item.name ||
+    listName ||
+    fetchedName ||
+    (isFetchingTutorList || isFetchingTutorById
+      ? "Loading assigned tutor..."
+      : "Tutor name unavailable");
+
+  return (
+    <span
+      className={`${tagClass} bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200`}
+    >
+      {label}
+    </span>
+  );
 }
 
 export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
@@ -63,6 +180,39 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
         skip: !open,
       },
     );
+  const assignedTutorIds = useMemo(
+    () =>
+      (Array.isArray(tutor?.tutors) ? tutor.tutors : []).flatMap((request) =>
+        getAssignedTutorIds(request.assignedTutor),
+      ),
+    [tutor?.tutors],
+  );
+  const { data: tutorsData, isFetching: isFetchingTutors } =
+    useFetchTutorsQuery(
+      {
+        page: 1,
+        limit: 10000,
+      },
+      {
+        skip: !open || assignedTutorIds.length === 0,
+      },
+    );
+  const tutorNameById = useMemo(
+    () =>
+      new Map(
+        (tutorsData?.results || []).flatMap((tutorRecord) => {
+          const tutorName = tutorRecord.fullName || tutorRecord.name || "";
+          const entries: Array<[string, string]> = [];
+
+          if (tutorRecord.id && tutorName) {
+            entries.push([tutorRecord.id, tutorName]);
+          }
+
+          return entries;
+        }),
+      ),
+    [tutorsData?.results],
+  );
   const subjectTitleById = useMemo(
     () =>
       new Map(
@@ -87,39 +237,6 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
 
     const stringValue = String(value).trim();
     return stringValue === "" ? fallback : stringValue;
-  };
-
-  const getAssignedTutorLabel = (assignedTutor: unknown) => {
-    if (!assignedTutor) {
-      return "";
-    }
-
-    if (typeof assignedTutor === "string") {
-      return assignedTutor.trim();
-    }
-
-    if (Array.isArray(assignedTutor)) {
-      return assignedTutor
-        .map((item) => {
-          if (typeof item === "string") {
-            return item;
-          }
-
-          if (item && typeof item === "object" && "fullName" in item) {
-            return String(item.fullName ?? "");
-          }
-
-          return "";
-        })
-        .filter(Boolean)
-        .join(", ");
-    }
-
-    if (typeof assignedTutor === "object" && "fullName" in assignedTutor) {
-      return String(assignedTutor.fullName ?? "");
-    }
-
-    return "";
   };
 
   const getGradeDisplayValue = (value: unknown) => {
@@ -175,6 +292,15 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
     return isFetchingSubjects ? "Loading subject..." : "Unknown subject";
   };
 
+  const getClassTypeDisplayValue = (value: unknown) => {
+    if (Array.isArray(value)) {
+      return value.map((item) => getSafeValue(item, "")).filter(Boolean);
+    }
+
+    const classType = getSafeValue(value, "");
+    return classType ? [classType] : [];
+  };
+
   const handleGenerateTutorMatchReport = async () => {
     try {
       const response = await generateTutorMatchReport({
@@ -228,7 +354,7 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label>Phone Number</Label>
+              <Label>Contact Number</Label>
               <div className={displayFieldClass}>
                 {getSafeValue(tutor?.phoneNumber)}
               </div>
@@ -274,8 +400,11 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
               <div className="flex flex-col gap-2">
                 {Array.isArray(tutor?.tutors) && tutor.tutors.length ? (
                   tutor.tutors.map((t, idx) => {
-                    const assignedTutorLabel = getAssignedTutorLabel(
+                    const assignedTutorItems = getAssignedTutorDisplayItems(
                       t.assignedTutor,
+                    );
+                    const classTypeLabels = getClassTypeDisplayValue(
+                      t.classType ?? t.preferredClassType,
                     );
 
                     return (
@@ -290,14 +419,22 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
                           </span>
                         </div>
 
-                        {assignedTutorLabel && (
+                        {assignedTutorItems.length > 0 && (
                           <div>
                             Assigned Tutor:{" "}
-                            <span
-                              className={`${tagClass} bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200`}
-                            >
-                              {assignedTutorLabel}
-                            </span>
+                            {assignedTutorItems.map((assignedTutorItem) => (
+                              <AssignedTutorBadge
+                                key={
+                                  assignedTutorItem.id ||
+                                  assignedTutorItem.name ||
+                                  "assigned-tutor"
+                                }
+                                item={assignedTutorItem}
+                                tutorNameById={tutorNameById}
+                                isFetchingTutorList={isFetchingTutors}
+                                tagClass={tagClass}
+                              />
+                            ))}
                           </div>
                         )}
 
@@ -309,6 +446,14 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
                             </strong>
                           </div>
                         )}
+                        <div>
+                          Class Type:{" "}
+                          {classTypeLabels.length ? (
+                            <strong>{classTypeLabels.join(", ")}</strong>
+                          ) : (
+                            <strong>N/A</strong>
+                          )}
+                        </div>
                         <div>
                           Duration: <strong>{getSafeValue(t.duration)}</strong>
                         </div>

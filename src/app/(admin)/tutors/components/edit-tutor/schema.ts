@@ -21,8 +21,9 @@ export const updateTutorSchema = z.object({
     .pipe(
       z
         .string()
+        .min(1, "Full Name is required")
         .regex(
-          /^[A-Za-z\s]*$/,
+          /^[A-Za-z\s]+$/,
           "Full Name can contain letters and spaces only",
         ),
     )
@@ -56,53 +57,63 @@ export const updateTutorSchema = z.object({
     )
     .optional(),
   gender: z.enum(TUTOR_GENDER_VALUES).optional(),
-  age: z.number().int().min(18, "Must be at least 18 years old").max(80, "Age must be below 80").optional(),
-  tutorMediums: z.array(z.string()).optional(),
-  grades: z.array(z.string()).optional(),
-  subjects: z.array(z.string()).optional(),
+  age: z
+    .number()
+    .int()
+    .min(18, "Must be at least 18 years old")
+    .max(80, "Age must be below 80")
+    .optional(),
+  tutorMediums: z
+    .array(z.string())
+    .min(1, "Select at least one medium")
+    .optional(),
+  grades: z.array(z.string()).min(1, "Select at least one grade").optional(),
+  subjects: z
+    .array(z.string())
+    .min(1, "Select at least one subject")
+    .optional(),
 
   nationality: z.enum(NATIONALITY_VALUES).optional(),
   race: z.enum(RACE_VALUES).optional(),
 
   status: z.enum(TUTOR_STATUS_VALUES).optional(),
 
-  classType: z.array(z.string()).optional(),
+  classType: z
+    .array(z.string())
+    .min(1, "Select at least one class type")
+    .optional(),
 
   preferredLocations: z
     .array(z.enum(PREFERRED_LOCATION_VALUES))
     .min(1, "Select at least one preferred location")
     .optional(),
 
-  tutorType: z.array(z.enum(TUTOR_TYPE_VALUES)).optional(),
+  tutorType: z
+    .array(z.enum(TUTOR_TYPE_VALUES))
+    .min(1, "Select at least one tutor type")
+    .optional(),
 
-  yearsExperience: z.number().int().min(0).max(50).optional(),
+  yearsExperience: z
+    .number()
+    .int()
+    .min(1, "Years of Experience are required")
+    .max(50)
+    .optional(),
 
   highestEducation: z.enum(EDUCATION_VALUES_EDIT).optional(),
 
   academicDetails: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Academic Details is required")
-      .max(1000),
+    z.string().min(1, "Academic Details is required").max(1000),
   ),
 
   teachingSummary: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Teaching Summary is required")
-      .max(750),
+    z.string().min(1, "Teaching Summary is required").max(750),
   ),
   studentResults: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Student Results is required")
-      .max(750),
+    z.string().min(1, "Student Results is required").max(750),
   ),
   sellingPoints: normalizedTextSchema.pipe(
-    z
-      .string()
-      .min(1, "Selling Points is required")
-      .max(750),
+    z.string().min(1, "Selling Points is required").max(750),
   ),
 
   agreeTerms: z.boolean().optional(),

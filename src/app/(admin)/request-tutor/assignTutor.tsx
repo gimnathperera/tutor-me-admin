@@ -25,12 +25,15 @@ import toast from "react-hot-toast";
 export interface TutorRequestBlock {
   _id: string;
   subject: string;
+  classType?: string | string[];
+  preferredClassType?: string | string[];
   assignedTutor?:
     | string
     | null
     | { id?: string; fullName?: string }
     | Array<{ id?: string; fullName?: string }>;
   preferredTutorType?: string;
+  preferredClassType?: string;
   duration: string;
   frequency: string;
 }
@@ -50,7 +53,9 @@ interface Props {
 
 const LARGE_LIMIT = 10000;
 
-const getAssignedTutorId = (assignedTutor: TutorRequestBlock["assignedTutor"]) => {
+const getAssignedTutorId = (
+  assignedTutor: TutorRequestBlock["assignedTutor"],
+) => {
   if (!assignedTutor) {
     return "";
   }
@@ -64,6 +69,24 @@ const getAssignedTutorId = (assignedTutor: TutorRequestBlock["assignedTutor"]) =
   }
 
   return assignedTutor.id ?? "";
+};
+
+const getSafeValue = (value: unknown, fallback = "N/A") => {
+  if (value === undefined || value === null) {
+    return fallback;
+  }
+
+  const stringValue = String(value).trim();
+  return stringValue === "" ? fallback : stringValue;
+};
+
+const getClassTypeDisplayValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.map((item) => getSafeValue(item, "")).filter(Boolean);
+  }
+
+  const classType = getSafeValue(value, "");
+  return classType ? [classType] : [];
 };
 
 function TutorBlockItem({
@@ -91,7 +114,7 @@ function TutorBlockItem({
 
   const subjectDisplay = isObjectId
     ? (subjectData?.title ?? tutorBlock.subject)
-    : (tutorBlock.subject || "N/A");
+    : tutorBlock.subject || "N/A";
 
   const { data, isLoading } = useFetchTutorsQuery({
     page: 1,
@@ -102,21 +125,28 @@ function TutorBlockItem({
 
   const tutors = (data?.results ?? []).filter((tutor) => {
     const mediumMatch =
-      !medium || tutor.tutorMediums.some((m) => m.toLowerCase() === medium.toLowerCase());
+      !medium ||
+      tutor.tutorMediums.some((m) => m.toLowerCase() === medium.toLowerCase());
 
     const tutorTypeMatch =
       !tutorBlock.preferredTutorType ||
-      tutor.tutorType.some((t) => t.toLowerCase() === (tutorBlock.preferredTutorType ?? "").toLowerCase());
+      tutor.tutorType.some(
+        (t) =>
+          t.toLowerCase() ===
+          (tutorBlock.preferredTutorType ?? "").toLowerCase(),
+      );
 
-    const hasOnline = tutor.classType.some((ct) => ct.toLowerCase().includes("online"));
-    const hasPhysical = tutor.classType.some((ct) => ct.toLowerCase().includes("physical"));
-    const districtMatch =
+    const isOnlineRequest =
+      tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
+
+    const locationPass =
+      isOnlineRequest ||
       !district ||
-      tutor.preferredLocations.some((loc) => loc.toLowerCase().includes(district.toLowerCase()));
+      tutor.preferredLocations.some(
+        (loc) => loc.toLowerCase() === district.toLowerCase(),
+      );
 
-    const classTypePass = hasOnline || (hasPhysical && districtMatch);
-
-    return mediumMatch && tutorTypeMatch && classTypePass;
+    return mediumMatch && tutorTypeMatch && locationPass;
   });
 
   const noResults = !isLoading && tutors.length === 0;
@@ -126,8 +156,11 @@ function TutorBlockItem({
 
   // Display name for the currently selected tutor
   const selectedTutorName = tutors.find(
-    (t) => t.id === selectedTutorId
+    (t) => t.id === selectedTutorId,
   )?.fullName;
+  const classTypeLabels = getClassTypeDisplayValue(
+    tutorBlock.classType ?? tutorBlock.preferredClassType,
+  );
 
   return (
     <div key={tutorBlock._id} className="border rounded-md p-4 space-y-2">
@@ -147,6 +180,18 @@ function TutorBlockItem({
             </span>
           </div>
         )}
+        <div>
+          Class Type:{" "}
+          {classTypeLabels.length ? (
+            <span className="font-medium text-gray-800 dark:text-white">
+              {classTypeLabels.join(", ")}
+            </span>
+          ) : (
+            <span className="font-medium text-gray-800 dark:text-white">
+              N/A
+            </span>
+          )}
+        </div>
         <div>
           Duration:{" "}
           <span className="font-medium text-gray-800 dark:text-white">
@@ -205,7 +250,9 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
 
   // Local selection state: index → tutorId
   const [selections, setSelections] = useState<Record<number, string>>({});
-  const [initialSelections, setInitialSelections] = useState<Record<number, string>>({});
+  const [initialSelections, setInitialSelections] = useState<
+    Record<number, string>
+  >({});
 
   // Initialise selections from existing assignments whenever the dialog opens
   useEffect(() => {
@@ -228,7 +275,10 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
   const hasChanges =
     totalParts > 0 &&
     Array.from({ length: totalParts }, (_, i) => i).some(
-      (i) => selections[i] && selections[i] !== "" && selections[i] !== initialSelections[i]
+      (i) =>
+        selections[i] &&
+        selections[i] !== "" &&
+        selections[i] !== initialSelections[i],
     );
 
   const handleSelect = (index: number, tutorId: string) => {
@@ -242,7 +292,10 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
     // Only send blocks where the selection has changed from the initial assignment
     const blocksToAssign = row.tutors
       .map((block, i) => ({ block, tutorId: selections[i] }))
-      .filter(({ tutorId }, i) => !!tutorId && tutorId !== "" && tutorId !== initialSelections[i]);
+      .filter(
+        ({ tutorId }, i) =>
+          !!tutorId && tutorId !== "" && tutorId !== initialSelections[i],
+      );
 
     try {
       for (const { block, tutorId } of blocksToAssign) {

@@ -19,18 +19,27 @@ import readline from "readline";
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const API_BASE   = "https://tutorme-backend-api-d7a6cjdkgnedbxf0.southeastasia-01.azurewebsites.net";
+const API_BASE =
+  "https://tutorme-backend-api-d7a6cjdkgnedbxf0.southeastasia-01.azurewebsites.net";
 const PAPERS_DIR = "D:/Download/OL-Papers";
 
-const AZURE_ACCOUNT   = "tutormeuploads";
+const AZURE_ACCOUNT = "tutormeuploads";
 const AZURE_CONTAINER = "uploads";
-const AZURE_KEY       = process.env.AZURE_STORAGE_KEY ?? "";
+const AZURE_KEY = process.env.AZURE_STORAGE_KEY ?? "";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function prompt(question) {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise((resolve) => rl.question(question, (ans) => { rl.close(); resolve(ans); }));
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise((resolve) =>
+    rl.question(question, (ans) => {
+      rl.close();
+      resolve(ans);
+    }),
+  );
 }
 
 async function login(email, password, retries = 5) {
@@ -78,7 +87,10 @@ async function fetchExistingKeys(token) {
 async function createPaper(token, paper) {
   const res = await fetch(`${API_BASE}/v1/papers`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(paper),
   });
   const data = await res.json();
@@ -90,28 +102,50 @@ async function createPaper(token, paper) {
 
 async function generateSasUrl(blobName, fileType) {
   const { createHmac } = await import("crypto");
-  const now     = new Date();
+  const now = new Date();
   const expires = new Date(now.getTime() + 60 * 60 * 1000);
-  const toIso   = (d) => d.toISOString().replace(/\.\d+Z$/, "Z");
-  const start   = toIso(now);
-  const end     = toIso(expires);
+  const toIso = (d) => d.toISOString().replace(/\.\d+Z$/, "Z");
+  const start = toIso(now);
+  const end = toIso(expires);
   const permissions = "cw";
   const signedFields = [
-    permissions, start, end,
+    permissions,
+    start,
+    end,
     `/blob/${AZURE_ACCOUNT}/${AZURE_CONTAINER}/${blobName}`,
-    "", "", "https", "2024-11-04", "b", "", "", "", "", "", "", fileType,
+    "",
+    "",
+    "https",
+    "2024-11-04",
+    "b",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    fileType,
   ];
   const sig = createHmac("sha256", Buffer.from(AZURE_KEY, "base64"))
     .update(signedFields.join("\n"), "utf8")
     .digest("base64");
-  const params = new URLSearchParams({ sp: permissions, st: start, se: end, spr: "https", sv: "2024-11-04", sr: "b", rsct: fileType, sig });
+  const params = new URLSearchParams({
+    sp: permissions,
+    st: start,
+    se: end,
+    spr: "https",
+    sv: "2024-11-04",
+    sr: "b",
+    rsct: fileType,
+    sig,
+  });
   return `https://${AZURE_ACCOUNT}.blob.core.windows.net/${AZURE_CONTAINER}/${blobName}?${params}`;
 }
 
 async function uploadToAzure(filePath, fileName) {
-  const fileType   = "application/pdf";
-  const blobName   = `${Date.now()}-${fileName}`;
-  const sasUrl     = await generateSasUrl(blobName, fileType);
+  const fileType = "application/pdf";
+  const blobName = `${Date.now()}-${fileName}`;
+  const sasUrl = await generateSasUrl(blobName, fileType);
   const fileBuffer = fs.readFileSync(filePath);
   const res = await fetch(sasUrl, {
     method: "PUT",
@@ -140,7 +174,9 @@ function findSubjectId(grade, subjectName) {
   const normalized = normalizeSubject(subjectName);
   const match = grade.subjects.find((s) => {
     const db = normalizeSubject(s.title);
-    return db === normalized || db.includes(normalized) || normalized.includes(db);
+    return (
+      db === normalized || db.includes(normalized) || normalized.includes(db)
+    );
   });
   return match?.id ?? null;
 }
@@ -149,11 +185,13 @@ function findSubjectId(grade, subjectName) {
 
 // "OL Mathematics sinhala medium" → {subject: "Mathematics", medium: "Sinhala"}
 function parseFolderName(folderName) {
-  const match = folderName.match(/^OL\s+(.+?)\s+(sinhala|english|tamil)\s+medium$/i);
+  const match = folderName.match(
+    /^OL\s+(.+?)\s+(sinhala|english|tamil)\s+medium$/i,
+  );
   if (!match) return null;
   return {
     subject: match[1].trim(),
-    medium:  match[2].charAt(0).toUpperCase() + match[2].slice(1).toLowerCase(),
+    medium: match[2].charAt(0).toUpperCase() + match[2].slice(1).toLowerCase(),
   };
 }
 
@@ -174,8 +212,8 @@ function buildTitle(subject, medium, year) {
 async function main() {
   console.log("=== TutorMe O/L Paper Uploader ===\n");
 
-  const email    = process.argv[2] ?? await prompt("Admin email: ");
-  const password = process.argv[3] ?? await prompt("Admin password: ");
+  const email = process.argv[2] ?? (await prompt("Admin email: "));
+  const password = process.argv[3] ?? (await prompt("Admin password: "));
 
   console.log("\nLogging in...");
   const token = await login(email, password);
@@ -184,8 +222,13 @@ async function main() {
   console.log("Fetching grades from API...");
   const grades = await fetchGrades(token);
   const olGrade = grades.find((g) => /ordinary level/i.test(g.title));
-  if (!olGrade) throw new Error("O/L grade not found in API — no grade with 'Ordinary Level' in title");
-  console.log(`✓ Found O/L grade: ${olGrade.title} (${(olGrade.subjects ?? []).length} subjects)\n`);
+  if (!olGrade)
+    throw new Error(
+      "O/L grade not found in API — no grade with 'Ordinary Level' in title",
+    );
+  console.log(
+    `✓ Found O/L grade: ${olGrade.title} (${(olGrade.subjects ?? []).length} subjects)\n`,
+  );
 
   const folders = fs.readdirSync(PAPERS_DIR).filter((name) => {
     const full = path.join(PAPERS_DIR, name);
@@ -198,7 +241,9 @@ async function main() {
   console.log(`✓ ${existingKeys.size} papers already in DB\n`);
 
   const uploadedThisRun = new Set();
-  let successCount = 0, skipCount = 0, errorCount = 0;
+  let successCount = 0,
+    skipCount = 0,
+    errorCount = 0;
 
   for (const folder of folders) {
     const parsed = parseFolderName(folder);
@@ -212,14 +257,19 @@ async function main() {
     const subjectId = findSubjectId(olGrade, subject);
 
     if (!subjectId) {
-      const available = (olGrade.subjects ?? []).map((s) => s.title).join(", ") || "none";
-      console.log(`  SKIP (subject "${subject}" not found in O/L grade). Available: ${available}`);
+      const available =
+        (olGrade.subjects ?? []).map((s) => s.title).join(", ") || "none";
+      console.log(
+        `  SKIP (subject "${subject}" not found in O/L grade). Available: ${available}`,
+      );
       skipCount++;
       continue;
     }
 
     const folderPath = path.join(PAPERS_DIR, folder);
-    const pdfs = fs.readdirSync(folderPath).filter((f) => f.toLowerCase().endsWith(".pdf"));
+    const pdfs = fs
+      .readdirSync(folderPath)
+      .filter((f) => f.toLowerCase().endsWith(".pdf"));
 
     for (const pdf of pdfs) {
       const fileParsed = parseFileName(pdf);
@@ -230,7 +280,7 @@ async function main() {
       }
 
       const { year } = fileParsed;
-      const title    = buildTitle(subject, medium, year);
+      const title = buildTitle(subject, medium, year);
       const dedupKey = `${title.toLowerCase().trim()}|${medium.toLowerCase()}|${year}`;
 
       if (existingKeys.has(dedupKey) || uploadedThisRun.has(dedupKey)) {
@@ -242,16 +292,16 @@ async function main() {
       try {
         process.stdout.write(`  Uploading: ${title} ... `);
 
-        const pdfPath   = path.join(folderPath, pdf);
+        const pdfPath = path.join(folderPath, pdf);
         const publicUrl = await uploadToAzure(pdfPath, pdf);
 
         await createPaper(token, {
           title,
           medium,
           subject: subjectId,
-          grade:   olGrade.id,
+          grade: olGrade.id,
           year,
-          url:     publicUrl,
+          url: publicUrl,
         });
 
         console.log("✓");

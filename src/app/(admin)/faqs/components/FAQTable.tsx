@@ -1,27 +1,46 @@
 "use client";
 
-import DataTable from "@/components/tables/DataTable";
+import DataTable, { type Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DEFAULT_FAQ_CATEGORY,
+  FAQ_CATEGORY_OPTIONS,
+  getFaqCategoryLabel,
+  type FaqCategory,
+} from "@/lib/faq-categories";
 import { useFetchFaqsQuery } from "@/store/api/splits/faqs";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
-import { Copy, Layers3, Search } from "lucide-react";
+import { Layers3, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
-import toast from "react-hot-toast";
 import { DeleteFAQ } from "./DeleteFAQ";
 import { UpdateFAQ } from "./edit-faq/UpdateFAQ";
 import { FAQDetails } from "./FAQDetails";
 
 interface FAQ {
   id: string;
+  category?: FaqCategory;
   question?: string;
   answer?: string;
   createdAt: string;
 }
 
+const ALL_CATEGORIES = "all";
+
+type CategoryFilter = typeof ALL_CATEGORIES | FaqCategory;
+
 export default function FAQTable() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] =
+    useState<CategoryFilter>(ALL_CATEGORIES);
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   // TODO:Best for small/medium datasets. For very large datasets, move search to the backend.
@@ -35,16 +54,6 @@ export default function FAQTable() {
     setPage(newPage);
   };
 
-  const copyToClipboard = async (id: string) => {
-    try {
-      await navigator.clipboard.writeText(id);
-      toast.success("FAQ ID copied to clipboard");
-    } catch (err) {
-      console.error("Failed to copy:", err);
-      toast.error("Failed to copy to clipboard");
-    }
-  };
-
   const getSafeValue = (
     value: string | undefined | null,
     fallback = "N/A",
@@ -55,42 +64,38 @@ export default function FAQTable() {
     return value;
   };
 
-  const formatDate = (createdAt: string) => {
-    try {
-      const date = new Date(createdAt);
-      if (isNaN(date.getTime())) {
-        return "Invalid date";
-      }
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (error) {
-      console.error("Error parsing date:", error);
-      return "Invalid date";
-    }
-  };
+  const getFaqCategoryValue = (category?: FaqCategory): FaqCategory =>
+    category ?? DEFAULT_FAQ_CATEGORY;
 
   // Filter against the full fetched dataset
   const filteredFaqs = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
     const faqs = data?.results || [];
 
-    if (!query) return faqs;
-
     return faqs.filter((faq: FAQ) => {
+      const matchesCategory =
+        categoryFilter === ALL_CATEGORIES ||
+        getFaqCategoryValue(faq.category) === categoryFilter;
+
+      if (!matchesCategory) {
+        return false;
+      }
+
+      if (!query) {
+        return true;
+      }
+
       const question = getSafeValue(faq.question, "").toLowerCase();
       const answer = getSafeValue(faq.answer, "").toLowerCase();
-      const id = getSafeValue(faq.id, "").toLowerCase();
+      const category = getFaqCategoryLabel(faq.category).toLowerCase();
 
       return (
-        question.includes(query) || answer.includes(query) || id.includes(query)
+        question.includes(query) ||
+        answer.includes(query) ||
+        category.includes(query)
       );
     });
-  }, [data, searchTerm]);
+  }, [categoryFilter, data, searchTerm]);
 
   // Apply pagination after filtering
   const paginatedFaqs = useMemo(() => {
@@ -102,25 +107,7 @@ export default function FAQTable() {
   const totalResults = filteredFaqs.length;
   const totalPages = Math.ceil(totalResults / limit);
 
-  const columns = [
-    {
-      key: "id",
-      header: "ID",
-      className:
-        "min-w-[210px] max-w-[210px] sticky left-0 z-20 bg-white dark:bg-gray-900",
-      bodyClassName: "text-[0.75rem] font-mono",
-      render: (row: FAQ) => (
-        <span
-          onClick={() => copyToClipboard(row.id)}
-          title="Click to copy"
-          className="group relative flex max-w-full cursor-pointer items-center gap-1 truncate hover:text-blue-700 hover:underline dark:hover:text-blue-400"
-          style={{ width: "inherit" }}
-        >
-          {row.id}
-          <Copy className="w-4 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100 text-blue-700 dark:text-blue-400" />
-        </span>
-      ),
-    },
+  const columns: Column<FAQ>[] = [
     {
       key: "question",
       header: "Question",
@@ -157,61 +144,57 @@ export default function FAQTable() {
       },
     },
     {
-      key: "createdAt",
-      header: "Created At",
+      key: "category",
+      header: "Category",
       className:
-        "min-w-[140px] max-w-[140px] truncate overflow-hidden cursor-default",
-      bodyClassName: "text-[0.75rem] font-mono",
-      render: (row: FAQ) => {
-        const formatted = formatDate(row.createdAt);
-        return formatted === "Invalid date" ? (
-          <span className="text-gray-400 italic">Invalid date</span>
-        ) : (
-          formatted
-        );
-      },
+        "min-w-[140px] max-w-[160px] truncate overflow-hidden cursor-default",
+      render: (row: FAQ) => (
+        <span
+          title={`Category: ${getFaqCategoryLabel(row.category)}`}
+          className="inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-300"
+        >
+          {getFaqCategoryLabel(row.category)}
+        </span>
+      ),
     },
     {
       key: "view",
       header: "View",
+      align: "center",
       className:
         "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: FAQ) => (
-        <div className="flex w-full items-center justify-center">
-          <FAQDetails
-            id={row.id}
-            question={getSafeValue(row.question, "No question provided")}
-            answer={getSafeValue(row.answer, "No answer provided")}
-            createdAt={row.createdAt}
-          />
-        </div>
+        <FAQDetails
+          id={row.id}
+          category={row.category}
+          question={getSafeValue(row.question, "No question provided")}
+          answer={getSafeValue(row.answer, "No answer provided")}
+          createdAt={row.createdAt}
+        />
       ),
     },
     {
       key: "edit",
       header: "Edit",
+      align: "center",
       className:
         "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: FAQ) => (
-        <div className="flex w-full items-center justify-center">
-          <UpdateFAQ
-            id={row.id}
-            question={getSafeValue(row.question, "")}
-            answer={getSafeValue(row.answer, "")}
-          />
-        </div>
+        <UpdateFAQ
+          id={row.id}
+          category={row.category}
+          question={getSafeValue(row.question, "")}
+          answer={getSafeValue(row.answer, "")}
+        />
       ),
     },
     {
       key: "delete",
       header: "Delete",
+      align: "center",
       className:
         "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
-      render: (row: FAQ) => (
-        <div className="flex w-full items-center justify-center">
-          <DeleteFAQ faqId={row.id} />
-        </div>
-      ),
+      render: (row: FAQ) => <DeleteFAQ faqId={row.id} />,
     },
   ];
 
@@ -236,18 +219,43 @@ export default function FAQTable() {
           </p>
         </div>
 
-        <motion.div layout className="relative w-full sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
+        <motion.div
+          layout
+          className="flex w-full flex-col gap-2 sm:max-w-xl sm:flex-row sm:items-center"
+        >
+          <div className="relative h-11 w-full sm:flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(TABLE_CONFIG.DEFAULT_PAGE);
+              }}
+              placeholder="Filter by question, answer, or category..."
+              className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400"
+            />
+          </div>
+
+          <Select
+            value={categoryFilter}
+            onValueChange={(value: CategoryFilter) => {
+              setCategoryFilter(value);
               setPage(TABLE_CONFIG.DEFAULT_PAGE);
             }}
-            placeholder="Filter by question, answer, or ID..."
-            className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-blue-400"
-          />
+          >
+            <SelectTrigger className="!h-11 min-h-11 w-full rounded-xl border-gray-200 bg-gray-50 sm:w-44">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_CATEGORIES}>All categories</SelectItem>
+              {FAQ_CATEGORY_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </motion.div>
       </motion.div>
 
@@ -292,7 +300,7 @@ export default function FAQTable() {
               "No question provided",
             );
             const safeAnswer = getSafeValue(row.answer, "No answer provided");
-            const safeDate = formatDate(row.createdAt);
+            const safeCategory = getFaqCategoryLabel(row.category);
 
             return (
               <motion.div
@@ -319,24 +327,10 @@ export default function FAQTable() {
 
                 <div className="mt-4 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-800">
                   <p className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    FAQ ID
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard(row.id)}
-                    className="mt-1 flex w-full items-center gap-2 text-left text-sm text-blue-600 dark:text-blue-400"
-                  >
-                    <span className="truncate font-mono">{row.id}</span>
-                    <Copy className="h-4 w-4 shrink-0" />
-                  </button>
-                </div>
-
-                <div className="mt-3 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-800">
-                  <p className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                    Created At
+                    Category
                   </p>
                   <p className="mt-1 text-sm text-gray-900 dark:text-white">
-                    {safeDate}
+                    {safeCategory}
                   </p>
                 </div>
 
@@ -344,6 +338,7 @@ export default function FAQTable() {
                   <div className="flex justify-center rounded-xl border border-gray-200 p-2 dark:border-gray-700">
                     <FAQDetails
                       id={row.id}
+                      category={row.category}
                       question={safeQuestion}
                       answer={safeAnswer}
                       createdAt={row.createdAt}
@@ -352,6 +347,7 @@ export default function FAQTable() {
                   <div className="flex justify-center rounded-xl border border-gray-200 p-2 dark:border-gray-700">
                     <UpdateFAQ
                       id={row.id}
+                      category={row.category}
                       question={getSafeValue(row.question, "")}
                       answer={getSafeValue(row.answer, "")}
                     />

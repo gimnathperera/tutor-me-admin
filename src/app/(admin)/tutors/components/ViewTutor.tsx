@@ -57,7 +57,6 @@ interface ViewTutorProps {
     teachingSummary?: string;
     studentResults?: string;
     sellingPoints?: string;
-    tutoringLevels?: string[] | { id?: string; title?: string }[];
     preferredLocations?: string[] | { id?: string; title?: string }[];
     agreeTerms?: boolean;
     agreeAssignmentInfo?: boolean;
@@ -69,7 +68,6 @@ interface ViewTutorProps {
     certificatesAndQualifications?: CertificateItem[] | string[];
   };
 }
-
 
 function CertificateViewer({
   url,
@@ -142,8 +140,8 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
     fallback = "N/A",
   ) =>
     value === undefined ||
-      value === null ||
-      (typeof value === "string" && value.trim() === "")
+    value === null ||
+    (typeof value === "string" && value.trim() === "")
       ? fallback
       : value;
 
@@ -158,7 +156,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
   };
 
   const mediumList = normalizeArrayToStrings(tutor.tutorMediums);
-  const levels = normalizeArrayToStrings(tutor.tutoringLevels);
   const locations = normalizeArrayToStrings(tutor.preferredLocations);
   const classTypeList: string[] = tutor.classType || [];
 
@@ -252,267 +249,254 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
           </DialogHeader>
 
           <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
-          <div className="grid gap-4">
-            {/** Status */}
-            {tutor.status && (
-              <div className="grid gap-3">
-                <Label>Status</Label>
-                <div>
-                  <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize ${statusStyle}`}
-                  >
-                    {tutor.status}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/** General Info */}
-            <div className="grid gap-3">
-              <Label>Full Name</Label>
-              <div className={displayFieldClass}>
-                {getSafeValue(tutor.fullName)}
-              </div>
-            </div>
-            <div className="grid gap-3">
-              <Label>Email</Label>
-              <div className={displayFieldClass}>
-                {getSafeValue(tutor.email)}
-              </div>
-            </div>
-            <div className="grid gap-3">
-              <Label>Contact Number</Label>
-              <div className={displayFieldClass}>
-                {getSafeValue(tutor.contactNumber)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <Label>Date of Birth</Label>
-                <div className={displayFieldClass}>
-                  {tutor.dateOfBirth
-                    ? new Date(tutor.dateOfBirth)
-                      .toLocaleDateString("en-CA")
-                      .replace(/-/g, "/")
-                    : "N/A"}
-                </div>
-              </div>
-              <div className="grid gap-3">
-                <Label>Gender</Label>
-                <div className={displayFieldClass}>
-                  {getSafeValue(tutor.gender)}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <Label>Age</Label>
-                <div className={displayFieldClass}>
-                  {getSafeValue(tutor.age)}
-                </div>
-              </div>
-              <div className="grid gap-3">
-                <Label>Nationality</Label>
-                <div className={displayFieldClass}>
-                  {getSafeValue(tutor.nationality)}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <Label>Race</Label>
-                <div className={displayFieldClass}>
-                  {getSafeValue(tutor.race)}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <Label>Tutor Type</Label>
-                <div className={displayFieldClass}>
-                  {Array.isArray(tutor.tutorType)
-                    ? tutor.tutorType.join(", ")
-                    : getSafeValue(tutor.tutorType)}
-                </div>
-              </div>
-              <div className="grid gap-3">
-                <Label>Years of Experience</Label>
-                <div className={displayFieldClass}>
-                  {(() => {
-                    const formatted = formatYearsExperience(tutor.yearsExperience);
-                    return formatted === "" ? "N/A" : formatted;
-                  })()}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Class Type</Label>
-              <div className="flex flex-wrap">
-                {classTypeList.length === 0 ? (
-                  <span className={tagClass}>N/A</span>
-                ) : (
-                  classTypeList.map((ct, i) => (
-                    <span key={i} className={tagClass}>
-                      {ct}
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Highest Education</Label>
-              <div className={displayFieldClass}>
-                {getSafeValue(tutor.highestEducation)}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Academic Details</Label>
-              <div className={displayFieldClass}>
-                {getSafeValue(tutor.academicDetails)}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Teaching Summary</Label>
-              <div className={displayFieldClass}>
-                {getSafeValue(tutor.teachingSummary)}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Student Results</Label>
-              <div className={displayFieldClass}>
-                {getSafeValue(tutor.studentResults)}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Selling Points</Label>
-              <div className={displayFieldClass}>
-                {getSafeValue(tutor.sellingPoints)}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Tutor Mediums</Label>
-              <div className="flex flex-wrap">
-                {mediumList.length === 0 ? (
-                  <span className={tagClass}>N/A</span>
-                ) : (
-                  mediumList.map((m, i) => (
-                    <span key={i} className={tagClass}>
-                      {m}
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Grades</Label>
-              <div className="flex flex-wrap">
-                {gradeList.length === 0 ? (
-                  <span className={tagClass}>N/A</span>
-                ) : (
-                  gradeList.map((g, i) => (
-                    <span key={i} className={tagClass}>
-                      {g}
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Subjects</Label>
-              <div className="flex flex-wrap">
-                {subjectList.length === 0 ? (
-                  <span className={tagClass}>N/A</span>
-                ) : (
-                  subjectList.map((s, i) => (
-                    <span key={i} className={tagClass}>
-                      {s}
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Tutoring Levels</Label>
-              <div className="flex flex-wrap">
-                {levels.length === 0 ? (
-                  <span className={tagClass}>N/A</span>
-                ) : (
-                  levels.map((level, idx) => (
-                    <span key={idx} className={tagClass}>
-                      {level}
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Preferred Locations</Label>
-              <div className="flex flex-wrap">
-                {locations.length === 0 ? (
-                  <span className={tagClass}>N/A</span>
-                ) : (
-                  locations.map((loc, idx) => (
-                    <span key={idx} className={tagClass}>
-                      {loc}
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-3">
-                <Label>Agree to Terms</Label>
-                <div className={displayFieldClass}>
-                  {tutor.agreeTerms ? "Yes" : "No"}
-                </div>
-              </div>
-              <div className="grid gap-3">
-                <Label>Agree Assignment Info</Label>
-                <div className={displayFieldClass}>
-                  {tutor.agreeAssignmentInfo ? "Yes" : "No"}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Certificates & Qualifications</Label>
-              <div className="flex flex-wrap gap-2">
-                {certificates.length === 0 ? (
-                  <div className={displayFieldClass}>N/A</div>
-                ) : (
-                  certificates.map((cert, idx) => (
-                    <Button
-                      key={idx}
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSelectedCert(cert.url)}
-                      className="flex items-center gap-1"
+            <div className="grid gap-4">
+              {/** Status */}
+              {tutor.status && (
+                <div className="grid gap-3">
+                  <Label>Status</Label>
+                  <div>
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold capitalize ${statusStyle}`}
                     >
-                      <span className="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-                        {cert.type}
+                      {tutor.status}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/** General Info */}
+              <div className="grid gap-3">
+                <Label>Full Name</Label>
+                <div className={displayFieldClass}>
+                  {getSafeValue(tutor.fullName)}
+                </div>
+              </div>
+              <div className="grid gap-3">
+                <Label>Email</Label>
+                <div className={displayFieldClass}>
+                  {getSafeValue(tutor.email)}
+                </div>
+              </div>
+              <div className="grid gap-3">
+                <Label>Contact Number</Label>
+                <div className={displayFieldClass}>
+                  {getSafeValue(tutor.contactNumber)}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3">
+                  <Label>Date of Birth</Label>
+                  <div className={displayFieldClass}>
+                    {tutor.dateOfBirth
+                      ? new Date(tutor.dateOfBirth)
+                          .toLocaleDateString("en-CA")
+                          .replace(/-/g, "/")
+                      : "N/A"}
+                  </div>
+                </div>
+                <div className="grid gap-3">
+                  <Label>Gender</Label>
+                  <div className={displayFieldClass}>
+                    {getSafeValue(tutor.gender)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3">
+                  <Label>Age</Label>
+                  <div className={displayFieldClass}>
+                    {getSafeValue(tutor.age)}
+                  </div>
+                </div>
+                <div className="grid gap-3">
+                  <Label>Nationality</Label>
+                  <div className={displayFieldClass}>
+                    {getSafeValue(tutor.nationality)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3">
+                  <Label>Race</Label>
+                  <div className={displayFieldClass}>
+                    {getSafeValue(tutor.race)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3">
+                  <Label>Tutor Type</Label>
+                  <div className={displayFieldClass}>
+                    {Array.isArray(tutor.tutorType)
+                      ? tutor.tutorType.join(", ")
+                      : getSafeValue(tutor.tutorType)}
+                  </div>
+                </div>
+                <div className="grid gap-3">
+                  <Label>Years of Experience</Label>
+                  <div className={displayFieldClass}>
+                    {(() => {
+                      const formatted = formatYearsExperience(
+                        tutor.yearsExperience,
+                      );
+                      return formatted === "" ? "N/A" : formatted;
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Class Type</Label>
+                <div className="flex flex-wrap">
+                  {classTypeList.length === 0 ? (
+                    <span className={tagClass}>N/A</span>
+                  ) : (
+                    classTypeList.map((ct, i) => (
+                      <span key={i} className={tagClass}>
+                        {ct}
                       </span>
-                      <span>View</span>
-                    </Button>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Highest Education</Label>
+                <div className={displayFieldClass}>
+                  {getSafeValue(tutor.highestEducation)}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Academic Details</Label>
+                <div className={displayFieldClass}>
+                  {getSafeValue(tutor.academicDetails)}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Teaching Summary</Label>
+                <div className={displayFieldClass}>
+                  {getSafeValue(tutor.teachingSummary)}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Student Results</Label>
+                <div className={displayFieldClass}>
+                  {getSafeValue(tutor.studentResults)}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Selling Points</Label>
+                <div className={displayFieldClass}>
+                  {getSafeValue(tutor.sellingPoints)}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Tutor Mediums</Label>
+                <div className="flex flex-wrap">
+                  {mediumList.length === 0 ? (
+                    <span className={tagClass}>N/A</span>
+                  ) : (
+                    mediumList.map((m, i) => (
+                      <span key={i} className={tagClass}>
+                        {m}
+                      </span>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Grades</Label>
+                <div className="flex flex-wrap">
+                  {gradeList.length === 0 ? (
+                    <span className={tagClass}>N/A</span>
+                  ) : (
+                    gradeList.map((g, i) => (
+                      <span key={i} className={tagClass}>
+                        {g}
+                      </span>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Subjects</Label>
+                <div className="flex flex-wrap">
+                  {subjectList.length === 0 ? (
+                    <span className={tagClass}>N/A</span>
+                  ) : (
+                    subjectList.map((s, i) => (
+                      <span key={i} className={tagClass}>
+                        {s}
+                      </span>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Preferred Locations</Label>
+                <div className="flex flex-wrap">
+                  {locations.length === 0 ? (
+                    <span className={tagClass}>N/A</span>
+                  ) : (
+                    locations.map((loc, idx) => (
+                      <span key={idx} className={tagClass}>
+                        {loc}
+                      </span>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-3">
+                  <Label>Agree to Terms</Label>
+                  <div className={displayFieldClass}>
+                    {tutor.agreeTerms ? "Yes" : "No"}
+                  </div>
+                </div>
+                <div className="grid gap-3">
+                  <Label>Agree Assignment Info</Label>
+                  <div className={displayFieldClass}>
+                    {tutor.agreeAssignmentInfo ? "Yes" : "No"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-3">
+                <Label>Certificates & Qualifications</Label>
+                <div className="flex flex-wrap gap-2">
+                  {certificates.length === 0 ? (
+                    <div className={displayFieldClass}>N/A</div>
+                  ) : (
+                    certificates.map((cert, idx) => (
+                      <Button
+                        key={idx}
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setSelectedCert(cert.url)}
+                        className="flex items-center gap-1"
+                      >
+                        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                          {cert.type}
+                        </span>
+                        <span>View</span>
+                      </Button>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
-          </div>
           </div>
 
           <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">

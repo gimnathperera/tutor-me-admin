@@ -13,6 +13,8 @@ const InputText: React.FC<InputTextProps> = ({
   helperText,
   className = "",
   name,
+  onBlur,
+  onChange,
   ...props
 }) => {
   const { control, formState } = useFormContext();
@@ -34,11 +36,24 @@ const InputText: React.FC<InputTextProps> = ({
           <>
             <input
               {...field}
-              className={`relative block w-full appearance-none rounded-md border dark:text-white/90 border-linegrey px-3 py-[0.625rem] text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm  ${
+              {...props}
+              className={`relative block w-full appearance-none rounded-md border dark:text-white/90 border-linegrey px-3 py-[0.625rem] text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${
                 error ? "border-red-500" : "border-gray-300"
               } ${className}`}
-              {...props}
+              onChange={(e) => {
+                if (onChange) {
+                  onChange(e);
+                  return;
+                }
+
+                field.onChange(e);
+              }}
+              onBlur={(e) => {
+                field.onBlur();
+                onBlur?.(e);
+              }}
             />
+
             {(error || helperText) && (
               <span
                 className={`text-xs ${

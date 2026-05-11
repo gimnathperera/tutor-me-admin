@@ -28,7 +28,23 @@ export const updateUserSchema = z.object({
       message: "Phone Number should be exactly 10 digits.",
     }),
 
-  birthday: z.string().min(1, "Birthday is required"),
+  birthday: z
+    .string()
+    .min(1, "Date of Birth is required")
+    .refine(
+      (val) => {
+        const date = new Date(val);
+        if (isNaN(date.getTime())) return false;
+        const today = new Date();
+        const minDate = new Date(
+          today.getFullYear() - 18,
+          today.getMonth(),
+          today.getDate(),
+        );
+        return date <= minDate;
+      },
+      { message: "Must be at least 18 years old" },
+    ),
 
   country: z
     .string()

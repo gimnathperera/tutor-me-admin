@@ -45,11 +45,12 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
     );
   }, [defaultSelected, options]);
 
-  const filteredOptions = searchable && searchText
-    ? options.filter((o) =>
-        o.text.toLowerCase().includes(searchText.toLowerCase()),
-      )
-    : options;
+  const filteredOptions =
+    searchable && searchText
+      ? options.filter((o) =>
+          o.text.toLowerCase().includes(searchText.toLowerCase()),
+        )
+      : options;
 
   const toggleDropdown = () => {
     if (disabled) return;

@@ -154,48 +154,45 @@ export default function TestimonialsTable() {
     },
     {
       key: "view",
-      header: <div className="text-center">View</div>,
+      header: "View",
+      align: "center",
       className:
-        "min-w-[80px] text-center sticky right-[160px] z-20 bg-white dark:bg-gray-900",
+        "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: Testimonial) => (
-        <div className="flex justify-center">
-          <TestimonialDetails
-            content={getSafeValue(row.content)}
-            rating={getSafeValue(row.rating)}
-            owner={row.owner}
-          />
-        </div>
+        <TestimonialDetails
+          content={getSafeValue(row.content)}
+          rating={getSafeValue(row.rating)}
+          owner={row.owner}
+        />
       ),
     },
     {
       key: "edit",
-      header: <div className="text-center">Edit</div>,
+      header: "Edit",
+      align: "center",
       className:
-        "min-w-[80px] text-center sticky right-[80px] z-20 bg-white dark:bg-gray-900",
+        "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: Testimonial) => (
-        <div className="flex justify-center">
-          <UpdateTestimonial
-            id={row.id}
-            content={getSafeValue(row.content, "")}
-            rating={Number(row.rating) || 0}
-            owner={{
-              name: getSafeValue(row.owner?.name, ""),
-              role: getSafeValue(row.owner?.role, ""),
-              avatar: getSafeValue(row.owner?.avatar, ""),
-            }}
-          />
-        </div>
+        <UpdateTestimonial
+          id={row.id}
+          content={getSafeValue(row.content, "")}
+          rating={Number(row.rating) || 0}
+          owner={{
+            name: getSafeValue(row.owner?.name, ""),
+            role: getSafeValue(row.owner?.role, ""),
+            avatar: getSafeValue(row.owner?.avatar, ""),
+          }}
+        />
       ),
     },
     {
       key: "delete",
-      header: <div className="text-center">Delete</div>,
+      header: "Delete",
+      align: "center",
       className:
-        "min-w-[80px] text-center sticky right-0 z-20 bg-white dark:bg-gray-900",
+        "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Testimonial) => (
-        <div className="flex justify-center">
-          <DeleteTestimonial testimonialId={row.id} />
-        </div>
+        <DeleteTestimonial testimonialId={row.id} />
       ),
     },
   ];

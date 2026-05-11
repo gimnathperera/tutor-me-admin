@@ -22,13 +22,19 @@ import { z } from "zod";
 
 const passwordSchema = z
   .object({
-    currentPassword: z.string().min(1, { message: "Current password is required" }),
+    currentPassword: z
+      .string()
+      .min(1, { message: "Current password is required" }),
     newPassword: z
       .string()
       .min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT })
       .max(PASSWORD_MAX, { message: PASSWORD_TOO_LONG })
-      .regex(PASSWORD_LETTER_NUMBER_REGEX, { message: PASSWORD_LETTER_NUMBER_MSG }),
-    confirmPassword: z.string().min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT }),
+      .regex(PASSWORD_LETTER_NUMBER_REGEX, {
+        message: PASSWORD_LETTER_NUMBER_MSG,
+      }),
+    confirmPassword: z
+      .string()
+      .min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT }),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     message: "Confirm Password must match New Password",
@@ -63,15 +69,21 @@ export default function AccountSecurity() {
   const confirmPassword = form.watch("confirmPassword");
 
   const areAllFieldsFilled =
-    !!currentPassword?.trim() && !!newPassword?.trim() && !!confirmPassword?.trim();
+    !!currentPassword?.trim() &&
+    !!newPassword?.trim() &&
+    !!confirmPassword?.trim();
 
-  const isButtonDisabled = !isDirty || !areAllFieldsFilled || !isValid || isLoading;
+  const isButtonDisabled =
+    !isDirty || !areAllFieldsFilled || !isValid || isLoading;
 
   const sanitize =
     (field: keyof PasswordSchema) => (event: ChangeEvent<HTMLInputElement>) => {
       const noSpaces = removeWhitespace(event.target.value);
       if (noSpaces !== event.target.value) event.target.value = noSpaces;
-      form.setValue(field, noSpaces, { shouldValidate: true, shouldDirty: true });
+      form.setValue(field, noSpaces, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     };
 
   const onSubmit = async (data: PasswordSchema) => {

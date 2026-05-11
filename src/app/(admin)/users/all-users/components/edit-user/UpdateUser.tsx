@@ -63,6 +63,16 @@ const normalizeTextInput = (value: string) => {
   return value.trimStart().replace(/\s{2,}/g, " ");
 };
 
+const getFormValues = (props: UpdateUserProps): UpdateUserSchema => ({
+  ...initialFormValues,
+  ...props,
+  birthday: props.birthday
+    ? new Date(props.birthday).toISOString().substring(0, 10)
+    : "",
+  gender: props.gender || initialFormValues.gender,
+  avatar: props.avatar || "",
+});
+
 export function UpdateUser(props: UpdateUserProps) {
   const [open, setOpen] = useState(false);
   const maxUserBirthday = getMinimumAdultBirthDate();
@@ -74,7 +84,7 @@ export function UpdateUser(props: UpdateUserProps) {
 
   const form = useForm<UpdateUserSchema>({
     resolver: zodResolver(updateUserSchema),
-    defaultValues: { ...initialFormValues, ...props },
+    defaultValues: getFormValues(props),
     mode: "onChange",
   });
 
@@ -115,13 +125,7 @@ export function UpdateUser(props: UpdateUserProps) {
 
   useEffect(() => {
     if (open) {
-      reset({
-        ...initialFormValues,
-        ...props,
-        birthday: props.birthday
-          ? new Date(props.birthday).toISOString().substring(0, 10)
-          : "",
-      });
+      reset(getFormValues(props));
       setPreviewUrl(props.avatar || null);
     }
   }, [open, props, reset]);
@@ -276,6 +280,7 @@ export function UpdateUser(props: UpdateUserProps) {
               <DatePicker
                 id="birthday"
                 label="Date of Birth *"
+                required
                 value={form.watch("birthday")}
                 onChange={(date) =>
                   setValue("birthday", date, {
@@ -290,22 +295,34 @@ export function UpdateUser(props: UpdateUserProps) {
 
               <div className="grid gap-3">
                 <Label htmlFor="gender">Gender *</Label>
+
                 <Select
                   value={form.watch("gender")}
                   onValueChange={(val) => handleSelect("gender", val)}
                 >
-                  <SelectTrigger id="gender">
+                  <SelectTrigger
+                    id="gender"
+                    aria-invalid={!!formState.errors.gender}
+                  >
                     <SelectValue placeholder="Select Gender" />
                   </SelectTrigger>
+
                   <SelectContent>
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
                   </SelectContent>
                 </Select>
+
+                {formState.errors.gender && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.gender.message}
+                  </p>
+                )}
               </div>
 
               <div className="grid gap-3">
                 <Label htmlFor="avatar">Profile Picture *</Label>
+
                 <FileUploadDropzone
                   imageOnly
                   onUploaded={(url) => {
@@ -313,9 +330,21 @@ export function UpdateUser(props: UpdateUserProps) {
                       shouldValidate: true,
                       shouldDirty: true,
                     });
+
                     setPreviewUrl(url);
                   }}
                 />
+                {formState.errors.avatar && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.avatar.message}
+                  </p>
+                )}
+
+                {formState.errors.avatar && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.avatar.message}
+                  </p>
+                )}
 
                 {previewUrl && (
                   <NextImage

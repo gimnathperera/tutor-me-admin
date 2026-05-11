@@ -58,7 +58,9 @@ export const normalizeTutorMatchReportSummary = (
 
   const blocks = rawBlocks.map((block, index) => {
     const blockRecord =
-      block && typeof block === "object" ? (block as Record<string, unknown>) : {};
+      block && typeof block === "object"
+        ? (block as Record<string, unknown>)
+        : {};
 
     const matchedTutors =
       (Array.isArray(blockRecord.matchedTutors) && blockRecord.matchedTutors) ||
