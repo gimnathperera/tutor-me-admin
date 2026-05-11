@@ -112,10 +112,12 @@ export function AddTutor() {
     clearErrors,
     control,
     formState,
+    getValues,
     reset,
     setError,
     setFocus,
     setValue,
+    trigger,
     watch,
   } = form;
 
@@ -142,6 +144,21 @@ export function AddTutor() {
     name: "email",
     defaultValue: "",
   }) as string;
+
+  const password = useWatch({
+    control,
+    name: "password",
+    defaultValue: "",
+  }) as string;
+
+  const confirmPassword = useWatch({
+    control,
+    name: "confirmPassword",
+    defaultValue: "",
+  }) as string;
+  const confirmPasswordErrorType = (
+    formState.errors.confirmPassword as { type?: string } | undefined
+  )?.type;
 
   const { data: gradesData } = useFetchGradesQuery({ page: 1, limit: 100 });
   const [fetchGradeById] = useLazyFetchGradeByIdQuery();
@@ -236,6 +253,37 @@ export function AddTutor() {
       setEmailAvailability(null);
     }
   }, [open, reset]);
+
+  useEffect(() => {
+    if (!password || !confirmPassword) {
+      if (confirmPasswordErrorType === "passwordMismatch") {
+        clearErrors("confirmPassword");
+      }
+
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      if (confirmPasswordErrorType !== "passwordMismatch") {
+        setError("confirmPassword", {
+          type: "passwordMismatch",
+          message: "Passwords do not match",
+        });
+      }
+
+      return;
+    }
+
+    if (confirmPasswordErrorType === "passwordMismatch") {
+      clearErrors("confirmPassword");
+    }
+  }, [
+    clearErrors,
+    confirmPassword,
+    confirmPasswordErrorType,
+    password,
+    setError,
+  ]);
 
   const handleDialogOpenChange = (isOpen: boolean) => {
     setOpen(isOpen);
@@ -414,7 +462,57 @@ export function AddTutor() {
       }
     },
     onBlur: (event) => {
+      const isServerEmailError =
+        (formState.errors.email as { type?: string } | undefined)?.type ===
+        "server";
+
       setValue("email", removeWhitespace(event.target.value).toLowerCase(), {
+        shouldValidate: !isServerEmailError,
+      });
+    },
+  });
+
+  const passwordRegister = form.register("password", {
+    onChange: (event) => {
+      const cleaned = removeWhitespace(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("password", cleaned, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+
+      if (getValues("confirmPassword")) {
+        void trigger("confirmPassword");
+      }
+    },
+    onBlur: (event) => {
+      setValue("password", removeWhitespace(event.target.value), {
+        shouldValidate: true,
+      });
+
+      if (getValues("confirmPassword")) {
+        void trigger("confirmPassword");
+      }
+    },
+  });
+
+  const confirmPasswordRegister = form.register("confirmPassword", {
+    onChange: (event) => {
+      const cleaned = removeWhitespace(event.target.value);
+
+      if (cleaned !== event.target.value) {
+        event.target.value = cleaned;
+        setValue("confirmPassword", cleaned, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+    },
+    onBlur: (event) => {
+      setValue("confirmPassword", removeWhitespace(event.target.value), {
         shouldValidate: true,
       });
     },
@@ -522,7 +620,10 @@ export function AddTutor() {
                     placeholder="e.g johndoe@gmail.com"
                     autoComplete="email"
                     className={`pr-10 ${
-                      formState.errors.email ? "border-red-500" : ""
+                      formState.errors.email ||
+                      emailAvailability === "unavailable"
+                        ? "border-red-500"
+                        : ""
                     }`}
                     {...emailRegister}
                   />
@@ -546,6 +647,10 @@ export function AddTutor() {
                 {formState.errors.email ? (
                   <p className="min-h-4 text-sm leading-4 text-red-500">
                     {formState.errors.email.message}
+                  </p>
+                ) : emailAvailability === "unavailable" ? (
+                  <p className="min-h-4 text-sm leading-4 text-red-500">
+                    {DUPLICATE_EMAIL_MESSAGE}
                   </p>
                 ) : isCheckingEmail ? (
                   <p className="min-h-4 text-sm leading-4 text-gray-500">
@@ -572,7 +677,7 @@ export function AddTutor() {
                       autoComplete="new-password"
                       placeholder="Min 8 chars, letter & number"
                       className="pr-10"
-                      {...form.register("password")}
+                      {...passwordRegister}
                     />
                     <button
                       type="button"
@@ -607,7 +712,7 @@ export function AddTutor() {
                       autoComplete="new-password"
                       placeholder="Re-enter your password"
                       className="pr-10"
-                      {...form.register("confirmPassword")}
+                      {...confirmPasswordRegister}
                     />
                     <button
                       type="button"
@@ -882,6 +987,7 @@ export function AddTutor() {
                     setValue(
                       "highestEducation",
                       val as AddTutorFormValues["highestEducation"],
+                      { shouldValidate: true },
                     )
                   }
                   options={[...EDUCATION_OPTIONS_ADD]}

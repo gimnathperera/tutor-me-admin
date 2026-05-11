@@ -71,9 +71,15 @@ export const updateUserSchema = z.object({
       },
     )
     .transform((val) => {
-      const dob = parseBirthday(val);
-      return dob ? dob.toISOString().split("T")[0] : "";
-    }),
+      const date = new Date(val);
+      return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
+    })
+    .refine((val) => {
+      const birthday = new Date(val);
+      return (
+        !isNaN(birthday.getTime()) && birthday <= getMinimumAdultBirthDate()
+      );
+    }, "User must be at least 18 years old"),
 
   status: z.enum(USER_STATUS_VALUES).default("pending"),
 
@@ -101,6 +107,6 @@ export const initialFormValues: UpdateUserSchema = {
   phoneNumber: "",
   birthday: "",
   status: "pending",
-  gender: "male",
+  gender: "" as UpdateUserSchema["gender"],
   avatar: "",
 };

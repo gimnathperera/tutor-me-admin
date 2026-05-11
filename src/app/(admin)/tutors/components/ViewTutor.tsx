@@ -57,7 +57,6 @@ interface ViewTutorProps {
     teachingSummary?: string;
     studentResults?: string;
     sellingPoints?: string;
-    tutoringLevels?: string[] | { id?: string; title?: string }[];
     preferredLocations?: string[] | { id?: string; title?: string }[];
     agreeTerms?: boolean;
     agreeAssignmentInfo?: boolean;
@@ -158,7 +157,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
   };
 
   const mediumList = normalizeArrayToStrings(tutor.tutorMediums);
-  const levels = normalizeArrayToStrings(tutor.tutoringLevels);
   const locations = normalizeArrayToStrings(tutor.preferredLocations);
   const classTypeList: string[] = tutor.classType || [];
 
@@ -438,21 +436,6 @@ export function ViewTutor({ tutor }: ViewTutorProps) {
                   subjectList.map((s, i) => (
                     <span key={i} className={tagClass}>
                       {s}
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="grid gap-3">
-              <Label>Tutoring Levels</Label>
-              <div className="flex flex-wrap">
-                {levels.length === 0 ? (
-                  <span className={tagClass}>N/A</span>
-                ) : (
-                  levels.map((level, idx) => (
-                    <span key={idx} className={tagClass}>
-                      {level}
                     </span>
                   ))
                 )}

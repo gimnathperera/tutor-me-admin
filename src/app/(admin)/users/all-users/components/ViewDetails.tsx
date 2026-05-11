@@ -70,7 +70,7 @@ export function UserDetails({
         <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
           <div className="grid gap-4">
             <div className="grid gap-3">
-              <Label>Avatar</Label>
+              <Label>Profile Picture</Label>
               <div className="w-full flex justify-center">
                 <div className="w-35 h-35 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
                   <img
@@ -112,7 +112,7 @@ export function UserDetails({
               </div>
             </div>
             <div className="grid gap-3">
-              <Label>Phone Number</Label>
+              <Label>Contact Number</Label>
               <div
                 className={cn(
                   displayFieldClass,
@@ -124,7 +124,7 @@ export function UserDetails({
               </div>
             </div>
             <div className="grid gap-3">
-              <Label>Birthday</Label>
+              <Label>Date of Birth</Label>
               <div
                 className={cn(
                   displayFieldClass,

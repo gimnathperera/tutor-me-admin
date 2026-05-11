@@ -231,9 +231,14 @@ export default function UpdateUser() {
 
             <div className="grid gap-3">
               <Label htmlFor="email">Email *</Label>
-              <div className="w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800">
-                {user.email}
-              </div>
+              <Input
+                id="email"
+                type="email"
+                value={user.email || ""}
+                className="cursor-not-allowed"
+                disabled
+                readOnly
+              />
             </div>
 
             <div className="grid gap-3">
@@ -299,7 +304,7 @@ export default function UpdateUser() {
 
               <div className="flex flex-col">
                 <Label htmlFor="phoneNumber" className="mb-3">
-                  Phone Number *
+                  Contact Number *
                 </Label>
                 <Input
                   id="phoneNumber"
@@ -321,7 +326,7 @@ export default function UpdateUser() {
               </div>
               <div className="flex flex-col">
                 <Label htmlFor="birthday" className="mb-3">
-                  Birthday *
+                  Date of Birth *
                 </Label>
                 <DatePicker
                   value={watch("birthday")}
@@ -334,6 +339,13 @@ export default function UpdateUser() {
                   placeholder="DD/MM/YYYY"
                   label=""
                   required
+                  maxDate={
+                    new Date(
+                      new Date().getFullYear() - 18,
+                      new Date().getMonth(),
+                      new Date().getDate(),
+                    )
+                  }
                 />
               </div>
             </div>

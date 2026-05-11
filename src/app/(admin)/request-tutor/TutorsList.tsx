@@ -481,6 +481,8 @@ export default function RequestForTutorsList() {
                 _id: t._id,
                 subject: t.subject,
                 assignedTutor: t.assignedTutor,
+                classType: t.classType,
+                preferredClassType: t.preferredClassType,
                 preferredTutorType: t.preferredTutorType,
                 preferredClassType: t.preferredClassType,
                 duration: t.duration,
@@ -539,7 +541,7 @@ export default function RequestForTutorsList() {
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search by name, email, city, district, phone number, subject, or assigned tutor"
+                placeholder="Search by name, email, city, district, contact number, subject, or assigned tutor"
                 className="h-11 w-full pl-10 pr-4"
               />
             </div>
