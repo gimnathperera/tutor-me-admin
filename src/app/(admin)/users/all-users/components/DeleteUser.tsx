@@ -24,12 +24,24 @@ interface DeleteUserProps {
 
 export function DeleteUser({ userId, userRole, userStatus }: DeleteUserProps) {
   const [deleteUser, { isLoading }] = useDeleteUserMutation();
-  const canDelete = userRole === "tutor" && userStatus === "rejected";
+
+  const canDelete =
+    userRole === "tutor" || (userRole === "admin" && userStatus === "rejected");
 
   const getDisabledTitle = () => {
-    if (userRole !== "tutor") return "Only tutor accounts can be deleted";
-    if (userStatus !== "rejected") return "User must be rejected before deletion";
-    return "Delete tutor account";
+    if (userRole === "tutor") {
+      return "Delete tutor account";
+    }
+
+    if (userRole === "admin") {
+      if (userStatus !== "rejected") {
+        return "Admin account must be rejected before deletion";
+      }
+
+      return "Delete admin account";
+    }
+
+    return "This user cannot be deleted";
   };
 
   const handleDelete = async () => {
@@ -45,7 +57,9 @@ export function DeleteUser({ userId, userRole, userStatus }: DeleteUserProps) {
         const error = getErrorInApiResult({ error: result.error });
         toast.error(error);
       } else {
-        toast.success("Tutor account deleted successfully");
+        toast.success(
+          `${userRole === "admin" ? "Admin" : "Tutor"} account deleted successfully`,
+        );
       }
     } catch (error) {
       console.error("Unexpected error during user deletion:", error);
@@ -63,28 +77,32 @@ export function DeleteUser({ userId, userRole, userStatus }: DeleteUserProps) {
           title={getDisabledTitle()}
         >
           <Trash2
-            className={`cursor-pointer ${
+            className={`${
               canDelete
-                ? "text-red-500 hover:text-red-600"
-                : "text-gray-400 cursor-not-allowed"
+                ? "cursor-pointer text-red-500 hover:text-red-600"
+                : "cursor-not-allowed text-gray-400"
             }`}
           />
         </button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+
+      <AlertDialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this
-            tutor account.
+            This action cannot be undone. This will permanently delete this{" "}
+            {userRole === "admin" ? "admin" : "tutor"} account.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
+
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isLoading || !canDelete}
-            className="bg-red-500 text-white disabled:opacity-50"
+            className="bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
           >
             {isLoading ? "Deleting..." : "Delete"}
           </AlertDialogAction>

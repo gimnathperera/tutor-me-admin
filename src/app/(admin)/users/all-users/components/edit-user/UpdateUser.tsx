@@ -295,6 +295,7 @@ export function UpdateUser(props: UpdateUserProps) {
 
               <div className="grid gap-3">
                 <Label htmlFor="gender">Gender *</Label>
+
                 <Select
                   value={form.watch("gender")}
                   onValueChange={(val) => handleSelect("gender", val)}
@@ -305,11 +306,13 @@ export function UpdateUser(props: UpdateUserProps) {
                   >
                     <SelectValue placeholder="Select Gender" />
                   </SelectTrigger>
+
                   <SelectContent>
                     <SelectItem value="male">Male</SelectItem>
                     <SelectItem value="female">Female</SelectItem>
                   </SelectContent>
                 </Select>
+
                 {formState.errors.gender && (
                   <p className="text-sm text-red-500">
                     {formState.errors.gender.message}
@@ -319,6 +322,7 @@ export function UpdateUser(props: UpdateUserProps) {
 
               <div className="grid gap-3">
                 <Label htmlFor="avatar">Profile Picture *</Label>
+
                 <FileUploadDropzone
                   imageOnly
                   onUploaded={(url) => {
@@ -326,9 +330,16 @@ export function UpdateUser(props: UpdateUserProps) {
                       shouldValidate: true,
                       shouldDirty: true,
                     });
+
                     setPreviewUrl(url);
                   }}
                 />
+                {formState.errors.avatar && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.avatar.message}
+                  </p>
+                )}
+
                 {formState.errors.avatar && (
                   <p className="text-sm text-red-500">
                     {formState.errors.avatar.message}
