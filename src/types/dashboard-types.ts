@@ -16,35 +16,40 @@ export const statCards: Array<{
   label: string;
   key: SummaryKey;
   icon: LucideIcon;
+  iconBg: string;
+  iconColor: string;
   accent: string;
-  glow: string;
 }> = [
   {
     label: "Registered Tutors",
     key: "registeredTutors",
     icon: GraduationCap,
-    accent: "from-sky-500 via-cyan-500 to-blue-600",
-    glow: "shadow-sky-500/20",
+    iconBg: "bg-blue-50 dark:bg-blue-500/10",
+    iconColor: "text-blue-600 dark:text-blue-400",
+    accent: "bg-blue-600",
   },
   {
     label: "Registered Students",
     key: "registeredStudents",
     icon: Users,
-    accent: "from-emerald-500 via-teal-500 to-green-600",
-    glow: "shadow-emerald-500/20",
+    iconBg: "bg-teal-50 dark:bg-teal-500/10",
+    iconColor: "text-teal-600 dark:text-teal-400",
+    accent: "bg-teal-500",
   },
   {
     label: "Tutor Requests",
     key: "requestTutorRequests",
     icon: ClipboardList,
-    accent: "from-violet-500 via-fuchsia-500 to-purple-600",
-    glow: "shadow-violet-500/20",
+    iconBg: "bg-violet-50 dark:bg-violet-500/10",
+    iconColor: "text-violet-600 dark:text-violet-400",
+    accent: "bg-violet-600",
   },
   {
     label: "Register as Tutor",
     key: "registerAsTutorRequests",
     icon: UserPlus,
-    accent: "from-amber-500 via-orange-500 to-rose-500",
-    glow: "shadow-orange-500/20",
+    iconBg: "bg-orange-50 dark:bg-orange-500/10",
+    iconColor: "text-orange-600 dark:text-orange-400",
+    accent: "bg-orange-500",
   },
 ];
