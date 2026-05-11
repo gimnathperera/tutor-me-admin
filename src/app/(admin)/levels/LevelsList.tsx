@@ -179,7 +179,8 @@ export default function LevelsTable() {
     {
       key: "view",
       header: <div className="w-full text-center">View</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: Level) => (
         <div className="w-full flex justify-center items-center">
           <LevelDetails
@@ -194,7 +195,8 @@ export default function LevelsTable() {
     {
       key: "edit",
       header: <div className="w-full text-center">Edit</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: Level) => (
         <div className="w-full flex justify-center items-center">
           <UpdateLevel
@@ -210,7 +212,8 @@ export default function LevelsTable() {
     {
       key: "delete",
       header: <div className="w-full text-center">Delete</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: Level) => (
         <div className="w-full flex justify-center items-center">
           <DeleteLevel levelId={row.id} />

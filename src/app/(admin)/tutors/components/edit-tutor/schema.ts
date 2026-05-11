@@ -93,7 +93,12 @@ export const updateTutorSchema = z.object({
     .min(1, "Select at least one tutor type")
     .optional(),
 
-  yearsExperience: z.number().int().min(1, "Years of Experience are required").max(50).optional(),
+  yearsExperience: z
+    .number()
+    .int()
+    .min(1, "Years of Experience are required")
+    .max(50)
+    .optional(),
 
   highestEducation: z.enum(EDUCATION_VALUES_EDIT).optional(),
 

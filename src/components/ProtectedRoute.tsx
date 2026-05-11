@@ -4,7 +4,12 @@ import { useAuthContext } from "@/context";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-const publicRoutes = ["/signin", "/signup", "/forgot-password", "/reset-password"];
+const publicRoutes = [
+  "/signin",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+];
 
 export default function ProtectedRoute({
   children,
@@ -25,7 +30,11 @@ export default function ProtectedRoute({
     } else if (user && user.role !== "admin") {
       // Authenticated but not admin — forbidden
       router.replace("/403");
-    } else if (user && user.role === "admin" && publicRoutes.includes(currentPath)) {
+    } else if (
+      user &&
+      user.role === "admin" &&
+      publicRoutes.includes(currentPath)
+    ) {
       // Already logged in admin trying to visit /signin — redirect to dashboard
       router.replace("/");
     }

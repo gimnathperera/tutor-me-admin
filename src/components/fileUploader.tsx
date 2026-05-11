@@ -16,11 +16,11 @@ const IMAGE_ACCEPT_CONFIG = {
 };
 
 const IMAGE_EXTENSION_PATTERN = /\.(png|jpe?g)$/i;
-const IMAGE_UPLOAD_ERROR =
-  "Only PNG, JPG, or JPEG image files are allowed.";
+const IMAGE_UPLOAD_ERROR = "Only PNG, JPG, or JPEG image files are allowed.";
 
 const isAllowedImageFile = (file: File) => {
-  const hasAllowedMimeType = file.type === "image/png" || file.type === "image/jpeg";
+  const hasAllowedMimeType =
+    file.type === "image/png" || file.type === "image/jpeg";
   const hasAllowedExtension = IMAGE_EXTENSION_PATTERN.test(file.name);
 
   return hasAllowedMimeType && hasAllowedExtension;

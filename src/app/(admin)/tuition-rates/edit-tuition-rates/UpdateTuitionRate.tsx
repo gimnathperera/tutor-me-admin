@@ -140,7 +140,10 @@ export function UpdateTuitionRate({
           </DialogDescription>
         </DialogHeader>
 
-        <form className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-6 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <form
+          className="flex-1 min-h-0 overflow-y-auto scrollbar-thin px-6 py-6 grid gap-4"
+          onSubmit={handleSubmit(onSubmit)}
+        >
           <div className="grid gap-1">
             <Label>Grade</Label>
             <Controller

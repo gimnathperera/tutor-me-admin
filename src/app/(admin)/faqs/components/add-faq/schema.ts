@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { FAQ_CATEGORY_VALUES, DEFAULT_FAQ_CATEGORY } from "@/lib/faq-categories";
+import {
+  FAQ_CATEGORY_VALUES,
+  DEFAULT_FAQ_CATEGORY,
+} from "@/lib/faq-categories";
 
 export const createFaqSchema = z.object({
   category: z.enum(FAQ_CATEGORY_VALUES),

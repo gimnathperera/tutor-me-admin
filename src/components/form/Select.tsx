@@ -72,7 +72,9 @@ const Select: React.FC<SelectProps> = ({
           dark:data-[placeholder]:text-white/30 flex w-full items-center justify-between gap-2 rounded-md border bg-white px-3 py-2 text-sm whitespace-nowrap
           text-left font-medium text-gray-800 shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed
           disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8`,
-          selectedOption ? "text-gray-800 dark:text-white/90" : "text-gray-400 dark:text-white/30",
+          selectedOption
+            ? "text-gray-800 dark:text-white/90"
+            : "text-gray-400 dark:text-white/30",
         )}
         data-size={size}
         data-placeholder={!selectedOption ? true : undefined}

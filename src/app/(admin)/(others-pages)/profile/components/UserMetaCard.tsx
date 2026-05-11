@@ -34,7 +34,8 @@ export default function UserMetaCard() {
   const statusStyles =
     status === "approved" || status === "active"
       ? {
-          badge: "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
+          badge:
+            "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100",
           dot: "bg-green-500",
         }
       : status === "pending"

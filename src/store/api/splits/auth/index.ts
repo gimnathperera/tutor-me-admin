@@ -43,14 +43,19 @@ export const usersApi = baseApi.injectEndpoints({
         };
       },
     }),
-    resetPassword: build.mutation<UpdatePasswordResponse, ResetPasswordRequest>({
-      query: ({ token, password }) => ({
-        url: `${Endpoints.ResetPassword}?token=${encodeURIComponent(token)}`,
-        method: "POST",
-        body: { password },
-      }),
-    }),
-    forgotPassword: build.mutation<ForgotPasswordResponse, ForgotPasswordRequest>({
+    resetPassword: build.mutation<UpdatePasswordResponse, ResetPasswordRequest>(
+      {
+        query: ({ token, password }) => ({
+          url: `${Endpoints.ResetPassword}?token=${encodeURIComponent(token)}`,
+          method: "POST",
+          body: { password },
+        }),
+      },
+    ),
+    forgotPassword: build.mutation<
+      ForgotPasswordResponse,
+      ForgotPasswordRequest
+    >({
       query: (payload) => ({
         url: Endpoints.ForgotPassword,
         method: "POST",

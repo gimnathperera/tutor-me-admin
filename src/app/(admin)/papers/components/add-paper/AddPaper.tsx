@@ -159,11 +159,15 @@ export function AddPaper() {
               <Select
                 value={watch("medium")}
                 onValueChange={(value) =>
-                  setValue("medium", value as import("@/configs/app-constants").MediumValue, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                    shouldTouch: true,
-                  })
+                  setValue(
+                    "medium",
+                    value as import("@/configs/app-constants").MediumValue,
+                    {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                      shouldTouch: true,
+                    },
+                  )
                 }
               >
                 <SelectTrigger className="w-full">
@@ -174,7 +178,9 @@ export function AddPaper() {
                   <SelectGroup>
                     <SelectLabel>Medium</SelectLabel>
                     {MEDIUM_VALUES.map((m) => (
-                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                      <SelectItem key={m} value={m}>
+                        {m}
+                      </SelectItem>
                     ))}
                   </SelectGroup>
                 </SelectContent>

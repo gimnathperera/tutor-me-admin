@@ -83,7 +83,10 @@ export function AddInquiry() {
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[425px] bg-white z-50 dark:bg-gray-800 dark:text-white/90 p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 min-h-0 overflow-hidden"
+        >
           <DialogHeader className="shrink-0 px-6 py-4 border-b bg-white dark:bg-gray-800">
             <DialogTitle>Add Inquiry (Manually)</DialogTitle>
             <DialogDescription>
