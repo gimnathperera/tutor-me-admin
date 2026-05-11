@@ -89,12 +89,16 @@ export const addTutorSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters")
     .max(12, "Password must be at most 12 characters")
+    .regex(/^\S+$/, "Password must not contain spaces")
     .regex(
       /(?=.*[A-Za-z])(?=.*\d).+/,
       "Password must contain at least one letter and one number",
     ),
 
-  confirmPassword: z.string().min(1, "Please confirm your password"),
+  confirmPassword: z
+    .string()
+    .min(1, "Please confirm your password")
+    .regex(/^\S+$/, "Confirm Password must not contain spaces"),
 
   agreeTerms: z
     .boolean()
