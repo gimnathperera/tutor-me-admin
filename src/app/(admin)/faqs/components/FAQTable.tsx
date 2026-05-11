@@ -174,44 +174,39 @@ export default function FAQTable() {
     {
       key: "view",
       header: "View",
+      align: "center",
       className:
         "min-w-[80px] max-w-[80px] sticky right-[160px] z-20 bg-white dark:bg-gray-900",
       render: (row: FAQ) => (
-        <div className="flex w-full items-center justify-center">
-          <FAQDetails
-            id={row.id}
-            question={getSafeValue(row.question, "No question provided")}
-            answer={getSafeValue(row.answer, "No answer provided")}
-            createdAt={row.createdAt}
-          />
-        </div>
+        <FAQDetails
+          id={row.id}
+          question={getSafeValue(row.question, "No question provided")}
+          answer={getSafeValue(row.answer, "No answer provided")}
+          createdAt={row.createdAt}
+        />
       ),
     },
     {
       key: "edit",
       header: "Edit",
+      align: "center",
       className:
         "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: FAQ) => (
-        <div className="flex w-full items-center justify-center">
-          <UpdateFAQ
-            id={row.id}
-            question={getSafeValue(row.question, "")}
-            answer={getSafeValue(row.answer, "")}
-          />
-        </div>
+        <UpdateFAQ
+          id={row.id}
+          question={getSafeValue(row.question, "")}
+          answer={getSafeValue(row.answer, "")}
+        />
       ),
     },
     {
       key: "delete",
       header: "Delete",
+      align: "center",
       className:
         "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
-      render: (row: FAQ) => (
-        <div className="flex w-full items-center justify-center">
-          <DeleteFAQ faqId={row.id} />
-        </div>
-      ),
+      render: (row: FAQ) => <DeleteFAQ faqId={row.id} />,
     },
   ];
 
