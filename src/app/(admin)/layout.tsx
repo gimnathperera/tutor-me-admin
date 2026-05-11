@@ -1,5 +1,6 @@
 "use client";
 
+import AdminAccountStatusGuard from "@/components/auth/AdminAccountStatusGuard";
 import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
@@ -22,6 +23,7 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen xl:flex">
+      <AdminAccountStatusGuard />
       {/* Sidebar and Backdrop */}
       <AppSidebar />
       <Backdrop />
