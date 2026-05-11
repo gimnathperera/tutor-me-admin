@@ -10,6 +10,30 @@ import { DeleteBlog } from "./DeleteBlog";
 import { BlogStatusDialog } from "./StatusChangeBlog";
 import { BlogDetails } from "./ViewDetails";
 
+const BLOG_STATUS_CLASSES: Record<string, string> = {
+  pending:
+    "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200",
+  approved:
+    "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200",
+  rejected:
+    "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200",
+};
+
+function BlogStatusBadge({ status }: { status: string }) {
+  const normalized = status?.toLowerCase() ?? "pending";
+  const className =
+    BLOG_STATUS_CLASSES[normalized] ?? BLOG_STATUS_CLASSES.pending;
+  const label = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${className}`}
+    >
+      {label}
+    </span>
+  );
+}
+
 type BlogAuthor = {
   id?: string | { $oid?: string };
   role?: string;
@@ -31,7 +55,7 @@ export default function BlogsTable() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
-  const { data, isLoading } = useFetchBlogsQuery({
+  const { data, isLoading, refetch } = useFetchBlogsQuery({
     page,
     limit,
     sortBy: "createdAt:desc",
@@ -53,7 +77,8 @@ export default function BlogsTable() {
       key: "title",
       header: "Title",
       className:
-        "truncate overflow-hidden lg:min-w-[300px] min-w-[150px] max-w-[250px] sticky left-0 z-20 bg-white dark:bg-gray-900",
+        "truncate overflow-hidden min-w-[200px] sticky left-0 z-20 bg-white dark:bg-gray-900",
+      bodyClassName: "!max-w-none",
       render: (row: BlogRow) => {
         const safeTitle = getSafeValue(row.title, "No title provided");
         return (
@@ -68,21 +93,11 @@ export default function BlogsTable() {
       },
     },
     {
-      key: "status",
-      header: "Status",
-      className:
-        "truncate min-w-[150px] max-w-[250px] lg:min-w-[300px] overflow-hidden cursor-default",
-      render: (row: BlogRow) => {
-        const safeStatus = getSafeValue(row.status, "No status");
-        return (
-          <span
-            title={`Status: ${safeStatus}`}
-            className={`truncate block ${!row.status ? "text-gray-400 italic" : ""}`}
-          >
-            {safeStatus}
-          </span>
-        );
-      },
+      key: "spacer",
+      header: "",
+      className: "w-full",
+      bodyClassName: "!max-w-none",
+      render: () => null,
     },
     {
       key: "view",
@@ -92,7 +107,7 @@ export default function BlogsTable() {
         </span>
       ),
       className:
-        "lg:min-w-[80px] lg:max-w-[80px] min-w-[80px] max-w-[80px] sticky right-[220px] z-20 bg-white dark:bg-gray-900",
+        "lg:min-w-[80px] lg:max-w-[80px] min-w-[80px] max-w-[80px] sticky right-[270px] z-20 bg-white dark:bg-gray-900",
       render: (row: BlogRow) => {
         const authorId = normalizeMongoId(row.author?.id);
 
@@ -126,17 +141,19 @@ export default function BlogsTable() {
     {
       key: "changeStatus",
       header: (
-        <span className="truncate block w-full" title="Change Status">
-          Change Status
+        <span className="truncate block w-full" title="Status">
+          Status
         </span>
       ),
       className:
-        "lg:min-w-[140px] lg:max-w-[140px] min-w-[140px] max-w-[140px] flex justify-center sticky right-[80px] z-20 bg-white dark:bg-gray-900",
+        "min-w-[190px] max-w-[190px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: BlogRow) => (
-        <div className="flex w-full items-center justify-center">
+        <div className="flex items-center justify-center gap-2">
+          <BlogStatusBadge status={row.status ?? "pending"} />
           <BlogStatusDialog
             id={row.id}
             currentStatus={row.status as "pending" | "approved" | "rejected"}
+            onStatusChange={() => refetch()}
           />
         </div>
       ),
