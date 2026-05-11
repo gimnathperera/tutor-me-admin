@@ -31,6 +31,7 @@ export interface TutorRequestBlock {
     | { id?: string; fullName?: string }
     | Array<{ id?: string; fullName?: string }>;
   preferredTutorType?: string;
+  preferredClassType?: string;
   duration: string;
   frequency: string;
 }
@@ -108,15 +109,14 @@ function TutorBlockItem({
       !tutorBlock.preferredTutorType ||
       tutor.tutorType.some((t) => t.toLowerCase() === (tutorBlock.preferredTutorType ?? "").toLowerCase());
 
-    const hasOnline = tutor.classType.some((ct) => ct.toLowerCase().includes("online"));
-    const hasPhysical = tutor.classType.some((ct) => ct.toLowerCase().includes("physical"));
-    const districtMatch =
+    const isOnlineRequest = tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
+
+    const locationPass =
+      isOnlineRequest ||
       !district ||
-      tutor.preferredLocations.some((loc) => loc.toLowerCase().includes(district.toLowerCase()));
+      tutor.preferredLocations.some((loc) => loc.toLowerCase() === district.toLowerCase());
 
-    const classTypePass = hasOnline || (hasPhysical && districtMatch);
-
-    return mediumMatch && tutorTypeMatch && classTypePass;
+    return mediumMatch && tutorTypeMatch && locationPass;
   });
 
   const noResults = !isLoading && tutors.length === 0;
