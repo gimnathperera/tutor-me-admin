@@ -4,12 +4,12 @@ import Checkbox from "@/components/form/input/Checkbox";
 import InputPassword from "@/components/shared/input-password";
 import InputText from "@/components/shared/input-text";
 import SubmitButton from "@/components/shared/submit-button";
+import { Modal } from "@/components/ui/modal";
 import { useAuthContext } from "@/context";
+import { useModal } from "@/hooks/useModal";
 import { useForgotPasswordMutation } from "@/store/api/splits/auth";
 import { ForgotPasswordRequest } from "@/types/request-types";
 import { getErrorInApiResult } from "@/utils/api";
-import { useModal } from "@/hooks/useModal";
-import { Modal } from "@/components/ui/modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -22,9 +22,13 @@ import { initialFormValues, LoginSchema, loginSchema } from "./schema";
 
 export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
+
   const { login, isAuthError, setIsAuthError, isLoading } = useAuthContext();
+
   const { isOpen, openModal, closeModal } = useModal();
+
   const [sentEmail, setSentEmail] = useState("");
+
   const [forgotPassword, { isLoading: isForgotPasswordLoading }] =
     useForgotPasswordMutation();
 
@@ -56,9 +60,23 @@ export default function SignInForm() {
     }
   }, [isAuthError]);
 
+  const handleTrimLoginField = (field: keyof LoginSchema) => {
+    const value = loginForm.getValues(field);
+
+    loginForm.setValue(field, value.trim(), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
   const onSubmit = (data: LoginSchema) => {
     setIsAuthError(null);
-    login(data);
+
+    login({
+      ...data,
+      email: data.email.trim(),
+      password: data.password.trim(),
+    });
   };
 
   const openForgotPasswordModal = () => {
@@ -74,8 +92,12 @@ export default function SignInForm() {
   };
 
   const handleForgotPasswordSubmit = async (data: ForgotPasswordSchema) => {
-    const payload: ForgotPasswordRequest = { email: data.email };
+    const payload: ForgotPasswordRequest = {
+      email: data.email.trim(),
+    };
+
     const result = await forgotPassword(payload);
+
     const error = getErrorInApiResult(result);
 
     if (error) {
@@ -84,18 +106,23 @@ export default function SignInForm() {
     }
 
     setSentEmail(data.email);
-    toast.success(result.data?.message ?? "Reset link request sent successfully.");
+
+    toast.success(
+      result.data?.message ?? "Reset link request sent successfully.",
+    );
+
     forgotPasswordForm.reset({ email: "" });
   };
 
   return (
-    <div className="flex flex-col flex-1 lg:w-1/2 w-full">
-      <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+    <div className="flex flex-1 flex-col lg:w-1/2 w-full">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center">
         <div>
           <div className="mb-5 sm:mb-8">
-            <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+            <h1 className="text-title-sm sm:text-title-md mb-2 font-semibold text-gray-800 dark:text-white/90">
               Sign In
             </h1>
+
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Enter your email and password to sign in!
             </p>
@@ -104,22 +131,43 @@ export default function SignInForm() {
           <FormProvider {...loginForm}>
             <form onSubmit={loginForm.handleSubmit(onSubmit)}>
               <div className="space-y-6">
-                <InputText
-                  label="Email"
-                  name="email"
-                  placeholder="jhon@xyz.com"
-                  type="email"
-                />
+                <div onBlur={() => handleTrimLoginField("email")}>
+                  <InputText
+                    label="Email"
+                    name="email"
+                    placeholder="jhon@xyz.com"
+                    type="email"
+                    onKeyDown={(e) => {
+                      if (e.key === " ") {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      loginForm.setValue(
+                        "email",
+                        e.target.value.replace(/\s/g, ""),
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        },
+                      );
+                    }}
+                  />
+                </div>
 
-                <InputPassword
-                  label="Password"
-                  name="password"
-                  placeholder="*******"
-                />
+                <div onBlur={() => handleTrimLoginField("password")}>
+                  <InputPassword
+                    label="Password"
+                    name="password"
+                    placeholder="*******"
+                  />
+                </div>
+
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Checkbox checked={isChecked} onChange={setIsChecked} />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
+
+                    <span className="block text-theme-sm font-normal text-gray-700 dark:text-gray-400">
                       Keep me logged in
                     </span>
                   </div>
@@ -154,6 +202,7 @@ export default function SignInForm() {
           <h2 className="text-title-sm font-semibold text-gray-800 dark:text-white/90">
             Forgot Password
           </h2>
+
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Enter your email and we will send a reset link if the account
             exists.
@@ -162,13 +211,32 @@ export default function SignInForm() {
 
         <div className="px-6 py-6">
           <FormProvider {...forgotPasswordForm}>
-            <form onSubmit={forgotPasswordForm.handleSubmit(handleForgotPasswordSubmit)}>
+            <form
+              onSubmit={forgotPasswordForm.handleSubmit(
+                handleForgotPasswordSubmit,
+              )}
+            >
               <div className="space-y-5">
                 <InputText
                   label="Email"
                   name="email"
                   placeholder="jhon@xyz.com"
                   type="email"
+                  onKeyDown={(e) => {
+                    if (e.key === " ") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    forgotPasswordForm.setValue(
+                      "email",
+                      e.target.value.replace(/\s/g, ""),
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      },
+                    );
+                  }}
                 />
 
                 {sentEmail && (
@@ -187,6 +255,7 @@ export default function SignInForm() {
                   >
                     Cancel
                   </button>
+
                   <SubmitButton
                     title="Send Reset Link"
                     type="submit"

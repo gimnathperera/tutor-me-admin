@@ -10,8 +10,14 @@ const getMinimumAdultBirthDate = () => {
   return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
 };
 
+const parseBirthday = (value: string | Date) => {
+  const date = value instanceof Date ? value : new Date(value);
+  return !isNaN(date.getTime()) ? date : null;
+};
+
 export const updateUserSchema = z.object({
   email: z.string().email("Invalid email address").max(100, "Email too long"),
+
   name: z
     .string()
     .trim()
@@ -20,39 +26,70 @@ export const updateUserSchema = z.object({
     .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/, {
       message: "Name can contain letters and spaces only",
     }),
+
   role: z.enum(USER_ROLE_VALUES).optional(),
+
   phoneNumber: z
     .string()
     .trim()
     .min(1, "Phone number is required")
     .regex(/^\d+$/, "Phone number must contain only numbers")
     .length(10, "Phone number must be exactly 10 digits"),
+
   birthday: z
-    .string()
-    .optional()
-    .transform((val) => {
-      if (!val) return "";
-      const date = new Date(val);
-      return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
+    .union([z.string(), z.date()])
+    .refine((val) => val !== "" && val !== null && val !== undefined, {
+      message: "Date of Birth is required",
     })
-    .refine((val) => {
-      if (!val) return true;
-      const birthday = new Date(val);
-      return (
-        !isNaN(birthday.getTime()) && birthday <= getMinimumAdultBirthDate()
-      );
-    }, "User must be at least 18 years old"),
+    .refine(
+      (val) => {
+        const dob = parseBirthday(val);
+        if (!dob) return false;
+
+        const today = new Date();
+        const todayStart = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+        );
+
+        return dob < todayStart;
+      },
+      {
+        message: "Birthday cannot be a future date",
+      },
+    )
+    .refine(
+      (val) => {
+        const dob = parseBirthday(val);
+        if (!dob) return false;
+
+        return dob <= getMinimumAdultBirthDate();
+      },
+      {
+        message: "User must be at least 18 years old",
+      },
+    )
+    .transform((val) => {
+      const dob = parseBirthday(val);
+      return dob ? dob.toISOString().split("T")[0] : "";
+    }),
+
   status: z.enum(USER_STATUS_VALUES).default("pending"),
-  gender: z.enum(USER_GENDER_VALUES).optional(),
-  avatar: z
-    .union([
-      z
-        .string()
-        .url("Profile image is required")
-        .max(255, "Avatar URL too long"),
-      z.literal(""),
-    ])
-    .optional(),
+
+  gender: z.enum(USER_GENDER_VALUES, {
+    message: "Gender is required",
+  }),
+
+  avatar: z.preprocess(
+    (val) => (val === undefined || val === null ? "" : val),
+    z
+      .string()
+      .trim()
+      .min(1, "Profile Picture is required")
+      .url("Invalid profile picture URL")
+      .max(255, "Avatar URL too long"),
+  ),
 });
 
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
