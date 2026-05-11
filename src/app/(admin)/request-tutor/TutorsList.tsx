@@ -348,6 +348,18 @@ export default function RequestForTutorsList() {
     return getSafeValue(grade, "");
   };
 
+  const getGradeId = (grade: unknown): string => {
+    if (grade && typeof grade === "object") {
+      const gradeRecord = grade as { id?: string };
+      const id = gradeRecord.id ?? "";
+      return /^[a-f\d]{24}$/i.test(id) ? id : "";
+    }
+    if (typeof grade === "string" && /^[a-f\d]{24}$/i.test(grade)) {
+      return grade;
+    }
+    return "";
+  };
+
   const columns = useMemo<Column<RequestTutors>[]>(
     () => [
       {
@@ -462,7 +474,7 @@ export default function RequestForTutorsList() {
           <AssignTutorDialog
             row={{
               id: row.id,
-              grade: getGradeDisplayValue(row.grade),
+              grade: getGradeId(row.grade),
               district: getSafeValue(row.city, ""),
               medium: getSafeValue(row.medium, ""),
               tutors: getSafeTutorBlocks(row.tutors).map((t) => ({
@@ -470,6 +482,7 @@ export default function RequestForTutorsList() {
                 subject: t.subject,
                 assignedTutor: t.assignedTutor,
                 preferredTutorType: t.preferredTutorType,
+                preferredClassType: t.preferredClassType,
                 duration: t.duration,
                 frequency: t.frequency,
               })),
