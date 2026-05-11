@@ -255,7 +255,7 @@ export default function UsersTable() {
         "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="flex justify-center  w-full ">
-          <DeleteUser userId={row.id} userStatus={row.status ?? "pending"} />
+          <DeleteUser userId={row.id} userRole={row.role} userStatus={row.status} />
         </div>
       ),
     },

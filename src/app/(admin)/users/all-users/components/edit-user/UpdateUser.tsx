@@ -196,7 +196,7 @@ export function UpdateUser(props: UpdateUserProps) {
           <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin px-6 py-6">
             <div className="grid gap-4">
               <div className="grid gap-3">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Name *</Label>
                 <Input
                   id="name"
                   {...register("name")}
@@ -214,7 +214,7 @@ export function UpdateUser(props: UpdateUserProps) {
                 className="grid cursor-not-allowed gap-3"
                 title={EMAIL_IMMUTABLE_MESSAGE}
               >
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -226,7 +226,7 @@ export function UpdateUser(props: UpdateUserProps) {
               </div>
 
               <div className="grid cursor-not-allowed gap-3">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">Role *</Label>
 
                 <Input
                   id="role"
@@ -242,7 +242,7 @@ export function UpdateUser(props: UpdateUserProps) {
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="phoneNumber">Contact Number</Label>
+                <Label htmlFor="phoneNumber">Contact Number *</Label>
                 <Input
                   id="phoneNumber"
                   placeholder="ex: 0712345678"
@@ -260,7 +260,7 @@ export function UpdateUser(props: UpdateUserProps) {
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="status">Status</Label>
+                <Label htmlFor="status">Status *</Label>
                 <Select
                   value={form.watch("status")}
                   onValueChange={(val) => handleSelect("status", val)}
@@ -279,7 +279,7 @@ export function UpdateUser(props: UpdateUserProps) {
 
               <DatePicker
                 id="birthday"
-                label="Date of Birth"
+                label="Date of Birth *"
                 required
                 value={form.watch("birthday")}
                 onChange={(date) =>
@@ -294,7 +294,7 @@ export function UpdateUser(props: UpdateUserProps) {
               />
 
               <div className="grid gap-3">
-                <Label htmlFor="gender">Gender</Label>
+                <Label htmlFor="gender">Gender *</Label>
                 <Select
                   value={form.watch("gender")}
                   onValueChange={(val) => handleSelect("gender", val)}
@@ -318,7 +318,7 @@ export function UpdateUser(props: UpdateUserProps) {
               </div>
 
               <div className="grid gap-3">
-                <Label htmlFor="avatar">Profile Picture</Label>
+                <Label htmlFor="avatar">Profile Picture *</Label>
                 <FileUploadDropzone
                   imageOnly
                   onUploaded={(url) => {
