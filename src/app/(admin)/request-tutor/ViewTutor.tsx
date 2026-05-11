@@ -354,7 +354,7 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
             </div>
 
             <div className="grid gap-3">
-              <Label>Phone Number</Label>
+              <Label>Contact Number</Label>
               <div className={displayFieldClass}>
                 {getSafeValue(tutor?.phoneNumber)}
               </div>

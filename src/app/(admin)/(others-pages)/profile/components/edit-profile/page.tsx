@@ -304,7 +304,7 @@ export default function UpdateUser() {
 
               <div className="flex flex-col">
                 <Label htmlFor="phoneNumber" className="mb-3">
-                  Phone Number *
+                  Contact Number *
                 </Label>
                 <Input
                   id="phoneNumber"

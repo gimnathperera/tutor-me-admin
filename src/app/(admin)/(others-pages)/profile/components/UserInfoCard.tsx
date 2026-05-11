@@ -45,7 +45,7 @@ export default function UserInfoCard() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
           <InfoRow label="Name" value={user.name} />
           <InfoRow label="Email address" value={user.email} />
-          <InfoRow label="Phone number" value={user.phoneNumber} />
+          <InfoRow label="Contact Number" value={user.phoneNumber} />
           <InfoRow
             label="Date of Birth"
             value={
