@@ -9,6 +9,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  getFaqCategoryLabel,
+  type FaqCategory,
+} from "@/lib/faq-categories";
 import { cn } from "@/lib/utils";
 import { Copy, Eye } from "lucide-react";
 import { useState } from "react";
@@ -16,6 +20,7 @@ import { toast } from "react-hot-toast";
 
 interface FAQDetailsProps {
   id: string | number;
+  category?: FaqCategory;
   question: string;
   answer: string;
   createdAt: string;
@@ -23,6 +28,7 @@ interface FAQDetailsProps {
 
 export function FAQDetails({
   id,
+  category,
   question,
   answer,
   createdAt,
@@ -79,6 +85,12 @@ export function FAQDetails({
                 hour: "2-digit",
                 minute: "2-digit",
               })}
+            </div>
+          </div>
+          <div className="grid gap-3">
+            <Label>Category</Label>
+            <div className={displayFieldClass}>
+              {getFaqCategoryLabel(category)}
             </div>
           </div>
           <div className="grid gap-3">
