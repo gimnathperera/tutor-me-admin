@@ -835,6 +835,11 @@ export function EditTutor({ id }: EditTutorProps) {
                   }
                   searchable
                 />
+                {formState.errors.preferredLocations && (
+                  <p className="text-sm text-red-500">
+                    {formState.errors.preferredLocations.message}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
