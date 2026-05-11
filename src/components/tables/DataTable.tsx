@@ -115,16 +115,14 @@ export default function DataTable<T extends { id: string | number }>({
 
   const rowsToRender = isLoading
     ? Array.from({ length: limit }).map((_, currentPage) => ({
-      id: `skeleton-${currentPage}`,
-    }))
+        id: `skeleton-${currentPage}`,
+      }))
     : data;
 
   if (!isLoading && (!data || data.length === 0)) {
     return (
       <div className="flex justify-center items-center h-48 rounded-xl border border-gray-200 bg-white dark:border-white/5 dark:bg-white/3 dark:text-white/90">
-        <p className="text-gray-500 dark:text-white/70">
-          {emptyMessage}
-        </p>
+        <p className="text-gray-500 dark:text-white/70">{emptyMessage}</p>
       </div>
     );
   }

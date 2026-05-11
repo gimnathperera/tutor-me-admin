@@ -99,7 +99,9 @@ function DatePickerHeader({
   const selectedMonth = date.getMonth();
   const selectedYear = date.getFullYear();
   const maxYear = maxDate ? maxDate.getFullYear() : undefined;
-  const filteredYears = maxYear ? YEARS.filter((y) => Number(y) <= maxYear) : YEARS;
+  const filteredYears = maxYear
+    ? YEARS.filter((y) => Number(y) <= maxYear)
+    : YEARS;
 
   const closeMenu = () => setOpenMenu(null);
 

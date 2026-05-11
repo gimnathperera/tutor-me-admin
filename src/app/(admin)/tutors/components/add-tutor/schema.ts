@@ -9,113 +9,126 @@ import {
 } from "@/configs/app-constants";
 import { z } from "zod";
 
-export const addTutorSchema = z.object({
-  fullName: z
-    .string()
-    .min(1, "Full Name is required")
-    .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
+export const addTutorSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(1, "Full Name is required")
+      .regex(/^[A-Za-z\s]+$/, "Full Name can contain letters and spaces only"),
 
-  contactNumber: z
-    .string()
-    .trim()
-    .min(1, "Contact Number is required")
-    .regex(/^[0-9]+$/, "Contact number must contain only numbers")
-    .length(10, "Contact number must be exactly 10 digits"),
+    contactNumber: z
+      .string()
+      .trim()
+      .min(1, "Contact Number is required")
+      .regex(/^[0-9]+$/, "Contact number must contain only numbers")
+      .length(10, "Contact number must be exactly 10 digits"),
 
-  email: z
-    .string()
-    .trim()
-    .min(1, "Email is required")
-    .email("Email must be valid"),
+    email: z
+      .string()
+      .trim()
+      .min(1, "Email is required")
+      .email("Email must be valid"),
 
-  dateOfBirth: z
-    .string()
-    .trim()
-    .min(1, "Date of Birth is required")
-    .pipe(
-      z
-        .string()
-        .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
-    ),
+    dateOfBirth: z
+      .string()
+      .trim()
+      .min(1, "Date of Birth is required")
+      .pipe(
+        z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD"),
+      ),
 
-  gender: z.enum(TUTOR_GENDER_VALUES, { message: "Gender is required" }),
-  age: z
-    .number()
-    .int()
-    .min(18, "Must be at least 18 years old")
-    .max(80, "Age must be below 80"),
+    gender: z.enum(TUTOR_GENDER_VALUES, { message: "Gender is required" }),
+    age: z
+      .number()
+      .int()
+      .min(18, "Must be at least 18 years old")
+      .max(80, "Age must be below 80"),
 
-  tutorMediums: z
-    .array(z.string())
-    .min(1, "Please select at least one medium."),
+    tutorMediums: z
+      .array(z.string())
+      .min(1, "Please select at least one medium."),
 
-  grades: z.array(z.string()).min(1, "Select at least one grade"),
-  subjects: z.array(z.string()).min(1, "Select at least one subject"),
-  nationality: z.enum(NATIONALITY_VALUES, { message: "Nationality is required" }),
-  race: z.enum(RACE_VALUES, { message: "Race is required" }),
+    grades: z.array(z.string()).min(1, "Select at least one grade"),
+    subjects: z.array(z.string()).min(1, "Select at least one subject"),
+    nationality: z.enum(NATIONALITY_VALUES, {
+      message: "Nationality is required",
+    }),
+    race: z.enum(RACE_VALUES, { message: "Race is required" }),
 
-  classType: z
-    .array(z.enum(CLASS_TYPE_VALUES))
-    .min(1, "Select at least one class type"),
+    classType: z
+      .array(z.enum(CLASS_TYPE_VALUES))
+      .min(1, "Select at least one class type"),
 
-  preferredLocations: z
-    .array(z.enum(PREFERRED_LOCATION_VALUES))
-    .min(1, "Select at least one preferred location"),
+    preferredLocations: z
+      .array(z.enum(PREFERRED_LOCATION_VALUES))
+      .min(1, "Select at least one preferred location"),
 
-  tutorType: z
-    .array(z.enum(TUTOR_TYPE_VALUES))
-    .min(1, "Select at least one tutor type"),
+    tutorType: z
+      .array(z.enum(TUTOR_TYPE_VALUES))
+      .min(1, "Select at least one tutor type"),
 
-  yearsExperience: z.number().int().min(1, "Years of Experience are required").max(50),
+    yearsExperience: z
+      .number()
+      .int()
+      .min(1, "Years of Experience are required")
+      .max(50),
 
-  highestEducation: z.enum(EDUCATION_VALUES_ADD, { message: "Highest Education is required" }),
+    highestEducation: z.enum(EDUCATION_VALUES_ADD, {
+      message: "Highest Education is required",
+    }),
 
-  academicDetails: z.string().min(1, "Academic Details are required").max(1000),
-  teachingSummary: z.string().min(1, "Teaching Summary is required").max(750),
-  studentResults: z.string().min(1, "Student Results are required").max(750),
-  sellingPoints: z.string().min(1, "Selling Points are required").max(750),
+    academicDetails: z
+      .string()
+      .min(1, "Academic Details are required")
+      .max(1000),
+    teachingSummary: z.string().min(1, "Teaching Summary is required").max(750),
+    studentResults: z.string().min(1, "Student Results are required").max(750),
+    sellingPoints: z.string().min(1, "Selling Points are required").max(750),
 
-  certificatesAndQualifications: z
-    .array(
-      z.object({
-        id: z.string().optional(),
-        type: z.string().min(1, "Certificate type is required"),
-        url: z.string().url("Must be a valid URL"),
-      }),
-    )
-    .min(1, "At least one certificate or qualification is required"),
+    certificatesAndQualifications: z
+      .array(
+        z.object({
+          id: z.string().optional(),
+          type: z.string().min(1, "Certificate type is required"),
+          url: z.string().url("Must be a valid URL"),
+        }),
+      )
+      .min(1, "At least one certificate or qualification is required"),
 
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(12, "Password must be at most 12 characters")
-    .regex(/^\S+$/, "Password must not contain spaces")
-    .regex(
-      /(?=.*[A-Za-z])(?=.*\d).+/,
-      "Password must contain at least one letter and one number",
-    ),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(12, "Password must be at most 12 characters")
+      .regex(/^\S+$/, "Password must not contain spaces")
+      .regex(
+        /(?=.*[A-Za-z])(?=.*\d).+/,
+        "Password must contain at least one letter and one number",
+      ),
 
-  confirmPassword: z
-    .string()
-    .min(1, "Please confirm your password")
-    .regex(/^\S+$/, "Confirm Password must not contain spaces"),
+    confirmPassword: z
+      .string()
+      .min(1, "Please confirm your password")
+      .regex(/^\S+$/, "Confirm Password must not contain spaces"),
 
-  agreeTerms: z
-    .boolean()
-    .refine((val) => val === true, "You must agree to Terms and Conditions"),
+    agreeTerms: z
+      .boolean()
+      .refine((val) => val === true, "You must agree to Terms and Conditions"),
 
-  agreeAssignmentInfo: z
-    .boolean()
-    .refine((val) => val === true, "You must agree to Assignment Info"),
-}).superRefine((data, ctx) => {
-  if (data.confirmPassword !== data.password) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Passwords do not match",
-      path: ["confirmPassword"],
-    });
-  }
-});
+    agreeAssignmentInfo: z
+      .boolean()
+      .refine((val) => val === true, "You must agree to Assignment Info"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.confirmPassword !== data.password) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+      });
+    }
+  });
 
 export type AddTutorFormValues = z.infer<typeof addTutorSchema>;
 

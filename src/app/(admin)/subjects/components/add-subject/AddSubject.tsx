@@ -32,11 +32,10 @@ import {
 export function AddSubject() {
   const [open, setOpen] = useState(false);
   const [createSubject, { isLoading }] = useCreateSubjectMutation();
-  const { data: subjectsData } =
-    useFetchSubjectsQuery({
-      page: 1,
-      limit: 100,
-    });
+  const { data: subjectsData } = useFetchSubjectsQuery({
+    page: 1,
+    limit: 100,
+  });
   const existingTitles =
     subjectsData?.results.map((s) => s.title.toLowerCase()) || [];
 

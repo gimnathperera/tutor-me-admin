@@ -302,7 +302,11 @@ export function AddTutor() {
 
     latestEmailRef.current = normalizedEmail;
 
-    if (!open || !normalizedEmail || !EMAIL_FORMAT_PATTERN.test(normalizedEmail)) {
+    if (
+      !open ||
+      !normalizedEmail ||
+      !EMAIL_FORMAT_PATTERN.test(normalizedEmail)
+    ) {
       setEmailAvailability(null);
       return;
     }
@@ -328,13 +332,7 @@ export function AddTutor() {
     }, EMAIL_CHECK_DELAY_MS);
 
     return () => window.clearTimeout(timeoutId);
-  }, [
-    checkTutorEmailAvailability,
-    clearErrors,
-    email,
-    open,
-    setError,
-  ]);
+  }, [checkTutorEmailAvailability, clearErrors, email, open, setError]);
 
   useEffect(() => {
     if (!dob) return;
@@ -379,7 +377,8 @@ export function AddTutor() {
       setEmailAvailability("unavailable");
       setError("email", {
         type: "server",
-        message: emailAvailabilityResult.data.message || DUPLICATE_EMAIL_MESSAGE,
+        message:
+          emailAvailabilityResult.data.message || DUPLICATE_EMAIL_MESSAGE,
       });
       setFocus("email");
       return;
@@ -717,9 +716,7 @@ export function AddTutor() {
                     <button
                       type="button"
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition-colors hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30 dark:text-gray-400 dark:hover:text-gray-200"
-                      onClick={() =>
-                        setShowConfirmPassword((value) => !value)
-                      }
+                      onClick={() => setShowConfirmPassword((value) => !value)}
                       aria-label={
                         showConfirmPassword
                           ? "Hide confirm password"

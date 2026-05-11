@@ -110,6 +110,7 @@ export default function SubjectsTable() {
     {
       key: "view",
       header: <div className="w-full text-center">View</div>,
+      align: "center",
       render: (row: Subject) => (
         <div className="flex justify-center">
           <SubjectDetails
@@ -122,6 +123,7 @@ export default function SubjectsTable() {
     {
       key: "edit",
       header: <div className="w-full text-center">Edit</div>,
+      align: "center",
       render: (row: Subject) => (
         <div className="flex justify-center">
           <UpdateSubject
@@ -135,6 +137,7 @@ export default function SubjectsTable() {
     {
       key: "delete",
       header: <div className="w-full text-center">Delete</div>,
+      align: "center",
       render: (row: Subject) => (
         <div className="flex justify-center">
           <DeleteSubject subjectId={row.id} />

@@ -55,7 +55,8 @@ export default function InquiryTable() {
     {
       key: "id",
       header: "ID",
-      className: "min-w-[210px] max-w-[210px] sticky left-0 z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[210px] max-w-[210px] sticky left-0 z-20 bg-white dark:bg-gray-900",
       bodyClassName: "text-[0.75rem] font-mono",
       render: (row: { id: string }) => (
         <span
@@ -128,7 +129,8 @@ export default function InquiryTable() {
     {
       key: "delete",
       header: <div className="text-center w-full">Delete</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-[80px] z-20 bg-white dark:bg-gray-900",
       render: (row: { id: string }) => (
         <div className="w-full flex justify-center items-center">
           <DeleteInquiry inquiryId={row.id} />
@@ -138,7 +140,8 @@ export default function InquiryTable() {
     {
       key: "view",
       header: <div className="text-center w-full">View</div>,
-      className: "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
+      className:
+        "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: {
         id: string;
         createdAt: string;
