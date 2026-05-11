@@ -976,6 +976,7 @@ export function AddTutor() {
                     setValue(
                       "highestEducation",
                       val as AddTutorFormValues["highestEducation"],
+                      { shouldValidate: true },
                     )
                   }
                   options={[...EDUCATION_OPTIONS_ADD]}
