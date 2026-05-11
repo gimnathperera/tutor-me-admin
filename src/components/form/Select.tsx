@@ -75,7 +75,7 @@ const Select: React.FC<SelectProps> = ({
           selectedOption ? "text-gray-800 dark:text-white/90" : "text-gray-400 dark:text-white/30",
         )}
         data-size={size}
-        data-placeholder={!selectedOption}
+        data-placeholder={!selectedOption ? true : undefined}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >

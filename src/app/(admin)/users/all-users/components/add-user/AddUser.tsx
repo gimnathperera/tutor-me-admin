@@ -164,7 +164,7 @@ export default function AddUser() {
             </div>
 
             <div className="grid gap-3">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Label htmlFor="phoneNumber">Contact Number</Label>
               <Input
                 id="phoneNumber"
                 type="text"

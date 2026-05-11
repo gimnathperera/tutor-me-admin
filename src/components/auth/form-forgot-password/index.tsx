@@ -15,6 +15,7 @@ import { ForgotPasswordSchema, forgotPasswordSchema } from "./schema";
 const FormForgotPassword = () => {
   const [sentEmail, setSentEmail] = useState("");
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+
   const forgotPasswordForm = useForm<ForgotPasswordSchema>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
@@ -24,7 +25,12 @@ const FormForgotPassword = () => {
   });
 
   const onSubmit = async (data: ForgotPasswordSchema) => {
-    const payload: ForgotPasswordRequest = { email: data.email };
+    const cleanedEmail = data.email.trim().replace(/\s/g, "");
+
+    const payload: ForgotPasswordRequest = {
+      email: cleanedEmail,
+    };
+
     const result = await forgotPassword(payload);
     const error = getErrorInApiResult(result);
 
@@ -33,8 +39,11 @@ const FormForgotPassword = () => {
       return;
     }
 
-    setSentEmail(data.email);
-    toast.success(result.data?.message ?? "Reset link request sent successfully.");
+    setSentEmail(cleanedEmail);
+    toast.success(
+      result.data?.message ?? "Reset link request sent successfully.",
+    );
+
     forgotPasswordForm.reset({ email: "" });
   };
 
@@ -44,6 +53,7 @@ const FormForgotPassword = () => {
         <h1 className="mb-2 text-title-sm font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
           Forgot Password
         </h1>
+
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Enter your email and we will prepare a password reset link for your
           account.
@@ -58,16 +68,33 @@ const FormForgotPassword = () => {
               name="email"
               placeholder="jhon@xyz.com"
               type="email"
+              onKeyDown={(e) => {
+                if (e.key === " ") {
+                  e.preventDefault();
+                }
+              }}
+              onChange={(e) => {
+                forgotPasswordForm.setValue(
+                  "email",
+                  e.target.value.replace(/\s/g, ""),
+                  {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  },
+                );
+              }}
             />
           </div>
 
           {sentEmail && (
             <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-100">
-              If an account exists for <span className="font-medium">{sentEmail}</span>, a reset link will be sent to that inbox.
+              If an account exists for{" "}
+              <span className="font-medium">{sentEmail}</span>, a reset link
+              will be sent to that inbox.
             </div>
           )}
 
-          <div className="space-y-3 mt-8">
+          <div className="mt-8 space-y-3">
             <SubmitButton
               title="Send Reset Link"
               type="submit"

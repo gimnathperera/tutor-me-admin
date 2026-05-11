@@ -348,7 +348,10 @@ export type TutorEmailAvailabilityResponse = {
 export type RequestTutorTutor = {
   _id: string;
   subject: string;
+  classType?: string | string[];
+  preferredClassType?: string | string[];
   preferredTutorType: string;
+  preferredClassType?: string;
   duration: string;
   frequency: string;
   assignedTutor: string | null;

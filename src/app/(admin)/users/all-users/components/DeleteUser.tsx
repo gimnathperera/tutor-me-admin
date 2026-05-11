@@ -140,24 +140,28 @@ export function DeleteUser({
           title={getDisabledTitle()}
         >
           <Trash2
-            className={`cursor-pointer ${
+            className={`${
               canDelete
-                ? "text-red-500 hover:text-red-600"
-                : "text-gray-400 cursor-not-allowed"
+                ? "cursor-pointer text-red-500 hover:text-red-600"
+                : "cursor-not-allowed text-gray-400"
             }`}
           />
         </button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-white z-50 dark:bg-gray-800 dark:text-white/90">
+
+      <AlertDialogContent className="z-50 bg-white dark:bg-gray-800 dark:text-white/90">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete this
             {` ${accountType} account.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
+
           <AlertDialogAction
             onClick={handleDelete}
             disabled={isDeleting || !canDelete}

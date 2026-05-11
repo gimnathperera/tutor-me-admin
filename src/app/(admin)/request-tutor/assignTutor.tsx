@@ -25,12 +25,15 @@ import toast from "react-hot-toast";
 export interface TutorRequestBlock {
   _id: string;
   subject: string;
+  classType?: string | string[];
+  preferredClassType?: string | string[];
   assignedTutor?:
     | string
     | null
     | { id?: string; fullName?: string }
     | Array<{ id?: string; fullName?: string }>;
   preferredTutorType?: string;
+  preferredClassType?: string;
   duration: string;
   frequency: string;
 }
@@ -64,6 +67,24 @@ const getAssignedTutorId = (assignedTutor: TutorRequestBlock["assignedTutor"]) =
   }
 
   return assignedTutor.id ?? "";
+};
+
+const getSafeValue = (value: unknown, fallback = "N/A") => {
+  if (value === undefined || value === null) {
+    return fallback;
+  }
+
+  const stringValue = String(value).trim();
+  return stringValue === "" ? fallback : stringValue;
+};
+
+const getClassTypeDisplayValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.map((item) => getSafeValue(item, "")).filter(Boolean);
+  }
+
+  const classType = getSafeValue(value, "");
+  return classType ? [classType] : [];
 };
 
 function TutorBlockItem({
@@ -108,15 +129,14 @@ function TutorBlockItem({
       !tutorBlock.preferredTutorType ||
       tutor.tutorType.some((t) => t.toLowerCase() === (tutorBlock.preferredTutorType ?? "").toLowerCase());
 
-    const hasOnline = tutor.classType.some((ct) => ct.toLowerCase().includes("online"));
-    const hasPhysical = tutor.classType.some((ct) => ct.toLowerCase().includes("physical"));
-    const districtMatch =
+    const isOnlineRequest = tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
+
+    const locationPass =
+      isOnlineRequest ||
       !district ||
-      tutor.preferredLocations.some((loc) => loc.toLowerCase().includes(district.toLowerCase()));
+      tutor.preferredLocations.some((loc) => loc.toLowerCase() === district.toLowerCase());
 
-    const classTypePass = hasOnline || (hasPhysical && districtMatch);
-
-    return mediumMatch && tutorTypeMatch && classTypePass;
+    return mediumMatch && tutorTypeMatch && locationPass;
   });
 
   const noResults = !isLoading && tutors.length === 0;
@@ -128,6 +148,9 @@ function TutorBlockItem({
   const selectedTutorName = tutors.find(
     (t) => t.id === selectedTutorId
   )?.fullName;
+  const classTypeLabels = getClassTypeDisplayValue(
+    tutorBlock.classType ?? tutorBlock.preferredClassType,
+  );
 
   return (
     <div key={tutorBlock._id} className="border rounded-md p-4 space-y-2">
@@ -147,6 +170,18 @@ function TutorBlockItem({
             </span>
           </div>
         )}
+        <div>
+          Class Type:{" "}
+          {classTypeLabels.length ? (
+            <span className="font-medium text-gray-800 dark:text-white">
+              {classTypeLabels.join(", ")}
+            </span>
+          ) : (
+            <span className="font-medium text-gray-800 dark:text-white">
+              N/A
+            </span>
+          )}
+        </div>
         <div>
           Duration:{" "}
           <span className="font-medium text-gray-800 dark:text-white">

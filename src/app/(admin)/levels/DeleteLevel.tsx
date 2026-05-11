@@ -55,7 +55,7 @@ export function DeleteLevel({ levelId }: DeleteLevelProps) {
             disabled={isLoading}
             className="bg-red-500 text-white"
           >
-            {isLoading ? "Deleting..." : "Continue"}
+            {isLoading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
