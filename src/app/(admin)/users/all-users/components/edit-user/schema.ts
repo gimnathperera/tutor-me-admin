@@ -80,9 +80,6 @@ export const updateUserSchema = z.object({
         !isNaN(birthday.getTime()) && birthday <= getMinimumAdultBirthDate()
       );
     }, "User must be at least 18 years old"),
-      const dob = parseBirthday(val);
-      return dob ? dob.toISOString().split("T")[0] : "";
-    }),
 
   status: z.enum(USER_STATUS_VALUES).default("pending"),
 
