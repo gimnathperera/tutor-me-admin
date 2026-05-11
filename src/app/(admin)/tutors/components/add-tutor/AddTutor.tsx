@@ -462,8 +462,12 @@ export function AddTutor() {
       }
     },
     onBlur: (event) => {
+      const isServerEmailError =
+        (formState.errors.email as { type?: string } | undefined)?.type ===
+        "server";
+
       setValue("email", removeWhitespace(event.target.value).toLowerCase(), {
-        shouldValidate: true,
+        shouldValidate: !isServerEmailError,
       });
     },
   });
@@ -616,7 +620,10 @@ export function AddTutor() {
                     placeholder="e.g johndoe@gmail.com"
                     autoComplete="email"
                     className={`pr-10 ${
-                      formState.errors.email ? "border-red-500" : ""
+                      formState.errors.email ||
+                      emailAvailability === "unavailable"
+                        ? "border-red-500"
+                        : ""
                     }`}
                     {...emailRegister}
                   />
@@ -640,6 +647,10 @@ export function AddTutor() {
                 {formState.errors.email ? (
                   <p className="min-h-4 text-sm leading-4 text-red-500">
                     {formState.errors.email.message}
+                  </p>
+                ) : emailAvailability === "unavailable" ? (
+                  <p className="min-h-4 text-sm leading-4 text-red-500">
+                    {DUPLICATE_EMAIL_MESSAGE}
                   </p>
                 ) : isCheckingEmail ? (
                   <p className="min-h-4 text-sm leading-4 text-gray-500">
