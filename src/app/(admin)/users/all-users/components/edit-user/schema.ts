@@ -24,30 +24,30 @@ export const updateUserSchema = z.object({
   phoneNumber: z.string().regex(/^\+?[0-9]{1,10}$/, "Phone number is required"),
   birthday: z
     .string()
-    .optional()
+    .trim()
+    .min(1, "Date of Birth is required")
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date of Birth must be in YYYY-MM-DD")
     .transform((val) => {
-      if (!val) return "";
       const date = new Date(val);
       return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
     })
     .refine((val) => {
-      if (!val) return true;
       const birthday = new Date(val);
       return (
         !isNaN(birthday.getTime()) && birthday <= getMinimumAdultBirthDate()
       );
     }, "User must be at least 18 years old"),
   status: z.enum(USER_STATUS_VALUES).default("pending"),
-  gender: z.enum(USER_GENDER_VALUES).optional(),
-  avatar: z
-    .union([
-      z
-        .string()
-        .url("Profile image is required")
-        .max(255, "Avatar URL too long"),
-      z.literal(""),
-    ])
-    .optional(),
+  gender: z.enum(USER_GENDER_VALUES, { message: "Gender is required" }),
+  avatar: z.preprocess(
+    (val) => val ?? "",
+    z
+      .string()
+      .trim()
+      .min(1, "Profile Picture is required")
+      .url("Profile Picture must be a valid URL")
+      .max(255, "Avatar URL too long"),
+  ),
 });
 
 export type UpdateUserSchema = z.infer<typeof updateUserSchema>;
@@ -59,6 +59,6 @@ export const initialFormValues: UpdateUserSchema = {
   phoneNumber: "",
   birthday: "",
   status: "pending",
-  gender: "male",
+  gender: "" as UpdateUserSchema["gender"],
   avatar: "",
 };
