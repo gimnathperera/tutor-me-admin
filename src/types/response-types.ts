@@ -346,6 +346,7 @@ export type RequestTutorTutor = {
   _id: string;
   subject: string;
   preferredTutorType: string;
+  preferredClassType?: string;
   duration: string;
   frequency: string;
   assignedTutor: string | null;
