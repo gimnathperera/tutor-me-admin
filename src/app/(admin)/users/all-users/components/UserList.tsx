@@ -23,6 +23,11 @@ import { UserDetails } from "./ViewDetails";
 
 interface User {
   id: string;
+  tutorId?: string;
+  tutor?: {
+    id?: string;
+    _id?: string;
+  };
   name?: string;
   role?: "admin" | "user" | "tutor";
   status?: "pending" | "approved" | "rejected" | "suspended";
@@ -255,7 +260,12 @@ export default function UsersTable() {
         "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
       render: (row: User) => (
         <div className="flex justify-center  w-full ">
-          <DeleteUser userId={row.id} userRole={row.role} userStatus={row.status} />
+          <DeleteUser
+            userId={row.id}
+            tutorId={row.tutorId ?? row.tutor?.id ?? row.tutor?._id}
+            userEmail={row.email}
+            userRole={row.role}
+          />
         </div>
       ),
     },

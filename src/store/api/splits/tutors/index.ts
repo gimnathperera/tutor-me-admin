@@ -115,6 +115,7 @@ export const TutorsApi = baseApi.injectEndpoints({
 
 export const {
   useFetchTutorsQuery,
+  useLazyFetchTutorsQuery,
   useFetchTutorByIdQuery,
   useLazyFetchTutorByIdQuery,
   useLazyGetTutorEmailAvailabilityQuery,
