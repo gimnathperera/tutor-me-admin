@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable from "@/components/tables/DataTable";
+import DataTable, { type Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
@@ -66,7 +66,7 @@ export default function SubjectsTable() {
   const totalResults = filteredSubjects.length;
   const totalPages = Math.ceil(totalResults / limit);
 
-  const columns = [
+  const columns: Column<Subject>[] = [
     {
       key: "title",
       header: "Title",
