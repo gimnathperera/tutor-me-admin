@@ -326,7 +326,7 @@ export default function UpdateUser() {
               </div>
               <div className="flex flex-col">
                 <Label htmlFor="birthday" className="mb-3">
-                  Birthday *
+                  Date of Birth *
                 </Label>
                 <DatePicker
                   value={watch("birthday")}
@@ -339,6 +339,13 @@ export default function UpdateUser() {
                   placeholder="DD/MM/YYYY"
                   label=""
                   required
+                  maxDate={
+                    new Date(
+                      new Date().getFullYear() - 18,
+                      new Date().getMonth(),
+                      new Date().getDate(),
+                    )
+                  }
                 />
               </div>
             </div>

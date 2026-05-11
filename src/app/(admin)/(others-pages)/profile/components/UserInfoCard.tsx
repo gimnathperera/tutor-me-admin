@@ -47,7 +47,7 @@ export default function UserInfoCard() {
           <InfoRow label="Email address" value={user.email} />
           <InfoRow label="Phone number" value={user.phoneNumber} />
           <InfoRow
-            label="Birthday"
+            label="Date of Birth"
             value={
               user.birthday
                 ? new Date(user.birthday).toLocaleString("en-US", {
