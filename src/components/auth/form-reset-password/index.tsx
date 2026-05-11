@@ -101,7 +101,7 @@ export default function ResetPasswordForm({ token }: Props) {
                 <InputPassword
                   label="Confirm Password"
                   name="confirmPassword"
-                  placeholder="Re-enter new password"
+                  placeholder="Confirm new password"
                 />
 
                 {successMessage && (

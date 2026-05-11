@@ -8,24 +8,32 @@ import {
 } from "@/configs/password";
 import { z } from "zod";
 
+const PASSWORD_NO_SPACES_MSG = "Password cannot contain spaces";
+
+const noSpaces = (value: string) => !/\s/.test(value);
+
 export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .trim()
       .nonempty("Password is required.")
       .min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT })
       .max(PASSWORD_MAX, { message: PASSWORD_TOO_LONG })
+      .refine(noSpaces, {
+        message: PASSWORD_NO_SPACES_MSG,
+      })
       .regex(PASSWORD_LETTER_NUMBER_REGEX, {
         message: PASSWORD_LETTER_NUMBER_MSG,
       }),
 
     confirmPassword: z
       .string()
-      .trim()
       .nonempty("Confirm Password is required.")
       .min(PASSWORD_MIN, { message: PASSWORD_TOO_SHORT })
       .max(PASSWORD_MAX, { message: PASSWORD_TOO_LONG })
+      .refine(noSpaces, {
+        message: "Confirm Password cannot contain spaces",
+      })
       .regex(PASSWORD_LETTER_NUMBER_REGEX, {
         message: PASSWORD_LETTER_NUMBER_MSG,
       }),
