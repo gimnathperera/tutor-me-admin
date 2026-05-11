@@ -175,6 +175,15 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
     return isFetchingSubjects ? "Loading subject..." : "Unknown subject";
   };
 
+  const getClassTypeDisplayValue = (value: unknown) => {
+    if (Array.isArray(value)) {
+      return value.map((item) => getSafeValue(item, "")).filter(Boolean);
+    }
+
+    const classType = getSafeValue(value, "");
+    return classType ? [classType] : [];
+  };
+
   const handleGenerateTutorMatchReport = async () => {
     try {
       const response = await generateTutorMatchReport({
@@ -277,6 +286,9 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
                     const assignedTutorLabel = getAssignedTutorLabel(
                       t.assignedTutor,
                     );
+                    const classTypeLabels = getClassTypeDisplayValue(
+                      t.classType ?? t.preferredClassType,
+                    );
 
                     return (
                       <div
@@ -309,6 +321,14 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
                             </strong>
                           </div>
                         )}
+                        <div>
+                          Class Type:{" "}
+                          {classTypeLabels.length ? (
+                            <strong>{classTypeLabels.join(", ")}</strong>
+                          ) : (
+                            <strong>N/A</strong>
+                          )}
+                        </div>
                         <div>
                           Duration: <strong>{getSafeValue(t.duration)}</strong>
                         </div>

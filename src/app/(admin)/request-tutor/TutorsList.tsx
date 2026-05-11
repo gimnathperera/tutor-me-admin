@@ -469,6 +469,8 @@ export default function RequestForTutorsList() {
                 _id: t._id,
                 subject: t.subject,
                 assignedTutor: t.assignedTutor,
+                classType: t.classType,
+                preferredClassType: t.preferredClassType,
                 preferredTutorType: t.preferredTutorType,
                 duration: t.duration,
                 frequency: t.frequency,

@@ -25,6 +25,8 @@ import toast from "react-hot-toast";
 export interface TutorRequestBlock {
   _id: string;
   subject: string;
+  classType?: string | string[];
+  preferredClassType?: string | string[];
   assignedTutor?:
     | string
     | null
@@ -64,6 +66,24 @@ const getAssignedTutorId = (assignedTutor: TutorRequestBlock["assignedTutor"]) =
   }
 
   return assignedTutor.id ?? "";
+};
+
+const getSafeValue = (value: unknown, fallback = "N/A") => {
+  if (value === undefined || value === null) {
+    return fallback;
+  }
+
+  const stringValue = String(value).trim();
+  return stringValue === "" ? fallback : stringValue;
+};
+
+const getClassTypeDisplayValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.map((item) => getSafeValue(item, "")).filter(Boolean);
+  }
+
+  const classType = getSafeValue(value, "");
+  return classType ? [classType] : [];
 };
 
 function TutorBlockItem({
@@ -128,6 +148,9 @@ function TutorBlockItem({
   const selectedTutorName = tutors.find(
     (t) => t.id === selectedTutorId
   )?.fullName;
+  const classTypeLabels = getClassTypeDisplayValue(
+    tutorBlock.classType ?? tutorBlock.preferredClassType,
+  );
 
   return (
     <div key={tutorBlock._id} className="border rounded-md p-4 space-y-2">
@@ -147,6 +170,18 @@ function TutorBlockItem({
             </span>
           </div>
         )}
+        <div>
+          Class Type:{" "}
+          {classTypeLabels.length ? (
+            <span className="font-medium text-gray-800 dark:text-white">
+              {classTypeLabels.join(", ")}
+            </span>
+          ) : (
+            <span className="font-medium text-gray-800 dark:text-white">
+              N/A
+            </span>
+          )}
+        </div>
         <div>
           Duration:{" "}
           <span className="font-medium text-gray-800 dark:text-white">
