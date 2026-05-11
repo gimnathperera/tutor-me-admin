@@ -231,9 +231,14 @@ export default function UpdateUser() {
 
             <div className="grid gap-3">
               <Label htmlFor="email">Email *</Label>
-              <div className="w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800">
-                {user.email}
-              </div>
+              <Input
+                id="email"
+                type="email"
+                value={user.email || ""}
+                className="cursor-not-allowed"
+                disabled
+                readOnly
+              />
             </div>
 
             <div className="grid gap-3">
