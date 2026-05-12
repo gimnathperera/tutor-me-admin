@@ -38,7 +38,7 @@ import {
 } from "./match-report";
 import { ViewTutorRequests } from "./ViewTutor";
 
-type RequestTutorStatusFilter = "all" | "Pending" | "Rejected";
+type RequestTutorStatusFilter = "all" | "Pending" | "Rejected" | "Assiged" | "Assigned";
 
 type RequestTutorFilters = {
   status: RequestTutorStatusFilter;
@@ -71,6 +71,7 @@ const REQUEST_TUTOR_STATUS_OPTIONS: Array<{
   { value: "all", label: "All statuses" },
   { value: "Pending", label: "Pending" },
   { value: "Rejected", label: "Rejected" },
+  { value: "Assiged", label: "Assigned" },
 ];
 
 const REQUEST_TUTOR_STATUS_CLASSES: Record<string, string> = {
@@ -78,10 +79,14 @@ const REQUEST_TUTOR_STATUS_CLASSES: Record<string, string> = {
     "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200",
   Rejected:
     "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200",
+  Assiged:
+    "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200",
+  Assigned:
+    "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200",
 };
 
 function RequestTutorStatusBadge({ status }: { status: string }) {
-  const normalizedStatus = status === "Rejected" ? "Rejected" : "Pending";
+  const normalizedStatus = status === "Rejected" ? "Rejected" : (status === "Assiged" || status === "Assigned") ? "Assigned" : "Pending";
   const className =
     REQUEST_TUTOR_STATUS_CLASSES[normalizedStatus] ??
     REQUEST_TUTOR_STATUS_CLASSES.Pending;
@@ -332,6 +337,19 @@ export default function RequestForTutorsList() {
   const getSafeTutorBlocks = (value: RequestTutors["tutors"]) =>
     Array.isArray(value) ? value : [];
 
+  const isRequestFullyAssigned = (row: RequestTutors) => {
+    const tutorBlocks = getSafeTutorBlocks(row.tutors);
+    if (!tutorBlocks || tutorBlocks.length === 0) return false;
+    const assignedCount = tutorBlocks.filter((t) => {
+      const assigned = t.assignedTutor as any;
+      if (!assigned) return false;
+      if (typeof assigned === "string") return assigned.trim() !== "";
+      if (Array.isArray(assigned)) return assigned.length > 0 && (assigned[0] as any)?.id;
+      return assigned.id ? true : false;
+    }).length;
+    return assignedCount === tutorBlocks.length;
+  };
+
   const getGradeDisplayValue = (grade: unknown) => {
     if (grade && typeof grade === "object") {
       const gradeRecord = grade as {
@@ -449,20 +467,23 @@ export default function RequestForTutorsList() {
         align: "center",
         className:
           "min-w-[190px] max-w-[190px] sticky right-[250px] z-20 bg-white dark:bg-gray-900",
-        render: (row: RequestTutors) => (
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center justify-center gap-2">
-              <RequestTutorStatusBadge status={row.status} />
-              <ChangeStatusDialog
-                requestId={row.id}
-                currentStatus={
-                  row.status === "Rejected" ? "Rejected" : "Pending"
-                }
-                onStatusChange={() => refetch()}
-              />
+        render: (row: RequestTutors) => {
+          const effectiveStatus = (row.status === "Assiged" || row.status === "Assigned" || isRequestFullyAssigned(row)) ? "Assigned" : row.status;
+          return (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
+                <RequestTutorStatusBadge status={effectiveStatus} />
+                <ChangeStatusDialog
+                  requestId={row.id}
+                  currentStatus={
+                    effectiveStatus === "Rejected" ? "Rejected" : "Assigned"
+                  }
+                  onStatusChange={() => refetch()}
+                />
+              </div>
             </div>
-          </div>
-        ),
+          );
+        },
       },
       {
         key: "assignTutor",
@@ -484,7 +505,6 @@ export default function RequestForTutorsList() {
                 classType: t.classType,
                 preferredClassType: t.preferredClassType,
                 preferredTutorType: t.preferredTutorType,
-                preferredClassType: t.preferredClassType,
                 duration: t.duration,
                 frequency: t.frequency,
               })),

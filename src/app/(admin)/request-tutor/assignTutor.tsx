@@ -15,7 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
+import {
+  useUpdateAssignedTutorMutation,
+  useUpdateStatusMutation,
+} from "@/store/api/splits/request-tutor";
 import { useFetchSubjectByIdQuery } from "@/store/api/splits/subjects";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
@@ -33,7 +36,6 @@ export interface TutorRequestBlock {
     | { id?: string; fullName?: string }
     | Array<{ id?: string; fullName?: string }>;
   preferredTutorType?: string;
-  preferredClassType?: string;
   duration: string;
   frequency: string;
 }
@@ -129,7 +131,9 @@ function TutorBlockItem({
       !tutorBlock.preferredTutorType ||
       tutor.tutorType.some((t) => t.toLowerCase() === (tutorBlock.preferredTutorType ?? "").toLowerCase());
 
-    const isOnlineRequest = tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
+    const isOnlineRequest = Array.isArray(tutorBlock.preferredClassType)
+      ? tutorBlock.preferredClassType.some((c) => c.toLowerCase().includes("online"))
+      : tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
 
     const locationPass =
       isOnlineRequest ||
@@ -235,8 +239,12 @@ function TutorBlockItem({
 
 export function AssignTutorDialog({ row, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
-  const [updateAssignedTutor, { isLoading: isSubmitting }] =
+  const [updateAssignedTutor, { isLoading: isSubmittingTutor }] =
     useUpdateAssignedTutorMutation();
+  const [updateStatus, { isLoading: isUpdatingStatus }] =
+    useUpdateStatusMutation();
+
+  const isSubmitting = isSubmittingTutor || isUpdatingStatus;
 
   // Local selection state: index → tutorId
   const [selections, setSelections] = useState<Record<number, string>>({});
@@ -285,6 +293,20 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
           requestId: row.id,
           tutorBlockId: block._id,
           assignedTutor: tutorId,
+        }).unwrap();
+      }
+
+      // Check if all tutor blocks are now assigned
+      const finalAssignedCount = row.tutors.filter((t, i) => {
+        const newlyAssignedId = selections[i];
+        const isNowAssigned = newlyAssignedId && newlyAssignedId !== "";
+        return isNowAssigned || getAssignedTutorId(t.assignedTutor);
+      }).length;
+
+      if (finalAssignedCount === row.tutors.length && finalAssignedCount > 0) {
+        await updateStatus({
+          requestId: row.id,
+          status: "Assiged",
         }).unwrap();
       }
 

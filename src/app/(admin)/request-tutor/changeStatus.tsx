@@ -23,7 +23,7 @@ import toast from "react-hot-toast";
 
 interface ChangeStatusDialogProps {
   requestId: string;
-  currentStatus: "Pending" | "Rejected";
+  currentStatus: "Pending" | "Rejected" | "Assiged" | "Assigned";
   onStatusChange?: () => void;
 }
 
@@ -100,12 +100,12 @@ export function ChangeStatusDialog({
         <div className="px-6 py-6 flex flex-col gap-4">
           <label>Status</label>
           <Select
-            value={status}
+            value={status === "Assigned" ? "Assiged" : status}
             onValueChange={(val) => {
-              const nextStatus = val as "Pending" | "Rejected";
+              const nextStatus = val as "Pending" | "Rejected" | "Assiged" | "Assigned";
               setStatus(nextStatus);
 
-              if (nextStatus === "Pending") {
+              if (nextStatus === "Pending" || nextStatus === "Assiged" || nextStatus === "Assigned") {
                 setRejectionReason("");
               }
             }}
@@ -116,6 +116,7 @@ export function ChangeStatusDialog({
             <SelectContent>
               <SelectItem value="Pending">Pending</SelectItem>
               <SelectItem value="Rejected">Rejected</SelectItem>
+              <SelectItem value="Assiged">Assigned</SelectItem>
             </SelectContent>
           </Select>
 
