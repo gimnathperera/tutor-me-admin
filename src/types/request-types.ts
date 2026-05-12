@@ -39,7 +39,7 @@ export type UpdateBlogStatusRequest = {
 };
 export type UpdateTutorRequestsRequest = {
   requestId: string;
-  status?: "Pending" | "Rejected" | "Assiged" | "Assigned";
+  status?: "Pending" | "Rejected" | "Assiged";
   rejectionReason?: string;
 };
 

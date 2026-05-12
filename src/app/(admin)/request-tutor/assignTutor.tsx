@@ -139,9 +139,11 @@ function TutorBlockItem({
       );
 
     const isOnlineRequest = Array.isArray(tutorBlock.preferredClassType)
-      ? tutorBlock.preferredClassType.some((c) => c.toLowerCase().includes("online"))
-      :
-      tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
+      ? tutorBlock.preferredClassType.some((c) =>
+          c.toLowerCase().includes("online"),
+        )
+      : (tutorBlock.preferredClassType?.toLowerCase().includes("online") ??
+        false);
 
     const locationPass =
       isOnlineRequest ||

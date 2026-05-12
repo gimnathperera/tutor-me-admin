@@ -363,6 +363,7 @@ export type RequestTutors = BaseEntity & {
   district: string;
   phoneNumber: string;
   medium: string;
+  // "Assiged" is kept only for older API records that used the misspelled value.
   status: "Pending" | "Rejected" | "Assiged" | "Assigned";
   grade: string;
   tutors: RequestTutorTutor[];

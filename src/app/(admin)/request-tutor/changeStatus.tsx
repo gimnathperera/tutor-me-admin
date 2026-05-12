@@ -23,7 +23,7 @@ import toast from "react-hot-toast";
 
 interface ChangeStatusDialogProps {
   requestId: string;
-  currentStatus: "Pending" | "Rejected" | "Assiged" | "Assigned";
+  currentStatus: "Pending" | "Rejected";
   onStatusChange?: () => void;
 }
 
@@ -89,7 +89,13 @@ export function ChangeStatusDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Edit className="text-blue-500 cursor-pointer hover:text-blue-700" />
+        <button
+          type="button"
+          aria-label="Change request status"
+          className="inline-flex h-8 w-8 items-center justify-center text-blue-500 hover:text-blue-700"
+        >
+          <Edit className="h-5 w-5" />
+        </button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">
@@ -104,12 +110,12 @@ export function ChangeStatusDialog({
         <div className="px-6 py-6 flex flex-col gap-4">
           <label>Status</label>
           <Select
-            value={status === "Assigned" ? "Assiged" : status}
+            value={status}
             onValueChange={(val) => {
-              const nextStatus = val as "Pending" | "Rejected" | "Assiged" | "Assigned";
+              const nextStatus = val as "Pending" | "Rejected";
               setStatus(nextStatus);
 
-              if (nextStatus === "Pending" || nextStatus === "Assiged" || nextStatus === "Assigned") {
+              if (nextStatus === "Pending") {
                 setRejectionReason("");
               }
             }}
@@ -120,7 +126,6 @@ export function ChangeStatusDialog({
             <SelectContent>
               <SelectItem value="Pending">Pending</SelectItem>
               <SelectItem value="Rejected">Rejected</SelectItem>
-              <SelectItem value="Assiged">Assigned</SelectItem>
             </SelectContent>
           </Select>
 
