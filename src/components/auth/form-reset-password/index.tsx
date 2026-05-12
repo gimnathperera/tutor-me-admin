@@ -96,12 +96,42 @@ export default function ResetPasswordForm({ token }: Props) {
                   label="New Password"
                   name="password"
                   placeholder="Enter new password"
+                  onKeyDown={(e) => {
+                    if (e.key === " ") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    form.setValue(
+                      "password",
+                      e.target.value.replace(/\s/g, ""),
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      },
+                    );
+                  }}
                 />
 
                 <InputPassword
                   label="Confirm Password"
                   name="confirmPassword"
                   placeholder="Confirm new password"
+                  onKeyDown={(e) => {
+                    if (e.key === " ") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    form.setValue(
+                      "confirmPassword",
+                      e.target.value.replace(/\s/g, ""),
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      },
+                    );
+                  }}
                 />
 
                 {successMessage && (

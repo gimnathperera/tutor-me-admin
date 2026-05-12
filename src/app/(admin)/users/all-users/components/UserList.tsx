@@ -14,7 +14,7 @@ import {
 import { TABLE_CONFIG } from "@/configs/table";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useFetchUsersQuery } from "@/store/api/splits/users";
-import { Search, SquarePen, X } from "lucide-react";
+import { Search, SquarePen, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { DeleteUser } from "./DeleteUser";
 import { UpdateUser } from "./edit-user/UpdateUser";
@@ -258,17 +258,32 @@ export default function UsersTable() {
       header: <div className="text-center w-full">Delete</div>,
       className:
         "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
-      render: (row: User) => (
-        <div className="flex justify-center  w-full ">
-          <DeleteUser
-            userId={row.id}
-            tutorId={row.tutorId ?? row.tutor?.id ?? row.tutor?._id}
-            userEmail={row.email}
-            userRole={row.role}
-            userStatus={row.status}
-          />
-        </div>
-      ),
+      render: (row: User) => {
+        const isTutor = row.role === "tutor";
+
+        return (
+          <div className="flex justify-center w-full">
+            {isTutor ? (
+              <button
+                type="button"
+                disabled
+                title="Tutor accounts cannot be deleted from the Users table"
+                className="inline-flex items-center justify-center border-0 bg-transparent p-0 cursor-not-allowed opacity-40"
+              >
+                <Trash2 className="text-gray-400" />
+              </button>
+            ) : (
+              <DeleteUser
+                userId={row.id}
+                tutorId={row.tutorId ?? row.tutor?.id ?? row.tutor?._id}
+                userEmail={row.email}
+                userRole={row.role}
+                userStatus={row.status}
+              />
+            )}
+          </div>
+        );
+      },
     },
   ];
 
