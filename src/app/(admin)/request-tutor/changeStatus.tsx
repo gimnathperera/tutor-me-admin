@@ -89,7 +89,13 @@ export function ChangeStatusDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Edit className="text-blue-500 cursor-pointer hover:text-blue-700" />
+        <button
+          type="button"
+          aria-label="Change request status"
+          className="inline-flex h-8 w-8 items-center justify-center text-blue-500 hover:text-blue-700"
+        >
+          <Edit className="h-5 w-5" />
+        </button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden [&>div:last-child]:flex [&>div:last-child]:min-h-0 [&>div:last-child]:flex-col [&>div:last-child]:overflow-hidden [&>div:last-child]:p-0">

@@ -113,6 +113,7 @@ export const UsersApi = baseApi.injectEndpoints({
 
 export const {
   useFetchUsersQuery,
+  useLazyFetchUsersQuery,
   useFetchUserByIdQuery,
   useLazyFetchUserByIdQuery,
   useCreateUserMutation,

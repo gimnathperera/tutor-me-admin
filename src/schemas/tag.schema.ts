@@ -10,8 +10,12 @@ const strictString = z
     message: "Multiple consecutive spaces are not allowed",
   });
 
+const tagTitle = strictString.refine((val) => /^[A-Za-z0-9 &\-/()]+$/.test(val), {
+  message: "Title can only include letters, numbers, spaces, &, -, /, (, and )",
+});
+
 export const tagSchema = z.object({
-  name: strictString,
+  name: tagTitle,
   description: strictString,
 });
 

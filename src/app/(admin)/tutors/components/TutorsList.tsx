@@ -21,7 +21,7 @@ import {
 } from "@/store/api/splits/tutors";
 import { getErrorInApiResult } from "@/utils/api";
 import { getAdminId } from "@/utils/auth";
-import { CheckCircle, Loader2, Search, ShieldOff, XCircle } from "lucide-react";
+import { CheckCircle, Loader2, Search, ShieldOff, X, XCircle } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { DeleteTutor } from "./DeleteTutor";
@@ -597,7 +597,11 @@ export default function TutorsList() {
           "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
         render: (row: Tutor) => (
           <div className="flex justify-center items-center w-full">
-            <DeleteTutor tutorId={row.id} />
+            <DeleteTutor
+              tutorId={row.id}
+              tutorName={row.fullName}
+              tutorEmail={row.email}
+            />
           </div>
         ),
       },
@@ -627,8 +631,19 @@ export default function TutorsList() {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Search by name, email, or contact number"
-                className="h-11 w-full pl-10 pr-4"
+                className="h-11 w-full pl-10 pr-10"
               />
+
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             <div className="w-full">

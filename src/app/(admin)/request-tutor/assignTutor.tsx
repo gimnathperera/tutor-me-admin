@@ -15,7 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUpdateAssignedTutorMutation } from "@/store/api/splits/request-tutor";
+import {
+  useUpdateAssignedTutorMutation,
+  useUpdateStatusMutation,
+} from "@/store/api/splits/request-tutor";
 import { useFetchSubjectByIdQuery } from "@/store/api/splits/subjects";
 import { useFetchTutorsQuery } from "@/store/api/splits/tutors";
 import { Edit } from "lucide-react";
@@ -39,6 +42,7 @@ export interface TutorRequestBlock {
 
 export interface AssignTutorRow {
   id: string;
+  status?: string;
   grade?: string;
   district?: string;
   medium?: string;
@@ -135,10 +139,12 @@ function TutorBlockItem({
           (tutorBlock.preferredTutorType ?? "").toLowerCase(),
       );
 
-    const classType = tutorBlock.preferredClassType;
-    const isOnlineRequest = Array.isArray(classType)
-      ? classType.some((t) => t.toLowerCase().includes("online"))
-      : (classType?.toLowerCase().includes("online") ?? false);
+    const isOnlineRequest = Array.isArray(tutorBlock.preferredClassType)
+      ? tutorBlock.preferredClassType.some((c) =>
+          c.toLowerCase().includes("online"),
+        )
+      : (tutorBlock.preferredClassType?.toLowerCase().includes("online") ??
+        false);
 
     const locationPass =
       isOnlineRequest ||
@@ -246,8 +252,12 @@ function TutorBlockItem({
 
 export function AssignTutorDialog({ row, onUpdated }: Props) {
   const [open, setOpen] = useState(false);
-  const [updateAssignedTutor, { isLoading: isSubmitting }] =
+  const [updateAssignedTutor, { isLoading: isSubmittingTutor }] =
     useUpdateAssignedTutorMutation();
+  const [updateStatus, { isLoading: isUpdatingStatus }] =
+    useUpdateStatusMutation();
+
+  const isSubmitting = isSubmittingTutor || isUpdatingStatus;
 
   // Local selection state: index → tutorId
   const [selections, setSelections] = useState<Record<number, string>>({});
@@ -307,6 +317,20 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
         }).unwrap();
       }
 
+      // Check if all tutor blocks are now assigned
+      const finalAssignedCount = row.tutors.filter((t, i) => {
+        const newlyAssignedId = selections[i];
+        const isNowAssigned = newlyAssignedId && newlyAssignedId !== "";
+        return isNowAssigned || getAssignedTutorId(t.assignedTutor);
+      }).length;
+
+      if (finalAssignedCount === row.tutors.length && finalAssignedCount > 0) {
+        await updateStatus({
+          requestId: row.id,
+          status: "Assiged",
+        }).unwrap();
+      }
+
       toast.success("Tutors assigned successfully");
       onUpdated?.();
       setOpen(false);
@@ -326,6 +350,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
   const totalCount = row.tutors?.length ?? 0;
   const isPartial = assignedCount > 0 && assignedCount < totalCount;
   const isFullyAssigned = assignedCount > 0 && assignedCount === totalCount;
+  const isRejected = row.status === "Rejected";
 
   return (
     <div className="flex items-center gap-2">
@@ -348,7 +373,17 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           {isPartial || isFullyAssigned ? (
-            <Button size="icon" variant="ghost" className="h-8 w-8">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              disabled={isRejected}
+              title={
+                isRejected
+                  ? "Rejected tutor requests cannot be assigned"
+                  : "Edit assigned tutors"
+              }
+            >
               <Edit size={16} />
             </Button>
           ) : (
@@ -356,6 +391,12 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
               size="sm"
               variant="outline"
               className="flex items-center gap-2"
+              disabled={isRejected}
+              title={
+                isRejected
+                  ? "Rejected tutor requests cannot be assigned"
+                  : "Assign tutors"
+              }
             >
               <Edit size={16} />
               Assign Tutors
