@@ -12,18 +12,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TABLE_CONFIG } from "@/configs/table";
-import { getErrorInApiResult } from "@/utils/api";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
   useFetchUsersQuery,
   useUpdateUserMutation,
 } from "@/store/api/splits/users";
+import { getErrorInApiResult } from "@/utils/api";
 import {
   CheckCircle,
   Loader2,
   Search,
   ShieldOff,
   SquarePen,
+  Trash2,
   X,
   XCircle,
 } from "lucide-react";
@@ -33,7 +34,6 @@ import { DeleteUser } from "./DeleteUser";
 import { UpdateUser } from "./edit-user/UpdateUser";
 import { ResetPassword } from "./ResetPassword";
 import { UserDetails } from "./ViewDetails";
-
 interface User {
   id: string;
   tutorId?: string;
@@ -70,10 +70,10 @@ const USER_STATUS_BADGE_CLASSES: Record<UserStatus, string> = {
 };
 
 function StatusBadge({ status }: { status: string }) {
-  const normalizedStatus =
-    (status?.toLowerCase() as UserStatus) || "pending";
+  const normalizedStatus = (status?.toLowerCase() as UserStatus) || "pending";
   const cls =
-    USER_STATUS_BADGE_CLASSES[normalizedStatus] ?? USER_STATUS_BADGE_CLASSES.pending;
+    USER_STATUS_BADGE_CLASSES[normalizedStatus] ??
+    USER_STATUS_BADGE_CLASSES.pending;
 
   return (
     <span
@@ -438,17 +438,32 @@ export default function UsersTable() {
       header: <div className="text-center w-full">Delete</div>,
       className:
         "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
-      render: (row: User) => (
-        <div className="flex justify-center  w-full ">
-          <DeleteUser
-            userId={row.id}
-            tutorId={row.tutorId ?? row.tutor?.id ?? row.tutor?._id}
-            userEmail={row.email}
-            userRole={row.role}
-            userStatus={row.status}
-          />
-        </div>
-      ),
+      render: (row: User) => {
+        const isTutor = row.role === "tutor";
+
+        return (
+          <div className="flex justify-center w-full">
+            {isTutor ? (
+              <button
+                type="button"
+                disabled
+                title="Tutor accounts cannot be deleted from the Users table"
+                className="inline-flex items-center justify-center border-0 bg-transparent p-0 cursor-not-allowed opacity-40"
+              >
+                <Trash2 className="text-gray-400" />
+              </button>
+            ) : (
+              <DeleteUser
+                userId={row.id}
+                tutorId={row.tutorId ?? row.tutor?.id ?? row.tutor?._id}
+                userEmail={row.email}
+                userRole={row.role}
+                userStatus={row.status}
+              />
+            )}
+          </div>
+        );
+      },
     },
   ];
 

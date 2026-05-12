@@ -116,10 +116,14 @@ export default function ResetPasswordForm({ token }: Props) {
                     }
                   }}
                   onChange={(e) => {
-                    form.setValue("password", removeSpaces(e.target.value), {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    });
+                    form.setValue(
+                      "password",
+                      e.target.value.replace(/\s/g, ""),
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      },
+                    );
                   }}
                 />
 
@@ -135,7 +139,7 @@ export default function ResetPasswordForm({ token }: Props) {
                   onChange={(e) => {
                     form.setValue(
                       "confirmPassword",
-                      removeSpaces(e.target.value),
+                      e.target.value.replace(/\s/g, ""),
                       {
                         shouldValidate: true,
                         shouldDirty: true,

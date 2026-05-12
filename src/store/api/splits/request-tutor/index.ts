@@ -74,6 +74,7 @@ export const RequestTutorApi = baseApi.injectEndpoints({
 
 export const {
   useFetchRequestForTutorsQuery,
+  useLazyFetchRequestForTutorsQuery,
   useFetchRequestForTutorsByIdQuery,
   useLazyFetchRequestForTutorsByIdQuery,
   useDeleteRequestForTutorMutation,

@@ -597,7 +597,11 @@ export default function TutorsList() {
           "min-w-[80px] max-w-[80px] sticky right-0 z-20 bg-white dark:bg-gray-900",
         render: (row: Tutor) => (
           <div className="flex justify-center items-center w-full">
-            <DeleteTutor tutorId={row.id} />
+            <DeleteTutor
+              tutorId={row.id}
+              tutorName={row.fullName}
+              tutorEmail={row.email}
+            />
           </div>
         ),
       },
