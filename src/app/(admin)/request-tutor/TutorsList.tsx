@@ -488,8 +488,8 @@ export default function RequestForTutorsList() {
               Request filters
             </h2>
             <p className="text-sm text-gray-500 dark:text-white/60">
-              Search tutor requests and narrow them by status, grade, medium,
-              tutor type, and class type.
+              Search by name, email, or contact number, then narrow results by
+              status, grade, medium, subject, tutor type, and class type.
             </p>
           </div>
 
@@ -515,7 +515,7 @@ export default function RequestForTutorsList() {
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search by name, email, city, district, contact number, subject, or assigned tutor"
+                placeholder="Search by name, email, or contact number"
                 className="h-11 w-full pl-10 pr-4"
               />
             </div>
