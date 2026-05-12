@@ -18,8 +18,8 @@ export default async function ResetPasswordPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const tokenValue = resolvedSearchParams?.token;
   const token = Array.isArray(tokenValue)
-    ? tokenValue[0] ?? ""
-    : tokenValue ?? "";
+    ? (tokenValue[0] ?? "")
+    : (tokenValue ?? "");
 
   return <ResetPasswordForm token={token} />;
 }

@@ -12,12 +12,13 @@ import readline from "readline";
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const API_BASE = "https://tutorme-backend-api-d7a6cjdkgnedbxf0.southeastasia-01.azurewebsites.net";
+const API_BASE =
+  "https://tutorme-backend-api-d7a6cjdkgnedbxf0.southeastasia-01.azurewebsites.net";
 const PAPERS_DIR = "D:/Download/2026.04.07";
 
-const AZURE_ACCOUNT   = "tutormeuploads";
+const AZURE_ACCOUNT = "tutormeuploads";
 const AZURE_CONTAINER = "uploads";
-const AZURE_KEY       = process.env.AZURE_STORAGE_KEY ?? "";
+const AZURE_KEY = process.env.AZURE_STORAGE_KEY ?? "";
 
 // Build grade number → DB grade ID map from API grades by title matching
 function buildGradeMap(grades) {
@@ -41,8 +42,16 @@ function buildGradeMap(grades) {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function prompt(question) {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise((resolve) => rl.question(question, (ans) => { rl.close(); resolve(ans); }));
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise((resolve) =>
+    rl.question(question, (ans) => {
+      rl.close();
+      resolve(ans);
+    }),
+  );
 }
 
 async function login(email, password, retries = 5) {
@@ -77,18 +86,18 @@ async function fetchGrades(token) {
 // Explicit aliases for folder names that don't fuzzy-match DB subject titles
 const SUBJECT_ALIAS = {
   "environment related activities term test papers": "Environmental Studies",
-  "environment related activities 2025":            "Environmental Studies",
-  "environment related activitie":                  "Environmental Studies",
-  "environment related activities":                 "Environmental Studies",
-  "environment related":                            "Environmental Studies",
+  "environment related activities 2025": "Environmental Studies",
+  "environment related activitie": "Environmental Studies",
+  "environment related activities": "Environmental Studies",
+  "environment related": "Environmental Studies",
 };
 
 // Folder names sometimes use "&" or extra spaces; normalise before matching
 function normalizeSubject(name) {
   return name
     .toLowerCase()
-    .replace(/\s+/g, " ")          // collapse multiple spaces
-    .replace(/\s*&\s*/g, " and ")  // "Health & Physical" → "health and physical"
+    .replace(/\s+/g, " ") // collapse multiple spaces
+    .replace(/\s*&\s*/g, " and ") // "Health & Physical" → "health and physical"
     .trim();
 }
 
@@ -97,12 +106,15 @@ function findSubjectId(grades, gradeId, subjectName) {
   if (!grade?.subjects) return null;
 
   // Check explicit alias first
-  const aliasedName = SUBJECT_ALIAS[subjectName.toLowerCase().trim()] ?? subjectName;
+  const aliasedName =
+    SUBJECT_ALIAS[subjectName.toLowerCase().trim()] ?? subjectName;
   const normalized = normalizeSubject(aliasedName);
 
   const match = grade.subjects.find((s) => {
     const db = normalizeSubject(s.title);
-    return db === normalized || db.includes(normalized) || normalized.includes(db);
+    return (
+      db === normalized || db.includes(normalized) || normalized.includes(db)
+    );
   });
   return match?.id ?? null;
 }
@@ -116,26 +128,26 @@ async function generateSasUrl(blobName, fileType) {
 
   const toIso = (d) => d.toISOString().replace(/\.\d+Z$/, "Z");
   const start = toIso(now);
-  const end   = toIso(expires);
+  const end = toIso(expires);
 
   const permissions = "cw";
   const signedFields = [
-    permissions,  // signedPermissions
-    start,        // signedStart
-    end,          // signedExpiry
+    permissions, // signedPermissions
+    start, // signedStart
+    end, // signedExpiry
     `/blob/${AZURE_ACCOUNT}/${AZURE_CONTAINER}/${blobName}`, // canonicalizedResource
-    "",           // signedIdentifier
-    "",           // signedIP
-    "https",      // signedProtocol
+    "", // signedIdentifier
+    "", // signedIP
+    "https", // signedProtocol
     "2024-11-04", // signedVersion
-    "b",          // signedResource (blob)
-    "",           // signedSnapshotTime
-    "",           // signedEncryptionScope
-    "",           // rscc
-    "",           // rscd
-    "",           // rsce
-    "",           // rscl
-    fileType,     // rsct (Content-Type)
+    "b", // signedResource (blob)
+    "", // signedSnapshotTime
+    "", // signedEncryptionScope
+    "", // rscc
+    "", // rscd
+    "", // rsce
+    "", // rscl
+    fileType, // rsct (Content-Type)
   ];
 
   const stringToSign = signedFields.join("\n");
@@ -144,12 +156,12 @@ async function generateSasUrl(blobName, fileType) {
     .digest("base64");
 
   const params = new URLSearchParams({
-    sp:  permissions,
-    st:  start,
-    se:  end,
+    sp: permissions,
+    st: start,
+    se: end,
     spr: "https",
-    sv:  "2024-11-04",
-    sr:  "b",
+    sv: "2024-11-04",
+    sr: "b",
     rsct: fileType,
     sig,
   });
@@ -160,7 +172,7 @@ async function generateSasUrl(blobName, fileType) {
 async function uploadToAzure(filePath, fileName) {
   const fileType = "application/pdf";
   const blobName = `${Date.now()}-${fileName}`;
-  const sasUrl   = await generateSasUrl(blobName, fileType);
+  const sasUrl = await generateSasUrl(blobName, fileType);
 
   const fileBuffer = fs.readFileSync(filePath);
 
@@ -212,7 +224,9 @@ async function createPaper(token, paper) {
 
 function parseFolderName(folderName) {
   // "Grade 6 Mathematics sinhala medium"
-  const match = folderName.match(/^Grade\s+(\d+)\s+(.+?)\s+(sinhala|english|tamil)\s+medium$/i);
+  const match = folderName.match(
+    /^Grade\s+(\d+)\s+(.+?)\s+(sinhala|english|tamil)\s+medium$/i,
+  );
   if (!match) return null;
   return {
     gradeNumber: parseInt(match[1]),
@@ -230,7 +244,7 @@ function parseFileName(fileName) {
   const ordinalMatch = fileName.match(/(1st|2nd|3rd)/i);
   const numericMatch = fileName.match(/-(\d)-term/i);
 
-  const ORDINAL = { "1": "1st", "2": "2nd", "3": "3rd" };
+  const ORDINAL = { 1: "1st", 2: "2nd", 3: "3rd" };
 
   let term = null;
   if (ordinalMatch) {
@@ -252,8 +266,8 @@ function buildTitle(gradeNumber, subject, medium, term, year) {
 async function main() {
   console.log("=== TutorMe Paper Bulk Uploader ===\n");
 
-  const email    = process.argv[2] ?? await prompt("Admin email: ");
-  const password = process.argv[3] ?? await prompt("Admin password: ");
+  const email = process.argv[2] ?? (await prompt("Admin email: "));
+  const password = process.argv[3] ?? (await prompt("Admin password: "));
 
   console.log("\nLogging in...");
   const token = await login(email, password);
@@ -262,7 +276,9 @@ async function main() {
   console.log("Fetching grades from API...");
   const grades = await fetchGrades(token);
   const gradeMap = buildGradeMap(grades);
-  console.log(`✓ Fetched ${grades.length} grades, mapped to grade numbers: ${Object.keys(gradeMap).join(", ") || "none"}\n`);
+  console.log(
+    `✓ Fetched ${grades.length} grades, mapped to grade numbers: ${Object.keys(gradeMap).join(", ") || "none"}\n`,
+  );
 
   const folders = fs.readdirSync(PAPERS_DIR).filter((name) => {
     const full = path.join(PAPERS_DIR, name);
@@ -279,8 +295,8 @@ async function main() {
   const uploadedThisRun = new Set();
 
   let successCount = 0;
-  let skipCount    = 0;
-  let errorCount   = 0;
+  let skipCount = 0;
+  let errorCount = 0;
 
   for (const folder of folders) {
     const parsed = parseFolderName(folder);
@@ -294,7 +310,9 @@ async function main() {
     const gradeId = gradeMap[gradeNumber];
 
     if (!gradeId) {
-      console.log(`  SKIP (no grade mapping for Grade ${gradeNumber}): ${folder}`);
+      console.log(
+        `  SKIP (no grade mapping for Grade ${gradeNumber}): ${folder}`,
+      );
       skipCount++;
       continue;
     }
@@ -302,14 +320,19 @@ async function main() {
     const subjectId = findSubjectId(grades, gradeId, subject);
     if (!subjectId) {
       const grade = grades.find((g) => g.id === gradeId);
-      const available = (grade?.subjects ?? []).map((s) => s.title).join(", ") || "none";
-      console.log(`  SKIP (subject "${subject}" not found for Grade ${gradeNumber}). Available: ${available}`);
+      const available =
+        (grade?.subjects ?? []).map((s) => s.title).join(", ") || "none";
+      console.log(
+        `  SKIP (subject "${subject}" not found for Grade ${gradeNumber}). Available: ${available}`,
+      );
       skipCount++;
       continue;
     }
 
     const folderPath = path.join(PAPERS_DIR, folder);
-    const pdfs = fs.readdirSync(folderPath).filter((f) => f.toLowerCase().endsWith(".pdf"));
+    const pdfs = fs
+      .readdirSync(folderPath)
+      .filter((f) => f.toLowerCase().endsWith(".pdf"));
 
     for (const pdf of pdfs) {
       const fileParsed = parseFileName(pdf);
@@ -332,7 +355,7 @@ async function main() {
       try {
         process.stdout.write(`  Uploading: ${title} ... `);
 
-        const pdfPath   = path.join(folderPath, pdf);
+        const pdfPath = path.join(folderPath, pdf);
         const publicUrl = await uploadToAzure(pdfPath, pdf);
 
         await createPaper(token, {

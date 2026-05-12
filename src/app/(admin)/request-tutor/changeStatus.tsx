@@ -57,10 +57,13 @@ export function ChangeStatusDialog({
   }, [currentStatus, open]);
 
   const handleSave = async () => {
-    const nextRejectionReason = rejectionReasonRef.current?.value.trim() || rejectionReason.trim();
+    const nextRejectionReason =
+      rejectionReasonRef.current?.value.trim() || rejectionReason.trim();
 
     if (status === "Rejected" && !nextRejectionReason) {
-      setValidationError("Rejection reason is required when rejecting a tutor request.");
+      setValidationError(
+        "Rejection reason is required when rejecting a tutor request.",
+      );
       return;
     }
 
@@ -93,7 +96,8 @@ export function ChangeStatusDialog({
         <DialogHeader className="shrink-0 px-6 py-4 border-b">
           <DialogTitle>Change Request Status</DialogTitle>
           <DialogDescription>
-            Leave the request pending or reject it with a reason that will be emailed to the requester.
+            Leave the request pending or reject it with a reason that will be
+            emailed to the requester.
           </DialogDescription>
         </DialogHeader>
 
@@ -150,7 +154,11 @@ export function ChangeStatusDialog({
           )}
 
           <div className="flex justify-end gap-2 mt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button

@@ -55,10 +55,11 @@ export function DeleteBlog({
     <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <AlertDialogTrigger asChild>
         <Trash2
-          className={`cursor-pointer ${canDelete
+          className={`cursor-pointer ${
+            canDelete
               ? "text-red-500 hover:text-red-600"
               : "text-gray-400 cursor-not-allowed"
-            }`}
+          }`}
         />
       </AlertDialogTrigger>
 

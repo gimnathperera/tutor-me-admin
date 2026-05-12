@@ -11,37 +11,91 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  useDeleteTutorMutation,
+  useLazyFetchTutorsQuery,
+} from "@/store/api/splits/tutors";
 import { useDeleteUserMutation } from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
+import { SerializedError } from "@reduxjs/toolkit";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface DeleteUserProps {
   userId: string;
+  tutorId?: string;
+  userEmail?: string;
   userRole?: "admin" | "user" | "tutor";
   userStatus?: string;
 }
 
-export function DeleteUser({ userId, userRole, userStatus }: DeleteUserProps) {
-  const [deleteUser, { isLoading }] = useDeleteUserMutation();
+type ApiError = FetchBaseQueryError | SerializedError;
 
-  const canDelete =
-    userRole === "tutor" || (userRole === "admin" && userStatus === "rejected");
+const getApiErrorMessage = (error: unknown) =>
+  getErrorInApiResult({ error: error as ApiError }) ||
+  "An error occurred while performing the request.";
+
+const isNotFoundError = (error: unknown) =>
+  Boolean(
+    error &&
+      typeof error === "object" &&
+      "status" in error &&
+      error.status === 404,
+  );
+
+export function DeleteUser({
+  userId,
+  tutorId,
+  userEmail,
+  userRole,
+  userStatus,
+}: DeleteUserProps) {
+  const [deleteUser, { isLoading }] = useDeleteUserMutation();
+  const [deleteTutor, { isLoading: isDeletingTutor }] =
+    useDeleteTutorMutation();
+  const [fetchTutors, { isFetching: isFindingTutor }] =
+    useLazyFetchTutorsQuery();
+  const normalizedStatus = userStatus?.toLowerCase();
+  const isTutor = userRole === "tutor";
+  const isRejectedAdmin =
+    userRole === "admin" && normalizedStatus === "rejected";
+  const canDelete = isTutor || isRejectedAdmin;
+  const isDeleting = isLoading || isDeletingTutor || isFindingTutor;
+  const accountType = isTutor ? "tutor" : "admin";
 
   const getDisabledTitle = () => {
-    if (userRole === "tutor") {
-      return "Delete tutor account";
-    }
-
     if (userRole === "admin") {
-      if (userStatus !== "rejected") {
-        return "Admin account must be rejected before deletion";
-      }
+      return "Admin accounts can only be deleted when rejected";
+    }
+    if (userRole !== "tutor") {
+      return "Only tutor accounts and rejected admin accounts can be deleted";
+    }
+    return "Delete tutor account";
+  };
 
-      return "Delete admin account";
+  const resolveTutorId = async () => {
+    if (tutorId) {
+      return tutorId;
     }
 
-    return "This user cannot be deleted";
+    const email = userEmail?.trim();
+    if (!email) {
+      return userId;
+    }
+
+    const tutorsResponse = await fetchTutors({
+      page: 1,
+      limit: 1000,
+      email,
+      search: email,
+    }).unwrap();
+
+    return (
+      tutorsResponse.results.find(
+        (tutor) => tutor.email?.toLowerCase() === email.toLowerCase(),
+      )?.id ?? userId
+    );
   };
 
   const handleDelete = async () => {
@@ -51,19 +105,28 @@ export function DeleteUser({ userId, userRole, userStatus }: DeleteUserProps) {
     }
 
     try {
-      const result = await deleteUser(userId);
-
-      if (result.error) {
-        const error = getErrorInApiResult({ error: result.error });
-        toast.error(error);
-      } else {
-        toast.success(
-          `${userRole === "admin" ? "Admin" : "Tutor"} account deleted successfully`,
-        );
+      if (isRejectedAdmin) {
+        await deleteUser(userId).unwrap();
+        toast.success("Admin account deleted successfully");
+        return;
       }
+
+      const tutorId = await resolveTutorId();
+
+      await deleteTutor(tutorId).unwrap();
+
+      try {
+        await deleteUser(userId).unwrap();
+      } catch (error) {
+        if (!isNotFoundError(error)) {
+          throw error;
+        }
+      }
+
+      toast.success("Tutor account deleted successfully");
     } catch (error) {
       console.error("Unexpected error during user deletion:", error);
-      toast.error("An unexpected error occurred while deleting the user");
+      toast.error(getApiErrorMessage(error));
     }
   };
 
@@ -91,8 +154,8 @@ export function DeleteUser({ userId, userRole, userStatus }: DeleteUserProps) {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this{" "}
-            {userRole === "admin" ? "admin" : "tutor"} account.
+            This action cannot be undone. This will permanently delete this
+            {` ${accountType} account.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -101,10 +164,10 @@ export function DeleteUser({ userId, userRole, userStatus }: DeleteUserProps) {
 
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isLoading || !canDelete}
-            className="bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
+            disabled={isDeleting || !canDelete}
+            className="bg-red-500 text-white disabled:opacity-50"
           >
-            {isLoading ? "Deleting..." : "Delete"}
+            {isDeleting ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

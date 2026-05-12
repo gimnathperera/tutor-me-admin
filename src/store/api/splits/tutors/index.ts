@@ -42,7 +42,10 @@ export const TutorsApi = baseApi.injectEndpoints({
       }),
     }),
 
-    createTutor: build.mutation<Tutor, Omit<AddTutorFormValues, "confirmPassword">>({
+    createTutor: build.mutation<
+      Tutor,
+      Omit<AddTutorFormValues, "confirmPassword">
+    >({
       query: (payload) => {
         return {
           url: Endpoints.FindATutor,
@@ -69,7 +72,12 @@ export const TutorsApi = baseApi.injectEndpoints({
 
     updateTutorStatus: build.mutation<
       Tutor,
-      { id: string; status: string; adminId?: string | null; rejectionMessage?: string }
+      {
+        id: string;
+        status: string;
+        adminId?: string | null;
+        rejectionMessage?: string;
+      }
     >({
       query: ({ id, status, adminId, rejectionMessage }) => ({
         url: `${Endpoints.FindATutor}/${id}`,
@@ -115,6 +123,7 @@ export const TutorsApi = baseApi.injectEndpoints({
 
 export const {
   useFetchTutorsQuery,
+  useLazyFetchTutorsQuery,
   useFetchTutorByIdQuery,
   useLazyFetchTutorByIdQuery,
   useLazyGetTutorEmailAvailabilityQuery,

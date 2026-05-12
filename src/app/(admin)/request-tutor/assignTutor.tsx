@@ -55,7 +55,9 @@ interface Props {
 
 const LARGE_LIMIT = 10000;
 
-const getAssignedTutorId = (assignedTutor: TutorRequestBlock["assignedTutor"]) => {
+const getAssignedTutorId = (
+  assignedTutor: TutorRequestBlock["assignedTutor"],
+) => {
   if (!assignedTutor) {
     return "";
   }
@@ -114,7 +116,7 @@ function TutorBlockItem({
 
   const subjectDisplay = isObjectId
     ? (subjectData?.title ?? tutorBlock.subject)
-    : (tutorBlock.subject || "N/A");
+    : tutorBlock.subject || "N/A";
 
   const { data, isLoading } = useFetchTutorsQuery({
     page: 1,
@@ -125,20 +127,28 @@ function TutorBlockItem({
 
   const tutors = (data?.results ?? []).filter((tutor) => {
     const mediumMatch =
-      !medium || tutor.tutorMediums.some((m) => m.toLowerCase() === medium.toLowerCase());
+      !medium ||
+      tutor.tutorMediums.some((m) => m.toLowerCase() === medium.toLowerCase());
 
     const tutorTypeMatch =
       !tutorBlock.preferredTutorType ||
-      tutor.tutorType.some((t) => t.toLowerCase() === (tutorBlock.preferredTutorType ?? "").toLowerCase());
+      tutor.tutorType.some(
+        (t) =>
+          t.toLowerCase() ===
+          (tutorBlock.preferredTutorType ?? "").toLowerCase(),
+      );
 
     const isOnlineRequest = Array.isArray(tutorBlock.preferredClassType)
       ? tutorBlock.preferredClassType.some((c) => c.toLowerCase().includes("online"))
-      : tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
+      :
+      tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
 
     const locationPass =
       isOnlineRequest ||
       !district ||
-      tutor.preferredLocations.some((loc) => loc.toLowerCase() === district.toLowerCase());
+      tutor.preferredLocations.some(
+        (loc) => loc.toLowerCase() === district.toLowerCase(),
+      );
 
     return mediumMatch && tutorTypeMatch && locationPass;
   });
@@ -150,7 +160,7 @@ function TutorBlockItem({
 
   // Display name for the currently selected tutor
   const selectedTutorName = tutors.find(
-    (t) => t.id === selectedTutorId
+    (t) => t.id === selectedTutorId,
   )?.fullName;
   const classTypeLabels = getClassTypeDisplayValue(
     tutorBlock.classType ?? tutorBlock.preferredClassType,
@@ -248,7 +258,9 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
 
   // Local selection state: index → tutorId
   const [selections, setSelections] = useState<Record<number, string>>({});
-  const [initialSelections, setInitialSelections] = useState<Record<number, string>>({});
+  const [initialSelections, setInitialSelections] = useState<
+    Record<number, string>
+  >({});
 
   // Initialise selections from existing assignments whenever the dialog opens
   useEffect(() => {
@@ -271,7 +283,10 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
   const hasChanges =
     totalParts > 0 &&
     Array.from({ length: totalParts }, (_, i) => i).some(
-      (i) => selections[i] && selections[i] !== "" && selections[i] !== initialSelections[i]
+      (i) =>
+        selections[i] &&
+        selections[i] !== "" &&
+        selections[i] !== initialSelections[i],
     );
 
   const handleSelect = (index: number, tutorId: string) => {
@@ -285,7 +300,10 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
     // Only send blocks where the selection has changed from the initial assignment
     const blocksToAssign = row.tutors
       .map((block, i) => ({ block, tutorId: selections[i] }))
-      .filter(({ tutorId }, i) => !!tutorId && tutorId !== "" && tutorId !== initialSelections[i]);
+      .filter(
+        ({ tutorId }, i) =>
+          !!tutorId && tutorId !== "" && tutorId !== initialSelections[i],
+      );
 
     try {
       for (const { block, tutorId } of blocksToAssign) {

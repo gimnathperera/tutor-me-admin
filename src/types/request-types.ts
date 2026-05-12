@@ -1,3 +1,5 @@
+import type { FaqCategory } from "@/lib/faq-categories";
+
 export type ContactUsRequest = {
   message: string;
   sender: {
@@ -114,6 +116,7 @@ export type FetchProfileRequest = {
 export type FetchFaqRequest = {
   page: number;
   limit: number;
+  category?: FaqCategory;
   sortBy?: string;
 };
 
