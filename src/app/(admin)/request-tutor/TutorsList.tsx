@@ -448,6 +448,7 @@ export default function RequestForTutorsList() {
           <AssignTutorDialog
             row={{
               id: row.id,
+              status: getEffectiveStatus(row) === "Rejected" ? "Rejected" : row.status,
               grade: getGradeId(row.grade),
               district: getSafeValue(row.city, ""),
               medium: getSafeValue(row.medium, ""),

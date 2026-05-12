@@ -42,6 +42,7 @@ export interface TutorRequestBlock {
 
 export interface AssignTutorRow {
   id: string;
+  status?: string;
   grade?: string;
   district?: string;
   medium?: string;
@@ -349,6 +350,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
   const totalCount = row.tutors?.length ?? 0;
   const isPartial = assignedCount > 0 && assignedCount < totalCount;
   const isFullyAssigned = assignedCount > 0 && assignedCount === totalCount;
+  const isRejected = row.status === "Rejected";
 
   return (
     <div className="flex items-center gap-2">
@@ -371,7 +373,17 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           {isPartial || isFullyAssigned ? (
-            <Button size="icon" variant="ghost" className="h-8 w-8">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              disabled={isRejected}
+              title={
+                isRejected
+                  ? "Rejected tutor requests cannot be assigned"
+                  : "Edit assigned tutors"
+              }
+            >
               <Edit size={16} />
             </Button>
           ) : (
@@ -379,6 +391,12 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
               size="sm"
               variant="outline"
               className="flex items-center gap-2"
+              disabled={isRejected}
+              title={
+                isRejected
+                  ? "Rejected tutor requests cannot be assigned"
+                  : "Assign tutors"
+              }
             >
               <Edit size={16} />
               Assign Tutors
