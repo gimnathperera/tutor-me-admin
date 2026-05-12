@@ -334,18 +334,12 @@ export function UpdateUser(props: UpdateUserProps) {
                     setPreviewUrl(url);
                   }}
                 />
-                {formState.errors.avatar && (
-                  <p className="text-sm text-red-500">
-                    {formState.errors.avatar.message}
-                  </p>
-                )}
 
                 {formState.errors.avatar && (
                   <p className="text-sm text-red-500">
                     {formState.errors.avatar.message}
                   </p>
                 )}
-
                 {previewUrl && (
                   <NextImage
                     src={previewUrl}
