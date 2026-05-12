@@ -130,7 +130,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
                 </div>
               ))
             ) : (
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm text-gray-400 dark:text-white/30">
                 Select option
               </span>
             )}
