@@ -376,7 +376,7 @@ export function DeleteTutor({
       const requestResponse = (await loadRequests({
         page: 1,
         limit: LARGE_LIMIT,
-        sortBy: "createdAt:desc",
+        sortBy: "updatedAt:desc",
       }).unwrap()) as PaginatedResponse<RequestTutors>;
 
       const requestRows = normalizeRequestRows(requestResponse);

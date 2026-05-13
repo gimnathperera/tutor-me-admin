@@ -24,6 +24,7 @@ import {
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { FetchRequestForTutor } from "@/types/request-types";
 import { RequestTutors } from "@/types/response-types";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
 import { Edit, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AssignTutorDialog } from "./assignTutor";
@@ -119,7 +120,7 @@ export default function RequestForTutorsList() {
       () => ({
         page: requestPage,
         limit: requestLimit,
-        sortBy: "createdAt:desc",
+        sortBy: "updatedAt:desc",
         ...(debouncedSearchTerm.trim()
           ? { search: debouncedSearchTerm.trim() }
           : {}),
@@ -295,9 +296,13 @@ export default function RequestForTutorsList() {
 
   const statusFilteredTutors = useMemo(
     () =>
-      filters.status === "all"
-        ? rawTutors
-        : rawTutors.filter((row) => getEffectiveStatus(row) === filters.status),
+      sortByLatestTimestampDesc(
+        filters.status === "all"
+          ? rawTutors
+          : rawTutors.filter(
+              (row) => getEffectiveStatus(row) === filters.status,
+            ),
+      ),
     [filters.status, getEffectiveStatus, rawTutors],
   );
   const tutors = hasStatusFilter

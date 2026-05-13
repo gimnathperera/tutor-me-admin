@@ -27,7 +27,7 @@ export default function InquiryTable() {
   const { data, isLoading } = useFetchInquiriesQuery({
     page,
     limit,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const inquiries =

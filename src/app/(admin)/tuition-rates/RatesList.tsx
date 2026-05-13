@@ -35,7 +35,7 @@ export default function TuitionRatesTable() {
   const { data, isLoading } = useFetchTuitionRatesQuery({
     page,
     limit,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const tuitionRates = data?.results || [];
