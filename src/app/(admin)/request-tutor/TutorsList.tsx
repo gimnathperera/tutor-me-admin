@@ -36,7 +36,7 @@ type RequestTutorStatusFilter =
   | "all"
   | "Pending"
   | "Rejected"
-  | "Assiged";
+  | "Tutor Assigned";
 
 type RequestTutorFilters = {
   status: RequestTutorStatusFilter;
@@ -69,7 +69,7 @@ const REQUEST_TUTOR_STATUS_OPTIONS: Array<{
   { value: "all", label: "All statuses" },
   { value: "Pending", label: "Pending" },
   { value: "Rejected", label: "Rejected" },
-  { value: "Assiged", label: "Assigned" },
+  { value: "Tutor Assigned", label: "Assigned" },
 ];
 
 const REQUEST_TUTOR_STATUS_CLASSES: Record<string, string> = {
@@ -85,7 +85,9 @@ function RequestTutorStatusBadge({ status }: { status: string }) {
   const normalizedStatus =
     status === "Rejected"
       ? "Rejected"
-      : status === "Assiged" || status === "Assigned"
+      : status === "Tutor Assigned" ||
+          status === "Assiged" ||
+          status === "Assigned"
         ? "Assigned"
         : "Pending";
   const className =
@@ -279,14 +281,15 @@ export default function RequestForTutorsList() {
   }, []);
 
   const getEffectiveStatus = useCallback(
-    (row: RequestTutors): "Pending" | "Rejected" | "Assiged" => {
+    (row: RequestTutors): "Pending" | "Rejected" | "Tutor Assigned" => {
       if (row.status === "Rejected") return "Rejected";
       if (
+        row.status === "Tutor Assigned" ||
         row.status === "Assiged" ||
         row.status === "Assigned" ||
         isRequestFullyAssigned(row)
       ) {
-        return "Assiged";
+        return "Tutor Assigned";
       }
 
       return "Pending";
@@ -422,7 +425,7 @@ export default function RequestForTutorsList() {
             <div className="flex flex-col items-center gap-2">
               <div className="flex items-center justify-center gap-2">
                 <RequestTutorStatusBadge status={effectiveStatus} />
-                {effectiveStatus === "Assiged" ? (
+                {effectiveStatus === "Tutor Assigned" ? (
                   <button
                     type="button"
                     disabled

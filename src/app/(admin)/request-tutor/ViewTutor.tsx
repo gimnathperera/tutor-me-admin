@@ -133,6 +133,7 @@ const getEffectiveStatus = (request?: {
   }
 
   if (
+    request?.status === "Tutor Assigned" ||
     request?.status === "Assigned" ||
     request?.status === "Assiged" ||
     isRequestFullyAssigned(request?.tutors)

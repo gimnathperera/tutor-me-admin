@@ -327,7 +327,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
       if (finalAssignedCount === row.tutors.length && finalAssignedCount > 0) {
         await updateStatus({
           requestId: row.id,
-          status: "Assiged",
+          status: "Tutor Assigned",
         }).unwrap();
       }
 
