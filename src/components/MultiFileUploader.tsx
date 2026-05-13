@@ -61,7 +61,7 @@ const getSafeFileType = (file: unknown): string => {
     if (typeof item.type === "string") return item.type;
   }
 
-  return "Others";
+  return "";
 };
 
 const normalizeFiles = (files?: unknown[]): CertificateFileItem[] => {
@@ -102,7 +102,7 @@ export default function MultiFileUploadDropzone(
 
       const incoming: NewFileItem[] = acceptedFiles.map((file) => ({
         file,
-        type: "Others",
+        type: "",
       }));
 
       setNewFiles((prev) => [...prev, ...incoming]);
@@ -290,6 +290,9 @@ export default function MultiFileUploadDropzone(
                         onClick={(e) => e.stopPropagation()}
                         className="w-full max-w-[220px] rounded border bg-white px-2 py-1 text-xs text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                       >
+                        <option value="" disabled>
+                          Document Type
+                        </option>
                         {CERTIFICATE_TYPE_OPTIONS.map((opt) => (
                           <option key={opt} value={opt}>
                             {opt}
@@ -357,6 +360,9 @@ export default function MultiFileUploadDropzone(
                       onClick={(e) => e.stopPropagation()}
                       className="w-full max-w-[220px] rounded border bg-white px-2 py-1 text-xs text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300"
                     >
+                      <option value="" disabled>
+                        Document Type
+                      </option>
                       {CERTIFICATE_TYPE_OPTIONS.map((opt) => (
                         <option key={opt} value={opt}>
                           {opt}

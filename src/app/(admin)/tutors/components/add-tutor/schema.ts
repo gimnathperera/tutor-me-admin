@@ -91,7 +91,7 @@ export const addTutorSchema = z
       .array(
         z.object({
           id: z.string().optional(),
-          type: z.string().min(1, "Certificate type is required"),
+          type: z.string().trim().min(1, "Document Type is required"),
           url: z.string().url("Must be a valid URL"),
         }),
       )

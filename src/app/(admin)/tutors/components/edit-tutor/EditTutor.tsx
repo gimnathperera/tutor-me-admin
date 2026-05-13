@@ -80,6 +80,30 @@ const LEGACY_EDUCATION_VALUE_MAP: Partial<Record<string, EducationEditValue>> =
 const EMAIL_IMMUTABLE_MESSAGE =
   "Email cannot be modified after tutor creation.";
 
+const getUploadErrorMessage = (error: unknown): string | undefined => {
+  if (!error || typeof error !== "object") return undefined;
+
+  if (Array.isArray(error)) {
+    for (const item of error) {
+      const message = getUploadErrorMessage(item);
+      if (message) return message;
+    }
+
+    return undefined;
+  }
+
+  const errorRecord = error as Record<string, unknown>;
+
+  if (typeof errorRecord.message === "string") return errorRecord.message;
+
+  for (const value of Object.values(errorRecord)) {
+    const message = getUploadErrorMessage(value);
+    if (message) return message;
+  }
+
+  return undefined;
+};
+
 const getMinimumAdultBirthDate = () => {
   const today = new Date();
   return new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
@@ -457,6 +481,9 @@ export function EditTutor({ id }: EditTutorProps) {
       });
     },
   });
+  const uploadErrorMessage = getUploadErrorMessage(
+    formState.errors.certificatesAndQualifications,
+  );
 
   if (isFetching) {
     return <p>Loading tutor details...</p>;
@@ -799,7 +826,7 @@ export function EditTutor({ id }: EditTutorProps) {
               </div>
 
               <div className="space-y-3 rounded-md border p-4">
-                <Label>Certificates & Qualifications *</Label>
+                <Label>Document Upload *</Label>
                 <MultiFileUploader
                   mode="certificate"
                   defaultFiles={tutorData?.certificatesAndQualifications || []}
@@ -814,9 +841,9 @@ export function EditTutor({ id }: EditTutorProps) {
                     )
                   }
                 />
-                {formState.errors.certificatesAndQualifications && (
+                {uploadErrorMessage && (
                   <p className="text-sm text-red-500">
-                    {formState.errors.certificatesAndQualifications.message}
+                    {uploadErrorMessage}
                   </p>
                 )}
               </div>
