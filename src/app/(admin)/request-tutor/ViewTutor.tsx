@@ -111,6 +111,38 @@ const getAssignedTutorDisplayItems = (
   return [];
 };
 
+const hasAssignedTutor = (assignedTutor: unknown) =>
+  getAssignedTutorIds(assignedTutor).length > 0;
+
+const isRequestFullyAssigned = (
+  tutorBlocks?: Array<{ assignedTutor?: unknown }>,
+) => {
+  if (!Array.isArray(tutorBlocks) || tutorBlocks.length === 0) {
+    return false;
+  }
+
+  return tutorBlocks.every((block) => hasAssignedTutor(block.assignedTutor));
+};
+
+const getEffectiveStatus = (request?: {
+  status?: string;
+  tutors?: Array<{ assignedTutor?: unknown }>;
+}) => {
+  if (request?.status === "Rejected") {
+    return "Rejected";
+  }
+
+  if (
+    request?.status === "Assigned" ||
+    request?.status === "Assiged" ||
+    isRequestFullyAssigned(request?.tutors)
+  ) {
+    return "Assigned";
+  }
+
+  return "Pending";
+};
+
 function AssignedTutorBadge({
   item,
   tutorNameById,
@@ -223,6 +255,7 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
       ),
     [subjectsData?.results],
   );
+  const effectiveStatus = useMemo(() => getEffectiveStatus(tutor), [tutor]);
 
   const displayFieldClass =
     "w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-700 dark:text-white/90 min-h-[2rem] overflow-auto scrollbar-thin";
@@ -391,7 +424,9 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
             <div className="grid gap-3">
               <Label>Status</Label>
               <div className={displayFieldClass}>
-                {getSafeValue(tutor?.status)}
+                <span className="text-gray-900 dark:text-white/90">
+                  {effectiveStatus}
+                </span>
               </div>
             </div>
 
