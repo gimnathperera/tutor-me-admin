@@ -36,8 +36,7 @@ export const updateTutorSchema = z.object({
       z
         .string()
         .regex(/^\d+$/, "Contact number must contain only numbers")
-        .min(7, "Contact number must be at least 7 digits")
-        .max(15, "Contact number must be at most 15 digits"),
+        .length(10, "Contact number must be exactly 10 digits"),
     )
     .optional(),
   email: z

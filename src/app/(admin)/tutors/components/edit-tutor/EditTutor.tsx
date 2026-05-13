@@ -533,12 +533,12 @@ export function EditTutor({ id }: EditTutorProps) {
                       id="contactNumber"
                       type="tel"
                       placeholder="e.g 0712345678"
-                      maxLength={15}
+                      maxLength={10}
                       value={field.value ?? ""}
                       onChange={(e) => {
                         const digits = e.target.value
                           .replace(/\D/g, "")
-                          .slice(0, 15);
+                          .slice(0, 10);
                         field.onChange(digits);
                       }}
                     />
