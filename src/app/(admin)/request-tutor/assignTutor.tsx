@@ -139,12 +139,15 @@ function TutorBlockItem({
           (tutorBlock.preferredTutorType ?? "").toLowerCase(),
       );
 
-    const isOnlineRequest = Array.isArray(tutorBlock.preferredClassType)
-      ? tutorBlock.preferredClassType.some((c) =>
-          c.toLowerCase().includes("online"),
-        )
-      : (tutorBlock.preferredClassType?.toLowerCase().includes("online") ??
-        false);
+    const preferredClassTypes = Array.isArray(tutorBlock.preferredClassType)
+      ? tutorBlock.preferredClassType.map((c) => c.toLowerCase())
+      : tutorBlock.preferredClassType
+        ? [tutorBlock.preferredClassType.toLowerCase()]
+        : [];
+
+    const isOnlineRequest = preferredClassTypes.some((c) =>
+      c.includes("online"),
+    );
 
     const locationPass =
       isOnlineRequest ||
@@ -153,7 +156,13 @@ function TutorBlockItem({
         (loc) => loc.toLowerCase() === district.toLowerCase(),
       );
 
-    return mediumMatch && tutorTypeMatch && locationPass;
+    const classTypeMatch =
+      preferredClassTypes.length === 0 ||
+      preferredClassTypes.some((requested) =>
+        tutor.classType.some((ct) => ct.toLowerCase() === requested),
+      );
+
+    return mediumMatch && tutorTypeMatch && locationPass && classTypeMatch;
   });
 
   const noResults = !isLoading && tutors.length === 0;
@@ -316,28 +325,33 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
           assignedTutor: tutorId,
         }).unwrap();
       }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to assign tutors");
+      return;
+    }
 
-      // Check if all tutor blocks are now assigned
-      const finalAssignedCount = row.tutors.filter((t, i) => {
-        const newlyAssignedId = selections[i];
-        const isNowAssigned = newlyAssignedId && newlyAssignedId !== "";
-        return isNowAssigned || getAssignedTutorId(t.assignedTutor);
-      }).length;
+    // Assignments succeeded — try status update separately (non-critical)
+    const finalAssignedCount = row.tutors.filter((t, i) => {
+      const newlyAssignedId = selections[i];
+      const isNowAssigned = newlyAssignedId && newlyAssignedId !== "";
+      return isNowAssigned || getAssignedTutorId(t.assignedTutor);
+    }).length;
 
-      if (finalAssignedCount === row.tutors.length && finalAssignedCount > 0) {
+    if (finalAssignedCount === row.tutors.length && finalAssignedCount > 0) {
+      try {
         await updateStatus({
           requestId: row.id,
           status: "Tutor Assigned",
         }).unwrap();
+      } catch (err) {
+        console.error("Status update failed (non-critical):", err);
       }
-
-      toast.success("Tutors assigned successfully");
-      onUpdated?.();
-      setOpen(false);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to assign tutors");
     }
+
+    toast.success("Tutors assigned successfully");
+    onUpdated?.();
+    setOpen(false);
   };
 
   const handleCancel = () => {
