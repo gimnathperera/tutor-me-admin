@@ -4,6 +4,7 @@ import DataTable, { type Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
 import { Search } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
@@ -33,7 +34,7 @@ export default function GradesTable() {
   const { data, isLoading } = useFetchGradesQuery({
     page: 1,
     limit: 1000,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const getSafeValue = (
@@ -56,14 +57,16 @@ export default function GradesTable() {
     const query = searchTerm.trim().toLowerCase();
     const grades = data?.results || [];
 
-    if (!query) return grades;
+    if (!query) return sortByLatestTimestampDesc(grades);
 
-    return grades.filter((grade: Grade) => {
-      const title = getSafeValue(grade.title, "").toLowerCase();
-      const description = getSafeValue(grade.description, "").toLowerCase();
+    return sortByLatestTimestampDesc(
+      grades.filter((grade: Grade) => {
+        const title = getSafeValue(grade.title, "").toLowerCase();
+        const description = getSafeValue(grade.description, "").toLowerCase();
 
-      return title.includes(query) || description.includes(query);
-    });
+        return title.includes(query) || description.includes(query);
+      }),
+    );
   }, [data, searchTerm]);
 
   // Apply pagination after filtering

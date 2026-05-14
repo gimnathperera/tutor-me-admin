@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { cn } from "@/lib/utils";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
 import {
   Pagination,
   PaginationContent,
@@ -112,12 +113,13 @@ export default function DataTable<T extends { id: string | number }>({
     totalPages,
     siblingCount: 1,
   });
+  const latestSortedData = useMemo(() => sortByLatestTimestampDesc(data), [data]);
 
   const rowsToRender = isLoading
     ? Array.from({ length: limit }).map((_, currentPage) => ({
         id: `skeleton-${currentPage}`,
       }))
-    : data;
+    : latestSortedData;
 
   if (!isLoading && (!data || data.length === 0)) {
     return (

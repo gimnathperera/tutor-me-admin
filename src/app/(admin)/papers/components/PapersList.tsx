@@ -3,6 +3,7 @@
 import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchPapersQuery } from "@/store/api/splits/papers";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
 import { Copy, FileText, Search } from "lucide-react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { useMemo, useState } from "react";
@@ -68,7 +69,7 @@ export default function PapersTable() {
   const { data, isLoading } = useFetchPapersQuery({
     page: 1,
     limit: 1000,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const getSafeValue = (value: unknown, fallback = "N/A"): string => {
@@ -161,29 +162,35 @@ export default function PapersTable() {
     const query = searchTerm.trim().toLowerCase();
     const papers = data?.results || [];
 
-    if (!query) return papers;
+    if (!query) return sortByLatestTimestampDesc(papers);
 
-    return papers.filter((paper: Paper) => {
-      const title = getSafeValue(paper.title, "").toLowerCase();
-      const subject = getSafeNestedValue(
-        paper.subject,
-        "title",
-        "",
-      ).toLowerCase();
-      const grade = getSafeNestedValue(paper.grade, "title", "").toLowerCase();
-      const year = getSafeValue(paper.year, "").toLowerCase();
-      const medium = getSafeMedium(paper.medium, "").toLowerCase();
-      const url = getSafeValue(paper.url, "").toLowerCase();
+    return sortByLatestTimestampDesc(
+      papers.filter((paper: Paper) => {
+        const title = getSafeValue(paper.title, "").toLowerCase();
+        const subject = getSafeNestedValue(
+          paper.subject,
+          "title",
+          "",
+        ).toLowerCase();
+        const grade = getSafeNestedValue(
+          paper.grade,
+          "title",
+          "",
+        ).toLowerCase();
+        const year = getSafeValue(paper.year, "").toLowerCase();
+        const medium = getSafeMedium(paper.medium, "").toLowerCase();
+        const url = getSafeValue(paper.url, "").toLowerCase();
 
-      return (
-        title.includes(query) ||
-        subject.includes(query) ||
-        grade.includes(query) ||
-        year.includes(query) ||
-        medium.includes(query) ||
-        url.includes(query)
-      );
-    });
+        return (
+          title.includes(query) ||
+          subject.includes(query) ||
+          grade.includes(query) ||
+          year.includes(query) ||
+          medium.includes(query) ||
+          url.includes(query)
+        );
+      }),
+    );
   }, [data, searchTerm]);
 
   // Apply pagination after filtering

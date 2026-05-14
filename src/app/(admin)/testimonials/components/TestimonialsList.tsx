@@ -6,6 +6,7 @@ import DataTable, { type Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTestimonialsQuery } from "@/store/api/splits/testimonials";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
 import { Search, Star, User } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
@@ -34,7 +35,7 @@ export default function TestimonialsTable() {
   const { data, isLoading } = useFetchTestimonialsQuery({
     page: 1,
     limit: 1000,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const getSafeValue = (value: unknown, fallback = "N/A"): string => {
@@ -48,21 +49,23 @@ export default function TestimonialsTable() {
     const query = searchTerm.toLowerCase().trim();
     const testimonials = data?.results || [];
 
-    if (!query) return testimonials;
+    if (!query) return sortByLatestTimestampDesc(testimonials);
 
-    return testimonials.filter((t: Testimonial) => {
-      const ownerName = getSafeValue(t.owner?.name, "").toLowerCase();
-      const ownerRole = getSafeValue(t.owner?.role, "").toLowerCase();
-      const content = getSafeValue(t.content, "").toLowerCase();
-      const rating = getSafeValue(t.rating, "").toLowerCase();
+    return sortByLatestTimestampDesc(
+      testimonials.filter((t: Testimonial) => {
+        const ownerName = getSafeValue(t.owner?.name, "").toLowerCase();
+        const ownerRole = getSafeValue(t.owner?.role, "").toLowerCase();
+        const content = getSafeValue(t.content, "").toLowerCase();
+        const rating = getSafeValue(t.rating, "").toLowerCase();
 
-      return (
-        ownerName.includes(query) ||
-        ownerRole.includes(query) ||
-        content.includes(query) ||
-        rating.includes(query)
-      );
-    });
+        return (
+          ownerName.includes(query) ||
+          ownerRole.includes(query) ||
+          content.includes(query) ||
+          rating.includes(query)
+        );
+      }),
+    );
   }, [data, searchTerm]);
 
   // Apply pagination after filtering

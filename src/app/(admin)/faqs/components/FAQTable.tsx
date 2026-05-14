@@ -17,6 +17,7 @@ import {
 } from "@/lib/faq-categories";
 import { useFetchFaqsQuery } from "@/store/api/splits/faqs";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
 import { Layers3, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
@@ -47,7 +48,7 @@ export default function FAQTable() {
   const { data, isLoading } = useFetchFaqsQuery({
     page: 1,
     limit: 1000,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const handlePageChange = (newPage: number) => {
@@ -72,29 +73,31 @@ export default function FAQTable() {
     const query = searchTerm.trim().toLowerCase();
     const faqs = data?.results || [];
 
-    return faqs.filter((faq: FAQ) => {
-      const matchesCategory =
-        categoryFilter === ALL_CATEGORIES ||
-        getFaqCategoryValue(faq.category) === categoryFilter;
+    return sortByLatestTimestampDesc(
+      faqs.filter((faq: FAQ) => {
+        const matchesCategory =
+          categoryFilter === ALL_CATEGORIES ||
+          getFaqCategoryValue(faq.category) === categoryFilter;
 
-      if (!matchesCategory) {
-        return false;
-      }
+        if (!matchesCategory) {
+          return false;
+        }
 
-      if (!query) {
-        return true;
-      }
+        if (!query) {
+          return true;
+        }
 
-      const question = getSafeValue(faq.question, "").toLowerCase();
-      const answer = getSafeValue(faq.answer, "").toLowerCase();
-      const category = getFaqCategoryLabel(faq.category).toLowerCase();
+        const question = getSafeValue(faq.question, "").toLowerCase();
+        const answer = getSafeValue(faq.answer, "").toLowerCase();
+        const category = getFaqCategoryLabel(faq.category).toLowerCase();
 
-      return (
-        question.includes(query) ||
-        answer.includes(query) ||
-        category.includes(query)
-      );
-    });
+        return (
+          question.includes(query) ||
+          answer.includes(query) ||
+          category.includes(query)
+        );
+      }),
+    );
   }, [categoryFilter, data, searchTerm]);
 
   // Apply pagination after filtering

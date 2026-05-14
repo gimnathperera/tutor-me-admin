@@ -58,7 +58,7 @@ export default function BlogsTable() {
   const { data, isLoading, refetch } = useFetchBlogsQuery({
     page,
     limit,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const blogs: BlogRow[] = (data?.results || []) as BlogRow[];

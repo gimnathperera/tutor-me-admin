@@ -77,6 +77,30 @@ const EMAIL_CHECK_DELAY_MS = 500;
 const DUPLICATE_EMAIL_MESSAGE = "Email already exists";
 const EMAIL_FORMAT_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const getUploadErrorMessage = (error: unknown): string | undefined => {
+  if (!error || typeof error !== "object") return undefined;
+
+  if (Array.isArray(error)) {
+    for (const item of error) {
+      const message = getUploadErrorMessage(item);
+      if (message) return message;
+    }
+
+    return undefined;
+  }
+
+  const errorRecord = error as Record<string, unknown>;
+
+  if (typeof errorRecord.message === "string") return errorRecord.message;
+
+  for (const value of Object.values(errorRecord)) {
+    const message = getUploadErrorMessage(value);
+    if (message) return message;
+  }
+
+  return undefined;
+};
+
 const isDuplicateEmailError = (error: string) => {
   const normalizedError = error.toLowerCase();
 
@@ -548,6 +572,9 @@ export function AddTutor() {
       });
     },
   });
+  const uploadErrorMessage = getUploadErrorMessage(
+    formState.errors.certificatesAndQualifications,
+  );
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
@@ -1021,7 +1048,7 @@ export function AddTutor() {
               />
 
               <div className="space-y-3 rounded-md border p-4">
-                <Label>Certificates & Qualifications *</Label>
+                <Label>Document Upload *</Label>
                 <MultiFileUploader
                   mode="certificate"
                   onUploaded={(items) =>
@@ -1031,10 +1058,9 @@ export function AddTutor() {
                     })
                   }
                 />
-                {formState.isSubmitted &&
-                  formState.errors.certificatesAndQualifications && (
+                {formState.isSubmitted && uploadErrorMessage && (
                     <p className="text-sm text-red-500">
-                      {formState.errors.certificatesAndQualifications.message}
+                      {uploadErrorMessage}
                     </p>
                   )}
               </div>
