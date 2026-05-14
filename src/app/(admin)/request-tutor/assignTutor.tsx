@@ -342,7 +342,7 @@ export function AssignTutorDialog({ row, onUpdated }: Props) {
       try {
         await updateStatus({
           requestId: row.id,
-          status: "Assiged",
+          status: "Tutor Assigned",
         }).unwrap();
       } catch (err) {
         console.error("Status update failed (non-critical):", err);

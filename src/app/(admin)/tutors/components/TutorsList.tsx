@@ -446,7 +446,7 @@ export default function TutorsList() {
     () => ({
       page,
       limit,
-      sortBy: "createdAt:desc",
+      sortBy: "updatedAt:desc",
       ...(debouncedSearchTerm.trim()
         ? { search: debouncedSearchTerm.trim() }
         : {}),

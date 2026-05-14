@@ -22,7 +22,7 @@ export default function TagsList() {
   const { data, isLoading } = useFetchTagsQuery({
     page,
     limit,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const tags = data?.results || [];

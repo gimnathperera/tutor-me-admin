@@ -14,7 +14,7 @@ export default function AssignmentsList() {
   const { data, isLoading } = useFetchAssignmentsQuery({
     page,
     limit,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const assignments = data?.results || [];

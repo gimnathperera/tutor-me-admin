@@ -12,7 +12,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -29,7 +32,7 @@ import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { useDeleteTutorMutation } from "@/store/api/splits/tutors";
 import type { PaginatedResponse, RequestTutors } from "@/types/response-types";
 import { getErrorInApiResult } from "@/utils/api";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, TriangleAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -153,42 +156,81 @@ function AssignedRequestsModal({
     return lookup.get(rawValue) || rawValue;
   };
 
+  const requestCountLabel = `${requestRows.length} assigned ${
+    requestRows.length === 1 ? "request" : "requests"
+  }`;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[760px] bg-white p-0 dark:bg-gray-800 dark:text-white/90">
-        <DialogHeader className="flex-row items-start justify-between border-b bg-white px-6 py-4 dark:bg-gray-800">
-          <div className="space-y-2 text-left">
-            <DialogTitle>Assigned Tutor Requests</DialogTitle>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {tutorName
-                ? `${tutorName} cannot be deleted because they are assigned to the following tutor request blocks. Please unassign them from these blocks before deleting.`
-                : "This tutor cannot be deleted because they are assigned to the following tutor request blocks. Please unassign them from these blocks before deleting."}
-            </p>
+      <DialogContent className="bg-white p-0 dark:bg-gray-900 dark:text-white/90 sm:max-w-[680px]">
+        <DialogHeader className="border-b border-gray-100 bg-white px-0 pb-5 pt-1 dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-start gap-4 border-l-4 border-error-500 pl-4 pr-8">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-error-100 bg-error-50 text-error-500 dark:border-error-500/25 dark:bg-error-500/10 dark:text-error-400">
+              <TriangleAlert className="h-5 w-5" aria-hidden="true" />
+            </div>
+
+            <div className="min-w-0 flex-1 text-left">
+              <div className="mb-2 flex flex-wrap items-center gap-3">
+                <span className="text-xs font-semibold uppercase text-error-500 dark:text-error-400">
+                  Deletion blocked
+                </span>
+                {!isLoading && requestRows.length > 0 && (
+                  <span className="rounded-full bg-success-50 px-2.5 py-1 text-xs font-medium text-success-700 ring-1 ring-success-200 dark:bg-success-500/10 dark:text-success-300 dark:ring-success-500/20">
+                    {requestCountLabel}
+                  </span>
+                )}
+              </div>
+              <DialogTitle className="text-xl leading-7 text-gray-900 dark:text-white">
+                Assigned Tutor Requests
+              </DialogTitle>
+              <DialogDescription className="mt-2 max-w-[560px] text-sm leading-6 text-gray-600 dark:text-gray-300">
+                {tutorName ? (
+                  <>
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {tutorName}
+                    </span>{" "}
+                    cannot be deleted because they are assigned to the request
+                    blocks below. Unassign them first, then try deleting again.
+                  </>
+                ) : (
+                  "This tutor cannot be deleted because they are assigned to the request blocks below. Unassign them first, then try deleting again."
+                )}
+              </DialogDescription>
+            </div>
           </div>
         </DialogHeader>
 
-        <div className="max-h-[65vh] overflow-y-auto px-6 py-6 scrollbar-thin">
+        <div className="max-h-[52vh] overflow-y-auto py-5 scrollbar-thin">
           {isLoading ? (
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex min-h-24 items-center justify-center gap-2 rounded-lg border border-dashed border-gray-200 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
               <Loader2 className="h-4 w-4 animate-spin" />
               Loading assigned requests...
             </div>
           ) : requestRows.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="rounded-lg border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
               No assigned requests found.
             </p>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-              <Table>
-                <TableHeader className="border-b border-gray-200 dark:border-gray-700">
+            <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+              <Table className="min-w-[600px]">
+                <TableHeader className="border-b border-brand-100 bg-brand-50/70 dark:border-brand-500/20 dark:bg-brand-500/10">
                   <TableRow>
-                    <TableCell isHeader className="px-4 py-3 text-left">
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 text-left text-xs font-semibold uppercase text-brand-700 dark:text-brand-300"
+                    >
                       Requests For Tutors Email
                     </TableCell>
-                    <TableCell isHeader className="px-4 py-3 text-left">
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 text-left text-xs font-semibold uppercase text-brand-700 dark:text-brand-300"
+                    >
                       Grade Name
                     </TableCell>
-                    <TableCell isHeader className="px-4 py-3 text-left">
+                    <TableCell
+                      isHeader
+                      className="px-5 py-3 text-left text-xs font-semibold uppercase text-brand-700 dark:text-brand-300"
+                    >
                       Subject Name
                     </TableCell>
                   </TableRow>
@@ -196,17 +238,17 @@ function AssignedRequestsModal({
                 <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {requestRows.map((row) => (
                     <TableRow key={row.id}>
-                      <TableCell className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                      <TableCell className="px-5 py-4 text-sm font-medium text-gray-700 dark:text-gray-200">
                         {row.requestEmail}
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                      <TableCell className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
                         {getDisplayNameFromEntity(
                           row.grade,
                           gradeTitleById,
                           "Unknown grade",
                         )}
                       </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-700 dark:text-gray-200">
+                      <TableCell className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
                         {getDisplayNameFromEntity(
                           row.subject,
                           subjectTitleById,
@@ -220,6 +262,12 @@ function AssignedRequestsModal({
             </div>
           )}
         </div>
+
+        <DialogFooter className="mt-0 border-t border-gray-100 px-0 pb-1 pt-4 dark:border-gray-800">
+          <DialogClose className="inline-flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+            Close
+          </DialogClose>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -328,7 +376,7 @@ export function DeleteTutor({
       const requestResponse = (await loadRequests({
         page: 1,
         limit: LARGE_LIMIT,
-        sortBy: "createdAt:desc",
+        sortBy: "updatedAt:desc",
       }).unwrap()) as PaginatedResponse<RequestTutors>;
 
       const requestRows = normalizeRequestRows(requestResponse);
