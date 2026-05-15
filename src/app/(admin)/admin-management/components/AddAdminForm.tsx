@@ -9,7 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { useCreateAdminMutation } from "@/store/api/splits/admins";
+import { useLazyFetchUsersQuery } from "@/store/api/splits/users";
 import { getErrorInApiResult } from "@/utils/api";
 import {
   collapseTextSpaces,
@@ -17,9 +19,16 @@ import {
   stripLeadingSpaces,
 } from "@/utils/form-normalizers";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
-import { type KeyboardEvent, useState } from "react";
-import { useForm } from "react-hook-form";
+import {
+  CheckCircle2,
+  CircleCheck,
+  CircleX,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+} from "lucide-react";
+import { type KeyboardEvent, useEffect, useRef, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
   createAdminSchema,
@@ -39,10 +48,40 @@ const preventWhitespaceKey = (event: KeyboardEvent<HTMLInputElement>) => {
   }
 };
 
+const EMAIL_CHECK_DELAY_MS = 500;
+const DUPLICATE_EMAIL_MESSAGE = "Email already exists";
+const EMAIL_FORMAT_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type EmailAvailabilityState = "available" | "unavailable" | null;
+
+const hasExistingEmail = (
+  users: Array<{ email?: string }> | undefined,
+  email: string,
+) =>
+  Boolean(
+    users?.some((user) => user.email?.trim().toLowerCase() === email),
+  );
+
+const isDuplicateEmailError = (error: string) => {
+  const normalizedError = error.toLowerCase();
+
+  return (
+    normalizedError.includes("email") &&
+    (normalizedError.includes("already exists") ||
+      normalizedError.includes("already in use") ||
+      normalizedError.includes("already taken"))
+  );
+};
+
 export default function AddAdminForm() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [emailAvailability, setEmailAvailability] =
+    useState<EmailAvailabilityState>(null);
   const [createAdmin, { isLoading }] = useCreateAdminMutation();
+  const [fetchUsersByEmail, { isFetching: isCheckingEmail }] =
+    useLazyFetchUsersQuery();
+  const latestEmailRef = useRef("");
 
   const form = useForm<CreateAdminSchema>({
     resolver: zodResolver(createAdminSchema),
@@ -52,22 +91,114 @@ export default function AddAdminForm() {
 
   const {
     formState: { errors },
+    clearErrors,
     reset,
+    setError,
+    setFocus,
     setValue,
   } = form;
+  const email = useWatch({
+    control: form.control,
+    name: "email",
+    defaultValue: "",
+  });
+
+  useEffect(() => {
+    const normalizedEmail =
+      typeof email === "string" ? removeWhitespace(email).toLowerCase() : "";
+
+    latestEmailRef.current = normalizedEmail;
+
+    if (!normalizedEmail || !EMAIL_FORMAT_PATTERN.test(normalizedEmail)) {
+      setEmailAvailability(null);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      const result = await fetchUsersByEmail(
+        {
+          search: normalizedEmail,
+          page: 1,
+          limit: 100,
+        },
+        true,
+      );
+
+      if (latestEmailRef.current !== normalizedEmail) return;
+
+      if (!result.data) {
+        setEmailAvailability(null);
+        return;
+      }
+
+      const emailExists = hasExistingEmail(result.data?.results, normalizedEmail);
+
+      if (emailExists) {
+        setEmailAvailability("unavailable");
+        setError("email", {
+          type: "server",
+          message: DUPLICATE_EMAIL_MESSAGE,
+        });
+        return;
+      }
+
+      setEmailAvailability("available");
+      if (errors.email?.type === "server") {
+        clearErrors("email");
+      }
+    }, EMAIL_CHECK_DELAY_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [
+    clearErrors,
+    email,
+    errors.email?.type,
+    fetchUsersByEmail,
+    setError,
+  ]);
 
   const onSubmit = async (values: CreateAdminSchema) => {
     const cleanedValues: CreateAdminSchema = {
       name: collapseTextSpaces(values.name),
-      email: removeWhitespace(values.email),
+      email: removeWhitespace(values.email).toLowerCase(),
       phoneNumber: values.phoneNumber.trim(),
       password: values.password.trim(),
     };
+
+    const emailResult = await fetchUsersByEmail({
+      search: cleanedValues.email,
+      page: 1,
+      limit: 100,
+    });
+    const emailExists = hasExistingEmail(
+      emailResult.data?.results,
+      cleanedValues.email,
+    );
+
+    if (emailExists) {
+      setEmailAvailability("unavailable");
+      setError("email", {
+        type: "server",
+        message: DUPLICATE_EMAIL_MESSAGE,
+      });
+      setFocus("email");
+      return;
+    }
 
     const result = await createAdmin(cleanedValues);
     const error = getErrorInApiResult(result);
 
     if (error) {
+      if (isDuplicateEmailError(error)) {
+        setEmailAvailability("unavailable");
+        setError("email", {
+          type: "server",
+          message: DUPLICATE_EMAIL_MESSAGE,
+        });
+        setFocus("email");
+        return;
+      }
+
       toast.error(error);
       return;
     }
@@ -76,6 +207,7 @@ export default function AddAdminForm() {
     toast.success("Admin created successfully");
     reset(initialAdminValues);
     setShowPassword(false);
+    setEmailAvailability(null);
   };
 
   const nameRegister = form.register("name", {
@@ -189,14 +321,54 @@ export default function AddAdminForm() {
                 >
                   Email *
                 </label>
-                <Input
-                  id="email"
-                  type="email"
-                  onKeyDown={preventWhitespaceKey}
-                  {...emailRegister}
-                />
-                {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    onKeyDown={preventWhitespaceKey}
+                    className={`pr-10 ${
+                      errors.email || emailAvailability === "unavailable"
+                        ? "border-red-500"
+                        : ""
+                    }`}
+                    {...emailRegister}
+                  />
+                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
+                    {isCheckingEmail ? (
+                      <Spinner className="text-gray-400" />
+                    ) : errors.email || emailAvailability === "unavailable" ? (
+                      <CircleX
+                        className="h-4 w-4 text-red-500"
+                        aria-hidden="true"
+                      />
+                    ) : emailAvailability === "available" ? (
+                      <CircleCheck
+                        className="h-4 w-4 text-green-600"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                  </span>
+                </div>
+                {errors.email ? (
+                  <p className="min-h-4 text-sm leading-4 text-red-500">
+                    {errors.email.message}
+                  </p>
+                ) : emailAvailability === "unavailable" ? (
+                  <p className="min-h-4 text-sm leading-4 text-red-500">
+                    {DUPLICATE_EMAIL_MESSAGE}
+                  </p>
+                ) : isCheckingEmail ? (
+                  <p className="min-h-4 text-sm leading-4 text-gray-500">
+                    Checking email availability...
+                  </p>
+                ) : emailAvailability === "available" ? (
+                  <p className="min-h-4 text-sm leading-4 text-green-600">
+                    Email is available
+                  </p>
+                ) : (
+                  <p className="min-h-4 text-sm leading-4 text-gray-500">
+                    Enter a valid email address
+                  </p>
                 )}
               </div>
             </div>
@@ -279,6 +451,7 @@ export default function AddAdminForm() {
                 type="submit"
                 className="bg-blue-700 text-white hover:bg-blue-600"
                 isLoading={isLoading}
+                disabled={isLoading || isCheckingEmail}
               >
                 Create Admin
               </Button>
@@ -288,6 +461,7 @@ export default function AddAdminForm() {
                 onClick={() => {
                   reset(initialAdminValues);
                   setShowPassword(false);
+                  setEmailAvailability(null);
                 }}
               >
                 Clear Form

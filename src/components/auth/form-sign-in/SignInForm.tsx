@@ -160,6 +160,21 @@ export default function SignInForm() {
                     label="Password"
                     name="password"
                     placeholder="*******"
+                    onKeyDown={(e) => {
+                      if (e.key === " ") {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) => {
+                      loginForm.setValue(
+                        "password",
+                        e.target.value.replace(/\s/g, ""),
+                        {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        },
+                      );
+                    }}
                   />
                 </div>
 

@@ -4,6 +4,7 @@ import DataTable from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
 
 import { Grade, Subject } from "@/types/grade-types";
 import { Layers3, Search } from "lucide-react";
@@ -21,7 +22,7 @@ export default function SubjectsTable() {
   const { data, isLoading } = useFetchGradesQuery({
     page,
     limit,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const totalPages = data?.totalPages || 0;
@@ -52,10 +53,12 @@ export default function SubjectsTable() {
     const query = searchTerm.trim().toLowerCase();
     const grades = data?.results || [];
 
-    if (!query) return grades;
+    if (!query) return sortByLatestTimestampDesc(grades);
 
-    return grades.filter((grade: Grade) =>
-      getSafeValue(grade.title, "").toLowerCase().includes(query),
+    return sortByLatestTimestampDesc(
+      grades.filter((grade: Grade) =>
+        getSafeValue(grade.title, "").toLowerCase().includes(query),
+      ),
     );
   }, [data, searchTerm]);
 

@@ -4,6 +4,7 @@ import DataTable, { type Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
 import { Search } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
@@ -27,7 +28,7 @@ export default function SubjectsTable() {
   const { data, isLoading } = useFetchSubjectsQuery({
     page: 1,
     limit: 1000,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const handlePageChange = (newPage: number) => {
@@ -49,10 +50,12 @@ export default function SubjectsTable() {
     const query = searchTerm.trim().toLowerCase();
     const subjects = data?.results || [];
 
-    if (!query) return subjects;
+    if (!query) return sortByLatestTimestampDesc(subjects);
 
-    return subjects.filter((subject: Subject) =>
-      getSafeValue(subject.title, "").toLowerCase().includes(query),
+    return sortByLatestTimestampDesc(
+      subjects.filter((subject: Subject) =>
+        getSafeValue(subject.title, "").toLowerCase().includes(query),
+      ),
     );
   }, [data, searchTerm]);
 

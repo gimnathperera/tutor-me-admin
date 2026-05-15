@@ -20,25 +20,23 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import {
   useFetchRequestForTutorsQuery,
-  useGenerateTutorMatchReportMutation,
 } from "@/store/api/splits/request-tutor";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { FetchRequestForTutor } from "@/types/request-types";
 import { RequestTutors } from "@/types/response-types";
-import { CheckCircle2, Loader2, Mail, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import toast from "react-hot-toast";
+import { sortByLatestTimestampDesc } from "@/utils/table-sorting";
+import { Edit, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AssignTutorDialog } from "./assignTutor";
 import { ChangeStatusDialog } from "./changeStatus";
 import { DeleteTutorRequest } from "./DeleteTutor";
-import {
-  formatTutorMatchReportSummaryText,
-  normalizeTutorMatchReportSummary,
-  type MatchReportSummary,
-} from "./match-report";
 import { ViewTutorRequests } from "./ViewTutor";
 
-type RequestTutorStatusFilter = "all" | "Pending" | "Rejected";
+type RequestTutorStatusFilter =
+  | "all"
+  | "Pending"
+  | "Rejected"
+  | "Tutor Assigned";
 
 type RequestTutorFilters = {
   status: RequestTutorStatusFilter;
@@ -71,6 +69,7 @@ const REQUEST_TUTOR_STATUS_OPTIONS: Array<{
   { value: "all", label: "All statuses" },
   { value: "Pending", label: "Pending" },
   { value: "Rejected", label: "Rejected" },
+  { value: "Tutor Assigned", label: "Assigned" },
 ];
 
 const REQUEST_TUTOR_STATUS_CLASSES: Record<string, string> = {
@@ -78,10 +77,19 @@ const REQUEST_TUTOR_STATUS_CLASSES: Record<string, string> = {
     "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200",
   Rejected:
     "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200",
+  Assigned:
+    "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200",
 };
 
 function RequestTutorStatusBadge({ status }: { status: string }) {
-  const normalizedStatus = status === "Rejected" ? "Rejected" : "Pending";
+  const normalizedStatus =
+    status === "Rejected"
+      ? "Rejected"
+      : status === "Tutor Assigned" ||
+          status === "Assiged" ||
+          status === "Assigned"
+        ? "Assigned"
+        : "Pending";
   const className =
     REQUEST_TUTOR_STATUS_CLASSES[normalizedStatus] ??
     REQUEST_TUTOR_STATUS_CLASSES.Pending;
@@ -95,106 +103,29 @@ function RequestTutorStatusBadge({ status }: { status: string }) {
   );
 }
 
-function MatchReportAction({
-  requestId,
-  onSuccess,
-  lastSummary,
-}: {
-  requestId: string;
-  onSuccess: (requestId: string, summary: MatchReportSummary) => void;
-  lastSummary?: MatchReportSummary;
-}) {
-  const [generateTutorMatchReport, { isLoading }] =
-    useGenerateTutorMatchReportMutation();
-
-  const handleGenerate = async () => {
-    try {
-      const response = await generateTutorMatchReport({
-        requestId,
-      }).unwrap();
-      const summary = normalizeTutorMatchReportSummary(response);
-      onSuccess(requestId, summary);
-      const summaryText = formatTutorMatchReportSummaryText(summary);
-      toast.success(
-        summaryText
-          ? `Tutor match report sent successfully: ${summaryText}`
-          : "Tutor match report sent successfully",
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to generate tutor match report");
-    }
-  };
-
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={handleGenerate}
-        disabled={isLoading}
-        className="h-8 gap-2 px-3 text-xs"
-      >
-        {isLoading ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          <Mail className="h-3.5 w-3.5" />
-        )}
-        {isLoading ? "Generating" : "Report"}
-      </Button>
-
-      {lastSummary && (
-        <div className="max-w-[170px] text-center text-[11px] leading-4 text-emerald-700 dark:text-emerald-300">
-          <div className="flex items-center justify-center gap-1 font-medium">
-            <CheckCircle2 className="h-3 w-3" />
-            Sent
-          </div>
-          {lastSummary.adminEmail && (
-            <div className="truncate" title={lastSummary.adminEmail}>
-              {lastSummary.adminEmail}
-            </div>
-          )}
-          {lastSummary.blocks.length > 0 && (
-            <div
-              className="truncate"
-              title={formatTutorMatchReportSummaryText(lastSummary)}
-            >
-              {lastSummary.blocks
-                .map((block) => `${block.label}: ${block.matchedCount}`)
-                .join(", ")}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function RequestForTutorsList() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState<RequestTutorFilters>(INITIAL_FILTERS);
-  const [reportSummaries, setReportSummaries] = useState<
-    Record<string, MatchReportSummary>
-  >({});
   const limit = TABLE_CONFIG.DEFAULT_LIMIT;
 
   const debouncedSearchTerm = useDebounce(searchTerm, 400);
   const debouncedAssignedTutor = useDebounce(filters.assignedTutor, 400);
   const debouncedDuration = useDebounce(filters.duration, 400);
   const debouncedFrequency = useDebounce(filters.frequency, 400);
+  const hasStatusFilter = filters.status !== "all";
+  const requestPage = hasStatusFilter ? TABLE_CONFIG.DEFAULT_PAGE : page;
+  const requestLimit = hasStatusFilter ? 10000 : limit;
 
   const { data, isLoading, refetch } = useFetchRequestForTutorsQuery(
     useMemo<FetchRequestForTutor>(
       () => ({
-        page,
-        limit,
-        sortBy: "createdAt:desc",
+        page: requestPage,
+        limit: requestLimit,
+        sortBy: "updatedAt:desc",
         ...(debouncedSearchTerm.trim()
           ? { search: debouncedSearchTerm.trim() }
           : {}),
-        ...(filters.status !== "all" ? { status: filters.status } : {}),
         ...(filters.grade !== "all" ? { grade: filters.grade } : {}),
         ...(filters.medium !== "all" ? { medium: filters.medium } : {}),
         ...(filters.subject !== "all" ? { subject: filters.subject } : {}),
@@ -223,10 +154,9 @@ export default function RequestForTutorsList() {
         filters.medium,
         filters.preferredClassType,
         filters.preferredTutorType,
-        filters.status,
         filters.subject,
-        limit,
-        page,
+        requestLimit,
+        requestPage,
       ],
     ),
   );
@@ -244,9 +174,10 @@ export default function RequestForTutorsList() {
       sortBy: "title:asc",
     });
 
-  const tutors: RequestTutors[] = data?.results || [];
-  const totalPages = data?.totalPages || 1;
-  const totalResults = data?.totalResults || tutors.length;
+  const rawTutors: RequestTutors[] = useMemo(
+    () => data?.results || [],
+    [data?.results],
+  );
 
   const gradeOptions = useMemo(
     () =>
@@ -310,16 +241,6 @@ export default function RequestForTutorsList() {
     setPage(TABLE_CONFIG.DEFAULT_PAGE);
   };
 
-  const handleReportSuccess = (
-    requestId: string,
-    summary: MatchReportSummary,
-  ) => {
-    setReportSummaries((current) => ({
-      ...current,
-      [requestId]: summary,
-    }));
-  };
-
   const getSafeValue = (value: unknown, fallback = "N/A") => {
     if (value === undefined || value === null) {
       return fallback;
@@ -332,21 +253,70 @@ export default function RequestForTutorsList() {
   const getSafeTutorBlocks = (value: RequestTutors["tutors"]) =>
     Array.isArray(value) ? value : [];
 
-  const getGradeDisplayValue = (grade: unknown) => {
-    if (grade && typeof grade === "object") {
-      const gradeRecord = grade as {
-        id?: string;
-        title?: string;
-        name?: string;
-      };
-      return getSafeValue(
-        gradeRecord.title || gradeRecord.name || gradeRecord.id,
-        "",
-      );
+  const hasAssignedTutor = (assigned: unknown) => {
+    if (!assigned) return false;
+    if (typeof assigned === "string") return assigned.trim() !== "";
+    if (Array.isArray(assigned)) {
+      return assigned.some((item) => {
+        if (typeof item === "string") return item.trim() !== "";
+        if (!item || typeof item !== "object") return false;
+
+        return typeof (item as { id?: unknown }).id === "string";
+      });
+    }
+    if (typeof assigned === "object") {
+      return typeof (assigned as { id?: unknown }).id === "string";
     }
 
-    return getSafeValue(grade, "");
+    return false;
   };
+
+  const isRequestFullyAssigned = useCallback((row: RequestTutors) => {
+    const tutorBlocks = getSafeTutorBlocks(row.tutors);
+    if (!tutorBlocks || tutorBlocks.length === 0) return false;
+    const assignedCount = tutorBlocks.filter((t) =>
+      hasAssignedTutor(t.assignedTutor),
+    ).length;
+    return assignedCount === tutorBlocks.length;
+  }, []);
+
+  const getEffectiveStatus = useCallback(
+    (row: RequestTutors): "Pending" | "Rejected" | "Tutor Assigned" => {
+      if (row.status === "Rejected") return "Rejected";
+      if (
+        row.status === "Tutor Assigned" ||
+        row.status === "Assiged" ||
+        row.status === "Assigned" ||
+        isRequestFullyAssigned(row)
+      ) {
+        return "Tutor Assigned";
+      }
+
+      return "Pending";
+    },
+    [isRequestFullyAssigned],
+  );
+
+  const statusFilteredTutors = useMemo(
+    () =>
+      sortByLatestTimestampDesc(
+        filters.status === "all"
+          ? rawTutors
+          : rawTutors.filter(
+              (row) => getEffectiveStatus(row) === filters.status,
+            ),
+      ),
+    [filters.status, getEffectiveStatus, rawTutors],
+  );
+  const tutors = hasStatusFilter
+    ? statusFilteredTutors.slice((page - 1) * limit, page * limit)
+    : statusFilteredTutors;
+  const totalResults = hasStatusFilter
+    ? statusFilteredTutors.length
+    : data?.totalResults || tutors.length;
+  const totalPages = hasStatusFilter
+    ? Math.max(1, Math.ceil(totalResults / limit))
+    : data?.totalPages || 1;
 
   const getGradeId = (grade: unknown): string => {
     if (grade && typeof grade === "object") {
@@ -449,20 +419,32 @@ export default function RequestForTutorsList() {
         align: "center",
         className:
           "min-w-[190px] max-w-[190px] sticky right-[250px] z-20 bg-white dark:bg-gray-900",
-        render: (row: RequestTutors) => (
-          <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center justify-center gap-2">
-              <RequestTutorStatusBadge status={row.status} />
-              <ChangeStatusDialog
-                requestId={row.id}
-                currentStatus={
-                  row.status === "Rejected" ? "Rejected" : "Pending"
-                }
-                onStatusChange={() => refetch()}
-              />
+        render: (row: RequestTutors) => {
+          const effectiveStatus = getEffectiveStatus(row);
+          return (
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex items-center justify-center gap-2">
+                <RequestTutorStatusBadge status={effectiveStatus} />
+                {effectiveStatus === "Tutor Assigned" ? (
+                  <button
+                    type="button"
+                    disabled
+                    aria-label="Assigned status cannot be changed manually"
+                    className="inline-flex h-8 w-8 cursor-not-allowed items-center justify-center text-gray-300 dark:text-gray-600"
+                  >
+                    <Edit className="h-5 w-5" />
+                  </button>
+                ) : (
+                  <ChangeStatusDialog
+                    requestId={row.id}
+                    currentStatus={effectiveStatus}
+                    onStatusChange={() => refetch()}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-        ),
+          );
+        },
       },
       {
         key: "assignTutor",
@@ -474,6 +456,7 @@ export default function RequestForTutorsList() {
           <AssignTutorDialog
             row={{
               id: row.id,
+              status: getEffectiveStatus(row) === "Rejected" ? "Rejected" : row.status,
               grade: getGradeId(row.grade),
               district: getSafeValue(row.city, ""),
               medium: getSafeValue(row.medium, ""),
@@ -501,7 +484,7 @@ export default function RequestForTutorsList() {
         render: (row: RequestTutors) => <DeleteTutorRequest tutorId={row.id} />,
       },
     ],
-    [refetch],
+    [getEffectiveStatus, refetch],
   );
 
   return (
@@ -513,8 +496,8 @@ export default function RequestForTutorsList() {
               Request filters
             </h2>
             <p className="text-sm text-gray-500 dark:text-white/60">
-              Search tutor requests and narrow them by status, grade, medium,
-              tutor type, and class type.
+              Search by name, email, or contact number, then narrow results by
+              status, grade, medium, subject, tutor type, and class type.
             </p>
           </div>
 
@@ -540,7 +523,7 @@ export default function RequestForTutorsList() {
                 type="text"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search by name, email, city, district, contact number, subject, or assigned tutor"
+                placeholder="Search by name, email, or contact number"
                 className="h-11 w-full pl-10 pr-4"
               />
             </div>

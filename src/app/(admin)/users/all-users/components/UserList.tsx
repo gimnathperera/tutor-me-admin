@@ -13,14 +13,27 @@ import {
 } from "@/components/ui/select";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useFetchUsersQuery } from "@/store/api/splits/users";
-import { Search, SquarePen, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useFetchUsersQuery,
+  useUpdateUserMutation,
+} from "@/store/api/splits/users";
+import { getErrorInApiResult } from "@/utils/api";
+import {
+  CheckCircle,
+  Loader2,
+  Search,
+  ShieldOff,
+  SquarePen,
+  Trash2,
+  X,
+  XCircle,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { DeleteUser } from "./DeleteUser";
 import { UpdateUser } from "./edit-user/UpdateUser";
 import { ResetPassword } from "./ResetPassword";
 import { UserDetails } from "./ViewDetails";
-
 interface User {
   id: string;
   tutorId?: string;
@@ -47,6 +60,167 @@ interface User {
 }
 
 type UserRoleFilter = "all" | "admin" | "tutor";
+type UserStatus = "pending" | "approved" | "rejected" | "suspended";
+
+const USER_STATUS_BADGE_CLASSES: Record<UserStatus, string> = {
+  pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  approved: "bg-green-100 text-green-700 border-green-200",
+  rejected: "bg-red-100 text-red-700 border-red-200",
+  suspended: "bg-gray-200 text-gray-600 border-gray-300",
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const normalizedStatus = (status?.toLowerCase() as UserStatus) || "pending";
+  const cls =
+    USER_STATUS_BADGE_CLASSES[normalizedStatus] ??
+    USER_STATUS_BADGE_CLASSES.pending;
+
+  return (
+    <span
+      className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${cls}`}
+    >
+      {normalizedStatus}
+    </span>
+  );
+}
+
+function UserStatusActions({ user }: { user: User }) {
+  const [updateUser, { isLoading }] = useUpdateUserMutation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  const status = (user.status || "pending").toLowerCase() as UserStatus;
+  const isTutor = user.role === "tutor";
+
+  const openDropdown = () => {
+    if (isTutor || isLoading) return;
+
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 4, left: rect.left });
+    }
+
+    setDropdownOpen((current) => !current);
+  };
+
+  const updateStatus = async (nextStatus: UserStatus) => {
+    setDropdownOpen(false);
+
+    const result = await updateUser({
+      id: user.id,
+      status: nextStatus,
+    } as never);
+
+    const error = getErrorInApiResult(result);
+    if (error) {
+      toast.error(`Failed to update status: ${error}`);
+      return;
+    }
+
+    toast.success(
+      `${user.name || user.email || "User"} status changed to ${nextStatus}.`,
+    );
+  };
+
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <StatusBadge status={status} />
+
+        <button
+          ref={btnRef}
+          type="button"
+          title={
+            isTutor
+              ? "Tutor accounts must be managed from the Tutors table"
+              : "Change status"
+          }
+          disabled={isTutor || isLoading}
+          onClick={openDropdown}
+          className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-600 shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+        >
+          {isLoading ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            <svg
+              className="h-3 w-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          )}
+          Change
+        </button>
+      </div>
+
+      {dropdownOpen && !isTutor && (
+        <>
+          <div
+            className="fixed inset-0 z-[9998]"
+            onClick={() => setDropdownOpen(false)}
+          />
+
+          <div
+            style={{ top: menuPos.top, left: menuPos.left }}
+            className="fixed z-[9999] w-44 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+          >
+            {status !== "approved" && (
+              <button
+                type="button"
+                onClick={() => updateStatus("approved")}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-green-700 transition hover:bg-green-50 dark:hover:bg-green-950/40"
+              >
+                <CheckCircle className="h-4 w-4 shrink-0" />
+                Approved
+              </button>
+            )}
+
+            {status !== "pending" && (
+              <button
+                type="button"
+                onClick={() => updateStatus("pending")}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-yellow-700 transition hover:bg-yellow-50 dark:hover:bg-yellow-950/40"
+              >
+                <ShieldOff className="h-4 w-4 shrink-0" />
+                Pending
+              </button>
+            )}
+
+            {status !== "rejected" && (
+              <button
+                type="button"
+                onClick={() => updateStatus("rejected")}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/40"
+              >
+                <XCircle className="h-4 w-4 shrink-0" />
+                Rejected
+              </button>
+            )}
+
+            {status !== "suspended" && (
+              <button
+                type="button"
+                onClick={() => updateStatus("suspended")}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-600 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+              >
+                <ShieldOff className="h-4 w-4 shrink-0" />
+                Suspended
+              </button>
+            )}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
 
 export default function UsersTable() {
   const [page, setPage] = useState<number>(TABLE_CONFIG.DEFAULT_PAGE);
@@ -63,7 +237,7 @@ export default function UsersTable() {
     () => ({
       page,
       limit,
-      sortBy: "createdAt:desc",
+      sortBy: "updatedAt:desc",
       ...(debouncedSearchTerm.trim()
         ? { search: debouncedSearchTerm.trim() }
         : {}),
@@ -136,6 +310,12 @@ export default function UsersTable() {
           </span>
         );
       },
+    },
+    {
+      key: "status",
+      header: "Status / Actions",
+      className: "min-w-[260px] overflow-visible",
+      render: (row: User) => <UserStatusActions user={row} />,
     },
     {
       key: "createdAt",
@@ -258,17 +438,32 @@ export default function UsersTable() {
       header: <div className="text-center w-full">Delete</div>,
       className:
         "min-w-[80px] max-w-[80px] flex justify-center sticky right-0 z-20 bg-white dark:bg-gray-900",
-      render: (row: User) => (
-        <div className="flex justify-center  w-full ">
-          <DeleteUser
-            userId={row.id}
-            tutorId={row.tutorId ?? row.tutor?.id ?? row.tutor?._id}
-            userEmail={row.email}
-            userRole={row.role}
-            userStatus={row.status}
-          />
-        </div>
-      ),
+      render: (row: User) => {
+        const isTutor = row.role === "tutor";
+
+        return (
+          <div className="flex justify-center w-full">
+            {isTutor ? (
+              <button
+                type="button"
+                disabled
+                title="Tutor accounts cannot be deleted from the Users table"
+                className="inline-flex items-center justify-center border-0 bg-transparent p-0 cursor-not-allowed opacity-40"
+              >
+                <Trash2 className="text-gray-400" />
+              </button>
+            ) : (
+              <DeleteUser
+                userId={row.id}
+                tutorId={row.tutorId ?? row.tutor?.id ?? row.tutor?._id}
+                userEmail={row.email}
+                userRole={row.role}
+                userStatus={row.status}
+              />
+            )}
+          </div>
+        );
+      },
     },
   ];
 

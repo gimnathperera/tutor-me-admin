@@ -32,7 +32,7 @@ export default function LevelsTable() {
   const { data, isLoading } = useFetchLevelsQuery({
     page,
     limit,
-    sortBy: "createdAt:desc",
+    sortBy: "updatedAt:desc",
   });
 
   const levels = data?.results || [];

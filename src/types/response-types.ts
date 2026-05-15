@@ -363,7 +363,8 @@ export type RequestTutors = BaseEntity & {
   district: string;
   phoneNumber: string;
   medium: string;
-  status: "Pending" | "Rejected";
+  // "Assiged" and "Assigned" are kept only for older API records.
+  status: "Pending" | "Rejected" | "Tutor Assigned" | "Assiged" | "Assigned";
   grade: string;
   tutors: RequestTutorTutor[];
   createdAt: string;

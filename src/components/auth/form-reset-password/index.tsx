@@ -23,6 +23,7 @@ type Props = {
 export default function ResetPasswordForm({ token }: Props) {
   const router = useRouter();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
 
   const form = useForm<ResetPasswordSchema>({
@@ -31,11 +32,17 @@ export default function ResetPasswordForm({ token }: Props) {
     mode: "onChange",
   });
 
+  const removeSpaces = (value: string) => value.replace(/\s/g, "");
+
   const onSubmit = async (values: ResetPasswordSchema) => {
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
     if (!token) {
-      toast.error(
-        "Reset token is missing. Please use the link from your email.",
-      );
+      const message =
+        "Reset token is missing. Please use the link from your email.";
+      setErrorMessage(message);
+      toast.error(message);
       return;
     }
 
@@ -45,14 +52,19 @@ export default function ResetPasswordForm({ token }: Props) {
     });
 
     const error = getErrorInApiResult(result);
+
     if (error) {
+      setErrorMessage(error);
       toast.error(error);
       return;
     }
 
     setSuccessMessage("Password updated successfully. You can now sign in.");
     form.reset(initialFormValues);
-    setTimeout(() => router.push("/signin"), 1800);
+
+    setTimeout(() => {
+      router.push("/signin");
+    }, 1800);
   };
 
   return (
@@ -62,6 +74,7 @@ export default function ResetPasswordForm({ token }: Props) {
           <h1 className="mb-2 text-title-sm font-semibold text-gray-800 dark:text-white/90 sm:text-title-md">
             Reset Password
           </h1>
+
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Create a new password for your admin account.
           </p>
@@ -74,6 +87,7 @@ export default function ResetPasswordForm({ token }: Props) {
                 The reset link is missing its token. Please open the link from
                 your email again.
               </div>
+
               <Link
                 href="/signin"
                 className="inline-flex rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600"
@@ -96,12 +110,42 @@ export default function ResetPasswordForm({ token }: Props) {
                   label="New Password"
                   name="password"
                   placeholder="Enter new password"
+                  onKeyDown={(e) => {
+                    if (e.key === " ") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    form.setValue(
+                      "password",
+                      e.target.value.replace(/\s/g, ""),
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      },
+                    );
+                  }}
                 />
 
                 <InputPassword
                   label="Confirm Password"
                   name="confirmPassword"
                   placeholder="Confirm new password"
+                  onKeyDown={(e) => {
+                    if (e.key === " ") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) => {
+                    form.setValue(
+                      "confirmPassword",
+                      e.target.value.replace(/\s/g, ""),
+                      {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      },
+                    );
+                  }}
                 />
 
                 {successMessage && (
@@ -116,6 +160,7 @@ export default function ResetPasswordForm({ token }: Props) {
                     type="submit"
                     loading={isLoading}
                   />
+
                   <Link
                     href="/signin"
                     className="block text-center text-sm text-blue-700 hover:underline dark:text-blue-400"

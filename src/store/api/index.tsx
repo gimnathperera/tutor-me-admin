@@ -58,7 +58,13 @@ const baseQueryWithAuth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await staggeredBaseQuery(args, api, extraOptions);
 
-  if (result.error?.status === 401 && args?.url !== Endpoints.Login) {
+  const requestUrl = typeof args?.url === "string" ? args.url : "";
+  const shouldSkipAuthRecovery =
+    requestUrl === Endpoints.Login ||
+    requestUrl === Endpoints.ResetPassword ||
+    requestUrl.startsWith(`${Endpoints.ResetPassword}?`);
+
+  if (result.error?.status === 401 && !shouldSkipAuthRecovery) {
     console.log("Access token expired. Attempting to refresh token...");
 
     const isTokenRefreshed = await handleRefreshTokenProcess();
