@@ -16,13 +16,14 @@ import { useFetchGradeByIdQuery } from "@/store/api/splits/grades";
 import {
   useFetchRequestForTutorsByIdQuery,
   useGenerateTutorMatchReportMutation,
+  useSendTelegramOutreachMutation,
 } from "@/store/api/splits/request-tutor";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import {
   useFetchTutorByIdQuery,
   useFetchTutorsQuery,
 } from "@/store/api/splits/tutors";
-import { CheckCircle2, Eye, Loader2, Mail } from "lucide-react";
+import { CheckCircle2, Eye, Loader2, Mail, Send } from "lucide-react";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import {
@@ -186,8 +187,11 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
   const [reportSummary, setReportSummary] = useState<MatchReportSummary | null>(
     null,
   );
+  const [telegramOutreachSent, setTelegramOutreachSent] = useState(false);
   const [generateTutorMatchReport, { isLoading: isGeneratingReport }] =
     useGenerateTutorMatchReportMutation();
+  const [sendTelegramOutreach, { isLoading: isSendingTelegramOutreach }] =
+    useSendTelegramOutreachMutation();
 
   const { data: tutor, isLoading } = useFetchRequestForTutorsByIdQuery(
     tutorId,
@@ -257,6 +261,10 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
     [subjectsData?.results],
   );
   const effectiveStatus = useMemo(() => getEffectiveStatus(tutor), [tutor]);
+  const isTelegramOutreachSent =
+    Boolean(tutor?.telegramOutreachSentAt) || telegramOutreachSent;
+  const canSendTelegramOutreach =
+    effectiveStatus === "Pending" && !isTelegramOutreachSent && !isLoading;
 
   const displayFieldClass =
     "w-full rounded-md border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-700 dark:text-white/90 min-h-[2rem] overflow-auto scrollbar-thin";
@@ -351,6 +359,19 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
     }
   };
 
+  const handleSendTelegramOutreach = async () => {
+    try {
+      await sendTelegramOutreach({
+        requestId: tutorId,
+      }).unwrap();
+      setTelegramOutreachSent(true);
+      toast.success("Tutor request sent to Telegram");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to send tutor request to Telegram");
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -430,6 +451,17 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
                 </span>
               </div>
             </div>
+
+            {(tutor?.telegramOutreachSentAt || telegramOutreachSent) && (
+              <div className="grid gap-3">
+                <Label>Telegram Outreach</Label>
+                <div className={displayFieldClass}>
+                  {tutor?.telegramOutreachSentAt
+                    ? `Sent at ${new Date(tutor.telegramOutreachSentAt).toLocaleString()}`
+                    : "Sent to Telegram"}
+                </div>
+              </div>
+            )}
 
             <div className="grid gap-3">
               <Label>Tutors</Label>
@@ -558,7 +590,33 @@ export function ViewTutorRequests({ tutorId }: ViewTutorProps) {
             </div>
           )}
         </div>
-        <DialogFooter className="shrink-0 bg-white dark:bg-gray-800 px-6 py-4 border-t">
+        <DialogFooter className="shrink-0 flex-wrap bg-white dark:bg-gray-800 px-6 py-4 border-t">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSendTelegramOutreach}
+            disabled={!canSendTelegramOutreach || isSendingTelegramOutreach}
+            title={
+              isTelegramOutreachSent
+                ? "This request has already been sent to Telegram"
+                : effectiveStatus === "Pending"
+                  ? "Send this request to the verified tutors Telegram group"
+                  : "Only pending requests can be sent to Telegram"
+            }
+            className="gap-2"
+          >
+            {isSendingTelegramOutreach ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {isSendingTelegramOutreach
+              ? "Sending..."
+              : isTelegramOutreachSent
+                ? "Sent to Telegram"
+                : "Send to Telegram"}
+          </Button>
+
           <Button
             type="button"
             variant="outline"

@@ -369,6 +369,11 @@ export type RequestTutors = BaseEntity & {
   tutors: RequestTutorTutor[];
   createdAt: string;
   updatedAt: string;
+  telegramOutreachSentAt?: string | null;
+  telegramOutreachSentBy?:
+    | string
+    | { id?: string; name?: string; email?: string }
+    | null;
 };
 
 export type FindMyTutorResponse = {

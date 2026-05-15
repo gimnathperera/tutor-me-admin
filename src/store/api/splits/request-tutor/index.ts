@@ -68,6 +68,14 @@ export const RequestTutorApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["RequestTutor"],
     }),
+
+    sendTelegramOutreach: build.mutation<unknown, { requestId: string }>({
+      query: ({ requestId }) => ({
+        url: `${Endpoints.RequestTutor}/${requestId}/send-telegram-outreach`,
+        method: "POST",
+      }),
+      invalidatesTags: ["RequestTutor"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -81,4 +89,5 @@ export const {
   useUpdateStatusMutation,
   useUpdateAssignedTutorMutation,
   useGenerateTutorMatchReportMutation,
+  useSendTelegramOutreachMutation,
 } = RequestTutorApi;
