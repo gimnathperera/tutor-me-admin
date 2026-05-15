@@ -2,7 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import DataTable from "@/components/tables/DataTable";
+import DataTable, { type Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchTestimonialsQuery } from "@/store/api/splits/testimonials";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
@@ -79,7 +79,7 @@ export default function TestimonialsTable() {
     setPage(newPage);
   };
 
-  const columns = [
+  const columns: Column<Testimonial>[] = [
     {
       key: "owner",
       header: "Owner",

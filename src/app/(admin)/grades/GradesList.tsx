@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable from "@/components/tables/DataTable";
+import DataTable, { type Column } from "@/components/tables/DataTable";
 import { TABLE_CONFIG } from "@/configs/table";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
 import { fadeUp, staggerContainer } from "@/types/animation-types";
@@ -80,7 +80,7 @@ export default function GradesTable() {
     setPage(newPage);
   };
 
-  const columns = [
+  const columns: Column<Grade>[] = [
     {
       key: "title",
       header: "Title",

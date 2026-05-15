@@ -33,7 +33,6 @@ export interface TutorRequestBlock {
     | { id?: string; fullName?: string }
     | Array<{ id?: string; fullName?: string }>;
   preferredTutorType?: string;
-  preferredClassType?: string;
   duration: string;
   frequency: string;
 }
@@ -136,8 +135,9 @@ function TutorBlockItem({
           (tutorBlock.preferredTutorType ?? "").toLowerCase(),
       );
 
-    const isOnlineRequest =
-      tutorBlock.preferredClassType?.toLowerCase().includes("online") ?? false;
+    const isOnlineRequest = getClassTypeDisplayValue(
+      tutorBlock.preferredClassType,
+    ).some((classType) => classType.toLowerCase().includes("online"));
 
     const locationPass =
       isOnlineRequest ||

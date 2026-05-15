@@ -484,7 +484,6 @@ export default function RequestForTutorsList() {
                 classType: t.classType,
                 preferredClassType: t.preferredClassType,
                 preferredTutorType: t.preferredTutorType,
-                preferredClassType: t.preferredClassType,
                 duration: t.duration,
                 frequency: t.frequency,
               })),
