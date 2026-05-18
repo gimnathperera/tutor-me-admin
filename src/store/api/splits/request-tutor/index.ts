@@ -68,6 +68,18 @@ export const RequestTutorApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["RequestTutor"],
     }),
+
+    unassignTutor: build.mutation<
+      void,
+      { requestId: string; tutorBlockIds: string[]; unassignReason?: string }
+    >({
+      query: ({ requestId, ...body }) => ({
+        url: `${Endpoints.RequestTutor}/unassign/${requestId}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: [{ type: "RequestTutor", id: "LIST" }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -81,4 +93,5 @@ export const {
   useUpdateStatusMutation,
   useUpdateAssignedTutorMutation,
   useGenerateTutorMatchReportMutation,
+  useUnassignTutorMutation,
 } = RequestTutorApi;
