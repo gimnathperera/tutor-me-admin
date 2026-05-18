@@ -24,12 +24,14 @@ import toast from "react-hot-toast";
 interface ChangeStatusDialogProps {
   requestId: string;
   currentStatus: "Pending" | "Rejected";
+  currentRejectionReason?: string;
   onStatusChange?: () => void;
 }
 
 export function ChangeStatusDialog({
   requestId,
   currentStatus,
+  currentRejectionReason = "",
   onStatusChange,
 }: ChangeStatusDialogProps) {
   const [open, setOpen] = useState(false);
@@ -60,10 +62,12 @@ export function ChangeStatusDialog({
   useEffect(() => {
     if (open) {
       setStatus(currentStatus);
-      setRejectionReason("");
+      setRejectionReason(
+        currentStatus === "Rejected" ? currentRejectionReason : "",
+      );
       setValidationError("");
     }
-  }, [currentStatus, open]);
+  }, [currentRejectionReason, currentStatus, open]);
 
   const handleSave = async () => {
     const nextRejectionReason =

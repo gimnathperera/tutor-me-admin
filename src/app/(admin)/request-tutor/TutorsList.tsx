@@ -455,6 +455,7 @@ export default function RequestForTutorsList() {
                     currentStatus={
                       effectiveStatus === "Rejected" ? "Rejected" : "Pending"
                     }
+                    currentRejectionReason={row.rejectionReason}
                     onStatusChange={() => refetch()}
                   />
                 )}
