@@ -18,9 +18,7 @@ import {
 import { TABLE_CONFIG } from "@/configs/table";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useFetchGradesQuery } from "@/store/api/splits/grades";
-import {
-  useFetchRequestForTutorsQuery,
-} from "@/store/api/splits/request-tutor";
+import { useFetchRequestForTutorsQuery } from "@/store/api/splits/request-tutor";
 import { useFetchSubjectsQuery } from "@/store/api/splits/subjects";
 import { FetchRequestForTutor } from "@/types/request-types";
 import { RequestTutors } from "@/types/response-types";
@@ -473,7 +471,10 @@ export default function RequestForTutorsList() {
           <AssignTutorDialog
             row={{
               id: row.id,
-              status: getEffectiveStatus(row) === "Rejected" ? "Rejected" : row.status,
+              status:
+                getEffectiveStatus(row) === "Rejected"
+                  ? "Rejected"
+                  : row.status,
               grade: getGradeId(row.grade),
               district: getSafeValue(row.city, ""),
               medium: getSafeValue(row.medium, ""),
