@@ -452,7 +452,9 @@ export default function RequestForTutorsList() {
                 ) : (
                   <ChangeStatusDialog
                     requestId={row.id}
-                    currentStatus={effectiveStatus}
+                    currentStatus={
+                      effectiveStatus === "Rejected" ? "Rejected" : "Pending"
+                    }
                     onStatusChange={() => refetch()}
                   />
                 )}
